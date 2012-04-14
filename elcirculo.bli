@@ -8,5 +8,8 @@ Message "Including bres resource declarations generated on 1-1-1";
 Constant Nave1_jpg 3;	!Blorb Pict:res/img/nave1.jpg
 Constant Logo_Alpha_Aventuras_jpg 4;	!Blorb Pict:res/img/logo_alpha_aventuras.jpg
 Constant Logo_Alpha_Aventuras_Corto_jpg 5;	!Blorb Pict:res/img/logo_alpha_aventuras_corto.jpg
-Constant Oscuridad_jpg 6;	!Blorb Pict:res/img/oscuridad.jpg
-Constant Nave_ogg 3;	!Blorb Snd:res/snd/nave.ogg
+Constant Prologo_png 6;	!Blorb Pict:res/img/prologo.png
+Constant Oscuridad_jpg 7;	!Blorb Pict:res/img/oscuridad.jpg
+Constant Fundido_png 8;	!Blorb Pict:res/img/fundido.png
+Constant Darkwalk_ogg 3;	!Blorb Snd:res/snd/darkwalk.ogg
+Constant TV_Fondo_ogg 4;	!Blorb Snd:res/snd/tv_fondo.ogg

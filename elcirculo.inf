@@ -661,6 +661,7 @@ Include "Contenedor";
 !  viewImageCenter(Nave1_jpg);
 !  ControlTimer.ActivarTick(TIMER_TICK);
   ! Aquí iría la introducción en la que Katie y Becca hablan
+  ConversacionKatieBecca();
 ];
 
 
@@ -1158,6 +1159,21 @@ Object tt_inicio
 !-------------------------------------------------------------------------------
 
 
+[ HablaKatie msg;
+  HablaPSI("KATIE", msg);
+];
+
+
+[ HablaBecca msg;
+  HablaPSI("BECCA", msg);
+];
+
+
+[ HablaPSI psi msg;
+  print_ret (s_bold) psi, ": ", (string) msg;
+];
+
+
 [ MostrarImagenGradualmente imagen veces retardo
   i;
   for (i = 0 : i < veces : i++) {
@@ -1165,6 +1181,7 @@ Object tt_inicio
     KeyDelay(retardo);
   }  
 ];
+
 
 [ ImprimirPrompt;
   print (s_input) "^> ";
@@ -1285,6 +1302,16 @@ Object tt_inicio
   }
 .Exit;
   rfalse;
+];
+
+
+[ ConversacionKatieBecca;
+  HablaBecca("¿Sabes lo de la cinta?");
+  KeyDelay(300);
+  HablaKatie("¿Qué cinta?");
+  KeyDelay(300);
+  HablaBecca("Esa que te mata cuando la ves.");
+  KeyDelay();
 ];
 
 

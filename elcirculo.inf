@@ -60,8 +60,8 @@ Constant GRAFICOS_PEQUENOS   = 250;
 Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
-Constant CANAL_FONDO = 9;
-Constant VOLUMEN_FONDO = 50;
+Constant CANAL_FONDO = 9; Constant VOLUMEN_FONDO = 50;
+Constant CANAL_TELEFONO = 0; Constant VOLUMEN_TELEFONO = 100; 
 
 ! Vamos a usar Damusix junto con SGW+DMX
 Constant SGW_CON_DAMUSIX;
@@ -662,6 +662,10 @@ Include "Contenedor";
 !  ControlTimer.ActivarTick(TIMER_TICK);
   ! Aquí iría la introducción en la que Katie y Becca hablan
   ConversacionKatieBecca();
+  Damusix.PararCanal(CANAL_FONDO);
+  Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, -1,
+                       SONIDO_BUCLE_INFINITO);
+  Damusix.TocarCanal(CANAL_TELEFONO);
 ];
 
 
@@ -771,8 +775,8 @@ Object nave1 "Interior de la nave"
                  disponen los dos únicos asientos del vehículo. Sus angostas paredes
                  aumentan la sensación de claustrofobia y los enormes ventanales ofrecen
                  una vista desoladora del exterior.",
-    sgw_img Nave1_jpg,
-    sgw_mus TV_Fondo_ogg
+    sgw_img Nave1_jpg
+!    sgw_mus TV_Fondo_ogg
 ;
 
     
@@ -838,7 +842,7 @@ Object nave1 "Interior de la nave"
         style fixed;
         if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
           (_m.&ZIPI_item-->i).ZIPI_titulo();
-        else print (string)(_m.&ZIPI_item-->i).ZIPI_titulo;
+        else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
         style roman;
       }
     }
@@ -1305,11 +1309,13 @@ Object tt_inicio
 ];
 
 
-[ ConversacionKatieBecca;
+[ ConversacionKatieBecca
+  esp;
+  esp = 300;
   HablaBecca("¿Sabes lo de la cinta?");
-  KeyDelay(300);
+  KeyDelay(esp);
   HablaKatie("¿Qué cinta?");
-  KeyDelay(300);
+  KeyDelay(esp);
   HablaBecca("Esa que te mata cuando la ves.");
   KeyDelay();
 ];

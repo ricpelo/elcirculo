@@ -1,0 +1,1344 @@
+!% -~S
+!% -G
+!% +language_name=Spanish
+!% $MAX_STATIC_DATA=20000
+!% $MAX_PROP_TABLE_SIZE=63840
+!% $MAX_VERBS=200
+!% $MAX_ZCODE_SIZE=45000
+!% $MAX_VERBSPACE=4500
+
+!
+! EL CÍRCULO
+!
+! Copyright (c) 2012 Ricardo Pérez López (Alpha Aventuras)
+!
+
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+!===============================================================================
+! (1) Constantes; Variables Globales; Replaces; Propertys; Incluir Parser.h
+!-------------------------------------------------------------------------------
+
+
+! ====================================================================
+! CONSTANTES
+! ====================================================================
+
+
+Constant Story "~El círculo~";
+Constant Headline "^(c) 2012 Alpha Aventuras^^
+                  Teclea CRÉDITOS si quieres saber más acerca de la aventura, o
+                  AYUDA cuando estés bloqueado.^";
+Release 1;
+
+! Queremos usar el comando 'Salidas'
+Constant ADMITIR_COMANDO_SALIDAS;
+! No queremos usar los comandos 'Lugares' y 'Objetos'
+Constant NO_PLACES;
+! No queremos usar puntuación
+Constant NO_SCORE;
+! Queremos que se muestren las deducciones del parser
+!Constant IMPRIMIR_DEDUCCIONES;
+! Hay curiosidades al final del juego
+Constant AMUSING_PROVIDED;
+
+! Alturas de los gráficos:
+Constant GRAFICOS_MINUSCULOS = 200;
+Constant GRAFICOS_PEQUENOS   = 250;
+Constant GRAFICOS_MEDIANOS   = 350;
+Constant GRAFICOS_GRANDES    = 500;
+
+Constant VOLUMEN_FONDO = 50;
+
+! Vamos a usar Damusix junto con SGW+DMX
+Constant SGW_CON_DAMUSIX;
+Constant SONIDO_BUCLE_INFINITO = -1;
+
+! El color de fondo de la ventana gráfica es negro:
+Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
+
+
+! ====================================================================
+! VARIABLES GLOBALES
+! ====================================================================
+
+
+! Alto de la ventana gráfica:
+Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
+
+! Hay gráficos o no:
+Global hayGraficos = true;
+
+! Hay sonidos:
+Global haySonido = true;
+Global haySonidoFondo = true;
+
+! Hay eventos en tiempo real:
+Global hayTiempoReal = true;
+
+! Hay efecto de teletipo:
+Global hayTeletipo = true;
+
+! Si se ha activado el listado automático de salidas:
+Global mostrarSalidas = true;
+
+! Se pone a true y false en la rutina PermitirEmpujarDir, y luego se consulta en
+! MensajesLibreria:
+Global estoyEmpujando = false;
+
+! Interruptor de pistas:
+Global hayPistas = 0;
+
+! Interruptor para indicar si hay que dibujar o no la línea de estado
+! (ver rutina Inicialise):
+Global dibujarEstado = false;
+
+! La imagen que representa la oscuridad:
+Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
+
+
+! ====================================================================
+! REPLACES
+! ====================================================================
+
+
+! Nuestra versión de esta rutina sólo redibuja la línea de estado cuando
+! la variable global dibujarEstado está a true:
+Replace DrawStatusLine;
+
+! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
+! REGISTRA...)
+Replace SearchSub;
+
+! En este juego no se usa el Consultar (CONSULTA, LEE, BUSCA EN x SOBRE y...)
+Replace ConsultSub;
+
+! En este juego no se habla, ni se responde, ni se dice:
+Replace TellSub;
+Replace AnswerSub;
+Replace DecirSub;
+
+! Con el siguiente Replace conseguimos que el objeto empujado hacia una
+! dirección aparezca en la descripción de la localidad de destino del "empuje":
+Replace AllowPushDir;
+
+! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
+! para el menú principal y las pistas:
+Replace ZIPI_RunMenu;
+Replace ZIPI_RunOtro;
+
+! Nuestra versión elimina también los signos de admiración e interrogación:
+Replace QuitarAcentos;
+
+Replace InitGlkWindow;
+Replace HandleGlkEvent;
+
+! Usamos el ParseNoun de IntNombre_NG:
+Replace ParseNoun;
+
+Replace EncenderGraficos;
+
+Replace KeyDelay;
+
+Include "Parser";
+
+
+!===============================================================================
+! (2) Puntos de Entrada para Glk [solo en Glulx]:
+!     - InitGlkWindow(), IdentifyGlkObject(), HandleGlkEvent()
+!-------------------------------------------------------------------------------
+
+
+[ IdentifyGlkObject fase tipo ref rock;
+  SGW_IdentifyGlk(fase,tipo,ref,rock);
+  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
+];
+
+
+[ InitGlkWindow winrock;
+  switch (winrock) {
+    GG_MAINWIN_ROCK:
+      glk_stylehint_set(wintype_TextBuffer, style_Normal,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextBuffer, style_Normal,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_Normal,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Normal,
+                        stylehint_Weight, 0);
+      glk_stylehint_set(wintype_TextBuffer, style_Normal,
+                        stylehint_Proportional, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Normal,
+                        stylehint_Justification, stylehint_just_LeftRight);
+
+      glk_stylehint_set(wintype_TextBuffer, style_Input,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextBuffer, style_Input,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_Input,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Input,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextBuffer, style_Input,
+                        stylehint_Weight, 1);
+
+      ! Esta será mi negrita:
+      glk_stylehint_set(wintype_TextBuffer, style_User1,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextBuffer, style_User1,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_User1,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_User1,
+                        stylehint_Proportional, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_User1,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextBuffer, style_User2,
+                        stylehint_TextColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_User2,
+                        stylehint_BackColor, $00ff00);
+      glk_stylehint_set(wintype_TextBuffer, style_User2,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_User2,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextBuffer, style_User2,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextBuffer, style_Alert,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextBuffer, style_Alert,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_Alert,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Alert,
+                        stylehint_Proportional, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Alert,
+                        stylehint_Oblique, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Alert,
+                        stylehint_Weight, 1);
+ 
+      glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
+                        stylehint_Proportional, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
+                        stylehint_Oblique, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
+                        stylehint_TextColor, $00aa00);
+      glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
+                        stylehint_Weight, 0);
+
+      glk_stylehint_set(wintype_TextBuffer, style_Header,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextBuffer, style_Header,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_Header,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_Header,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextBuffer, style_Subheader,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextBuffer, style_Subheader,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_SubHeader,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextBuffer, style_SubHeader,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextBuffer, style_Note,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextBuffer, style_Note,
+                        stylehint_BackColor, $000000);
+
+      glk_stylehint_set(wintype_TextBuffer, style_BlockQuote,
+                        stylehint_TextColor, $000000);
+      glk_stylehint_set(wintype_TextBuffer, style_BlockQuote,
+                        stylehint_BackColor, $ffffff);
+
+
+      glk_stylehint_set(wintype_TextGrid, style_Normal,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextGrid, style_Normal,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_Normal,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Normal,
+                        stylehint_Weight, 0);
+      glk_stylehint_set(wintype_TextGrid, style_Normal,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_Normal,
+                        stylehint_Justification, stylehint_just_LeftRight);
+         
+      glk_stylehint_set(wintype_TextGrid, style_Input,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextGrid, style_Input,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_Input,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Input,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_Input,
+                        stylehint_Weight, 1);
+ 
+      glk_stylehint_set(wintype_TextGrid, style_User1,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextGrid, style_User1,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_User1,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_User1,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_User1,
+                        stylehint_Weight, 1);
+  
+      glk_stylehint_set(wintype_TextGrid, style_User2,
+                        stylehint_TextColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_User2,
+                        stylehint_BackColor, $00ff00);
+      glk_stylehint_set(wintype_TextGrid, style_User2,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_User2,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_User2,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextGrid, style_Alert,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextGrid, style_Alert,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_Alert,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Alert,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_Alert,
+                        stylehint_Oblique, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Alert,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_Oblique, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_Weight, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Emphasized,
+                        stylehint_Justification, stylehint_just_LeftRight);
+
+      glk_stylehint_set(wintype_TextGrid, style_Preformatted,
+                        stylehint_TextColor, $00aa00);
+      glk_stylehint_set(wintype_TextGrid, style_Preformatted,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_Preformatted,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Preformatted,
+                        stylehint_Proportional, 0);
+      glk_stylehint_set(wintype_TextGrid, style_Preformatted,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextGrid, style_Header,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextGrid, style_Header,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_Header,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_Header,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextGrid, style_Subheader,
+                        stylehint_TextColor, $00ff00);
+      glk_stylehint_set(wintype_TextGrid, style_Subheader,
+                        stylehint_BackColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_SubHeader,
+                        stylehint_Size, 1);
+      glk_stylehint_set(wintype_TextGrid, style_SubHeader,
+                        stylehint_Weight, 1);
+
+      glk_stylehint_set(wintype_TextGrid, style_Note,
+                        stylehint_TextColor, $ffffff);
+      glk_stylehint_set(wintype_TextGrid, style_Note,
+                        stylehint_BackColor, $000000);
+
+      glk_stylehint_set(wintype_TextGrid, style_BlockQuote,
+                        stylehint_TextColor, $000000);
+      glk_stylehint_set(wintype_TextGrid, style_BlockQuote,
+                        stylehint_BackColor, $ffffff);
+  }
+
+  rfalse; ! si te olvidas esta linea, el juego no funcionará bien
+];
+
+
+[ HandleGlkEvent ev context buffer;
+  SGW_HandleGlk(ev);
+  ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
+  Mapa_HandleGlkEvent(ev, context, buffer);
+];
+
+
+!===============================================================================
+! (3) Modificar Mensajes de la Libreria; Otros Includes; Incluir VerbLib.h
+!-------------------------------------------------------------------------------
+
+
+Include "Rastros_NG";
+
+
+Object LibraryMessages
+  with
+    before [;
+!      Look:
+!        ! Copiamos el código de Mensajes.h. Sólo cambiamos el segundo
+!        ! EscribirListaDesde, para que cuando se deje en el suelo la
+!        ! linterna, no diga: "Puedes ver una linterna (en la que ves una batería)."
+!        switch (lm_n) {
+!          1: print " (sobre ", (the) lm_o, ")";
+!          2: print " (en ", (the) lm_o, ")";
+!          3: print " (como ", (object) lm_o, ")";
+!          4: print "^Sobre ", (the) lm_o;
+!             WriteListFrom(child(lm_o), ENGLISH_BIT + RECURSE_BIT +
+!                           PARTINV_BIT + TERSE_BIT + ISARE_BIT + CONCEAL_BIT);
+!             ".";
+!          default:
+!            if (lm_o ~= location) {
+!              if (lm_o has supporter)
+!                print "^Sobre ";
+!              else
+!                print "^En ";
+!              print (the) lm_o;
+!              print " puedes ver ";
+!            } else
+!              print "^También puedes ver ";
+!            if (n == 5) print "también ";    ! ?????
+!            ! Quitamos RECURSIVO_BIT e INFOPARCIAL_BIT:
+!            WriteListFrom(child(lm_o), ENGLISH_BIT + WORKFLAG_BIT +
+!                          TERSE_BIT + CONCEAL_BIT);
+!            if (lm_o ~= location) ".";
+!            ".";
+!        }
+
+      Prompt:
+        ImprimirPrompt();
+        rtrue;
+
+      Go:
+        switch (lm_n) {
+          2: if (estoyEmpujando)
+               "^No ", (puedes_) " seguir empujando porque no hay salida
+               hacia ", (the) noun, ".";
+             "No ", (puedes_) " ir por ahí, porque no hay salida hacia ",
+              (the) noun, ".";
+          5: if (estoyEmpujando)
+               "^No ", (puedes_) " empujar nada a través ", (del) lm_o, ".";
+             "No ", (puedes_) " pasar a través ", (del) lm_o, ".";
+        }
+        
+      Take:
+        if (lm_n == 1) {
+          print "Reco";
+          if (player.persona == PRIMERA_PERSONA + PERSONA_SINGULAR) print "j";
+          else                                                      print "g";
+          print (es_) " ";
+          if (lm_o has moved) print (the) lm_o;
+          else                print (a) lm_o;
+          ".";
+        }
+
+      Drop:
+        if (lm_n == 4) "Dej", (as_) " ", (the) lm_o, ".";
+
+      Remove:
+        if (lm_n == 3) {
+          if (verb_word == 'quita') "Quitas ", (the) lm_o, " ", (del) second,
+                                    ".";
+          else                      "Sacas ",  (the) lm_o, " ", (del) second,
+                                    ".";
+        }
+      Miscellany:
+        switch (lm_n) {
+           4: TextoLlamativo(" ¡Enhorabuena! Has acabado la aventura ");
+              rtrue;
+          10: rtrue;
+          13: ! Reactivamos timer en caso de UNDO:
+              ControlTimer.ReactivarTick();
+              "[Retrocediendo al turno anterior.]";
+          17: switch (random(4)) {
+                1: "Está muy oscuro y no puedes ver nada.";
+                2: "Todo está demasiado oscuro y no aprecias nada con
+                    claridad.";
+                3: "La oscuridad te impide ver dónde te encuentras.";
+                4: "Te mueves a tientas a través de una oscuridad que te impide
+                    ver nada.";
+              }
+          19: "Has tenido días mejores...";
+          30: switch (random(3)) {
+                1: "No encuentro eso que dices.";
+                2: "No veo nada parecido por aquí.";
+                3: "Parece que no hay nada de eso.";
+              };
+          27: "Las palabras se te agolpan en los labios.";
+          38: switch (random(5)) {
+                1: "¿Qué quieres decir con eso?";
+                2: "Lo siento, no te entiendo.";
+                3: "Intenta ser un poco más preciso.";
+                4: "No comprendo eso que dices.";
+                5: "¿Qué intentas decir?";
+              }
+        }
+    ];
+
+
+! Hay que definirla antes de incluir Moviles_NG:
+Class Lugar
+  class LugarConRastro
+  with
+!   sgw_mus Estancia_ogg,
+!   sgw_vol VOLUMEN_FONDO,
+    describe [;
+      PrintOrRun(self, description);
+      if (mostrarSalidas) {
+        print "^";
+        glk_set_style(style_Emphasized);
+        <Salidas>;
+        glk_set_style(style_Normal);
+        rtrue;
+      } else {
+        rtrue;
+      }
+    ],
+    number,
+    dibujado false,                   ! Necesario para Mapeador.h
+    before [;
+      Examine, Touch:
+        if (noun == d_obj) {          ! Examinamos el suelo
+            "Una superficie metálica y sólida.";
+        } else if (noun == u_obj) {   ! Examinamos el techo
+            "La intensa lluvia ciega tus ojos.";
+        }        
+    ],
+  has
+    light;
+
+    
+Include "SGW+DMX_NG";       ! Entre EParser y Acciones
+Include "elcirculo.bli";    ! Los recursos multimedia de la aventura
+Include "VerbLib";
+Include "Barra";
+Include "Moviles_NG";       ! La librería Moviles retocada por mí
+Include "PNJpuertas_NG";    ! La librería PnjPuertas retocada por mí (muy poco)
+Include "PNJactor_NG";      ! Librerías que hacen que un PNJ pueda coger y dejar
+Include "PNJacciones_NG";   ! Poner detrás de Moviles y PnjPuertas
+Include "Etemas";           ! Los temas de conversación
+Include "Decorado_NG";      ! Objetos de decorado
+Include "ExaminarFalso";    ! Poder examinar objetos sólo con su nombre
+Include "Teletipo";         ! Teletipo para sacar mensajes letra a letra
+Include "Pistas";           ! Las pistas creadas con ZIPI
+Include "Timer";            ! Mi librería de eventos temporizados
+Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
+Include "EscenarioAbrible";
+Include "Contenedor";
+
+
+!===============================================================================
+! (4) Rutinas Initialise() e IniciarAventura()
+!-------------------------------------------------------------------------------
+
+
+[ Initialise r v;
+  if (KeyDelay(30)) hayTeletipo = false;
+  IniciarGraficosSonidos();
+  openGraphicWindow(250);
+  clearGraphicWindow();
+  StatusLineHeight(23);
+  clearMainWindow();
+  viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
+!  v = Damusix.QueVolumenCanal(CANAL_FONDO);
+!  Damusix.AsignarCanal(Estancia_ogg, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
+!  Damusix.Tocar(Estancia_ogg);
+  ZIPI_Intro();
+.Menu;
+  r = ZIPI_RunMenu(ZIPI_Menu_Principal, true);
+  if (r == 3) jump Menu;
+  if (r ~= 2) quit;
+  StatusLineHeight(1);
+  if (hayGraficos) EncenderGraficos();
+  else             ApagarGraficos();
+  clearTextWindow();
+];
+
+
+[ IniciarAventura logo v;
+  location = thedark;
+
+  dibujarEstado = false;
+
+  ! Esto es para que el juego dé siempre la descripción de la habitación, aunque
+  ! ya la hayamos visitado
+  lookmode = 2;
+
+  ! Inventario en una sola frase
+  inventory_style = ENGLISH_BIT + RECURSE_BIT + FULLINV_BIT;
+
+  ! Parseado estricto (de la librería IntNombre):
+  parseado_estricto = 1;
+
+  ! Nombre de la oscuridad
+  thedark.short_name = "Zona de oscuridad";
+  
+  ! Localización donde comienza el jugador
+  location = nave1;
+
+  player.persona = PRIMERA_PERSONA + PERSONA_SINGULAR;
+
+  clearTextWindow();
+
+  IniciarMoviles();
+  IniciarPuertas();
+  IniciarRastros();
+
+!  v = Damusix.QueVolumenCanal(CANAL_FONDO);
+!  Damusix.AsignarCanal(location.sgw_mus, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
+!  Damusix.TocarCanal(CANAL_FONDO);
+
+  if (logo) {
+    clearGraphicWindow();
+!    DibujaLogoAlien();
+  }
+
+  print "Copyright (c) 2008-2012 Alpha Aventuras";
+  KeyDelay();
+  clearMainWindow();
+  ! Desde el primer momento, dibujamos la primera pantalla y activamos el timer:
+  viewImageCenter(Nave1_jpg);
+!  ControlTimer.ActivarTick(TIMER_TICK);
+];
+
+
+!===============================================================================
+! (5) Rutinas de la Libreria Implementadas, Reemplazadas o Ampliadas
+!-------------------------------------------------------------------------------
+
+
+[ Amusing;
+  rfalse;
+];
+
+
+[ DrawStatusLine;
+  if (dibujarEstado) {
+    barra_estado.dibujar();
+  }
+];
+
+
+! Modificado para que ?, !, ¿, ¡ se separen de las palabras al parsear:
+[ QuitarAcentos buffer parse x i word at len;
+  for (x = 0: x < parse-->0: x++) { ! para cada palabra
+    word = tokenDict(parse, x);
+    at   = tokenPos(parse, x);
+    len  = WordLength(x);
+    if (word == 0) { ! no comprendida
+      for (i = at: i < at + len: i++)
+        ! [080625] Quitados caracteres en mayúscula
+        switch(buffer->i) {
+          225: buffer->i = 'a';       ! 225: á
+          233: buffer->i = 'e';       ! 233: é
+          237: buffer->i = 'i';       ! 237: í
+          243: buffer->i = 'o';       ! 243: ó
+     250, 252: buffer->i = 'u';       ! 250: ú, 252: ü
+          241: buffer->i = 'n';       ! 241: ñ
+          '?': buffer->i = ' ';
+          191: buffer->i = ' ';
+          '!': buffer->i = ' ';
+          161: buffer->i = ' ' ;
+        }
+        Tokenise__(buffer, parse);
+      }
+  }
+];
+
+
+! Modificado para que al empujar un objeto a una localidad se muestre
+! más información:
+[ AllowPushDir i tmp;
+  if (parent(second) ~= compass) return L__M(##PushDir, 2, noun);
+  if (second == u_obj or d_obj)  return L__M(##PushDir, 3, noun);
+  AfterRoutines(); i = noun; move i to player;
+  tmp = location;                                     ! (c) Alpha
+  estoyEmpujando = true;                              ! (c) Alpha
+  <Go second>;
+  estoyEmpujando = false;                             ! (c) Alpha
+  if (location == thedark) move i to real_location;
+  else                     move i to location;
+  if (tmp ~= location && location ~= thedark)
+    PrintOrRun(i, describe);                          ! (c) Alpha
+];
+
+
+!===============================================================================
+! (6) Incluir SpanishG.h; Otros Includes
+!-------------------------------------------------------------------------------
+
+
+Include "SpanishG";
+Include "Decir";           ! Para poder usar DECIR ... A ...
+Include "Mapeador";
+
+
+!===============================================================================
+! (7) Clases del Juego
+!-------------------------------------------------------------------------------
+
+
+Class MiTeletipo
+  class Teletipo,
+  with
+    gancho_antes [;
+!     Damusix.TocarCanal(CANAL_TELETIPO);
+    ],
+    gancho_despues [;
+!     Damusix.PararCanal(CANAL_TELETIPO);
+    ];
+
+    
+!===============================================================================
+! (8) Objetos del Juego
+!-------------------------------------------------------------------------------
+
+
+! ====================================================================
+! HABITACIONES
+! ====================================================================
+
+
+Object nave1 "Interior de la nave"
+  class Lugar
+  with
+    description "La nave de exploración Alpha dispone de todo lo necesario para satisfacer
+                 los requisitos más básicos en cuanto a soporte vital y contención. Los
+                 instrumentos brillan y parpadean de forma insana, y frente a ellos se
+                 disponen los dos únicos asientos del vehículo. Sus angostas paredes
+                 aumentan la sensación de claustrofobia y los enormes ventanales ofrecen
+                 una vista desoladora del exterior.",
+    sgw_img Nave1_jpg,
+!   sgw_mus Nave_ogg
+;
+
+    
+! ====================================================================
+! OBJETOS QUE LLEVAN LOS PERSONAJES AL EMPEZAR
+! ====================================================================
+
+
+! ====================================================================
+! OTROS OBJETOS
+! ====================================================================
+
+
+! ====================================================================
+! PERSONAJES
+! ====================================================================
+
+
+! ====================================================================
+! TEMAS RAIZ
+! ====================================================================
+
+
+! Cuidado con los infinitivos. Si pones un infinitivo aquí, luego no se puede
+! usar como verbo
+
+
+! ====================================================================
+! MENÚS ZIPI
+! ====================================================================
+
+
+[ ZIPI_RunOtro _o r;
+  ZIPI_PintaTitulo(_o.ZIPI_titulo);
+  print "^";
+  r = _o.ZIPI_ejecutar();
+  if (~~r) ZIPI_Espera();
+  return r;
+];
+
+
+[ ZIPI_RunMenu _m top  i j count cur key target redibujar ft r;
+
+  redibujar = 1;
+  cur = 0;
+  count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
+  ft = true;
+
+  for (::) {
+    if (redibujar) {
+      ZIPI_PintaTitulo(_m.ZIPI_titulo);
+      redibujar = 0;
+    }
+
+    for (i = 0: i < count - 2: i++) {
+      j = i + 3;
+      ZIPI_setcursor(5,j);
+      if (ft && hayTeletipo) {
+        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
+      } else {
+        style fixed;
+        if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
+          (_m.&ZIPI_item-->i).ZIPI_titulo();
+        else print (string)(_m.&ZIPI_item-->i).ZIPI_titulo;
+        style roman;
+      }
+    }
+
+    j = i + 4;
+    ZIPI_setcursor(5, j);
+
+    if (ft) {
+      if (top) tt_computadora.visualiza("Salir");
+      else     tt_computadora.visualiza("Volver");
+    } else {
+      if (top) print (s_pref) "Salir";
+      else     print (s_pref) "Volver";
+    }
+
+    ft = false;
+    j = cur + 3;
+    ZIPI_setcursor(2, j);
+    print ">";
+    ZIPI_setcursor(2, j);
+    key = ZIPI_tecla();
+    print " ";
+
+    if (key > ZIPI_EVENTO_HYPER) {
+      cur = key - ZIPI_EVENTO_HYPER - 2;
+      if (cur == -1) key = 27;
+      else           key = 13;
+    }
+
+    switch(key) {
+      'k', 'p', '-', '_', 129, -4:
+        do {
+          cur--;
+          if (cur == count - 2) cur--;
+          if (cur < 0) cur = count - 1;
+        } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
+        break;
+      'j', 'n', '=', '+', 130, -5:
+        do {
+          cur++;
+          if (cur == count - 2) cur++;
+          if (cur >= count) cur = 0;
+        } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
+        break;
+      'q', 'Q', 27, 131, 10, 8, -2:
+        rfalse;
+ 
+      132, 13, 'n', ' ', -3, -6:
+        if (cur == count - 1) rfalse;
+        if (cur == count - 2) break;
+        target = _m.&ZIPI_item-->cur;
+        if (target ofclass ZIPI_Menu)          ZIPI_RunMenu(target);
+        else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
+        else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
+        else {
+          r = ZIPI_RunOtro(target);
+          if (target == ZIPI_Restaurar) return 3;
+          if (r == 2) return r;
+        }
+        redibujar = 1;
+        break;
+    }
+  }
+  rfalse;
+];
+
+
+Object ZIPI_Menu_Principal
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "EL CÍRCULO - (c) Alpha Aventuras 2012",
+    ZIPI_item
+      ZIPI_Jugar_Con_Intro
+      ZIPI_Jugar_Sin_Intro
+      ZIPI_Restaurar
+      ZIPI_Configuracion
+      ZIPI_Separador
+      ZIPI_Menu1;
+
+      
+Object ZIPI_Configuracion
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "Opciones de gráficos y sonido",
+    ZIPI_item
+      ZIPI_Graficos
+      ZIPI_Tamano_Graficos
+      ZIPI_Sonido
+      ZIPI_Sonido_Fondo
+      ZIPI_Separador
+      ZIPI_Accesibilidad;
+
+      
+Object ZIPI_Graficos
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (hayGraficos) "Gráficos: SÍ (recomendado)";
+      else             "Gráficos: NO";
+    ],
+    ZIPI_cambiar [;
+      hayGraficos = ~~hayGraficos;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+    
+Object ZIPI_Tamano_Graficos
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      switch (altoVentanaGrafica) {
+        GRAFICOS_MINUSCULOS: "Tamaño de gráficos: ",
+                             GRAFICOS_MINUSCULOS, " px. (MINÚSCULOS)";
+        GRAFICOS_PEQUENOS:   "Tamaño de gráficos: ",
+                             GRAFICOS_PEQUENOS, " px. (PEQUEÑOS)";
+        GRAFICOS_MEDIANOS:   "Tamaño de gráficos: ",
+                             GRAFICOS_MEDIANOS, " px. (MEDIANOS, recomendado)";
+        GRAFICOS_GRANDES:    "Tamaño de gráficos: ",
+                             GRAFICOS_GRANDES,  " px. (GRANDES)";
+        default:             "Tamaño de gráficos: ",
+                             altoVentanaGrafica, " px.";          
+      }
+    ],
+    ZIPI_cambiar [;
+      if (altoVentanaGrafica < GRAFICOS_GRANDES)
+        altoVentanaGrafica = altoVentanaGrafica + 50;
+      else
+        altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+    
+Object ZIPI_Sonido
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (haySonido) "Sonido global: SÍ (recomendado)";
+      else           "Sonido global: NO";
+    ],
+    ZIPI_cambiar [;
+      haySonido = ~~haySonido;
+      if (haySonido) Damusix.ActivarAudio();
+      else           Damusix.DesactivarAudio();
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+    
+Object ZIPI_Sonido_Fondo
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (haySonidoFondo) "Sonido de fondo: SÍ (recomendado)";
+      else                "Sonido de fondo: NO";
+    ],
+    ZIPI_cambiar [;
+      haySonidoFondo = ~~haySonidoFondo;
+      if (haySonidoFondo) {
+!        Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
+      } else {
+!        Damusix.VolumenCanal(CANAL_FONDO, 0);
+      } 
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Accesibilidad
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "Opciones de accesibilidad",
+    ZIPI_item
+      ZIPI_Efecto_Teletipo
+      ZIPI_Tiempo_Real;
+
+    
+Object ZIPI_Efecto_Teletipo
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (hayTeletipo) "Efecto teletipo: SÍ (recomendado)";
+      else             "Efecto teletipo: NO";
+    ],
+    ZIPI_cambiar [;
+      hayTeletipo = ~~hayTeletipo;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Tiempo_Real
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (hayTiempoReal) "Tiempo real: SÍ (recomendado)";
+      else               "Tiempo real: NO";
+    ],
+    ZIPI_cambiar [;
+      hayTiempoReal = ~~hayTiempoReal;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+    
+Object ZIPI_Jugar_Con_Intro
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Comenzar la aventura con introducción",
+    ZIPI_ejecutar [;
+      StatusLineHeight(1);
+      glk($002A, gg_statuswin);  ! window_clear
+      glk($002F, gg_mainwin);    ! set_window
+      if (hayGraficos) EncenderGraficos();
+      else             ApagarGraficos();
+      clearTextWindow();
+      Introduccion();
+      IniciarAventura();
+      dibujarEstado = true;
+      return 2;
+    ];
+
+    
+Object ZIPI_Jugar_Sin_Intro
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Comenzar la aventura saltando la introducción",
+    ZIPI_ejecutar [;
+      StatusLineHeight(1);
+      glk($002A, gg_statuswin);  ! window_clear
+      glk($002F, gg_mainwin);    ! set_window
+      if (hayGraficos) EncenderGraficos();
+      else             ApagarGraficos();
+      clearTextWindow();
+      IniciarAventura(true);
+      dibujarEstado = true;
+      return 2;
+    ];
+
+    
+Object ZIPI_Restaurar
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Restaurar una partida guardada",
+    ZIPI_ejecutar [ res fref;
+      StatusLineHeight(1);
+      clearTextWindow();
+      glk($002F, gg_mainwin);    ! set_window
+      ImprimirPrompt();
+      fref = glk($0062, $01, $02, 0); ! fileref_create_by_prompt
+      if (fref == 0) jump RFailed;
+      gg_savestr = glk($0042, fref, $02, GG_SAVESTR_ROCK); ! stream_open_file
+      glk($0063, fref); ! fileref_destroy
+      if (gg_savestr == 0) jump RFailed;
+
+      @restore gg_savestr res;
+
+      glk($0044, gg_savestr, 0); ! stream_close
+      gg_savestr = 0;
+
+    .RFailed;
+      glk($002F, gg_statuswin);
+      StatusLineHeight(24);
+      tt_computadora.visualiza("^Error: no se ha podido cargar la partida");
+      rfalse;
+    ];
+
+
+Object ZIPI_Salir
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Salir",
+    ZIPI_ejecutar [;
+      quit;
+    ];
+
+    
+! ====================================================================
+! OTROS OBJETOS DE SOPORTE
+! ====================================================================
+
+
+Object barra_estado
+  class objeto_barra_estado
+  with
+    modo BE_COMPUESTO,
+    disposicion
+      1  1 true BE_LOCALIDAD
+      68 1 true BE_TURNOS,
+    lineas_inv
+      BE_INV_TOTAL;
+
+
+Object tt_computadora
+  class MiTeletipo
+  private
+    sonido 1,
+    elementos
+      "" POR_LETRA LETRA_FIJA SIN_PAUSA;
+
+      
+Object tt_inicio
+  class MiTeletipo
+  private
+    sonido 1,
+    PausaMensaje 250,
+    elementos
+      "Miles de millones de kilómetros me separan del lugar en el que fui
+       creado."
+        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+      "^Llevo incontables ciclos de tiempo viajando"
+        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+      "^para cumplir la misión que le da sentido a mi existencia."
+        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+      "^Y ahora, por fin..."
+        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+      "^El viaje termina."
+        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
+
+        
+!===============================================================================
+! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+[ ImprimirPrompt;
+  print (s_input) "^> ";
+];
+
+
+[ hueles_ x;
+  if (player provides persona) {
+    switch (player.persona) {
+      PRIMERA_PERSONA,
+      PRIMERA_PERSONA_SINGULAR: print "huelo";
+      SEGUNDA_PERSONA,
+      SEGUNDA_PERSONA_SINGULAR: print "hueles";
+      TERCERA_PERSONA,
+      TERCERA_PERSONA_SINGULAR: print "huele";
+      PRIMERA_PERSONA_PLURAL:   print "olemos";
+      SEGUNDA_PERSONA_PLURAL:   print "oléis";
+      TERCERA_PERSONA_PLURAL:   print "huelen";
+    }
+  } else print "hueles";
+  print (string) x;
+];
+
+
+[ IniciarGraficosSonidos;
+  if (~~testGraphics()) {
+    print "^Lo sentimos, pero este juego necesita un intérprete Glulx
+            con capacidades gráficas.^^";
+    RecomiendaGargoyle();
+  }
+
+  if (Damusix.TestAudio() == 0) {
+    print "^Lo sentimos, pero este juego necesita un intérprete Glulx
+            que pueda reproducir sonido.^^";
+    RecomiendaGargoyle();
+  }
+
+  if (glk_gestalt(gestalt_Timer,0) == 0) {
+    print "^Lo sentimos, pero este juego necesita un intérprete Glulx
+            que tenga soporte para eventos temporizados.^^";
+    RecomiendaGargoyle();
+  }
+
+  ! Inicialización sonora
+  IniciarSonidos();
+
+  ! Inicialización gráfica
+  initializeSGW(altoVentanaGrafica);
+];
+
+
+[ RecomiendaGargoyle;
+  print "~A·L·I·E·N: La aventura - Edición Especial~ ha sido diseñada
+         para funcionar con el intérprete Gargoyle, que puedes
+         descargar de la siguiente dirección:^^",
+         (s_pref) "http://code.google.com/p/garglk/downloads^";
+  KeyDelay();
+  quit;
+];
+
+
+[ IniciarSonidos;
+!  Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
+!  Damusix.VolumenCanal(CANAL_DETECTOR, VOLUMEN_DETECTOR);
+!  Damusix.AsignarCanal(Teletipo_ogg, CANAL_TELETIPO, VOLUMEN_TELETIPO, SONIDO_BUCLE_INFINITO);
+!  Damusix.AsignarCanal(Tic_ogg, CANAL_TICTAC, VOLUMEN_TICTAC, SONIDO_BUCLE_INFINITO);
+];
+
+[ ComoHablar;
+  print_ret "[Para hablar con un personaje, usa la forma ~",
+            (s_input) "PERSONAJE, lo que sea", "~. Por ejemplo: ~",
+            (s_input) "JASON, QUÉ OPINAS DE MADRE", "~.]";
+];
+
+
+[ Introduccion i v;
+  clearMainWindow();
+  viewImageCenter(Oscuridad_jpg);
+!  v = Damusix.QueVolumenCanal(CANAL_FONDO);
+!  Damusix.AsignarCanal(Intro_ogg, CANAL_FONDO, v, 1);
+!  Damusix.Tocar(Intro_ogg, 1);
+  tt_inicio.visualiza();
+!  for (i = 0 : i < 15 : i++) { viewImageCenter(A_png, true); KeyDelay(20); }
+!  KeyDelay(300);
+!  tt_inicial2.visualiza();
+!  for (i = 0 : i < 15 : i++) { viewImageCenter(AI_png, true); KeyDelay(20); }
+!  KeyDelay(900);
+!  tt_inicial3.visualiza();
+!  for (i = 0 : i < 15 : i++) { viewImageCenter(AIN_png, true); KeyDelay(20); }
+!  KeyDelay(900);
+!  tt_inicial4.visualiza();
+!  for (i = 0 : i < 15 : i++) { viewImageCenter(AIEN_png, true); KeyDelay(20); }
+!  KeyDelay(800);
+!  tt_inicial5.visualiza();
+!  KeyDelay(600);
+!  DibujaLogoAlien();
+  if (v ~= 0) {
+    glk($00D6, 500);                      ! request_timer_events
+    glk($00D2, gg_mainwin);               ! glk_request_char_event(gg_mainwin);
+    while (1) {
+      glk($00C0, gg_arguments);           ! glk_select(gg_arguments);
+      switch (gg_arguments-->0) {
+        evtype_CharInput:
+          glk($00D3, gg_mainwin);         ! cancel_char_event
+!          Damusix.SimpleFadeOut(Intro_ogg, 3000);
+!          Damusix.PararCanal(CANAL_FONDO);
+!          Damusix.VolumenCanal(CANAL_FONDO, v);
+          jump Exit;
+
+        evtype_Timer:
+          glk($00D6, 500);                ! request_timer_events
+
+        evtype_SoundNotify:
+          glk($00D6, 0);                  ! request_timer_events
+          jump Exit;
+      }
+    }
+  }
+.Exit;
+  rfalse;
+];
+
+
+[ Bandera_Fin bf;
+  rfalse;
+];
+
+
+#ifndef LugarReal;
+[ LugarReal;
+  if (location == thedark) return real_location;
+  else                     return location;
+];
+#endif;
+
+
+[ EncenderGraficos t;
+  hayGraficos = true;
+  openGraphicWindow(altoVentanaGrafica);
+  clearGraphicWindow();
+  if (location ~= thedark) {
+    if (LugarReal() provides sgw_img) viewImageCenter(LugarReal().sgw_img);
+    else                              viewImageCenter(Logo_Alpha_Aventuras_jpg);
+  }
+  if (t) {
+    glk_set_style(style_Emphasized);
+    print "[Gráficos activados (tamaño ";
+    switch (altoVentanaGrafica) {
+      GRAFICOS_PEQUENOS: print "pequeño";
+      GRAFICOS_MEDIANOS: print "mediano";
+      GRAFICOS_GRANDES:  print "grande";
+    }
+    print ").]^";
+    style roman;
+  }
+];
+
+
+[ ApagarGraficos t;
+  hayGraficos = false;
+  closeGraphicWindow();
+  if (t) print (s_emph) "[Gráficos desactivados.]^";
+];
+
+
+!===============================================================================
+! (10) Verbos y Gramaticas Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+!===============================================================================
+! (11) Rutinas de Acciones Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+[ EncenderGraficosSub;
+  EncenderGraficos(true);
+];
+
+
+[ ApagarGraficosSub;
+  ApagarGraficos(true);
+];
+
+
+[ SearchSub;
+  <<Examine noun>>;
+];
+
+
+[ ConsultSub;
+  <<Examine noun>>;
+];
+
+
+[ TellSub;
+  ComoHablar();
+];
+
+
+[ AnswerSub;
+  ComoHablar();
+];
+
+! Fin del código

@@ -1,0 +1,6 @@
+Exec 0 GLUL elcirculo.ulx
+Pict 3 JPEG res/img/nave1.jpg
+Pict 4 JPEG res/img/logo_alpha_aventuras.jpg
+Pict 5 JPEG res/img/logo_alpha_aventuras_corto.jpg
+Pict 6 JPEG res/img/oscuridad.jpg
+Snd 3 OGGV res/snd/nave.ogg

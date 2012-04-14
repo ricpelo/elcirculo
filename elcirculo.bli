@@ -1,0 +1,12 @@
+! Blorb Resource Definitions File
+! Generated automatically by bres.
+! Do not edit!
+! Include this file in your inform source with "Include "elcirculo.bli";"
+
+Message "Including bres resource declarations generated on 1-1-1";
+
+Constant Nave1_jpg 3;	!Blorb Pict:res/img/nave1.jpg
+Constant Logo_Alpha_Aventuras_jpg 4;	!Blorb Pict:res/img/logo_alpha_aventuras.jpg
+Constant Logo_Alpha_Aventuras_Corto_jpg 5;	!Blorb Pict:res/img/logo_alpha_aventuras_corto.jpg
+Constant Oscuridad_jpg 6;	!Blorb Pict:res/img/oscuridad.jpg
+Constant Nave_ogg 3;	!Blorb Snd:res/snd/nave.ogg

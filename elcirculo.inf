@@ -802,13 +802,22 @@ Object cocina_katie "Cocina"
         if (noun == u_obj) {
           if ((~~(snd_telefono_katie.sonando())) && tv_katie.enchufado) {
             switch (tv_katie.encendidos) {
-              0: tv_katie.encender();
-                 "Se enciende la tele.";
+              0: if (tv_katie has on) {
+                   tv_katie.apagar();
+                   print "De pronto, la televisión se apaga, y tras unos
+                          instantes, se enciende con nieve.^";
+                   KeyDelay();
+                   tv_katie.encender();
+                   rtrue;
+                 } else {
+                   tv_katie.encender();
+                   "Se enciende la tele.";
+                 }
               1: if (tv_katie has on) {
                    "Algo te dice que no quieres dejar el televisor encendido.";
                  } else {
                    tv_katie.encender();
-                   "El televisor se vuelve a encender";
+                   "El televisor se vuelve a encender.";
                  }
             }
           }
@@ -898,14 +907,14 @@ Object tv_katie "televisor" salon_katie
     initial "Ves el televisor.",
     time_left,
     time_out [;
-      self.encender(true);
+      self.encender();
       "^Se vuelve a encender el televisor.";
     ],
     enchufado true,
     encendidos 0,
     encender [ sw;
       give self on;
-      ruido_tv_katie.sonar();
+      ruido_tv_katie.sonar(sw);
       if (~~sw) self.encendidos++;
     ],
     apagar [;
@@ -921,33 +930,34 @@ Object tv_katie "televisor" salon_katie
         if (~~(self.enchufado))
           "No se puede encender porque está desenchufado.";
         self.encender(true);
+        "Enciendes el televisor.";
         
       SwitchOff:
         if (~~(self.enchufado))
           "Ya está desenchufado.";
         self.apagar();
+        "Apagas el televisor.";
 
-      Tie:
-        if (self.enchufado) {
-          "El televisor ya está enchufado.";
-        } else {
-          self.enchufado = true;
-          "Enchufas el televisor.";
-        }
+!      Tie:
+!        if (self.enchufado) {
+!          "El televisor ya está enchufado.";
+!        } else {
+!          self.enchufado = true;
+!          "Enchufas el televisor.";
+!        }
 
-      Desenchufar:
-        if (~~(self.enchufado)) {
-          "El televisor ya está desenchufado.";
-        } else {
-          self.enchufado = false;
-          if (self has on) {
-            self.apagar();
-            "Desenchufas el televisor. Al hacerlo, la pantalla se apaga.";
-          } else {
-            "Desenchufas el televisor.";
-          }
-        }
-      
+!      Desenchufar:
+!        if (~~(self.enchufado)) {
+!          "El televisor ya está desenchufado.";
+!        } else {
+!          self.enchufado = false;
+!          if (self has on) {
+!            self.apagar();
+!            "Desenchufas el televisor. Al hacerlo, la pantalla se apaga.";
+!          } else {
+!            "Desenchufas el televisor.";
+!          }
+!        }     
     ],
     after [;
       SwitchOn:
@@ -1429,8 +1439,11 @@ Object ruido_tv_katie
       else                         v = 0;
       return v;
     ],
-    sonar [;
-      self.tocar_sonido(Ruido_TV_ogg);
+    sonar [ sw
+      snd;
+      if (sw) snd = TV_Fondo_ogg;
+      else    snd = Ruido_TV_ogg;
+      self.tocar_sonido(snd);
     ],
     parar [;
       self.parar_sonido();

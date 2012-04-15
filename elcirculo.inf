@@ -603,8 +603,7 @@ Include "Contenedor";
 ];
 
 
-[ IniciarAventura logo
-  v;
+[ IniciarAventura logo;
   location = thedark;
 
   dibujarEstado = false;
@@ -639,35 +638,11 @@ Include "Contenedor";
 !    DibujaLogoAlien();
   }
 
-  v = Damusix.QueVolumenCanal(CANAL_FONDO);
-  Damusix.AsignarCanal(Grillos_ogg, CANAL_FONDO, 0, SONIDO_BUCLE_INFINITO);
-  Damusix.TocarCanal(CANAL_FONDO);
-  Damusix.SimpleFadeIn(Grillos_ogg, 2000, 50);
-
-  if (hayGraficos) {
-    glk_window_close(gg_bigwin, 0);
-    gg_bigwin = glk_window_open(gg_mainwin,
-                                winmethod_Above + winmethod_Proportional, 100,
-                                wintype_Graphics, GG_BIGWIN_ROCK);
-    MostrarImagenGradualmente(Prologo_png, 30, 10);
-    KeyDelay(300);
-    MostrarImagenGradualmente(Fundido_png, 40, 5);
-  } else {
-    print "Prólogo";
-  }
-  
-  openGraphicWindow(altoVentanaGrafica);
-!  print "Copyright (c) 2008-2012 Alpha Aventuras";
-!  KeyDelay();
-!  clearMainWindow();
-  ! Desde el primer momento, dibujamos la primera pantalla y activamos el timer:
-!  viewImageCenter(Nave1_jpg);
-  timer_tlf_katie.AsignarGestor(1);
-  ControlTimer.ActivarTick(TIMER_TICK);
-  ! Aquí iría la introducción en la que Katie y Becca hablan
-  ConversacionKatieBecca();
   Damusix.PararCanal(CANAL_FONDO);
   timbre_tlf_katie.sonar();
+  timer_tlf_katie.AsignarGestor(1);
+  ControlTimer.ActivarTick(TIMER_TICK);
+  PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, player);
   KeyDelay();
 ];
 
@@ -819,7 +794,7 @@ Object salon_katie "Salón"
     description "El salón.",
     n_to cocina_katie,
     sgw_img Oscuridad_jpg,
-    volumen_tlf VOLUMEN_TLF / 2;
+    volumen_tlf VOLUMEN_TELEFONO / 2;
     
     
 ! ====================================================================
@@ -835,6 +810,23 @@ Object salon_katie "Salón"
 ! ====================================================================
 ! PERSONAJES
 ! ====================================================================
+
+
+Object becca "Becca" cuarto_katie
+  class Movil
+  with
+    name 'becca',
+    description "Es Becca.",
+    initial "^Junto a ti está Becca.",
+    describe [;
+      "^Aquí está Becca.";
+    ],
+    life [;
+    ],
+    orders [;
+    ],
+  has
+    animate proper;
 
 
 ! ====================================================================
@@ -1359,27 +1351,37 @@ Object timbre_tlf_katie
 ];
 
 
-[ Introduccion i v;
+[ Introduccion
+  v;
   clearMainWindow();
   viewImageCenter(Oscuridad_jpg);
-!  v = Damusix.QueVolumenCanal(CANAL_FONDO);
-!  Damusix.AsignarCanal(Intro_ogg, CANAL_FONDO, v, 1);
-!  Damusix.Tocar(Intro_ogg, 1);
-  tt_inicio.visualiza();
-!  for (i = 0 : i < 15 : i++) { viewImageCenter(A_png, true); KeyDelay(20); }
-!  KeyDelay(300);
-!  tt_inicial2.visualiza();
-!  for (i = 0 : i < 15 : i++) { viewImageCenter(AI_png, true); KeyDelay(20); }
-!  KeyDelay(900);
-!  tt_inicial3.visualiza();
-!  for (i = 0 : i < 15 : i++) { viewImageCenter(AIN_png, true); KeyDelay(20); }
-!  KeyDelay(900);
-!  tt_inicial4.visualiza();
-!  for (i = 0 : i < 15 : i++) { viewImageCenter(AIEN_png, true); KeyDelay(20); }
-!  KeyDelay(800);
-!  tt_inicial5.visualiza();
-!  KeyDelay(600);
-!  DibujaLogoAlien();
+
+  v = Damusix.QueVolumenCanal(CANAL_FONDO);
+  Damusix.AsignarCanal(Grillos_ogg, CANAL_FONDO, 0, SONIDO_BUCLE_INFINITO);
+  Damusix.TocarCanal(CANAL_FONDO);
+  Damusix.SimpleFadeIn(Grillos_ogg, 2000, 50);
+
+  if (hayGraficos) {
+    glk_window_close(gg_bigwin, 0);
+    gg_bigwin = glk_window_open(gg_mainwin,
+                                winmethod_Above + winmethod_Proportional, 100,
+                                wintype_Graphics, GG_BIGWIN_ROCK);
+    MostrarImagenGradualmente(Prologo_png, 30, 10);
+    KeyDelay(300);
+    MostrarImagenGradualmente(Fundido_png, 40, 5);
+  } else {
+    print "Prólogo";
+  }
+  
+  openGraphicWindow(altoVentanaGrafica);
+!  print "Copyright (c) 2008-2012 Alpha Aventuras";
+!  KeyDelay();
+!  clearMainWindow();
+  ! Desde el primer momento, dibujamos la primera pantalla y activamos el timer:
+!  viewImageCenter(Nave1_jpg);
+  ! Aquí iría la introducción en la que Katie y Becca hablan
+  ConversacionKatieBecca();
+  
   if (v ~= 0) {
     glk($00D6, 500);                      ! request_timer_events
     glk($00D2, gg_mainwin);               ! glk_request_char_event(gg_mainwin);
@@ -1429,7 +1431,6 @@ Object timbre_tlf_katie
   KeyDelay(esp);
   HablaBecca("Esa que te mata cuando la ves.");
   new_line;
-  KeyDelay();
 ];
 
 
@@ -1480,9 +1481,95 @@ Object timbre_tlf_katie
 !-------------------------------------------------------------------------------
 
 
+Verb meta 'graficos'
+  *                           -> Graficos
+  * 'on'/'encendido'/'si'     -> EncenderGraficos
+  * 'off'/'apagado'/'no'/'nx' -> ApagarGraficos
+  * 'pequenos'                -> GraficosPequenos
+  * 'medianos'                -> GraficosMedianos
+  * 'grandes'                 -> GraficosGrandes;
+
+Verb meta 'configuracion'
+  *                           -> Configuracion;
+
+Verb meta 'sonido' 'sonidos'
+  *                                   -> Sonido
+  * 'on'/'encendido'/'si'             -> EncenderSonido
+  * 'off'/'apagado'/'no'/'nx'         -> ApagarSonido
+  * 'fondo'                           -> Musica
+  * 'fondo' 'on'/'encendido'/'si'     -> EncenderMusica
+  * 'fondo' 'off'/'apagado'/'no'/'nx' -> ApagarMusica;
+
+Verb meta 'musica'
+  *                                   -> Musica
+  * 'fondo' 'on'/'encendida'/'si'     -> EncenderMusica
+  * 'fondo' 'off'/'apagada'/'no'/'nx' -> ApagarMusica
+  * 'on'/'encendida'/'si'             -> EncenderMusica
+  * 'off'/'apagada'/'no'/ 'nx'        -> ApagarMusica;
+
+Verb meta 'pistas'
+  *                 -> Pistas
+  * 'no' / 'nx'     -> PistasNo;
+
+
 !===============================================================================
 ! (11) Rutinas de Acciones Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+[ ConfiguracionSub v m;
+  ControlTimer.PausarTick();
+  if (hayGraficos) {
+    ApagarGraficosSub(true);
+    hayGraficos = true;
+  }
+  barra_estado.numero_lineas = 26;
+  barra_estado.dibujar();
+  clearMainWindow();
+  ZIPI_RunMenu(ZIPI_Configuracion, true);
+  v = Damusix.QueVolumenCanal(CANAL_FONDO);
+  m = LugarReal().sgw_mus;
+  if (haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
+    Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
+    Damusix.TocarCanal(CANAL_FONDO);
+  }
+  barra_estado.numero_lineas = 1;
+  barra_estado.dibujar();
+  if (hayGraficos) {
+    EncenderGraficosSub(true);
+  }
+  clearTextWindow();
+  ControlTimer.ReanudarTick();
+  <<Look>>;
+];
+
+
+[ GraficosSub;
+  print (s_emph) "[Por favor, usa la forma ~", (s_input) "GRAFICOS SI",
+        (s_emph) "~ o ~", (s_input) "GRAFICOS NO", (s_emph) "~ para activar o
+        desactivar, respectivamente, el uso de gráficos. También puedes
+        cambiar el tamaño de la ventana gráfica usando ~",
+        (s_input) "GRAFICOS PEQUEÑOS", (s_emph) "~, ~",
+        (s_input) "GRAFICOS MEDIANOS", (s_emph) "~ o ~",
+        (s_input) "GRAFICOS GRANDES", (s_emph) "~.]^";
+];
+
+
+[ GraficosPequenosSub;
+  altoVentanaGrafica = GRAFICOS_PEQUENOS;
+  EncenderGraficosSub();
+];
+
+[ GraficosMedianosSub;
+  altoVentanaGrafica = GRAFICOS_MEDIANOS;
+  EncenderGraficosSub();
+];
+
+
+[ GraficosGrandesSub;
+  altoVentanaGrafica = GRAFICOS_GRANDES;
+  EncenderGraficosSub();
+];
 
 
 [ EncenderGraficosSub;
@@ -1492,6 +1579,100 @@ Object timbre_tlf_katie
 
 [ ApagarGraficosSub;
   ApagarGraficos(true);
+];
+
+
+[ SonidoSub;
+  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO SI",
+        (s_emph) "~ o ~", (s_input) "SONIDO NO",
+        (s_emph) "~ para activar o desactivar, respectivamente,
+                  todos los efectos sonoros.]^";
+];
+
+
+[ MusicaSub;
+  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO FONDO SI",
+        (s_emph) "~ o ~", (s_input) "SONIDO FONDO NO", (s_emph) "~ para activar
+        o desactivar, respectivamente, el sonido de fondo.]^";
+];
+
+
+[ EncenderSonidoSub;
+  haySonido = true;
+  Damusix.ActivarAudio();
+  print (s_emph) "[Activados todos los efectos sonoros.]^";
+];
+
+
+[ ApagarSonidoSub;
+  haySonido = false;
+  Damusix.DesactivarAudio();
+  print (s_emph) "[Desactivados todos los efectos sonoros.]^";
+];
+
+
+[ EncenderMusicaSub i;
+  haySonidoFondo = true;
+  Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
+
+  if (~~i) {
+    print (s_emph) "[Activado el sonido de fondo.]^";
+  }
+];
+
+  
+[ ApagarMusicaSub;
+  haySonidoFondo = false;
+  Damusix.VolumenCanal(CANAL_FONDO, 0);
+  print (s_emph) "[Desactivado el sonido de fondo.]^";
+];
+
+
+[ PistasSub t v;
+  switch (hayPistas) {
+    0: hayPistas = 1;
+       print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
+             a veces tan fuerte que se suelen obtener pistas prematuramente.
+             Por tanto, en cualquier momento durante el juego puedes poner ",
+             (s_input) "PISTAS NO", (s_emph) ", y eso te impedirá obtener ayuda
+             en la sesión de juego actual. Si sigues queriendo una pista, pon ",
+             (s_input) "PISTAS", (s_emph) " otra vez.]^";
+    1: ControlTimer.PausarTick();
+       t = false;
+       if (hayGraficos) {
+         t = true;
+         ApagarGraficosSub(true);
+       }
+       barra_estado.numero_lineas = 26;
+       barra_estado.dibujar();
+       v = Damusix.QueVolumenCanal(CANAL_FONDO);
+       Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v,
+                            SONIDO_BUCLE_INFINITO);
+       Damusix.TocarCanal(CANAL_FONDO);
+       ZIPI_Empezar();
+       v = Damusix.QueVolumenCanal(CANAL_FONDO);
+       Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
+                            SONIDO_BUCLE_INFINITO);
+       Damusix.TocarCanal(CANAL_FONDO);
+       barra_estado.numero_lineas = 1;
+       barra_estado.dibujar();
+       if (t) {
+         EncenderGraficosSub(true);
+       }
+       clearTextWindow();
+       ControlTimer.ReanudarTick();
+       <<Look>>;
+    2: print (s_emph) "[Las pistas han sido desactivadas.]^";
+  }
+];
+
+
+[ PistasNoSub;
+  switch (hayPistas) {
+    2:       print (s_emph) "[Las pistas ya han sido desactivadas.]^";
+    default: hayPistas = 2;
+             print (s_emph) "[PISTAS desactivadas.]^";
+  }
 ];
 
 

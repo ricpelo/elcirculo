@@ -552,6 +552,11 @@ Class Lugar
             "La intensa lluvia ciega tus ojos.";
         }        
     ],
+    after [ o;
+      objectloop (o ofclass Sonido && o in self) {
+        o.cambiar_volumen();
+      }
+    ],
   has
     light;
 
@@ -624,7 +629,7 @@ Include "Contenedor";
   ! Localización donde comienza el jugador
   location = cuarto_katie;
 
-  player.persona = PRIMERA_PERSONA + PERSONA_SINGULAR;
+!  AsignarPersona(PRIMERA_PERSONA + PERSONA_SINGULAR);
   give player female;
 
   clearTextWindow();
@@ -639,7 +644,7 @@ Include "Contenedor";
   }
 
   Damusix.PararCanal(CANAL_FONDO);
-  timbre_tlf_katie.sonar();
+  snd_telefono_katie.sonar();
   timer_tlf_katie.AsignarGestor(1);
   ControlTimer.ActivarTick(TIMER_TICK);
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, player);
@@ -723,28 +728,36 @@ Include "Decir";           ! Para poder usar DECIR ... A ...
 !-------------------------------------------------------------------------------
 
 
-Class MiTeletipo
-  class Teletipo,
+!Class MiTeletipo
+!  class Teletipo,
+!  with
+!    gancho_antes [;
+!!     Damusix.TocarCanal(CANAL_TELETIPO);
+!    ],
+!    gancho_despues [;
+!!     Damusix.PararCanal(CANAL_TELETIPO);
+!    ];
+ 
+
+Class Sonido
   with
-    gancho_antes [;
-!     Damusix.TocarCanal(CANAL_TELETIPO);
+    cambiar_volumen [;
+      Damusix.VolumenCanal(self.canal, self.volumen());
     ],
-    gancho_despues [;
-!     Damusix.PararCanal(CANAL_TELETIPO);
+    sonando [;
+      return Damusix.SonandoDeFondoCanal(self.canal);
+    ],
+    tocar_sonido [ snd;
+      Damusix.AsignarCanal(snd, self.canal, self.volumen(),
+                           SONIDO_BUCLE_INFINITO);
+      Damusix.TocarCanal(self.canal);
+    ],
+    parar_sonido [;
+      Damusix.PararCanal(self.canal);
     ];
+      
 
 
-Class LugarCasaKatie
-  class Lugar,
-  with
-    after [;
-      Go:
-        if (timbre_tlf_katie.sonando) {
-          Damusix.VolumenCanal(CANAL_TELEFONO, self.volumen_tlf);
-        }
-    ];
-  
-    
 !===============================================================================
 ! (8) Objetos del Juego
 !-------------------------------------------------------------------------------
@@ -758,43 +771,57 @@ Class LugarCasaKatie
 ! PRÓLOGO
 ! ---------------------------------------------
 
+
 Object cuarto_katie "Tu habitación"
-  class LugarCasaKatie
+  class Lugar
   with
     description "Típica habitación de adolescente.",
-    out_to pasillo_superior_katie,
-    sgw_img Oscuridad_jpg,
-!    sgw_mus TV_Fondo_ogg,
-    volumen_tlf VOLUMEN_TELEFONO / 4;
+    out_to pasillo_katie,
+    sgw_img Oscuridad_jpg;
+!    sgw_mus TV_Fondo_ogg;
 
 
-Object pasillo_superior_katie "Pasillo del piso superior"
-  class LugarCasaKatie
+Object pasillo_katie "Pasillo del piso superior"
+  class Lugar
   with
     description "El pasillo del piso superior.",
     in_to cuarto_katie,
     d_to cocina_katie,
-    sgw_img Oscuridad_jpg,
-    volumen_tlf VOLUMEN_TELEFONO / 2;
+    sgw_img Oscuridad_jpg;
 
     
 Object cocina_katie "Cocina"
-  class LugarCasaKatie
+  class Lugar
   with
     description "La cocina.",
-    u_to pasillo_superior_katie,
+    u_to pasillo_katie,
     s_to salon_katie,
     sgw_img Oscuridad_jpg,
-    volumen_tlf VOLUMEN_TELEFONO;
+    before [;
+      Go:
+        if (noun == u_obj) {
+          if (~~(snd_telefono_katie.sonando())) {
+            switch (tv_katie.encendidos) {
+              0: tv_katie.encender(true);
+                 "Se enciende la tele.";
+              1: if (tv_katie has on) {
+                   "Algo te dice que no quieres dejar el televisor encendido.";
+                 } else {
+                   tv_katie.encender(true);
+                   "El televisor se vuelve a encender";
+                 }
+            }
+          }
+        }
+    ];
 
 
 Object salon_katie "Salón"
-  class LugarCasaKatie
+  class Lugar
   with
     description "El salón.",
     n_to cocina_katie,
-    sgw_img Oscuridad_jpg,
-    volumen_tlf VOLUMEN_TELEFONO / 2;
+    sgw_img Oscuridad_jpg;
     
     
 ! ====================================================================
@@ -813,12 +840,12 @@ Object telefono_katie "teléfono" cocina_katie
     description "El teléfono de la casa de Katie.",
     initial "Ves tu teléfono.",
     sonando [;
-      return timbre_tlf_katie.sonando();
+      return snd_telefono_katie.sonando();
     ],
     before [;
       Take, Descolgar:
         if (self.sonando()) {
-          timbre_tlf_katie.parar(true);
+          snd_telefono_katie.parar(true);
           "Descuelgas el auricular y oyes a tu madre.";
         } else {
           "Descuelgas y no oyes nada. Ni siquiera el tono de marcado.";
@@ -846,7 +873,7 @@ Object telefono_katie "teléfono" cocina_katie
         if (random(100) < 20) {
           HablaBecca(self.item_sec_tlf());
         } else if (random(100) < 10 && self.sec_tlf_cnt == 2) {
-          timbre_tlf_katie.parar(true);
+          snd_telefono_katie.parar(true);
           HablaBecca("Venga ya, esto es absurdo...");
           "^Becca coge el teléfono y te lo da, oyes a tu madre.";
         }
@@ -854,6 +881,46 @@ Object telefono_katie "teléfono" cocina_katie
     ],
   has
     static;
+
+
+Object tv_katie "televisor" salon_katie
+  with
+    name_f 'tv' 'television',
+    name_m 'televisor',
+    descripcion "El televisor.",
+    initial "Ves el televisor.",
+    time_left,
+    time_out [;
+      self.encender(true);
+      "^Se vuelve a encender el televisor.";
+    ],
+    encendidos 0,
+    encender [ sw;
+      give self on;
+      ruido_tv_katie.sonar();
+      if (~~sw) "Enciendes el televisor.";
+      else      self.encendidos++;
+    ],
+    apagar [ sw;
+      give self ~on;
+      ruido_tv_katie.parar();
+      if (~~sw) "Apagas el televisor.";
+    ],
+    after [;
+      SwitchOn:
+        self.encender();
+        StopTimer(self);
+        rtrue;
+
+      SwitchOff:
+        self.apagar();
+        if (self.encendidos == 1) {
+          StartTimer(self, 3);
+        }
+        rtrue;
+    ],
+  has
+    static switchable;
 
 
 ! ====================================================================
@@ -919,27 +986,27 @@ Object becca "Becca" cuarto_katie
     for (i = 0: i < count - 2: i++) {
       j = i + 3;
       ZIPI_setcursor(5,j);
-      if (ft && hayTeletipo) {
-        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
-      } else {
+!      if (ft && hayTeletipo) {
+!        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
+!      } else {
         style fixed;
         if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
           (_m.&ZIPI_item-->i).ZIPI_titulo();
         else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
         style roman;
-      }
+!      }
     }
 
     j = i + 4;
     ZIPI_setcursor(5, j);
 
-    if (ft) {
-      if (top) tt_computadora.visualiza("Salir");
-      else     tt_computadora.visualiza("Volver");
-    } else {
+!    if (ft) {
+!      if (top) tt_computadora.visualiza("Salir");
+!      else     tt_computadora.visualiza("Volver");
+!    } else {
       if (top) print (s_pref) "Salir";
       else     print (s_pref) "Volver";
-    }
+!    }
 
     ft = false;
     j = cur + 3;
@@ -1184,7 +1251,7 @@ Object ZIPI_Restaurar
     .RFailed;
       glk($002F, gg_statuswin);
       StatusLineHeight(24);
-      tt_computadora.visualiza("^Error: no se ha podido cargar la partida");
+      print "^Error: no se ha podido cargar la partida.";
       rfalse;
     ];
 
@@ -1208,14 +1275,14 @@ Object timer_tlf_katie
   with
     duracion TIMER_DURACION_TLF_KATIE,
     condicion [;
-      return timbre_tlf_katie.sonando();
+      return snd_telefono_katie.sonando();
     ],
     evento [;
-      if (timbre_tlf_katie.time_left <= 0) {
-        timbre_tlf_katie.time_left = timbre_tlf_katie.duracion_alarma;
-        timbre_tlf_katie.time_out();
+      if (snd_telefono_katie.time_left <= 0) {
+        snd_telefono_katie.time_left = snd_telefono_katie.duracion_alarma;
+        snd_telefono_katie.time_out();
       } else {
-        timbre_tlf_katie.time_left--;
+        snd_telefono_katie.time_left--;
       }
     ];
 
@@ -1236,39 +1303,38 @@ Object barra_estado
       BE_INV_TOTAL;
 
 
-Object tt_computadora
-  class MiTeletipo
-  private
-    sonido 1,
-    elementos
-      "" POR_LETRA LETRA_FIJA SIN_PAUSA;
+!Object tt_computadora
+!  class MiTeletipo
+!  private
+!    sonido 1,
+!    elementos
+!      "" POR_LETRA LETRA_FIJA SIN_PAUSA;
 
       
-Object tt_inicio
-  class MiTeletipo
-  private
-    sonido 1,
-    PausaMensaje 250,
-    elementos
-      "Miles de millones de kilómetros me separan del lugar en el que fui
-       creado."
-        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-      "^Llevo incontables ciclos de tiempo viajando"
-        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-      "^para cumplir la misión que le da sentido a mi existencia."
-        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-      "^Y ahora, por fin..."
-        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-      "^El viaje termina."
-        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
+!Object tt_inicio
+!  class MiTeletipo
+!  private
+!    sonido 1,
+!    PausaMensaje 250,
+!    elementos
+!      "Miles de millones de kilómetros me separan del lugar en el que fui
+!       creado."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^Llevo incontables ciclos de tiempo viajando"
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^para cumplir la misión que le da sentido a mi existencia."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^Y ahora, por fin..."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^El viaje termina."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
 
 
-Object timbre_tlf_katie
+Object snd_telefono_katie
+  class Sonido
   with
-    found_in [; rtrue; ],
-    sonando [;
-      return Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
-    ],
+    found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
+    canal CANAL_TELEFONO,
     duracion_alarma 10,
     time_left,
     time_out [;
@@ -1281,22 +1347,55 @@ Object timbre_tlf_katie
       ControlTimer.PrepararImpresion();
       "^El teléfono sigue sonando.";
     ],
+    volumen [
+      l v;
+      l = LugarReal(); 
+      if (l == cocina_katie)       v = VOLUMEN_TELEFONO;
+      else if (l == salon_katie)   v = VOLUMEN_TELEFONO / 2;
+      else if (l == pasillo_katie) v = VOLUMEN_TELEFONO / 2;
+      else if (l == cuarto_katie)  v = VOLUMEN_TELEFONO / 4;
+      else                         v = 0;
+      return v;
+    ],
     sonar [ sw;
-      Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO / 4,
-                           SONIDO_BUCLE_INFINITO);
-      Damusix.TocarCanal(CANAL_TELEFONO);
+      self.tocar_sonido(Telefono1_ogg);
       StartTimer(self, self.duracion_alarma);
       if (~~sw) "Comienza a sonar el teléfono en la planta baja.";
     ],
     parar [ sw;
-      Damusix.PararCanal(CANAL_TELEFONO);
+      self.parar_sonido();
+      remove becca;
       StopTimer(self);
       if (~~sw) "El teléfono deja de sonar.";
     ],
   has
-    concealed;
+    concealed; 
 
-          
+
+Object ruido_tv_katie
+  class Sonido
+  with
+    found_in salon_katie cocina_katie pasillo_katie,
+    canal CANAL_TV,
+    volumen [
+      l v;
+      l = LugarReal(); 
+      if (l == salon_katie)        v = VOLUMEN_TV;
+      else if (l == cocina_katie)  v = VOLUMEN_TV / 2;
+      else if (l == pasillo_katie) v = VOLUMEN_TV / 4;
+      else                         v = 0;
+      return v;
+    ],
+    sonar [;
+      self.tocar_sonido(Ruido_TV_ogg);
+    ],
+    parar [;
+      self.parar_sonido();
+    ],
+  has
+    concealed; 
+
+
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------

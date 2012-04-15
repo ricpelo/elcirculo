@@ -71,6 +71,8 @@ Constant SONIDO_BUCLE_INFINITO = -1;
 ! El color de fondo de la ventana gráfica es negro:
 Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 
+Constant TIMER_TICK = 1000;
+Constant TIMER_DURACION_TLF_KATIE = 6;
 
 ! ====================================================================
 ! VARIABLES GLOBALES
@@ -660,7 +662,8 @@ Include "Contenedor";
 !  clearMainWindow();
   ! Desde el primer momento, dibujamos la primera pantalla y activamos el timer:
 !  viewImageCenter(Nave1_jpg);
-!  ControlTimer.ActivarTick(TIMER_TICK);
+  timer_tlf_katie.AsignarGestor(1);
+  ControlTimer.ActivarTick(TIMER_TICK);
   ! Aquí iría la introducción en la que Katie y Becca hablan
   ConversacionKatieBecca();
   Damusix.PararCanal(CANAL_FONDO);
@@ -1155,6 +1158,28 @@ Object ZIPI_Salir
 
     
 ! ====================================================================
+! GESTORES DE TIMER
+! ====================================================================
+
+
+Object timer_tlf_katie
+  class GestorTimer
+  with
+    duracion TIMER_DURACION_TLF_KATIE,
+    condicion [;
+      return timbre_tlf_katie.sonando();
+    ],
+    evento [;
+      if (timbre_tlf_katie.time_left <= 0) {
+        timbre_tlf_katie.time_left = timbre_tlf_katie.duracion_alarma;
+        timbre_tlf_katie.time_out();
+      } else {
+        timbre_tlf_katie.time_left--;
+      }
+    ];
+
+
+! ====================================================================
 ! OTROS OBJETOS DE SOPORTE
 ! ====================================================================
 
@@ -1203,18 +1228,23 @@ Object timbre_tlf_katie
     sonando [;
       return Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
     ],
+    duracion_alarma 10,
     time_left,
     time_out [;
-      if (self.sonando) {
-        StartTimer(self, 5);
-        "^El teléfono sigue sonando.";
+      if (self.sonando()) {
+        StartTimer(self, self.duracion_alarma);
+        self.avisar_que_suena();
       }
+    ],
+    avisar_que_suena [;
+      ControlTimer.PrepararImpresion();
+      "^El teléfono sigue sonando.";
     ],
     sonar [;
       Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO / 4,
                            SONIDO_BUCLE_INFINITO);
       Damusix.TocarCanal(CANAL_TELEFONO);
-      StartTimer(self, 5);
+      StartTimer(self, self.duracion_alarma);
       "Comienza a sonar el teléfono en la planta baja.";
     ],
     parar [;
@@ -1242,7 +1272,7 @@ Object timbre_tlf_katie
 
 
 [ HablaPSI psi msg;
-  print_ret (s_bold) psi, ": ~", (string) msg, "~";
+  print_ret (s_user1) psi, ": ~", (string) msg, "~";
 ];
 
 
@@ -1306,7 +1336,7 @@ Object timbre_tlf_katie
 
 
 [ RecomiendaGargoyle;
-  print "~A·L·I·E·N: La aventura - Edición Especial~ ha sido diseñada
+  print "~El círculo~ ha sido diseñada
          para funcionar con el intérprete Gargoyle, que puedes
          descargar de la siguiente dirección:^^",
          (s_pref) "http://code.google.com/p/garglk/downloads^";

@@ -61,7 +61,8 @@ Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
 Constant CANAL_FONDO = 9; Constant VOLUMEN_FONDO = 50;
-Constant CANAL_TELEFONO = 0; Constant VOLUMEN_TELEFONO = 100; 
+Constant CANAL_TV = 0; Constant VOLUMEN_TV = 100;
+Constant CANAL_TELEFONO = 1; Constant VOLUMEN_TELEFONO = 100;
 
 ! Vamos a usar Damusix junto con SGW+DMX
 Constant SGW_CON_DAMUSIX;
@@ -620,7 +621,7 @@ Include "Contenedor";
   thedark.short_name = "Zona de oscuridad";
   
   ! Localización donde comienza el jugador
-  location = nave1;
+  location = cuarto_katie;
 
   player.persona = PRIMERA_PERSONA + PERSONA_SINGULAR;
   give player female;
@@ -637,9 +638,9 @@ Include "Contenedor";
   }
 
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
-  Damusix.AsignarCanal(TV_Fondo_Ogg, CANAL_FONDO, 0, SONIDO_BUCLE_INFINITO);
+  Damusix.AsignarCanal(Grillos_ogg, CANAL_FONDO, 0, SONIDO_BUCLE_INFINITO);
   Damusix.TocarCanal(CANAL_FONDO);
-  Damusix.SimpleFadeIn(TV_Fondo_ogg, 2000);
+  Damusix.SimpleFadeIn(Grillos_ogg, 2000, 50);
 
   if (hayGraficos) {
     glk_window_close(gg_bigwin, 0);
@@ -663,9 +664,8 @@ Include "Contenedor";
   ! Aquí iría la introducción en la que Katie y Becca hablan
   ConversacionKatieBecca();
   Damusix.PararCanal(CANAL_FONDO);
-  Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, -1,
-                       SONIDO_BUCLE_INFINITO);
-  Damusix.TocarCanal(CANAL_TELEFONO);
+  timbre_tlf_katie.sonar();
+  KeyDelay();
 ];
 
 
@@ -766,16 +766,11 @@ Class MiTeletipo
 ! ====================================================================
 
 
-Object nave1 "Interior de la nave"
+Object cuarto_katie "Tu habitación"
   class Lugar
   with
-    description "La nave de exploración Alpha dispone de todo lo necesario para satisfacer
-                 los requisitos más básicos en cuanto a soporte vital y contención. Los
-                 instrumentos brillan y parpadean de forma insana, y frente a ellos se
-                 disponen los dos únicos asientos del vehículo. Sus angostas paredes
-                 aumentan la sensación de claustrofobia y los enormes ventanales ofrecen
-                 una vista desoladora del exterior.",
-    sgw_img Nave1_jpg
+    description "Típica habitación de adolescente.",
+    sgw_img Oscuridad_jpg
 !    sgw_mus TV_Fondo_ogg
 ;
 
@@ -1157,7 +1152,33 @@ Object tt_inicio
       "^El viaje termina."
         POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
 
-        
+
+Object timbre_tlf_katie selfobj
+  with
+    sonando [;
+      return Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
+    ],
+    time_left,
+    time_out [;
+      if (self.sonando) {
+        StartTimer(self, 5);
+        "^El teléfono sigue sonando.";
+      }
+    ],
+    sonar [;
+      Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO / 3,
+                           SONIDO_BUCLE_INFINITO);
+      Damusix.TocarCanal(CANAL_TELEFONO);
+      StartTimer(self, 5);
+      "Comienza a sonar el teléfono en la planta baja.";
+    ],
+    parar [;
+      Damusix.PararCanal(CANAL_TELEFONO);
+      StopTimer(self);
+      "El teléfono deja de sonar.";
+    ];
+
+          
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
@@ -1174,7 +1195,7 @@ Object tt_inicio
 
 
 [ HablaPSI psi msg;
-  print_ret (s_bold) psi, ": ", (string) msg;
+  print_ret (s_bold) psi, ": ~", (string) msg, "~";
 ];
 
 
@@ -1311,12 +1332,26 @@ Object tt_inicio
 
 [ ConversacionKatieBecca
   esp;
-  esp = 300;
+  esp = 1000;
+  print "Condado de Eola.";
+  KeyDelay(600);
+  print " Diez menos cuarto de la noche.";
+  KeyDelay(600);
+  Damusix.VolumenCanal(CANAL_FONDO, 10);
+  Damusix.AsignarCanal(TV_Fondo_ogg, CANAL_TV, VOLUMEN_TV);
+  Damusix.TocarCanal(CANAL_TV);
+  new_line;
+  HablaBecca("La tele es un rollo. Toma: pon lo que quieras.");
+  KeyDelay(esp);
+  HablaKatie("No hay nada que me guste.");
+  Damusix.PararCanal(CANAL_TV);
+  KeyDelay(esp);
   HablaBecca("¿Sabes lo de la cinta?");
   KeyDelay(esp);
   HablaKatie("¿Qué cinta?");
   KeyDelay(esp);
   HablaBecca("Esa que te mata cuando la ves.");
+  new_line;
   KeyDelay();
 ];
 

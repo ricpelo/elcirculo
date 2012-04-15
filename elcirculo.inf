@@ -37,7 +37,7 @@
 ! ====================================================================
 
 
-Constant Story "~El círculo~";
+Constant Story "~EL CÍRCULO~";
 Constant Headline "^(c) 2012 Alpha Aventuras^^
                   Teclea CRÉDITOS si quieres saber más acerca de la aventura, o
                   AYUDA cuando estés bloqueado.^";
@@ -152,8 +152,7 @@ Replace HandleGlkEvent;
 ! Usamos el ParseNoun de IntNombre_NG:
 Replace ParseNoun;
 
-Replace EncenderGraficos;
-
+! Lo pide Timer.h:
 Replace KeyDelay;
 
 Include "Parser";
@@ -807,6 +806,29 @@ Object salon_katie "Salón"
 ! ====================================================================
 
 
+Object telefono_katie "teléfono" cocina_katie
+  with
+    name 'telefono' 'auricular',
+    description "El teléfono de la casa de Katie.",
+    initial "Ves tu teléfono.",
+    sonando [;
+      return timbre_tlf_katie.sonando();
+    ],
+    before [;
+      Take, Descolgar:
+        if (timbre_tlf_katie.sonando()) {
+          timbre_tlf_katie.parar(true);
+          "Descuelgas el auricular y oyes a tu madre.";
+        } else {
+          "Descuelgas y no oyes nada. Ni siquiera el tono de marcado.";
+        }
+      Drop, Colgar:
+        "El teléfono ya está colgado.";
+    ],
+  has
+    static;
+
+
 ! ====================================================================
 ! PERSONAJES
 ! ====================================================================
@@ -1232,17 +1254,17 @@ Object timbre_tlf_katie
       ControlTimer.PrepararImpresion();
       "^El teléfono sigue sonando.";
     ],
-    sonar [;
+    sonar [ sw;
       Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO / 4,
                            SONIDO_BUCLE_INFINITO);
       Damusix.TocarCanal(CANAL_TELEFONO);
       StartTimer(self, self.duracion_alarma);
-      "Comienza a sonar el teléfono en la planta baja.";
+      if (~~sw) "Comienza a sonar el teléfono en la planta baja.";
     ],
-    parar [;
+    parar [ sw;
       Damusix.PararCanal(CANAL_TELEFONO);
       StopTimer(self);
-      "El teléfono deja de sonar.";
+      if (~~sw) "El teléfono deja de sonar.";
     ],
   has
     concealed;
@@ -1511,6 +1533,19 @@ Verb meta 'pistas'
   *                 -> Pistas
   * 'no' / 'nx'     -> PistasNo;
 
+Verb 'descuelga'
+  * noun            -> Descolgar;
+
+VerboIrregular "descolgar" with imperativo 'descuelga';
+
+Verb 'cuelga'
+  * noun            -> Colgar;
+
+VerboIrregular "colgar" with imperativo 'cuelga';
+
+Verb meta 'creditos'
+  *                 -> Creditos;
+
 
 !===============================================================================
 ! (11) Rutinas de Acciones Propias del Juego
@@ -1673,6 +1708,72 @@ Verb meta 'pistas'
     default: hayPistas = 2;
              print (s_emph) "[PISTAS desactivadas.]^";
   }
+];
+
+
+[ DescolgarSub;
+  "No tiene sentido descolgar eso.";
+];
+
+
+[ ColgarSub;
+  "No tiene sentido colgar eso.";
+];
+
+
+[ CreditosSub;
+  viewImageCenter(Logo_Alpha_Aventuras_jpg);
+  print (s_head) "^* EL CÍRCULO *^^";
+  print "(c) 2012 Alpha Aventuras^^";
+  print (s_bold) "- PROGRAMACIÓN Y DISEÑO:^";
+  print "    Ricardo Pérez López^^";
+  print (s_bold) "- GRÁFICOS:^";
+  print "    Manuel Millán Ruiz^^";
+  print (s_bold) "- TEXTOS:^";
+  print "    Ricardo Pérez López^^";
+  print (s_bold) "- MAPEADO Y DOCUMENTACIÓN:^";
+  print "    Ricardo Pérez López^";
+  print "    Antonio Matiola Ortiz^^";
+  print (s_bold) "- PRUEBAS:^";
+  print "    Ricardo Pérez López^";
+  print "    Manuel Millán Ruiz^^";
+  KeyDelay();
+  print "Desarrollado usando el lenguaje Inform, de Graham Nelson,
+         con ayuda de las siguientes librerías:^^";
+  print "- INFSP6 (fix), de Sarganar et al.^";
+  print "- Adaptación de SGW+DMX, de Eliuk Blau^";
+  print "- Damusix, de Eliuk Blau^";
+  print "- PNJactor_NG y PNJacciones_NG (adaptaciones de los originales de Zak
+           y Carlos)^";
+  print "- Rastros_NG (adaptación de Rastros, de Mel Hython)^";
+  print "- Moviles_NG (adaptación de Moviles, de Mel Hython)^";
+  print "- PNJpuertas_NG (Adaptación de PnjPuertas, de Jaevius)^";
+  print "- Decir, de Zak^";
+  print "- Etemas, de Zak^";
+  print "- Decorado_NG (adaptación de Decorado, de Zak y Mel Hython)^";
+  print "- Teletipo (adaptación de Escr, de Baltasarq)^";
+  print "- Adaptación de Barra, de Presi^";
+  print "- Adaptación de ZIPI, de Zak^";
+  print "- Timer, de Sothoth";
+  KeyDelay();
+  print "^^Basado en la novela ~Ringu~ de Koji Suzuki y la película ~The Ring~
+         de Gore Verbinsky.";
+  print "^^Nuestro agradecimiento a todos los integrantes del CAAD que nos han
+         ayudado, directa o indirectamente, en el desarrollo de esta aventura.^^
+         (c) 2012 Alpha Aventuras^^
+         Este programa es software libre, publicado bajo la licencia GNU GPL v3.
+         El texto completo de la licencia se encuentra en la siguiente
+         dirección:^^";
+  print (s_pref) "http://www.gnu.org/licenses/gpl.txt^";
+  print "^El código fuente del programa está disponible en Github:^^";
+  print (s_pref) "https://github.com/ricpelo/alien/tree/deluxe^";
+  KeyDelay();
+  print "^Visítanos en:^^";
+  print (s_pref) "http://www.alpha-aventuras.es^
+        http://wiki.caad.es/Alpha_Aventuras^
+        http://www.facebook.com/alphaaventuras^";
+  KeyDelay();
+  viewImageCenter(LugarReal().sgw_img);
 ];
 
 

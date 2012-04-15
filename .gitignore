@@ -3,6 +3,7 @@ elcirculo.blc
 elcirculo.bli
 elcirculo.ulx
 .elcirculo.inf.swp
+.elcirculo.inf.marks
 *.o
 *.a
 *~

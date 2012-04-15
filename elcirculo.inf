@@ -166,6 +166,7 @@ Include "Parser";
 
 [ IdentifyGlkObject fase tipo ref rock;
   SGW_IdentifyGlk(fase,tipo,ref,rock);
+  Damusix.IdentificarSonidos(fase);
 !  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
 ];
 
@@ -816,7 +817,7 @@ Object telefono_katie "teléfono" cocina_katie
     ],
     before [;
       Take, Descolgar:
-        if (timbre_tlf_katie.sonando()) {
+        if (self.sonando()) {
           timbre_tlf_katie.parar(true);
           "Descuelgas el auricular y oyes a tu madre.";
         } else {
@@ -824,6 +825,32 @@ Object telefono_katie "teléfono" cocina_katie
         }
       Drop, Colgar:
         "El teléfono ya está colgado.";
+    ],
+    item_sec_tlf [
+      t r;
+      t = self.#sec_tlf / WORDSIZE;
+      if (self.sec_tlf_cnt < t - 1) {
+        r = self.&sec_tlf-->(self.sec_tlf_cnt);
+        self.sec_tlf_cnt++;
+        return r;
+      } else {
+        return self.&sec_tlf-->(t - 1);
+      }
+    ],
+    sec_tlf "¿Qué pasa? ¿No lo coges?"
+            "¿Por qué no lo coges?"
+            "¡Pero cógelo ya! ¿Tienes miedo o qué?",
+    sec_tlf_cnt 0,
+    each_turn [;
+      if (becca in cocina_katie && self.sonando()) {
+        if (random(100) < 20) {
+          HablaBecca(self.item_sec_tlf());
+        } else if (random(100) < 10 && self.sec_tlf_cnt == 2) {
+          timbre_tlf_katie.parar(true);
+          HablaBecca("Venga ya, esto es absurdo...");
+          "^Becca coge el teléfono y te lo da, oyes a tu madre.";
+        }
+      }
     ],
   has
     static;
@@ -1286,7 +1313,7 @@ Object timbre_tlf_katie
 
 
 [ HablaPSI psi msg;
-  print_ret (s_user1) psi, ": ~", (string) msg, "~";
+  print_ret "^", (s_user1) psi, ": ~", (string) msg, "~";
 ];
 
 

@@ -755,6 +755,17 @@ Class MiTeletipo
 !     Damusix.PararCanal(CANAL_TELETIPO);
     ];
 
+
+Class LugarCasaKatie
+  class Lugar,
+  with
+    after [;
+      Go:
+        if (timbre_tlf_katie.sonando) {
+          Damusix.VolumenCanal(CANAL_TELEFONO, self.volumen_tlf);
+        }
+    ];
+  
     
 !===============================================================================
 ! (8) Objetos del Juego
@@ -765,15 +776,48 @@ Class MiTeletipo
 ! HABITACIONES
 ! ====================================================================
 
+! ---------------------------------------------
+! PRÓLOGO
+! ---------------------------------------------
 
 Object cuarto_katie "Tu habitación"
-  class Lugar
+  class LugarCasaKatie
   with
     description "Típica habitación de adolescente.",
-    sgw_img Oscuridad_jpg
-!    sgw_mus TV_Fondo_ogg
-;
+    out_to pasillo_superior_katie,
+    sgw_img Oscuridad_jpg,
+!    sgw_mus TV_Fondo_ogg,
+    volumen_tlf VOLUMEN_TELEFONO / 4;
 
+
+Object pasillo_superior_katie "Pasillo del piso superior"
+  class LugarCasaKatie
+  with
+    description "El pasillo del piso superior.",
+    in_to cuarto_katie,
+    d_to cocina_katie,
+    sgw_img Oscuridad_jpg,
+    volumen_tlf VOLUMEN_TELEFONO / 2;
+
+    
+Object cocina_katie "Cocina"
+  class LugarCasaKatie
+  with
+    description "La cocina.",
+    u_to pasillo_superior_katie,
+    s_to salon_katie,
+    sgw_img Oscuridad_jpg,
+    volumen_tlf VOLUMEN_TELEFONO;
+
+
+Object salon_katie "Salón"
+  class LugarCasaKatie
+  with
+    description "El salón.",
+    n_to cocina_katie,
+    sgw_img Oscuridad_jpg,
+    volumen_tlf VOLUMEN_TLF / 2;
+    
     
 ! ====================================================================
 ! OBJETOS QUE LLEVAN LOS PERSONAJES AL EMPEZAR
@@ -1153,8 +1197,9 @@ Object tt_inicio
         POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
 
 
-Object timbre_tlf_katie selfobj
+Object timbre_tlf_katie
   with
+    found_in [; rtrue; ],
     sonando [;
       return Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
     ],
@@ -1166,7 +1211,7 @@ Object timbre_tlf_katie selfobj
       }
     ],
     sonar [;
-      Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO / 3,
+      Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO / 4,
                            SONIDO_BUCLE_INFINITO);
       Damusix.TocarCanal(CANAL_TELEFONO);
       StartTimer(self, 5);
@@ -1176,7 +1221,9 @@ Object timbre_tlf_katie selfobj
       Damusix.PararCanal(CANAL_TELEFONO);
       StopTimer(self);
       "El teléfono deja de sonar.";
-    ];
+    ],
+  has
+    concealed;
 
           
 !===============================================================================

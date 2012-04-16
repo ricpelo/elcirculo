@@ -1,0 +1,21 @@
+>>> Started: 2012-02-26 19:10:01
+[2012-02-26 19:10:02] Checking for the latest version...
+[2012-02-26 19:10:03] Installed version: 
+[2012-02-26 19:10:03] Latest version: 2012-02-23_12-02-00
+[2012-02-26 19:10:03] This will exit jEdit and install a new version. Are you sure?
+[2012-02-26 19:10:06] Fetching jEdit download page...
+[2012-02-26 19:10:08] Downloading the new version... http://www.tellurianring.com/projects/jedit-daily/jEdit/2012-02-23_12-02-00/jedit5.0pre1install.jar
+[2012-02-26 19:10:31] 
+[2012-02-26 19:10:31] Launching the installer...
+[2012-02-26 19:10:31] Installer: /home/ricardo/.jedit/plugins/updater.UpdaterPlugin/jeditInstall.jar
+[2012-02-26 19:10:31] Install location: /usr/share/jEdit
+[2012-02-26 19:10:31] Please wait while the update is being installed...
+[2012-02-26 19:10:31] Running: java -jar /home/ricardo/.jedit/plugins/updater.UpdaterPlugin/jeditInstall.jar auto /usr/share/jEdit
+[2012-02-26 19:10:31] stopping any jEdit server
+[2012-02-26 19:10:31] Installing jedit-program
+[2012-02-26 19:10:31] *** An error occurred: The installer could not create the destination directory.
+[2012-02-26 19:10:31] Maybe you do not have write permission?
+[2012-02-26 19:10:31] Installer done. jEdit will now be started using the start script.
+[2012-02-26 19:10:31] Running: 
+[2012-02-26 19:10:31] Start script done.
+<<< Ended: 2012-02-26 19:10:31

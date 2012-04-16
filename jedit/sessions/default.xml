@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE SESSION SYSTEM "session.dtd">
+
+<SESSION name="default">
+  <FILES>
+      <FILE filename="/home/ricardo/IF/INFSP6/Alien/alien.inf" encoding="ISO-8859-15" carat="16976"/>
+      <FILE filename="/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf" isCurrent="true" encoding="ISO-8859-15" carat="24653"/>
+  </FILES>
+
+  <PROPERTIES>
+  </PROPERTIES>
+</SESSION>

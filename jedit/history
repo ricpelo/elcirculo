@@ -1,0 +1,95 @@
+[replace]
+gg_mapawin
+[vfs.browser.path]
+/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG
+/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack
+/home/ricardo/IF/INFSP6/ElCirculo
+/home/ricardo/IF/INFSP6/infsp_I6/Docs Extensiones/Barra
+/home/ricardo/IF/INFSP6/infsp_I6/Docs Extensiones
+/home/ricardo/IF/INFSP6/infsp_I6
+/home/ricardo/IF/INFSP6
+/home/ricardo/IF/INFSP6/Libreria INFSP6
+/home/ricardo/IF/INFSP6/LaSonda
+/home/ricardo/IF/INFSP6/LaSonda/lib
+/home/ricardo/IF/INFSP6/Alien
+/home/ricardo/IF/INFSP6/LaSonda/Alpha_pack
+/home/ricardo/IF/InformATE/Alien
+/home/ricardo/IF/InformATE
+/home/ricardo/IF
+/home/ricardo/.jedit/macros
+/home/ricardo
+[search.filter]
+*.h
+[helpviewer.search]
+DIGIT_RE
+regular expression
+[vfs.browser.filter]
+*\[^~#\]
+[action]
+next-page
+prev-page
+document-home
+document-end
+sidekick-parse
+textautocomplete-buffer-attach
+Jugar
+save
+backspace
+insert-newline-indent
+end
+prev-line
+next-line
+prev-char
+next-char
+insert-tab-indent
+delete
+home
+select-none
+prev-word
+[console.System]
+jugar.sh
+compilar-infixe.sh
+[clipboard]
+ timbre_tlf_kati
+timbre_tlf_katie.time_out();
+_tlf_katie
+timer_tlf_katie
+        ControlTimer.PrepararImpresion();\n        \"^El teléfono sigue sonando.\";\n
+! ====================================================================\n
+! OTROS OBJETOS DE SOPORTE\n! ====================================================================\n
+^
+    volumen_tlf VOLUMEN_TELEFONO / 4;\n
+      Go:\n        if (timbre_tlf_katie.sonando) {\n          Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO / 4);\n        }\n    \];\n
+    after \[;\n      Go:\n        if (timbre_tlf_katie.sonando) {\n          Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO / 2);\n        }\n    \],\n
+        StartTimer(self, 5);\n
+Constant CANAL_TV = 0; Constant VOLUMEN_TV = 20;\n
+  Damusix.PararCanal(CANAL_FONDO);\n  Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO,\n                       SONIDO_BUCLE_INFINITO);\n  Damusix.TocarCanal(CANAL_TELEFONO);
+    MostrarImagenGradualmente(Prologo_png, 30, 10);\n
+    for (i = 0 : i < 30 : i++) {\n      viewImageCenter(Prologo_png, true);\n      KeyDelay(10);\n    }\n
+    glk_window_close(gg_bigwin, 0);\n    gg_bigwin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional, 100,\n                    wintype_Graphics, GG_BIGWIN_ROCK);\n
+openGraphicWindow(altoVentanaGrafica);
+  clearMainWindow();\n
+  if (logo) {\n    clearGraphicWindow();\n!    DibujaLogoAlien();\n  }\n
+[search.directory]
+/home/ricardo/IF/INFSP6/LaSonda/
+[find]
+timbre_tlf_katie
+timer_tlf_katie
+TICK
+HandleGlkE
+Timer
+selfobj
+cuarto_katie
+TimbreTlf
+CuartoKatie
+Katie
+nave1
+TimbreTlfKatie
+ConversacionKatieBecca
+telefono
+Tocar
+HablaBecca
+MostrarImagenGradualmente
+Dark
+IniciarSonidos
+IniciarGraficosSonidos

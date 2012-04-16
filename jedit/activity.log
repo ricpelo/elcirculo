@@ -1,0 +1,318 @@
+Log file created on Mon Apr 16 12:39:40 CEST 2012
+IMPORTANT:
+Because updating this file after every log message would kill
+performance, it will be *incomplete* unless you invoke the
+Utilities->Troubleshooting->Update Activity Log on Disk command!
+12:39:35 [main] [message] Log: When reporting bugs, please include the following information:
+12:39:35 [main] [message] Log: java.version=1.6.0_26
+12:39:35 [main] [message] Log: java.vm.version=20.1-b02
+12:39:35 [main] [message] Log: java.vm.name=Java HotSpot(TM) Server VM
+12:39:35 [main] [message] Log: java.runtime.version=1.6.0_26-b03
+12:39:35 [main] [message] Log: java.runtime.name=Java(TM) SE Runtime Environment
+12:39:35 [main] [message] Log: java.vendor=Sun Microsystems Inc.
+12:39:35 [main] [message] Log: java.compiler=null
+12:39:35 [main] [message] Log: os.name=Linux
+12:39:35 [main] [message] Log: os.version=2.6.32-40-generic
+12:39:35 [main] [message] Log: os.arch=i386
+12:39:35 [main] [message] Log: user.home=/home/ricardo
+12:39:35 [main] [message] Log: java.home=/usr/lib/jvm/java-6-sun-1.6.0.26/jre
+12:39:35 [main] [message] Log: java.class.path=/usr/share/jEdit/jedit.jar
+12:39:35 [main] [message] jEdit: starting with command line arguments: -reuseview
+12:39:35 [main] [notice] jEdit: An error occurred while connecting to the jEdit server instance.
+12:39:35 [main] [notice] jEdit: This probably means that jEdit crashed and/or exited abnormally
+12:39:35 [main] [notice] jEdit: the last time it was run.
+12:39:35 [main] [notice] jEdit: If you don't know what this means, don't worry.
+12:39:35 [main] [notice] jEdit: java.net.ConnectException: Connection refused
+12:39:35 [main] [notice] jEdit:  at java.net.PlainSocketImpl.socketConnect(Native Method)
+12:39:35 [main] [notice] jEdit:  at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:351)
+12:39:35 [main] [notice] jEdit:  at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:213)
+12:39:35 [main] [notice] jEdit:  at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:200)
+12:39:35 [main] [notice] jEdit:  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366)
+12:39:35 [main] [notice] jEdit:  at java.net.Socket.connect(Socket.java:529)
+12:39:35 [main] [notice] jEdit:  at java.net.Socket.connect(Socket.java:478)
+12:39:35 [main] [notice] jEdit:  at java.net.Socket.<init>(Socket.java:375)
+12:39:35 [main] [notice] jEdit:  at java.net.Socket.<init>(Socket.java:218)
+12:39:35 [main] [notice] jEdit:  at org.gjt.sp.jedit.jEdit.main(jEdit.java:285)
+12:39:40 [main] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/activity.log" to "/home/ricardo/.jedit/settings-backup/activity.log~1~"
+12:39:40 [main] [notice] jEdit: jEdit version 5.0pre1
+12:39:40 [main] [message] jEdit: Settings directory is /home/ricardo/.jedit
+12:39:40 [main] [message] jEdit: jEdit home directory is /usr/share/jEdit
+12:39:40 [main] [debug] SplashScreen: init:86ms
+12:39:40 [main] [debug] SplashScreen: init system properties:59ms
+12:39:40 [main] [message] BeanShell: Beanshell Init
+12:39:40 [main] [debug] SplashScreen: init beanshell:197ms
+12:39:40 [main] [debug] SplashScreen: loading site properties:23ms
+12:39:40 [main] [debug] SplashScreen: loading user properties:35ms
+12:39:40 [main] [debug] GUIUtilities: Icon theme set to: tango
+12:39:40 [main] [debug] GUIUtilities: Loading icon theme from: jeditresource:/org/gjt/sp/jedit/icons/themes/tango/
+12:39:40 [main] [debug] SplashScreen: init GUI:8ms
+12:39:40 [main] [debug] EditServer: jEdit server started on port 44987
+12:39:40 [main] [debug] EditServer: Authorization key is 54032257
+12:39:40 [main] [debug] SplashScreen: init server:7ms
+12:39:40 [main] [debug] SplashScreen: init look and feel:14ms
+12:39:40 [main] [debug] SplashScreen: init VFS Manager:5ms
+12:39:40 [main] [debug] ActionSet: Loading actions from jar:file:/usr/share/jEdit/jedit.jar!/org/gjt/sp/jedit/actions.xml
+12:39:40 [main] [debug] DockableWindowManager: Loading dockables from jar:file:/usr/share/jEdit/jedit.jar!/org/gjt/sp/jedit/dockables.xml
+12:39:40 [main] [debug] SplashScreen: init resources:322ms
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: SearchSettingsChanged[source=null]
+12:39:41 [main] [debug] SplashScreen: Migrate keymaps:146ms
+12:39:41 [main] [notice] jEdit: Loading plugins from /usr/share/jEdit/jars
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=4.4,source=/usr/share/jEdit/jars/QuickNotepad.jar,class=QuickNotepadPlugin]
+12:39:41 [main] [notice] jEdit: Loading plugins from /home/ricardo/.jedit/jars
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=1.9,source=/home/ricardo/.jedit/jars/ErrorList.jar,class=errorlist.ErrorListPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=1.0,source=/home/ricardo/.jedit/jars/InformSideKick.jar,class=sidekick.inform.InformSideKickPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=1.3,source=/home/ricardo/.jedit/jars/SideKick.jar,class=sidekick.SideKickPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=4.5,source=/home/ricardo/.jedit/jars/Console.jar,class=console.ConsolePlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=1.5,source=/home/ricardo/.jedit/jars/CommonControls.jar,class=CommonControlsPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=null,source=/home/ricardo/.jedit/jars/kappalayout.jar]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=0.3,source=/home/ricardo/.jedit/jars/UpdaterPlugin.jar,class=updater.UpdaterPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=1.2.3,source=/home/ricardo/.jedit/jars/BufferTabs.jar,class=buffertabs.BufferTabsPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=1.5.1,source=/home/ricardo/.jedit/jars/Sessions.jar,class=sessions.SessionsPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=0.9.9,source=/home/ricardo/.jedit/jars/TextAutocomplete.jar,class=net.jakubholy.jedit.autocomplete.TextAutocompletePlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=0.6,source=/home/ricardo/.jedit/jars/Code2HTML.jar,class=code2html.Code2HTMLPlugin]
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=LOADED,exit=false,version=2.4,source=/home/ricardo/.jedit/jars/Navigator.jar,class=ise.plugin.nav.NavigatorPlugin]
+12:39:41 [main] [debug] SplashScreen: init plugins:264ms
+12:39:41 [main] [message] HistoryModel: Loading history
+12:39:41 [main] [debug] SplashScreen: init history model:47ms
+12:39:41 [main] [message] BufferHistory: Loading /home/ricardo/.jedit/recent.xml
+12:39:41 [main] [debug] SplashScreen: init buffer history:31ms
+12:39:41 [main] [message] KillRing: Loading /home/ricardo/.jedit/killring.xml
+12:39:41 [main] [debug] SplashScreen: init killring:15ms
+12:39:41 [main] [debug] jEdit: SOCKS proxy disabled
+12:39:41 [main] [debug] jEdit: HTTP proxy disabled
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PropertiesChanged[source=null]
+12:39:41 [main] [debug] SplashScreen: init various properties:331ms
+12:39:41 [main] [message] jEdit: Loading mode catalog file /usr/share/jEdit/modes/catalog
+12:39:41 [main] [message] jEdit: Loading mode catalog file /home/ricardo/.jedit/modes/catalog
+12:39:41 [main] [debug] SplashScreen: init modes:171ms
+12:39:41 [main] [debug] PluginJAR: Activating sidekick.SideKickPlugin because of startup
+12:39:41 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/SideKick.jar
+12:39:41 [main] [debug] PluginJAR: Activating console.ConsolePlugin because of startup
+12:39:41 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=1.3,source=/home/ricardo/.jedit/jars/SideKick.jar,class=sidekick.SideKickPlugin]
+12:39:41 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/Console.jar
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] ConsolePlugin: Loaded 21 Actions
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/ErrorList.jar
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=1.9,source=/home/ricardo/.jedit/jars/ErrorList.jar,class=errorlist.ErrorListPlugin]
+12:39:42 [main] [debug] PluginJAR: Activating updater.UpdaterPlugin because of startup
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=4.5,source=/home/ricardo/.jedit/jars/Console.jar,class=console.ConsolePlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/UpdaterPlugin.jar
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/CommonControls.jar
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=1.5,source=/home/ricardo/.jedit/jars/CommonControls.jar,class=CommonControlsPlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=0.3,source=/home/ricardo/.jedit/jars/UpdaterPlugin.jar,class=updater.UpdaterPlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] PluginJAR: Activating buffertabs.BufferTabsPlugin because of startup
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/BufferTabs.jar
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=1.2.3,source=/home/ricardo/.jedit/jars/BufferTabs.jar,class=buffertabs.BufferTabsPlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] PluginJAR: Activating sessions.SessionsPlugin because of startup
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/Sessions.jar
+12:39:42 [main] [debug] Session: open: name=default
+12:39:42 [main] [debug] Session: loadXML: name=default filename=/home/ricardo/.jedit/sessions/default.xml
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=1.5.1,source=/home/ricardo/.jedit/jars/Sessions.jar,class=sessions.SessionsPlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] PluginJAR: Activating code2html.Code2HTMLPlugin because of startup
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/Code2HTML.jar
+12:39:42 [main] [debug] PluginJAR: Activating ise.plugin.nav.NavigatorPlugin because of startup
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=0.6,source=/home/ricardo/.jedit/jars/Code2HTML.jar,class=code2html.Code2HTMLPlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/Navigator.jar
+12:39:42 [main] [debug] SplashScreen: activate plugins:399ms
+12:39:42 [AWT-EventQueue-0] [debug] jEdit: SOCKS proxy disabled
+12:39:42 [AWT-EventQueue-0] [debug] jEdit: HTTP proxy disabled
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PropertiesChanged[source=null]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=2.4,source=/home/ricardo/.jedit/jars/Navigator.jar,class=ise.plugin.nav.NavigatorPlugin]
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:42 [main] [debug] Macros: Registered beanshell macro handler
+12:39:42 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=macros,source=null]
+12:39:42 [main] [message] BeanShell: Running script /usr/share/jEdit/startup/startup.bsh
+12:39:42 [main] [notice] jEdit$3: Loading edit mode /usr/share/jEdit/modes/text.xml
+12:39:42 [main] [notice] jEdit$3: Loading edit mode /usr/share/jEdit/modes/java.xml
+12:39:42 [main] [notice] jEdit$3: Loading edit mode /usr/share/jEdit/modes/xml.xml
+12:39:42 [main] [notice] jEdit$3: Loading edit mode /usr/share/jEdit/modes/xml.xml
+12:39:42 [main] [debug] String: BeanShell interpreter version 2.0b4-jedit
+12:39:42 [main] [debug] SplashScreen: init macros:508ms
+12:39:42 [main] [debug] SplashScreen: run startup scripts:19ms
+12:39:42 [main] [debug] SplashScreen: run startup scripts:21ms
+12:39:42 [AWT-EventQueue-0] [message] PerspectiveManager: Loading /home/ricardo/.jedit/perspective.xml
+12:39:43 [AWT-EventQueue-0] [notice] jEdit$3: Loading edit mode /usr/share/jEdit/modes/inform.xml
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=PROPERTIES_CHANGED,view=null,source=alien.inf (~/IF/INFSP6/Alien/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=CREATED,view=null,source=alien.inf (~/IF/INFSP6/Alien/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=LOAD_STARTED,view=null,source=alien.inf (~/IF/INFSP6/Alien/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=LOADED,view=null,source=alien.inf (~/IF/INFSP6/Alien/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=PROPERTIES_CHANGED,view=null,source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=CREATED,view=null,source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=LOAD_STARTED,view=null,source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=LOADED,view=null,source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:39:43 [AWT-EventQueue-0] [debug] BufferSet: 14672643: addBufferSetListener org.gjt.sp.jedit.EditPane[inactive]
+12:39:43 [AWT-EventQueue-0] [debug] EditBus: BufferChanging[what=BUFFER_CHANGING,source=org.gjt.sp.jedit.EditPane[inactive]]
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643 addBufferAt(elcirculo.inf (~/IF/INFSP6/ElCirculo/),-1)
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643: Buffer added elcirculo.inf (~/IF/INFSP6/ElCirculo/) at 0
+12:39:44 [AWT-EventQueue-0] [debug] EditBus: EditPaneUpdate[what=CREATED,source=org.gjt.sp.jedit.EditPane[inactive]]
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643: Buffer added elcirculo.inf (~/IF/INFSP6/ElCirculo/) at 0
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643: addBufferSetListener buffertabs.BufferTabs[elcirculo.inf]
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643 addBufferAt(elcirculo.inf (~/IF/INFSP6/ElCirculo/),0)
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643 addBufferAt(alien.inf (~/IF/INFSP6/Alien/),1)
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643: Buffer added alien.inf (~/IF/INFSP6/Alien/) at 0
+12:39:44 [AWT-EventQueue-0] [debug] BufferSet: 14672643 addBufferAt(elcirculo.inf (~/IF/INFSP6/ElCirculo/),2)
+12:39:44 [AWT-EventQueue-0] [debug] EditBus: ViewUpdate[what=CREATED,source=org.gjt.sp.jedit.View[active]]
+12:39:44 [AWT-EventQueue-0] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/InformSideKick.jar
+12:39:44 [AWT-EventQueue-0] [debug] SideKickParsedData: Setting parsed data of org.gjt.sp.jedit.View[active] to sidekick.SideKickParsedData@834cfb
+12:39:44 [AWT-EventQueue-0] [debug] EditBus: SideKickUpdate[source=null]
+12:39:45 [AWT-EventQueue-0] [debug] EditBus: EditorStarted[source=null]
+12:39:45 [jEdit I/O #1] [debug] WorkThread: Work request thread starting [jEdit I/O #1]
+12:39:45 [jEdit I/O #3] [debug] WorkThread: Work request thread starting [jEdit I/O #3]
+12:39:45 [jEdit I/O #4] [debug] WorkThread: Work request thread starting [jEdit I/O #4]
+12:39:45 [jEdit I/O #2] [debug] WorkThread: Work request thread starting [jEdit I/O #2]
+12:39:45 [AWT-EventQueue-0] [message] jEdit: Startup complete
+12:39:45 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=1.0,source=/home/ricardo/.jedit/jars/InformSideKick.jar,class=sidekick.inform.InformSideKickPlugin]
+12:39:45 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:39:45 [AWT-EventQueue-0] [debug] SideKickParsedData: Setting parsed data of org.gjt.sp.jedit.View[active] to sidekick.inform.InformParsedData@17fc44f
+12:39:45 [AWT-EventQueue-0] [debug] EditBus: SideKickUpdate[source=null]
+12:39:45 [AWT-EventQueue-0] [debug] DockableWindowManager: Loading dockables from jeditresource:/Console.jar!/dockables.xml
+12:39:45 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=console,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:39:45 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=hypersearch-results,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:39:46 [AWT-EventQueue-0] [debug] EditBus: ViewUpdate[what=VIEW_ACTIVATED,source=org.gjt.sp.jedit.View[active]]
+12:39:46 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:40:11 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/perspective.xml" to "/home/ricardo/.jedit/settings-backup/perspective.xml~1~"
+12:41:33 [AWT-EventQueue-0] [debug] EditBus: PositionChanging[what=POSITION_CHANGING,source=org.gjt.sp.jedit.EditPane[active]]
+12:41:33 [AWT-EventQueue-0] [debug] JEditTextArea: InputMethodSupport is activated
+12:41:51 [AWT-EventQueue-0] [debug] EditBus: PositionChanging[what=POSITION_CHANGING,source=org.gjt.sp.jedit.EditPane[active]]
+12:41:51 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=DIRTY_CHANGED,view=null,source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=SAVING,view=org.gjt.sp.jedit.View[active],source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:41:57 [AWT-EventQueue-0] [debug] FileVFS: /home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf has permissions 0644
+12:41:57 [jEdit I/O #2] [debug] WorkThread: Running in work thread: [id=1,run=org.gjt.sp.jedit.bufferio.BufferSaveRequest[elcirculo.inf (~/IF/INFSP6/ElCirculo/)]]
+12:41:57 [jEdit I/O #2] [debug] MiscUtilities: Saving backup of file "/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf" to "/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf~"
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=PROPERTIES_CHANGED,view=null,source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=DIRTY_CHANGED,view=org.gjt.sp.jedit.View[active],source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: BufferUpdate[what=SAVED,view=org.gjt.sp.jedit.View[active],source=elcirculo.inf (~/IF/INFSP6/ElCirculo/)]
+12:41:57 [AWT-EventQueue-0] [debug] InformParser: inform: deactivated
+12:41:57 [AWT-EventQueue-0] [debug] InformParser: inform: activated for elcirculo.inf (~/IF/INFSP6/ElCirculo/)
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: VFSUpdate[path=/home/ricardo/IF/INFSP6/ElCirculo,source=null]
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: VFSUpdate[path=/home/ricardo/IF/INFSP6/ElCirculo/#elcirculo.inf#save#,source=null]
+12:41:57 [AWT-EventQueue-0] [debug] EditBus: VFSUpdate[path=/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf,source=null]
+12:41:58 [AWT-EventQueue-0] [message] BeanShell: Running script /home/ricardo/.jedit/macros/Jugar.bsh
+12:41:59 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=console,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_SOURCE_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=null]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=elcirculo.inf:1642:Local variable "bf" declared but not used]
+12:42:00 [AWT-EventQueue-0] [debug] DockableWindowManager: Loading dockables from jeditresource:/ErrorList.jar!/dockables.xml
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=error-list,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=Etemas.h:235:Routine "AveriguarTema" declared but not used]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=error-list,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=elcirculo.inf:1642:Routine "Bandera_Fin" declared but not used]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=error-list,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:42:00 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:42:05 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:42:13 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:42:13 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:42:13 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:44:01 [AWT-EventQueue-0] [message] BeanShell: Running script /home/ricardo/.jedit/macros/Jugar.bsh
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=console,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_SOURCE_REMOVED,errorSource=errorlist.DefaultErrorSource[error parsing],error=null]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERRORS_CLEARED,errorSource=errorlist.DefaultErrorSource[error parsing],error=null]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_SOURCE_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=null]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=elcirculo.inf:1642:Local variable "bf" declared but not used]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=error-list,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=Etemas.h:235:Routine "AveriguarTema" declared but not used]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=error-list,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_ADDED,errorSource=errorlist.DefaultErrorSource[error parsing],error=elcirculo.inf:1642:Routine "Bandera_Fin" declared but not used]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: DockableWindowUpdate[what=ACTIVATED,dockable=error-list,source=org.gjt.sp.jedit.gui.DockableWindowManagerImpl[,0,0,1278x896,invalid,layout=org.gjt.sp.jedit.gui.DockableLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]]
+12:44:01 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:44:31 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:44:31 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:45:07 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:45:08 [AWT-EventQueue-0] [debug] ActionSet: Loading actions from jeditresource:/BufferTabs.jar!/actions.xml
+12:45:08 [AWT-EventQueue-0] [debug] ActionSet: Loading actions from jeditresource:/Console.jar!/actions.xml
+12:45:10 [AWT-EventQueue-0] [debug] ActionSet: Loading actions from jeditresource:/TextAutocomplete.jar!/actions.xml
+12:45:10 [AWT-EventQueue-0] [debug] PluginJAR: Opening /home/ricardo/.jedit/jars/TextAutocomplete.jar
+12:45:10 [AWT-EventQueue-0] [debug] TextAutocompletePlugin: CREATED 
+12:45:10 [AWT-EventQueue-0] [debug] TextAutocompletePlugin: Attaching to the buffer: elcirculo.inf (~/IF/INFSP6/ElCirculo/)
+12:45:10 [AWT-EventQueue-0] [debug] TextAutocompletePlugin: getDefaultWordListForBuffer('elcirculo.inf'): returning null
+12:45:10 [AWT-EventQueue-0] [debug] TextAutocompletePlugin: loadBufferModeKeywords: doing nothing, loading mode's keywords disabled in preferences.
+12:45:10 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=ACTIVATED,exit=false,version=0.9.9,source=/home/ricardo/.jedit/jars/TextAutocomplete.jar,class=net.jakubholy.jedit.autocomplete.TextAutocompletePlugin]
+12:45:10 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:45:12 [AWT-EventQueue-0] [debug] ActionSet: Loading actions from jeditresource:/SideKick.jar!/actions.xml
+12:45:13 [AWT-EventQueue-0] [debug] InformParser: inform: deactivated
+12:45:13 [AWT-EventQueue-0] [debug] InformParser: inform: activated for elcirculo.inf (~/IF/INFSP6/ElCirculo/)
+12:45:13 [AWT-EventQueue-0] [debug] SideKickParsedData: Setting parsed data of org.gjt.sp.jedit.View[active] to sidekick.SideKickParsedData@191f022
+12:45:13 [AWT-EventQueue-0] [debug] EditBus: SideKickUpdate[source=null]
+12:45:13 [AWT-EventQueue-0] [debug] SideKickParsedData: Setting parsed data of org.gjt.sp.jedit.View[active] to sidekick.inform.InformParsedData@c74fe
+12:45:13 [AWT-EventQueue-0] [debug] EditBus: SideKickUpdate[source=null]
+12:45:14 [AWT-EventQueue-0] [debug] EditBus: PositionChanging[what=POSITION_CHANGING,source=org.gjt.sp.jedit.EditPane[active]]
+12:51:51 [AWT-EventQueue-0] [debug] EditBus: PositionChanging[what=POSITION_CHANGING,source=org.gjt.sp.jedit.EditPane[active]]
+12:51:53 [AWT-EventQueue-0] [debug] EditBus: PositionChanging[what=POSITION_CHANGING,source=org.gjt.sp.jedit.EditPane[active]]
+12:51:54 [AWT-EventQueue-0] [debug] EditBus: PositionChanging[what=POSITION_CHANGING,source=org.gjt.sp.jedit.EditPane[active]]
+12:52:08 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:52:58 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:58:19 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: EditorExitRequested[source=org.gjt.sp.jedit.View[active]]
+12:58:21 [AWT-EventQueue-0] [debug] SessionManager: autosaving current session...
+12:58:21 [AWT-EventQueue-0] [debug] Session: save: name=default
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] Session: saveXML: name=default filename=/home/ricardo/.jedit/sessions/default.xml
+12:58:21 [AWT-EventQueue-0] [debug] SessionManager: saveCurrentSessionProperty: currentSession=default
+12:58:21 [AWT-EventQueue-0] [message] HistoryModel: Saving history
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/history" to "/home/ricardo/.jedit/settings-backup/history~1~"
+12:58:21 [AWT-EventQueue-0] [message] BufferHistory: Saving /home/ricardo/.jedit/recent.xml
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/recent.xml" to "/home/ricardo/.jedit/settings-backup/recent.xml~1~"
+12:58:21 [AWT-EventQueue-0] [message] KillRing: Saving /home/ricardo/.jedit/killring.xml
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/killring.xml" to "/home/ricardo/.jedit/settings-backup/killring.xml~1~"
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/properties" to "/home/ricardo/.jedit/settings-backup/properties~1~"
+12:58:21 [AWT-EventQueue-0] [debug] SessionManager: session saved: default
+12:58:21 [AWT-EventQueue-0] [message] PerspectiveManager: Saving /home/ricardo/.jedit/perspective.xml
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/perspective.xml" to "/home/ricardo/.jedit/settings-backup/perspective.xml~1~"
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: EditorExiting[source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: ViewUpdate[what=CLOSED,source=org.gjt.sp.jedit.View[active]]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: ErrorSourceUpdate[source=null,what=ERROR_SOURCE_REMOVED,errorSource=errorlist.DefaultErrorSource[error parsing],error=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=recent-files,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: EditPaneUpdate[what=DESTROYED,source=org.gjt.sp.jedit.EditPane[active]]
+12:58:21 [AWT-EventQueue-0] [debug] BufferSet: 14672643: Buffer removed alien.inf (~/IF/INFSP6/Alien/)
+12:58:21 [AWT-EventQueue-0] [debug] BufferSetManager: Buffer:alien.inf (~/IF/INFSP6/Alien/) is in no bufferSet anymore, closing it
+12:58:21 [AWT-EventQueue-0] [debug] BufferSet: 14672643: Buffer removed elcirculo.inf (~/IF/INFSP6/ElCirculo/)
+12:58:21 [AWT-EventQueue-0] [debug] BufferSetManager: Buffer:elcirculo.inf (~/IF/INFSP6/ElCirculo/) is in no bufferSet anymore, closing it
+12:58:21 [AWT-EventQueue-0] [debug] BufferSet: 14672643: removeBufferSetListener buffertabs.BufferTabs[]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=4.4,source=/usr/share/jEdit/jars/QuickNotepad.jar,class=QuickNotepadPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=1.9,source=/home/ricardo/.jedit/jars/ErrorList.jar,class=errorlist.ErrorListPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=1.9,source=/home/ricardo/.jedit/jars/ErrorList.jar,class=errorlist.ErrorListPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=1.0,source=/home/ricardo/.jedit/jars/InformSideKick.jar,class=sidekick.inform.InformSideKickPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=1.0,source=/home/ricardo/.jedit/jars/InformSideKick.jar,class=sidekick.inform.InformSideKickPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=1.3,source=/home/ricardo/.jedit/jars/SideKick.jar,class=sidekick.SideKickPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=1.3,source=/home/ricardo/.jedit/jars/SideKick.jar,class=sidekick.SideKickPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: DynamicMenuChanged[menu=plugin.console.ConsolePlugin.menu,source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=4.5,source=/home/ricardo/.jedit/jars/Console.jar,class=console.ConsolePlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=4.5,source=/home/ricardo/.jedit/jars/Console.jar,class=console.ConsolePlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=1.5,source=/home/ricardo/.jedit/jars/CommonControls.jar,class=CommonControlsPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=1.5,source=/home/ricardo/.jedit/jars/CommonControls.jar,class=CommonControlsPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=null,source=/home/ricardo/.jedit/jars/kappalayout.jar]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=0.3,source=/home/ricardo/.jedit/jars/UpdaterPlugin.jar,class=updater.UpdaterPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=0.3,source=/home/ricardo/.jedit/jars/UpdaterPlugin.jar,class=updater.UpdaterPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=1.2.3,source=/home/ricardo/.jedit/jars/BufferTabs.jar,class=buffertabs.BufferTabsPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=1.2.3,source=/home/ricardo/.jedit/jars/BufferTabs.jar,class=buffertabs.BufferTabsPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=1.5.1,source=/home/ricardo/.jedit/jars/Sessions.jar,class=sessions.SessionsPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=1.5.1,source=/home/ricardo/.jedit/jars/Sessions.jar,class=sessions.SessionsPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] TextAutocompletePlugin: Detaching and destroying all autocompletes...
+12:58:21 [AWT-EventQueue-0] [debug] TextAutocompletePlugin: Detaching from the buffer: elcirculo.inf (~/IF/INFSP6/ElCirculo/)
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=0.9.9,source=/home/ricardo/.jedit/jars/TextAutocomplete.jar,class=net.jakubholy.jedit.autocomplete.TextAutocompletePlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=0.9.9,source=/home/ricardo/.jedit/jars/TextAutocomplete.jar,class=net.jakubholy.jedit.autocomplete.TextAutocompletePlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=0.6,source=/home/ricardo/.jedit/jars/Code2HTML.jar,class=code2html.Code2HTMLPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=0.6,source=/home/ricardo/.jedit/jars/Code2HTML.jar,class=code2html.Code2HTMLPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] jEdit: SOCKS proxy disabled
+12:58:21 [AWT-EventQueue-0] [debug] jEdit: HTTP proxy disabled
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PropertiesChanged[source=null]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=DEACTIVATED,exit=true,version=2.4,source=/home/ricardo/.jedit/jars/Navigator.jar,class=ise.plugin.nav.NavigatorPlugin]
+12:58:21 [AWT-EventQueue-0] [debug] EditBus: PluginUpdate[what=UNLOADED,exit=true,version=2.4,source=/home/ricardo/.jedit/jars/Navigator.jar,class=ise.plugin.nav.NavigatorPlugin]
+12:58:21 [AWT-EventQueue-0] [message] BufferHistory: Saving /home/ricardo/.jedit/recent.xml
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/recent.xml" to "/home/ricardo/.jedit/settings-backup/recent.xml~1~"
+12:58:21 [AWT-EventQueue-0] [message] KillRing: Saving /home/ricardo/.jedit/killring.xml
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/killring.xml" to "/home/ricardo/.jedit/settings-backup/killring.xml~1~"
+12:58:21 [AWT-EventQueue-0] [debug] MiscUtilities: Saving backup of file "/home/ricardo/.jedit/properties" to "/home/ricardo/.jedit/settings-backup/properties~1~"

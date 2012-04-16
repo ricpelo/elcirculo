@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE COMMANDO SYSTEM "commando.dtd">
+
+<COMMANDO>
+    <COMMAND CONFIRM="FALSE" SHELL="System">
+        new StringBuffer("jugar.sh");
+    </COMMAND>
+</COMMANDO>

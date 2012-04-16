@@ -888,10 +888,22 @@ Object telefono_katie "teléfono" cocina_katie
     sonando [;
       return sonido_telefono_katie.sonando();
     ],
+    descolgar [;
+      sonido_telefono_katie.parar(true);
+      remove becca;
+      becca_ausente.found_in = true;
+      move becca_ausente to LugarReal();
+      move charco_katie to pasillo_katie;
+      move puerta_katie to pasillo_katie;
+    ],
+    becca_lo_coge [;
+      telefono_katie.descolgar();
+      "Becca coge el teléfono y te lo da, oyes a tu madre. Luego ella se va.";
+    ],
     before [;
       Take, Descolgar:
         if (self.sonando()) {
-          sonido_telefono_katie.parar(true);
+          self.descolgar();
           "Descuelgas el auricular y oyes a tu madre.";
         } else {
           "Descuelgas y no oyes nada. Ni siquiera el tono de marcado.";
@@ -940,12 +952,14 @@ Object tv_katie "televisor" salon_katie
       SwitchOn:
         if (~~(self.enchufado))
           "No se puede encender porque está desenchufado.";
+        if (self has on) "Ya está encendido.";
         self.encender(true);
         "Enciendes el televisor.";
         
       SwitchOff:
         if (~~(self.enchufado))
           "Ya está desenchufado.";
+        if (self hasnt on) "Ya está apagado.";
         self.apagar();
         "Apagas el televisor.";
 
@@ -987,6 +1001,27 @@ Object tv_katie "televisor" salon_katie
     static switchable;
 
 
+Object charco_katie "charco de agua"
+  with
+    name 'charco' 'agua',
+    description "Un charco de agua cada vez más grande en el suelo que
+                 proviene de tu habitación.",
+    initial "Hay un charco de agua en el suelo.",
+  has
+    static;
+
+
+Object puerta_katie "puerta de tu habitación"
+  with
+    name 'puerta' 'habitacion',
+    article "la",
+    description "La puerta de la habitación, cerrada, con agua saliendo por
+                 debajo y goteando por el pomo.",
+    initial "La puerta de tu habitación está cerrada y tiene luz por debajo.",
+  has
+    static female openable;
+
+
 ! ====================================================================
 ! PERSONAJES
 ! ====================================================================
@@ -1018,7 +1053,7 @@ Object becca "Becca" cuarto_katie
       Take:
         if (noun == telefono_katie) {
           if (LugarReal() == cocina_katie) {
-            BeccaCogeElTelefono();
+            telefono_katie.becca_lo_coge();
             rtrue;
           } else {
             HablaBecca("¿Dónde está el teléfono?");
@@ -1166,9 +1201,6 @@ Object sonido_telefono_katie
     ],
     parar [ sw;
       self.parar_sonido();
-      remove becca;
-      becca_ausente.found_in = true;
-      move becca_ausente to LugarReal();
       StopTimer(self);
       if (~~sw) "El teléfono deja de sonar.";
     ],
@@ -1177,7 +1209,8 @@ Object sonido_telefono_katie
         if (becca in cocina_katie && random(100) < 10 &&
             msg_becca.at_end()) {
           HablaBecca("Venga ya, esto es absurdo...");
-          BeccaCogeElTelefono();
+          new_line;
+          telefono_katie.becca_lo_coge();
         } else if (random(100) < 20) {
           HablaBecca(msg_becca.run_script());
         }
@@ -1555,12 +1588,6 @@ Object ZIPI_Salir
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
-
-
-[ BeccaCogeElTelefono;
-  sonido_telefono_katie.parar(true);
-  "^Becca coge el teléfono y te lo da, oyes a tu madre.";
-];
 
 
 [ HablaKatie msg;

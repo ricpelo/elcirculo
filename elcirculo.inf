@@ -123,10 +123,10 @@ Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
 Replace DrawStatusLine;
 
 ! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
-! REGISTRA...)
+! REGISTRA...):
 Replace SearchSub;
 
-! En este juego no se usa el Consultar (CONSULTA, LEE, BUSCA EN x SOBRE y...)
+! En este juego no se usa el Consultar (CONSULTA, LEE, BUSCA EN x SOBRE y...):
 Replace ConsultSub;
 
 ! En este juego no se habla, ni se responde, ni se dice:
@@ -991,8 +991,17 @@ Object becca "Becca" cuarto_katie
       "^Aquí está Becca.";
     ],
     life [;
+      Ask:
+        HablaBecca("No entiendo qué quieres decirme.");
+        rtrue;
     ],
     orders [;
+      NotUnderstood, Tell:
+        <<Ask self>>;
+
+      default:
+        HablaBecca("Mejor hazlo tú misma.");
+        rtrue;
     ],
   has
     animate proper;
@@ -1498,6 +1507,7 @@ Object ruido_tv_katie
       PRIMERA_PERSONA_PLURAL:   print "olemos";
       SEGUNDA_PERSONA_PLURAL:   print "oléis";
       TERCERA_PERSONA_PLURAL:   print "huelen";
+      default:                  print "hueles";
     }
   } else print "hueles";
   print (string) x;

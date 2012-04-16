@@ -564,7 +564,7 @@ Class Lugar
 Include "SGW+DMX_NG";       ! Entre EParser y Acciones
 Include "elcirculo.bli";    ! Los recursos multimedia de la aventura
 Include "VerbLib";
-Include "Barra";
+Include "Barra";            ! Barra de estado personalizable
 Include "Moviles_NG";       ! La librería Moviles retocada por mí
 Include "PNJpuertas_NG";    ! La librería PnjPuertas retocada por mí (muy poco)
 Include "PNJactor_NG";      ! Librerías que hacen que un PNJ pueda coger y dejar
@@ -576,8 +576,9 @@ Include "Teletipo";         ! Teletipo para sacar mensajes letra a letra
 Include "Pistas";           ! Las pistas creadas con ZIPI
 Include "Timer";            ! Mi librería de eventos temporizados
 Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
-Include "EscenarioAbrible";
-Include "Contenedor";
+Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
+Include "Contenedor";       ! Contenedores
+Include "EventList_NG";     ! Listas de mensajes
 
 
 !===============================================================================
@@ -644,8 +645,8 @@ Include "Contenedor";
   }
 
   Damusix.PararCanal(CANAL_FONDO);
-  snd_telefono_katie.sonar();
-  timer_tlf_katie.AsignarGestor(1);
+  sonido_telefono_katie.sonar();
+  timer_telefono_katie.AsignarGestor(1);
   ControlTimer.ActivarTick(TIMER_TICK);
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, player);
   KeyDelay();
@@ -755,7 +756,30 @@ Class Sonido
     parar_sonido [;
       Damusix.PararCanal(self.canal);
     ];
-      
+
+
+!Class MensajesSecuencia
+!  with
+!    contador -1,
+!    total [;
+!      return self.#mensajes / WORDSIZE;
+!    ],
+!    acabado [;
+!      return self.contador == self.total() - 1;
+!    ],
+!    siguiente [
+!      t r;
+!      t = self.total();
+!      if (t == 0) {
+!        "*** ERROR: SECUENCIA DE MENSAJES VACÍA ***";
+!      } else if (self.contador < t - 1) {
+!        self.contador++;
+!        r = self.&mensajes-->(self.contador);
+!        return r;
+!      } else {
+!        return self.&mensajes-->(t - 1);
+!      }
+!    ];
 
 
 !===============================================================================
@@ -800,7 +824,7 @@ Object cocina_katie "Cocina"
     before [;
       Go:
         if (noun == u_obj) {
-          if ((~~(snd_telefono_katie.sonando())) && tv_katie.enchufado) {
+          if ((~~(sonido_telefono_katie.sonando())) && tv_katie.enchufado) {
             switch (tv_katie.encendidos) {
               0: if (tv_katie has on) {
                    tv_katie.apagar();
@@ -849,44 +873,18 @@ Object telefono_katie "teléfono" cocina_katie
     description "El teléfono de la casa de Katie.",
     initial "Ves tu teléfono.",
     sonando [;
-      return snd_telefono_katie.sonando();
+      return sonido_telefono_katie.sonando();
     ],
     before [;
       Take, Descolgar:
         if (self.sonando()) {
-          snd_telefono_katie.parar(true);
+          sonido_telefono_katie.parar(true);
           "Descuelgas el auricular y oyes a tu madre.";
         } else {
           "Descuelgas y no oyes nada. Ni siquiera el tono de marcado.";
         }
       Drop, Colgar:
         "El teléfono ya está colgado.";
-    ],
-    item_sec_tlf [
-      t r;
-      t = self.#sec_tlf / WORDSIZE;
-      if (self.sec_tlf_cnt < t - 1) {
-        r = self.&sec_tlf-->(self.sec_tlf_cnt);
-        self.sec_tlf_cnt++;
-        return r;
-      } else {
-        return self.&sec_tlf-->(t - 1);
-      }
-    ],
-    sec_tlf "¿Qué pasa? ¿No lo coges?"
-            "¿Por qué no lo coges?"
-            "¡Pero cógelo ya! ¿Tienes miedo o qué?",
-    sec_tlf_cnt 0,
-    each_turn [;
-      if (becca in cocina_katie && self.sonando()) {
-        if (random(100) < 20) {
-          HablaBecca(self.item_sec_tlf());
-        } else if (random(100) < 10 && self.sec_tlf_cnt == 2) {
-          snd_telefono_katie.parar(true);
-          HablaBecca("Venga ya, esto es absurdo...");
-          "^Becca coge el teléfono y te lo da, oyes a tu madre.";
-        }
-      }
     ],
   has
     static;
@@ -914,12 +912,12 @@ Object tv_katie "televisor" salon_katie
     encendidos 0,
     encender [ sw;
       give self on;
-      ruido_tv_katie.sonar(sw);
+      sonido_tv_katie.sonar(sw);
       if (~~sw) self.encendidos++;
     ],
     apagar [;
       give self ~on;
-      ruido_tv_katie.parar();
+      sonido_tv_katie.parar();
     ],
     before [;
       Examine:
@@ -1005,6 +1003,170 @@ Object becca "Becca" cuarto_katie
     ],
   has
     animate proper;
+
+    
+! ====================================================================
+! GESTORES DE TIMER
+! ====================================================================
+
+
+Object timer_telefono_katie
+  class GestorTimer
+  with
+    duracion TIMER_DURACION_TLF_KATIE,
+    condicion [;
+      return sonido_telefono_katie.sonando();
+    ],
+    evento [;
+      if (sonido_telefono_katie.time_left <= 0) {
+        sonido_telefono_katie.time_left = sonido_telefono_katie.duracion_alarma;
+        sonido_telefono_katie.time_out();
+      } else {
+        sonido_telefono_katie.time_left--;
+      }
+    ];
+
+
+! ====================================================================
+! OBJETOS DE SOPORTE
+! ====================================================================
+
+
+Object barra_estado
+  class objeto_barra_estado
+  with
+    modo BE_COMPUESTO,
+    disposicion
+      1  1 true BE_LOCALIDAD
+      68 1 true BE_TURNOS,
+    lineas_inv
+      BE_INV_TOTAL;
+
+
+!Object tt_computadora
+!  class MiTeletipo
+!  private
+!    sonido 1,
+!    elementos
+!      "" POR_LETRA LETRA_FIJA SIN_PAUSA;
+
+      
+!Object tt_inicio
+!  class MiTeletipo
+!  private
+!    sonido 1,
+!    PausaMensaje 250,
+!    elementos
+!      "Miles de millones de kilómetros me separan del lugar en el que fui
+!       creado."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^Llevo incontables ciclos de tiempo viajando"
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^para cumplir la misión que le da sentido a mi existencia."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^Y ahora, por fin..."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
+!      "^El viaje termina."
+!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
+
+
+Object sonido_telefono_katie
+  class Sonido
+  with
+    found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
+    canal CANAL_TELEFONO,
+    duracion_alarma 10,
+    time_left,
+    time_out [;
+      if (self.sonando()) {
+        StartTimer(self, self.duracion_alarma);
+        self.avisar_que_suena();
+      }
+    ],
+    avisar_que_suena [;
+      ControlTimer.PrepararImpresion();
+      "^El teléfono sigue sonando.";
+    ],
+    volumen [
+      l v;
+      l = LugarReal(); 
+      if (l == cocina_katie)       v = VOLUMEN_TELEFONO;
+      else if (l == salon_katie)   v = VOLUMEN_TELEFONO / 2;
+      else if (l == pasillo_katie) v = VOLUMEN_TELEFONO / 2;
+      else if (l == cuarto_katie)  v = VOLUMEN_TELEFONO / 4;
+      else                         v = 0;
+      return v;
+    ],
+    sonar [ sw;
+      self.tocar_sonido(Telefono1_ogg);
+      StartTimer(self, self.duracion_alarma);
+      if (~~sw) "Comienza a sonar el teléfono en la planta baja.";
+    ],
+    parar [ sw;
+      self.parar_sonido();
+      remove becca;
+      StopTimer(self);
+      if (~~sw) "El teléfono deja de sonar.";
+    ],
+    each_turn [;
+      if (self.sonando()) {
+        if (becca in cocina_katie && random(100) < 10 &&
+            msg_becca.at_end()) {
+          sonido_telefono_katie.parar(true);
+          HablaBecca("Venga ya, esto es absurdo...");
+          "^Becca coge el teléfono y te lo da, oyes a tu madre.";
+        } else if (random(100) < 20) {
+          HablaBecca(msg_becca.run_script());
+        }
+      }
+    ],
+  has
+    concealed;
+
+
+Object msg_becca
+  class StopEventList
+  with
+    event_list "Katie... Está sonando el teléfono..."
+               "¿Qué pasa? ¿No lo coges?"
+               "¿Por qué no lo coges?"
+               "¡Pero cógelo ya! ¿Tienes miedo o qué?";
+  
+
+!Object msg_becca
+!  class MensajesSecuencia
+!  with
+!    mensajes "Katie... Está sonando el teléfono..."
+!             "¿Qué pasa? ¿No lo coges?"
+!             "¿Por qué no lo coges?"
+!             "¡Pero cógelo ya! ¿Tienes miedo o qué?";
+
+
+Object sonido_tv_katie
+  class Sonido
+  with
+    found_in salon_katie cocina_katie pasillo_katie,
+    canal CANAL_TV,
+    volumen [
+      l v;
+      l = LugarReal(); 
+      if (l == salon_katie)        v = VOLUMEN_TV;
+      else if (l == cocina_katie)  v = VOLUMEN_TV / 2;
+      else if (l == pasillo_katie) v = VOLUMEN_TV / 4;
+      else                         v = 0;
+      return v;
+    ],
+    sonar [ sw
+      snd;
+      if (sw) snd = TV_Fondo_ogg;
+      else    snd = Ruido_TV_ogg;
+      self.tocar_sonido(snd);
+    ],
+    parar [;
+      self.parar_sonido();
+    ],
+  has
+    concealed; 
 
 
 ! ====================================================================
@@ -1325,140 +1487,6 @@ Object ZIPI_Salir
     ZIPI_ejecutar [;
       quit;
     ];
-
-    
-! ====================================================================
-! GESTORES DE TIMER
-! ====================================================================
-
-
-Object timer_tlf_katie
-  class GestorTimer
-  with
-    duracion TIMER_DURACION_TLF_KATIE,
-    condicion [;
-      return snd_telefono_katie.sonando();
-    ],
-    evento [;
-      if (snd_telefono_katie.time_left <= 0) {
-        snd_telefono_katie.time_left = snd_telefono_katie.duracion_alarma;
-        snd_telefono_katie.time_out();
-      } else {
-        snd_telefono_katie.time_left--;
-      }
-    ];
-
-
-! ====================================================================
-! OTROS OBJETOS DE SOPORTE
-! ====================================================================
-
-
-Object barra_estado
-  class objeto_barra_estado
-  with
-    modo BE_COMPUESTO,
-    disposicion
-      1  1 true BE_LOCALIDAD
-      68 1 true BE_TURNOS,
-    lineas_inv
-      BE_INV_TOTAL;
-
-
-!Object tt_computadora
-!  class MiTeletipo
-!  private
-!    sonido 1,
-!    elementos
-!      "" POR_LETRA LETRA_FIJA SIN_PAUSA;
-
-      
-!Object tt_inicio
-!  class MiTeletipo
-!  private
-!    sonido 1,
-!    PausaMensaje 250,
-!    elementos
-!      "Miles de millones de kilómetros me separan del lugar en el que fui
-!       creado."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^Llevo incontables ciclos de tiempo viajando"
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^para cumplir la misión que le da sentido a mi existencia."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^Y ahora, por fin..."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^El viaje termina."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
-
-
-Object snd_telefono_katie
-  class Sonido
-  with
-    found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
-    canal CANAL_TELEFONO,
-    duracion_alarma 10,
-    time_left,
-    time_out [;
-      if (self.sonando()) {
-        StartTimer(self, self.duracion_alarma);
-        self.avisar_que_suena();
-      }
-    ],
-    avisar_que_suena [;
-      ControlTimer.PrepararImpresion();
-      "^El teléfono sigue sonando.";
-    ],
-    volumen [
-      l v;
-      l = LugarReal(); 
-      if (l == cocina_katie)       v = VOLUMEN_TELEFONO;
-      else if (l == salon_katie)   v = VOLUMEN_TELEFONO / 2;
-      else if (l == pasillo_katie) v = VOLUMEN_TELEFONO / 2;
-      else if (l == cuarto_katie)  v = VOLUMEN_TELEFONO / 4;
-      else                         v = 0;
-      return v;
-    ],
-    sonar [ sw;
-      self.tocar_sonido(Telefono1_ogg);
-      StartTimer(self, self.duracion_alarma);
-      if (~~sw) "Comienza a sonar el teléfono en la planta baja.";
-    ],
-    parar [ sw;
-      self.parar_sonido();
-      remove becca;
-      StopTimer(self);
-      if (~~sw) "El teléfono deja de sonar.";
-    ],
-  has
-    concealed; 
-
-
-Object ruido_tv_katie
-  class Sonido
-  with
-    found_in salon_katie cocina_katie pasillo_katie,
-    canal CANAL_TV,
-    volumen [
-      l v;
-      l = LugarReal(); 
-      if (l == salon_katie)        v = VOLUMEN_TV;
-      else if (l == cocina_katie)  v = VOLUMEN_TV / 2;
-      else if (l == pasillo_katie) v = VOLUMEN_TV / 4;
-      else                         v = 0;
-      return v;
-    ],
-    sonar [ sw
-      snd;
-      if (sw) snd = TV_Fondo_ogg;
-      else    snd = Ruido_TV_ogg;
-      self.tocar_sonido(snd);
-    ],
-    parar [;
-      self.parar_sonido();
-    ],
-  has
-    concealed; 
 
 
 !===============================================================================

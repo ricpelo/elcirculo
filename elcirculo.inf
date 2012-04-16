@@ -485,10 +485,11 @@ Object LibraryMessages
 
       Remove:
         if (lm_n == 3) {
-          if (verb_word == 'quita') "Quitas ", (the) lm_o, " ", (del) second,
-                                    ".";
-          else                      "Sacas ",  (the) lm_o, " ", (del) second,
-                                    ".";
+          if (verb_word == 'quita') {
+            "Quit", (as_) " ", (the) lm_o, " ", (del) second, ".";
+          } else {
+            "Sac", (as_) " ",  (the) lm_o, " ", (del) second, ".";
+          }
         }
       Miscellany:
         switch (lm_n) {
@@ -538,8 +539,6 @@ Class Lugar
         <Salidas>;
         glk_set_style(style_Normal);
         rtrue;
-      } else {
-        rtrue;
       }
     ],
     number,
@@ -547,15 +546,10 @@ Class Lugar
     before [;
       Examine, Touch:
         if (noun == d_obj) {          ! Examinamos el suelo
-            "Una superficie metálica y sólida.";
+          "No observas nada en especial al mirar al suelo.";
         } else if (noun == u_obj) {   ! Examinamos el techo
-            "La intensa lluvia ciega tus ojos.";
+          "No observas nada en especial al mirar al techo.";
         }        
-    ],
-    after [ o;
-      objectloop (o ofclass Sonido && o in self) {
-        o.cambiar_volumen();
-      }
     ],
   has
     light;
@@ -658,6 +652,14 @@ Include "EventList_NG";     ! Listas de mensajes
 !-------------------------------------------------------------------------------
 
 
+[ InScope;
+  if (LugarReal() ofclass LugarCasaKatie) {
+    PlaceInScope(telefono_katie);
+  }
+  rfalse;
+];
+
+
 [ Amusing;
   rfalse;
 ];
@@ -738,7 +740,18 @@ Include "Decir";           ! Para poder usar DECIR ... A ...
 !    gancho_despues [;
 !!     Damusix.PararCanal(CANAL_TELETIPO);
 !    ];
- 
+
+
+Class LugarCasaKatie
+  class Lugar
+  with
+    after [ o;
+      Go:
+        objectloop (o ofclass Sonido && o in self) {
+          o.cambiar_volumen();
+        }
+    ];
+
 
 Class Sonido
   with
@@ -797,7 +810,7 @@ Class Sonido
 
 
 Object cuarto_katie "Tu habitación"
-  class Lugar
+  class LugarCasaKatie
   with
     description "Típica habitación de adolescente.",
     out_to pasillo_katie,
@@ -806,7 +819,7 @@ Object cuarto_katie "Tu habitación"
 
 
 Object pasillo_katie "Pasillo del piso superior"
-  class Lugar
+  class LugarCasaKatie
   with
     description "El pasillo del piso superior.",
     in_to cuarto_katie,
@@ -815,7 +828,7 @@ Object pasillo_katie "Pasillo del piso superior"
 
     
 Object cocina_katie "Cocina"
-  class Lugar
+  class LugarCasaKatie
   with
     description "La cocina.",
     u_to pasillo_katie,
@@ -850,7 +863,7 @@ Object cocina_katie "Cocina"
 
 
 Object salon_katie "Salón"
-  class Lugar
+  class LugarCasaKatie
   with
     description "El salón.",
     n_to cocina_katie,
@@ -869,7 +882,7 @@ Object salon_katie "Salón"
 
 Object telefono_katie "teléfono" cocina_katie
   with
-    name 'telefono' 'auricular',
+    name 'telefono' 'auricular' 'tlf',
     description "El teléfono de la casa de Katie.",
     initial "Ves tu teléfono.",
     sonando [;
@@ -892,7 +905,7 @@ Object telefono_katie "teléfono" cocina_katie
 
 Object tv_katie "televisor" salon_katie
   with
-    name_f 'tv' 'television',
+    name_f 'tv' 'television' 'tele',
     name_m 'televisor',
     description [;
       print "El televisor. Está ";
@@ -988,12 +1001,31 @@ Object becca "Becca" cuarto_katie
     describe [;
       "^Aquí está Becca.";
     ],
+    before [;
+      Llamar:
+        "Estoy aquí... ¿No me ves?";
+    ],
     life [;
       Ask:
         HablaBecca("No entiendo qué quieres decirme.");
         rtrue;
     ],
     orders [;
+      Go, GoIn, Enter, Exit:
+        HablaBecca("No pienso ir sola a ninguna parte.");
+        rtrue;
+        
+      Take:
+        if (noun == telefono_katie) {
+          if (LugarReal() == cocina_katie) {
+            BeccaCogeElTelefono();
+            rtrue;
+          } else {
+            HablaBecca("¿Dónde está el teléfono?");
+            rtrue;
+          }
+        }
+
       NotUnderstood, Tell:
         <<Ask self>>;
 
@@ -1003,6 +1035,36 @@ Object becca "Becca" cuarto_katie
     ],
   has
     animate proper;
+
+
+Object becca_ausente "Becca ausente"
+  with
+    name 'becca',
+    description "No ves a Becca por ninguna parte. ¿Estará en tu habitación?",
+    found_in false,
+    before [;
+      Llamar:
+        "Llamas a Becca, pero no obtienes respuesta.";
+
+      Gritar:
+        "Gritas el nombre de Becca, sin obtener respuesta.";
+
+      default:
+        "Becca no está.";
+    ],
+    life [;
+      Ask:
+        "Nadie responde.";
+    ],
+    orders [;
+      NotUnderstood, Tell:
+        <<Ask self>>;
+
+      default:
+        "No ves a Becca por ninguna parte.";
+    ],
+  has
+    animate concealed;
 
     
 ! ====================================================================
@@ -1105,6 +1167,8 @@ Object sonido_telefono_katie
     parar [ sw;
       self.parar_sonido();
       remove becca;
+      becca_ausente.found_in = true;
+      move becca_ausente to LugarReal();
       StopTimer(self);
       if (~~sw) "El teléfono deja de sonar.";
     ],
@@ -1112,9 +1176,8 @@ Object sonido_telefono_katie
       if (self.sonando()) {
         if (becca in cocina_katie && random(100) < 10 &&
             msg_becca.at_end()) {
-          sonido_telefono_katie.parar(true);
           HablaBecca("Venga ya, esto es absurdo...");
-          "^Becca coge el teléfono y te lo da, oyes a tu madre.";
+          BeccaCogeElTelefono();
         } else if (random(100) < 20) {
           HablaBecca(msg_becca.run_script());
         }
@@ -1494,6 +1557,12 @@ Object ZIPI_Salir
 !-------------------------------------------------------------------------------
 
 
+[ BeccaCogeElTelefono;
+  sonido_telefono_katie.parar(true);
+  "^Becca coge el teléfono y te lo da, oyes a tu madre.";
+];
+
+
 [ HablaKatie msg;
   HablaPSI("KATIE", msg);
 ];
@@ -1704,6 +1773,7 @@ Object ZIPI_Salir
       GRAFICOS_PEQUENOS: print "pequeño";
       GRAFICOS_MEDIANOS: print "mediano";
       GRAFICOS_GRANDES:  print "grande";
+      default:           print altoVentanaGrafica, " px";
     }
     print ").]^";
     style roman;
@@ -1770,6 +1840,17 @@ Verb 'desenchufa'
   * noun            -> Desenchufar;
 
 VerboIrregular "desenchufar" with imperativo 'desenchufa';
+
+Extend 'grita' first
+  *                 -> Gritar
+  * 'a//' creature  -> Gritar;
+
+Verb 'chilla' = 'grita';
+
+Verb 'llama'
+  *                 -> Llamar
+  * 'a//' creature  -> Llamar
+  * 'por' noun      -> LlamarPor;
 
 
 !===============================================================================
@@ -2025,5 +2106,21 @@ VerboIrregular "desenchufar" with imperativo 'desenchufa';
 [ AnswerSub;
   ComoHablar();
 ];
+
+
+[ GritarSub;
+  "Emites un espantoso alarido.";
+];
+
+
+[ LlamarSub;
+  "¿Llamar a qué o a quién?";
+];
+
+
+[ LlamarPorSub;
+  "Con eso no puedes llamar a ningún sitio.";
+];
+
 
 ! Fin del código

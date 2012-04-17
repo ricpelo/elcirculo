@@ -807,7 +807,7 @@ Class Sonido
 
 
 ! ====================================================================
-! HABITACIONES
+! HABITACIONES Y DECORADOS
 ! ====================================================================
 
 ! ---------------------------------------------
@@ -866,6 +866,14 @@ Object cocina_katie "Cocina"
           }
         }
     ];
+
+
+Object decorado_cocina_katie cocina_katie
+  class Decorado
+  with
+    sinonimos
+      'nevera' 'frigorifi' G_FEMENINO,  ! Se usan sólo las primeras 9 letras
+    describe 'frigorifico' "El frigorífico." 0;
 
 
 Object salon_katie "Salón"

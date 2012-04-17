@@ -819,7 +819,15 @@ Class Sonido
 Object cuarto_katie "Tu habitación"
   class LugarCasaKatie
   with
-    description "Típica habitación de adolescente.",
+    description "La pequeña lámpara de la mesita situada junto a tu cama
+                 proyecta débiles y verdosos haces de luz que iluminan tu
+                 habitación con un tono que, en estos momentos, te resulta
+                 enfermizo y asfixiante. El tamaño de tu cama parece pugnar
+                 por abarcar el mayor espacio posible de la estancia, sólo
+                 equilibrado por el pequeño televisor que observa todo sin
+                 parpadear su único ojo desde una pequeña mesa situada en
+                 la pared contraria.",
+!    "Típica habitación de adolescente.",
     out_to pasillo_katie,
     sgw_img Oscuridad_jpg;
 !    sgw_mus TV_Fondo_ogg;
@@ -828,14 +836,33 @@ Object cuarto_katie "Tu habitación"
 Object decorado_cuarto_katie cuarto_katie
   class Decorado
   with
-    describe 'cama' "Tu cama." G_FEMENINO
-             'silla' "Una silla." G_FEMENINO;
+    sinonimos
+      'mesa' 'mesita' (-1),
+    describe
+      'cama' "Te gusta dormir cómoda, y por ello tu cama tiene casi el doble
+              de ancho que una cama normal, pero ahora, sin tener muy claro
+              el por qué, se te antoja poco acogedora." G_FEMENINO
+!      'silla' "Una silla." G_FEMENINO
+      'lampara' "Una lámpara que emite una tenue luz especialmente verdosa." 
+                G_FEMENINO
+      'mesita' "Una pequeña mesita al fondo de la habitación sostiene,
+                solitaria, el televisor del dormitorio." G_FEMENINO;
 
 
 Object pasillo_katie "Pasillo del piso superior"
   class LugarCasaKatie
   with
-    description "El pasillo del piso superior.",
+    description [;
+      print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
+             te había parecido tan oscuro y carente de alma. Una fría
+             corriente de aire lo recorre de extremo a extremo, subiendo
+             por las escaleras que dan a la planta baja y cruzando tu
+             espalda en escalofríos continuos y persistentes.";
+      if (puerta_katie notin self) {
+        " La puerta abierta a tu habitación es prácticamente la única
+         fuente de luz en este lúgubre pasaje."; 
+      }
+    ],
     in_to cuarto_katie,
     d_to cocina_katie,
     sgw_img Oscuridad_jpg;
@@ -844,7 +871,15 @@ Object pasillo_katie "Pasillo del piso superior"
 Object decorado_pasillo_katie pasillo_katie
   class Decorado
   with
-    describe 'puerta' "Tu puerta, abierta." G_FEMENINO;
+    before [;
+      Open:
+        "Ya está abierta.";
+
+      Close:
+        "Mejor no cerrarla.";
+    ],
+    describe
+      'puerta' "Tu puerta, abierta." G_FEMENINO;
 
     
 Object cocina_katie "Cocina"
@@ -857,7 +892,8 @@ Object cocina_katie "Cocina"
     before [;
       Go:
         if (noun == u_obj) {
-          if ((~~(sonido_telefono_katie.sonando())) && tv_salon_katie.enchufado) {
+          if ((~~(sonido_telefono_katie.sonando())) &&
+              tv_salon_katie.enchufado) {
             switch (tv_salon_katie.encendidos) {
               0: if (tv_salon_katie has on) {
                    tv_salon_katie.apagar();
@@ -888,7 +924,8 @@ Object decorado_cocina_katie cocina_katie
     sinonimos
       'nevera'     'frigorifi' G_FEMENINO  ! Se usan sólo las primeras 9 letras
       'congelador' 'frigorifi' (-1),
-    describe 'frigorifico' "El frigorífico." 0;
+    describe
+      'frigorifico' "El frigorífico." 0;
 
 
 Object salon_katie "Salón"
@@ -897,6 +934,15 @@ Object salon_katie "Salón"
     description "El salón.",
     n_to cocina_katie,
     sgw_img Oscuridad_jpg;
+
+
+Object decorado_salon_katie salon_katie
+  class Decorado
+  with
+    sinonimos
+      'mesita' 'mesa' (-1),
+    describe
+      'mesa' "La mesa." G_FEMENINO;
     
     
 ! ====================================================================
@@ -937,8 +983,16 @@ Object telefono_katie "teléfono" cocina_katie
         } else {
           "Descuelgas y no oyes nada. Ni siquiera el tono de marcado.";
         }
+
       Drop, Colgar:
         "El teléfono ya está colgado.";
+
+      LlamarPor:
+        if (self.sonando()) {
+          "Alguien está llamando. No puedes llamar tú ahora.";
+        } else {
+          <<Descolgar self>>;
+        }
     ],
   has
     static;
@@ -1155,7 +1209,8 @@ Object becca "Becca" cuarto_katie
     ],
     before [;
       Llamar:
-        "Estoy aquí... ¿No me ves?";
+        HablaBecca("Estoy aquí... ¿No me ves?");
+        rtrue;
     ],
     life [
       tema;
@@ -2028,6 +2083,9 @@ Verb meta 'pistas'
   *                 -> Pistas
   * 'no' / 'nx'     -> PistasNo;
 
+Verb 'ayuda'
+  *                 -> Ayuda;
+
 Verb meta 'creditos'
   *                 -> Creditos;
 
@@ -2232,6 +2290,13 @@ Verb 'llama'
     default: hayPistas = 2;
              print (s_emph) "[PISTAS desactivadas.]^";
   }
+];
+
+
+[ AyudaSub;
+  print "Prueba a pedir ayuda a alguien. Si necesitas pistas más elaboradas,
+         puedes usar el sistema de pistas interactivas tecleando el comando ",
+         (s_input) "PISTAS", ".^";
 ];
 
 

@@ -985,7 +985,7 @@ Object tv_salon_katie "televisor" salon_katie
     encendidos 0,
     encender [ sw;
       give self on;
-      sonido_tv_salon_katie.sonar(sw);
+      sonido_tv_salon_katie.sonar();
       if (~~sw) self.encendidos++;
     ],
     apagar [;
@@ -1066,14 +1066,21 @@ Object puerta_katie "puerta de tu habitación"
     initial "La puerta de tu habitación está cerrada y tiene luz por debajo.",
     add_to_scope pomo_puerta_katie,
     react_before [;
+      Enter, GoIn:
+        <<Open self>>;
+
       Examine, Take:
         rfalse;
         
       default:
         if (noun == pomo_puerta_katie) {
+          print "hola";
           noun = puerta_katie;
-          rfalse;
+          ! Esto es porque al hacer el truco de la línea anterior (de cambiar
+          ! el noun por la cara) luego no se ejecuta la rutina before:
+          return RunRoutines(self, before);
         }
+        rfalse;
     ],
     before [;
       Examine:
@@ -1082,6 +1089,9 @@ Object puerta_katie "puerta de tu habitación"
         
       Open:
         "Abres la puerta, y mueres.";
+        
+      Close:
+        "La puerta ya está cerrada.";
         
       default:
         "No puedes hacer eso con la puerta.";
@@ -1344,11 +1354,8 @@ Object sonido_tv_salon_katie
       else                         v = 0;
       return v;
     ],
-    sonar [ sw
-      snd;
-      if (sw) snd = TV_Fondo_ogg;
-      else    snd = Ruido_TV_ogg;
-      self.tocar_sonido(snd);
+    sonar [;
+      self.tocar_sonido(Ruido_TV_ogg);
     ],
     parar [;
       self.parar_sonido();
@@ -1371,7 +1378,7 @@ Object sonido_tv_cuarto_katie
       return v;
     ],
     sonar [;
-      self.tocar_sonido(TV_Fondo_ogg);
+      self.tocar_sonido(Ruido_TV_ogg);
     ],
     parar [;
       self.parar_sonido();

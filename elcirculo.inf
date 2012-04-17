@@ -1941,12 +1941,14 @@ Verb 'llama'
 !-------------------------------------------------------------------------------
 
 
-[ ConfiguracionSub v m;
+[ ConfiguracionSub
+  fondo v m;
   ControlTimer.PausarTick();
   if (hayGraficos) {
-    ApagarGraficosSub(true);
+    ApagarGraficos(true);
     hayGraficos = true;
   }
+  fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
   barra_estado.numero_lineas = 26;
   barra_estado.dibujar();
   clearMainWindow();
@@ -1955,13 +1957,13 @@ Verb 'llama'
   
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   m = LugarReal().sgw_mus;
-  if (haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
+  if (fondo && haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
     Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
     Damusix.TocarCanal(CANAL_FONDO);
   }
   barra_estado.numero_lineas = 1;
   barra_estado.dibujar();
-  if (hayGraficos) EncenderGraficosSub(true);
+  if (hayGraficos) EncenderGraficos(true);
   clearTextWindow();
   ControlTimer.ReanudarTick();
   <<Look>>;
@@ -2053,7 +2055,7 @@ Verb 'llama'
 
 
 [ PistasSub
-  t v tlf tv fondo;
+  v tlf tv fondo;
   switch (hayPistas) {
     0: hayPistas = 1;
        print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
@@ -2063,12 +2065,10 @@ Verb 'llama'
              en la sesión de juego actual. Si sigues queriendo una pista, pon ",
              (s_input) "PISTAS", (s_emph) " otra vez.]^";
     1: ControlTimer.PausarTick();
-       t = false;
        if (hayGraficos) {
-         t = true;
-         ApagarGraficosSub(true);
+         ApagarGraficos(true);
+         hayGraficos = true;
        }
-       StatusLineHeight(26);
        barra_estado.numero_lineas = 26;
        barra_estado.dibujar();
        tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
@@ -2095,9 +2095,7 @@ Verb 'llama'
        }
        barra_estado.numero_lineas = 1;
        barra_estado.dibujar();
-       if (t) {
-         EncenderGraficosSub(true);
-       }
+       if (hayGraficos) EncenderGraficos(true);
        clearTextWindow();
        ControlTimer.ReanudarTick();
        <<Look>>;

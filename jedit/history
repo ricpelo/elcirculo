@@ -1,9 +1,15 @@
 [replace]
+VOLUMEN_TV_SALON
+CANAL_TV_SALON
+tv_salon_katie
+timer_telefono_katie
+sonido_telefono_katie
+sonido_tv_katie
 gg_mapawin
 [vfs.browser.path]
-/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG
 /home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack
 /home/ricardo/IF/INFSP6/ElCirculo
+/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG
 /home/ricardo/IF/INFSP6/infsp_I6/Docs Extensiones/Barra
 /home/ricardo/IF/INFSP6/infsp_I6/Docs Extensiones
 /home/ricardo/IF/INFSP6/infsp_I6
@@ -26,70 +32,70 @@ regular expression
 [vfs.browser.filter]
 *\[^~#\]
 [action]
-next-page
-prev-page
-document-home
-document-end
-sidekick-parse
-textautocomplete-buffer-attach
-Jugar
 save
 backspace
+plugin-options
+sidekick-keystroke-parse
+sidekick-complete
+sidekick-tree
+open-file
+Compilar
+expand-fold
+sidekick-prev-asset
+sidekick-search-asset
+sidekick-narrow-asset
+sidekick-select-asset
+sidekick-parse
+find
+next-page
+prev-page
 insert-newline-indent
-end
-prev-line
 next-line
-prev-char
-next-char
-insert-tab-indent
-delete
-home
-select-none
-prev-word
+prev-line
 [console.System]
-jugar.sh
 compilar-infixe.sh
+jugar.sh
 [clipboard]
- timbre_tlf_kati
-timbre_tlf_katie.time_out();
-_tlf_katie
-timer_tlf_katie
-        ControlTimer.PrepararImpresion();\n        \"^El teléfono sigue sonando.\";\n
-! ====================================================================\n
-! OTROS OBJETOS DE SOPORTE\n! ====================================================================\n
-^
-    volumen_tlf VOLUMEN_TELEFONO / 4;\n
-      Go:\n        if (timbre_tlf_katie.sonando) {\n          Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO / 4);\n        }\n    \];\n
-    after \[;\n      Go:\n        if (timbre_tlf_katie.sonando) {\n          Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO / 2);\n        }\n    \],\n
-        StartTimer(self, 5);\n
-Constant CANAL_TV = 0; Constant VOLUMEN_TV = 20;\n
-  Damusix.PararCanal(CANAL_FONDO);\n  Damusix.AsignarCanal(Telefono1_ogg, CANAL_TELEFONO, VOLUMEN_TELEFONO,\n                       SONIDO_BUCLE_INFINITO);\n  Damusix.TocarCanal(CANAL_TELEFONO);
-    MostrarImagenGradualmente(Prologo_png, 30, 10);\n
-    for (i = 0 : i < 30 : i++) {\n      viewImageCenter(Prologo_png, true);\n      KeyDelay(10);\n    }\n
-    glk_window_close(gg_bigwin, 0);\n    gg_bigwin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional, 100,\n                    wintype_Graphics, GG_BIGWIN_ROCK);\n
-openGraphicWindow(altoVentanaGrafica);
-  clearMainWindow();\n
-  if (logo) {\n    clearGraphicWindow();\n!    DibujaLogoAlien();\n  }\n
+    before \[;\n      Examine:\n        PrintOrRun(self, description);\n        rtrue;\n\n      SwitchOn:\n        if (~~(self.enchufado))\n          \"No se puede encender porque está desenchufado.\";\n        if (self has on) \"Ya está encendido.\";\n        self.encender(true);\n        \"Enciendes el televisor.\";\n        \n      SwitchOff:\n        if (~~(self.enchufado))\n          \"Ya está desenchufado.\";\n        if (self hasnt on) \"Ya está apagado.\";\n        self.apagar();\n        \"Apagas el televisor.\";\n\n!      Tie:\n!        if (self.enchufado) {\n!          \"El televisor ya está enchufado.\";\n!        } else {\n!          self.enchufado = true;\n!          \"Enchufas el televisor.\";\n!        }\n\n!      Desenchufar:\n!        if (~~(self.enchufado)) {\n!          \"El televisor ya está desenchufado.\";\n!        } else {\n!          self.enchufado = false;\n!          if (self has on) {\n!            self.apagar();\n!            \"Desenchufas el televisor. Al hacerlo, la pantalla se apaga.\";\n!          } else {\n!            \"Desenchufas el televisor.\";\n!          }\n!        }     \n    \],\n    after \[;\n      SwitchOn:\n        self.encender();\n        StopTimer(self);\n        \"Enciendes el televisor.\";\n\n      SwitchOff:\n        self.apagar();\n        if (self.encendidos == 1) {\n          StartTimer(self, 3);\n        }\n        \"Apagas el televisor.\";\n    \],\n  has\n    static switchable;\n
+    encender \[ sw;\n      give self on;\n      sonido_tv_salon_katie.sonar(sw);\n      if (~~sw) self.encendidos++;\n    \],\n    apagar \[;\n      give self ~on;\n      sonido_tv_salon_katie.parar();\n    \],\n
+TV_Fondo_ogg
+Constant CANAL_TV_SALON = 0; Constant VOLUMEN_TV_SALON = 100;\n
+Object sonido_tv_salon_katie\n  class Sonido\n  with\n    found_in salon_katie cocina_katie pasillo_katie,\n    canal CANAL_TV,\n    volumen \[\n      l v;\n      l = LugarReal(); \n      if (l == salon_katie)        v = VOLUMEN_TV;\n      else if (l == cocina_katie)  v = VOLUMEN_TV / 2;\n      else if (l == pasillo_katie) v = VOLUMEN_TV / 4;\n      else                         v = 0;\n      return v;\n    \],\n    sonar \[ sw\n      snd;\n      if (sw) snd = TV_Fondo_ogg;\n      else    snd = Ruido_TV_ogg;\n      self.tocar_sonido(snd);\n    \],\n    parar \[;\n      self.parar_sonido();\n    \],\n  has\n    concealed; \n
+Object msg_becca\n  class StopEventList\n  with\n    event_list \"Katie... Está sonando el teléfono...\"\n               \"¿Qué pasa? ¿No lo coges?\"\n               \"¿Por qué no lo coges?\"\n               \"¡Pero cógelo ya! ¿Tienes miedo o qué?\";\n  \n\n!Object msg_becca\n!  class MensajesSecuencia\n!  with\n!    mensajes \"Katie... Está sonando el teléfono...\"\n!             \"¿Qué pasa? ¿No lo coges?\"\n!             \"¿Por qué no lo coges?\"\n!             \"¡Pero cógelo ya! ¿Tienes miedo o qué?\";\n\n
+    initial \"Ves el televisor.\",\n
+  with\n    name_f \'tv\' \'television\' \'tele\' \'pantalla\',\n    name_m \'televisor\',\n    description \[;\n      print \"El televisor. Está \";\n      if (self has on) print \"encendido\";\n      else             print \"apagado\";\n      print \" y \";\n      if (self.enchufado) \"enchufado.\";\n      else                \"desenchufado.\";\n    \],\n
+Object tema_becca_telefono \"el teléfono\" TemasBecca\n  with\n    name \'telefono\', \'tlf\', \'auricular\';\n
+fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
+       if (fondo) {\n         v = Damusix.QueVolumenCanal(CANAL_FONDO);\n         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,\n                              SONIDO_BUCLE_INFINITO);\n         Damusix.TocarCanal(CANAL_FONDO);\n       } else {\n         Damusix.PararCanal(CANAL_FONDO);\n       }\n
+Damusix.SonandoDeFondoCanal(CANAL_TV);
+timer_telefono_katie.AsignarGestor(1);
+ControlTimer.PrepararImpresion();
+  telefono_katie.descolgar();\n  \"Becca coge el teléfono y te lo da, oyes a tu madre. Luego ella se va.\";\n
+      remove becca;\n      becca_ausente.found_in = true;\n      move becca_ausente to LugarReal();\n
+sonido_telefono_katie.parar(true);
+    after \[ o;\n      Go:\n        objectloop (o ofclass Sonido && o in self) {\n          o.cambiar_volumen();\n        }\n    \],\n
+    before \[;\n      Examine, Touch:\n        if (noun == d_obj) {          ! Examinamos el suelo\n          \"No observas nada en especial al mirar al suelo.\";\n        } else if (noun == u_obj) {   ! Examinamos el techo\n          \"No observas nada en especial al mirar al techo.\";\n        }        \n    \];\n
+No observas nada en especial al mirar al suelo
 [search.directory]
 /home/ricardo/IF/INFSP6/LaSonda/
 [find]
-timbre_tlf_katie
-timer_tlf_katie
-TICK
-HandleGlkE
-Timer
-selfobj
-cuarto_katie
-TimbreTlf
-CuartoKatie
-Katie
-nave1
-TimbreTlfKatie
+sinonimos
+decorado
+tocar_sonido
+VOLUMEN_TV
+CANAL_TV
+tv_katie
+Object jason
+Tema
+EncenderGraficosSub
+ApagarGraficosSub
 ConversacionKatieBecca
-telefono
-Tocar
-HablaBecca
-MostrarImagenGradualmente
-Dark
-IniciarSonidos
-IniciarGraficosSonidos
+ConfiguracionSub
+Gestor
+InScope
+article
+puerta_katie
+remove
+descolgar
+absurdo
+BeccaCogeElTelefono

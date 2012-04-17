@@ -73,6 +73,8 @@ Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 
 Constant TIMER_TICK = 1000;
 Constant TIMER_DURACION_TLF_KATIE = 6;
+Constant TIMER_DURACION_BECCA = 5;
+
 
 ! ====================================================================
 ! VARIABLES GLOBALES
@@ -641,6 +643,7 @@ Include "EventList_NG";     ! Listas de mensajes
   Damusix.PararCanal(CANAL_FONDO);
   sonido_telefono_katie.sonar();
   timer_telefono_katie.AsignarGestor(1);
+  timer_becca.AsignarGestor(2);
   ControlTimer.ActivarTick(TIMER_TICK);
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, player);
   KeyDelay();
@@ -653,7 +656,9 @@ Include "EventList_NG";     ! Listas de mensajes
 
 
 [ InScope;
-  if (LugarReal() ofclass LugarCasaKatie) {
+  ! Así le podemos pedir a Becca que coja el teléfono aunque el teléfono no
+  ! esté presente:
+  if (actor == becca && LugarReal() ofclass LugarCasaKatie) {
     PlaceInScope(telefono_katie);
   }
   rfalse;
@@ -1018,8 +1023,46 @@ Object puerta_katie "puerta de tu habitación"
     description "La puerta de la habitación, cerrada, con agua saliendo por
                  debajo y goteando por el pomo.",
     initial "La puerta de tu habitación está cerrada y tiene luz por debajo.",
+    add_to_scope pomo_puerta_katie,
+    react_before [;
+      Examine, Take:
+        rfalse;
+        
+      default:
+        if (noun == pomo_puerta_katie) {
+          noun = puerta_katie;
+          rfalse;
+        }
+    ],
+    before [;
+      Examine:
+        PrintOrRun(self, description);
+        rtrue;
+        
+      Open:
+        "Abres la puerta, y mueres.";
+        
+      default:
+        "No puedes hacer eso con la puerta.";
+    ],
   has
     static female openable;
+
+
+Object pomo_puerta_katie "pomo de la puerta"
+  with
+    name 'pomo' 'picaporte',
+    description "El pomo de la puerta, goteando.",
+    before [;
+      Examine:
+        PrintOrRun(self, description);
+        rtrue;
+
+      Take:
+        <<Open puerta_katie>>;
+    ],
+  has
+    static;
 
 
 ! ====================================================================
@@ -1123,6 +1166,17 @@ Object timer_telefono_katie
       }
     ];
 
+    
+Object timer_becca
+  class GestorTimer
+  with
+    duracion TIMER_DURACION_BECCA,
+    condicion [;
+      return sonido_telefono_katie.sonando();
+    ],
+    evento [;
+      sonido_telefono_katie.each_turn();
+    ];
 
 ! ====================================================================
 ! OBJETOS DE SOPORTE
@@ -1208,10 +1262,12 @@ Object sonido_telefono_katie
       if (self.sonando()) {
         if (becca in cocina_katie && random(100) < 10 &&
             msg_becca.at_end()) {
+          ControlTimer.PrepararImpresion();
           HablaBecca("Venga ya, esto es absurdo...");
           new_line;
           telefono_katie.becca_lo_coge();
         } else if (random(100) < 20) {
+          ControlTimer.PrepararImpresion();
           HablaBecca(msg_becca.run_script());
         }
       }
@@ -1894,7 +1950,9 @@ Verb 'llama'
   barra_estado.numero_lineas = 26;
   barra_estado.dibujar();
   clearMainWindow();
+  
   ZIPI_RunMenu(ZIPI_Configuracion, true);
+  
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   m = LugarReal().sgw_mus;
   if (haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
@@ -1903,9 +1961,7 @@ Verb 'llama'
   }
   barra_estado.numero_lineas = 1;
   barra_estado.dibujar();
-  if (hayGraficos) {
-    EncenderGraficosSub(true);
-  }
+  if (hayGraficos) EncenderGraficosSub(true);
   clearTextWindow();
   ControlTimer.ReanudarTick();
   <<Look>>;
@@ -1996,7 +2052,8 @@ Verb 'llama'
 ];
 
 
-[ PistasSub t v;
+[ PistasSub
+  t v tlf tv fondo;
   switch (hayPistas) {
     0: hayPistas = 1;
        print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
@@ -2011,17 +2068,31 @@ Verb 'llama'
          t = true;
          ApagarGraficosSub(true);
        }
+       StatusLineHeight(26);
        barra_estado.numero_lineas = 26;
        barra_estado.dibujar();
+       tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
+       Damusix.PararCanal(CANAL_TELEFONO);
+       tv = Damusix.SonandoDeFondoCanal(CANAL_TV);
+       Damusix.PararCanal(CANAL_TV);
+       fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
        v = Damusix.QueVolumenCanal(CANAL_FONDO);
        Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v,
                             SONIDO_BUCLE_INFINITO);
        Damusix.TocarCanal(CANAL_FONDO);
+       
        ZIPI_Empezar();
-       v = Damusix.QueVolumenCanal(CANAL_FONDO);
-       Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
-                            SONIDO_BUCLE_INFINITO);
-       Damusix.TocarCanal(CANAL_FONDO);
+       
+       if (tlf) Damusix.TocarCanal(CANAL_TELEFONO);
+       if (tv)  Damusix.TocarCanal(CANAL_TV);
+       if (fondo) {
+         v = Damusix.QueVolumenCanal(CANAL_FONDO);
+         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
+                              SONIDO_BUCLE_INFINITO);
+         Damusix.TocarCanal(CANAL_FONDO);
+       } else {
+         Damusix.PararCanal(CANAL_FONDO);
+       }
        barra_estado.numero_lineas = 1;
        barra_estado.dibujar();
        if (t) {

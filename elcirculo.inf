@@ -1112,6 +1112,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     ],
 !    initial "Ves el televisor.",
     encender [;
+      give self general;
       sonido_tv_cuarto_katie.sonar();
     ],
     apagar [;
@@ -1131,11 +1132,13 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     after [;
       SwitchOn:
         self.encender();
-        "Enciendes el televisor.";
+        "Al encender el televisor, te sorprende comprobar que no aparece
+         ninguna imagen, sino simple ruido y estática, como si no recibiera
+         señal.";
 
       SwitchOff:
         self.apagar();
-        "Apagas el televisor.";
+        "Apagas el televisor, sin evitar sentir cierto alivio al hacerlo.";
     ],
   has
     scenery switchable;
@@ -1146,22 +1149,41 @@ Object tv_salon_katie "televisor" salon_katie
     name_f 'tv' 'television' 'tele' 'pantalla',
     name_m 'televisor',
     description [;
-      print "El televisor. Está ";
-      if (self has on) print "encendido";
-      else             print "apagado";
-      print " y ";
-      if (self.enchufado) "enchufado.";
-      else                "desenchufado.";
+      if (self hasnt general) {
+        "Un televisor negro, impersonal, de gran tamaño, con una pantalla
+         tan oscura que su superficie apenas refleja el entorno en el que
+         se encuentra.";
+      } else {
+        if (self has on) {
+          "El enorme televisor ilumina la estancia con un brillo vivo y
+           cambiante, resultado del perpetuo movimiento del ruido en la
+           pantalla, que te recuerda al de millones de organismos
+           microscópicos moviéndose y chocando entre sí.";
+        } else {
+        }
+      }
     ],
-    initial "Ves el televisor.",
+!    initial "Ves el televisor.",
     time_left,
     time_out [;
       self.encender();
-      "^Se vuelve a encender el televisor.";
+      if (LugarReal() ~= salon_katie) {
+        print "^Un momento... ¿Eso que oyes... no es el televisor?^";
+      }
+      "^Durante unos instantes no acabas de creerlo... Buscas una explicación
+       lógica, intentas convencerte a ti misma de que no es cierto... Pero la
+       realidad, injusta pero imparcial, te lo deja claro: el televisor del
+       salón ha vuelto a encenderse solo.";
+         
+!      "^Todos los músculos del cuerpo se te agarrotan y tus pulmones se quedan
+!       sin aire cuando notas que el televisor del salón vuelve a encenderse
+!       solo."
+!      Se vuelve a encender el televisor.";
     ],
     enchufado true,
     encendidos 0,
     encender [ sw;
+      give self general;
       give self on;
       sonido_tv_salon_katie.sonar();
       if (~~sw) self.encendidos++;
@@ -1219,17 +1241,26 @@ Object tv_salon_katie "televisor" salon_katie
       SwitchOn:
         self.encender(true);
         StopTimer(self);
-        "Enciendes el televisor.";
+        if (self.encendidos == 1) {
+          "Al encender el televisor compruebas, para tu sorpresa, que no
+           aparece ninguna emisión salvo la típica imagen de ruido granulado y
+           el sonido de estática que se oye siempre que no se capta ninguna
+           señal.";
+        } else {
+          "Vuelves a encender el televisor y éste vuelve a mostrar ruido y a
+           emitir sonido de estática.";
+        }
 
       SwitchOff:
         self.apagar();
         if (self.encendidos == 1) {
           StartTimer(self, 3);
         }
-        "Apagas el televisor.";
+        "Con un gesto rápido, apagas el televisor y la estática desaparece,
+         retornando la estancia a la semioscuridad.";
     ],
   has
-    static switchable;
+    scenery switchable;
 
 
 Object charco_katie "charco de agua"
@@ -1259,7 +1290,6 @@ Object puerta_katie "puerta de tu habitación"
         
       default:
         if (noun == pomo_puerta_katie) {
-          print "hola";
           noun = puerta_katie;
           ! Esto es porque al hacer el truco de la línea anterior (de cambiar
           ! el noun por la cara) luego no se ejecuta la rutina before:
@@ -1320,6 +1350,18 @@ Object becca "Becca" cuarto_katie
         HablaBecca("¡¿Pero qué te pasa?! ¿Qué ocurre? ¿A qué vienen esos
                     gritos?");
         rtrue;
+    ],
+    react_after [;
+      SwitchOn:
+        if (noun == tv_cuarto_katie or tv_salon_katie) {
+          RunRoutines(noun, after);
+          if (tv_cuarto_katie hasnt general && tv_salon_katie hasnt general) {
+            HablaBecca("Qué extraño... ¿Qué ha pasado con la imagen?");
+          } else {
+            HablaBecca("Sigue sin haber imagen...");
+          }
+          rtrue;
+        }
     ],
     before [;
       Llamar:

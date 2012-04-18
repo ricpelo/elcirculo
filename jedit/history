@@ -7,8 +7,8 @@ sonido_telefono_katie
 sonido_tv_katie
 gg_mapawin
 [vfs.browser.path]
-/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack
 /home/ricardo/IF/INFSP6/ElCirculo
+/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack
 /home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG
 /home/ricardo/IF/INFSP6/infsp_I6/Docs Extensiones/Barra
 /home/ricardo/IF/INFSP6/infsp_I6/Docs Extensiones
@@ -32,30 +32,38 @@ regular expression
 [vfs.browser.filter]
 *\[^~#\]
 [action]
-save
-backspace
-plugin-options
-sidekick-keystroke-parse
-sidekick-complete
-sidekick-tree
-open-file
 Compilar
-expand-fold
-sidekick-prev-asset
-sidekick-search-asset
-sidekick-narrow-asset
-sidekick-select-asset
-sidekick-parse
-find
-next-page
-prev-page
+Jugar
+rescan-macros
+help
+run-last-console-command
+plugin-options
+run-other-macro
+stop-recording
+record-macro
+save
 insert-newline-indent
 next-line
+prev-char
 prev-line
+paste
+copy
+select-next-line
+home
+end
+backspace
 [console.System]
 compilar-infixe.sh
 jugar.sh
 [clipboard]
+          \"A través de la puerta entreabierta observas el pasillo en penumbra.\";\n
+\"Ya estaba abierta.\";
+      Enchufar:\n        \"El televisor ya está enchufado.\";\n        \n      Desenchufar:\n        \"¿Para qué quieres desenchufarlo?\";\n
+\"Desenchufas \", (the) noun, \".\";
+  if (~~(noun.enchufado)) {\n    print_ret (The) noun, \" ya está desenchufado.\";\n  }\n
+  if (~~(noun provides enchufado)) {\n    print_ret (The) noun, \" no puede desenchufarse.\";\n  }\n
+\"Descuelgas y no oyes nada. Ni siquiera el tono de marcado.\";
+\[ AyudarSub;\n  print \"Prueba a pedir ayuda a alguien. Si necesitas pistas más elaboradas, puedes usar\n         el sistema de pistas interactivas tecleando el comando \", (s_in) \"PISTAS\", \".^\";\n\];\n
     before \[;\n      Examine:\n        PrintOrRun(self, description);\n        rtrue;\n\n      SwitchOn:\n        if (~~(self.enchufado))\n          \"No se puede encender porque está desenchufado.\";\n        if (self has on) \"Ya está encendido.\";\n        self.encender(true);\n        \"Enciendes el televisor.\";\n        \n      SwitchOff:\n        if (~~(self.enchufado))\n          \"Ya está desenchufado.\";\n        if (self hasnt on) \"Ya está apagado.\";\n        self.apagar();\n        \"Apagas el televisor.\";\n\n!      Tie:\n!        if (self.enchufado) {\n!          \"El televisor ya está enchufado.\";\n!        } else {\n!          self.enchufado = true;\n!          \"Enchufas el televisor.\";\n!        }\n\n!      Desenchufar:\n!        if (~~(self.enchufado)) {\n!          \"El televisor ya está desenchufado.\";\n!        } else {\n!          self.enchufado = false;\n!          if (self has on) {\n!            self.apagar();\n!            \"Desenchufas el televisor. Al hacerlo, la pantalla se apaga.\";\n!          } else {\n!            \"Desenchufas el televisor.\";\n!          }\n!        }     \n    \],\n    after \[;\n      SwitchOn:\n        self.encender();\n        StopTimer(self);\n        \"Enciendes el televisor.\";\n\n      SwitchOff:\n        self.apagar();\n        if (self.encendidos == 1) {\n          StartTimer(self, 3);\n        }\n        \"Apagas el televisor.\";\n    \],\n  has\n    static switchable;\n
     encender \[ sw;\n      give self on;\n      sonido_tv_salon_katie.sonar(sw);\n      if (~~sw) self.encendidos++;\n    \],\n    apagar \[;\n      give self ~on;\n      sonido_tv_salon_katie.parar();\n    \],\n
 TV_Fondo_ogg
@@ -68,17 +76,11 @@ Object tema_becca_telefono \"el teléfono\" TemasBecca\n  with\n    name \'telef
 fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
        if (fondo) {\n         v = Damusix.QueVolumenCanal(CANAL_FONDO);\n         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,\n                              SONIDO_BUCLE_INFINITO);\n         Damusix.TocarCanal(CANAL_FONDO);\n       } else {\n         Damusix.PararCanal(CANAL_FONDO);\n       }\n
 Damusix.SonandoDeFondoCanal(CANAL_TV);
-timer_telefono_katie.AsignarGestor(1);
-ControlTimer.PrepararImpresion();
-  telefono_katie.descolgar();\n  \"Becca coge el teléfono y te lo da, oyes a tu madre. Luego ella se va.\";\n
-      remove becca;\n      becca_ausente.found_in = true;\n      move becca_ausente to LugarReal();\n
-sonido_telefono_katie.parar(true);
-    after \[ o;\n      Go:\n        objectloop (o ofclass Sonido && o in self) {\n          o.cambiar_volumen();\n        }\n    \],\n
-    before \[;\n      Examine, Touch:\n        if (noun == d_obj) {          ! Examinamos el suelo\n          \"No observas nada en especial al mirar al suelo.\";\n        } else if (noun == u_obj) {   ! Examinamos el techo\n          \"No observas nada en especial al mirar al techo.\";\n        }        \n    \];\n
-No observas nada en especial al mirar al suelo
 [search.directory]
 /home/ricardo/IF/INFSP6/LaSonda/
 [find]
+desenchufa
+Estoy aquí
 sinonimos
 decorado
 tocar_sonido
@@ -97,5 +99,3 @@ article
 puerta_katie
 remove
 descolgar
-absurdo
-BeccaCogeElTelefono

@@ -3,3 +3,4 @@
 // save this buffer, and the macro should appear in the
 // Macros menu.
 runCommandInConsole(view,"System","compilar-infixe.sh");
+view.goToBuffer(buffer);

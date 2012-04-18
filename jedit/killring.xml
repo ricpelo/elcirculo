@@ -1,25 +1,24 @@
 <?xml version="1.1" encoding="UTF-8" ?>
 <!DOCTYPE KILLRING SYSTEM "killring.dtd">
 <KILLRING>
-<ENTRY>s1</ENTRY>
-<ENTRY>puerta</ENTRY>
-<ENTRY>_ka</ENTRY>
-<ENTRY>puerta_</ENTRY>
-<ENTRY>tu c</ENTRY>
-<ENTRY>tu ca</ENTRY>
-<ENTRY>La</ENTRY>
-<ENTRY>sw</ENTRY>
-<ENTRY>t</ENTRY>
-<ENTRY> rtrue;</ENTRY>
-<ENTRY>if (self.</ENTRY>
-<ENTRY>())</ENTRY>
-<ENTRY>          rfalse;
-</ENTRY>
-<ENTRY>,</ENTRY>
-<ENTRY>00ff00</ENTRY>
+<ENTRY>P</ENTRY>
+<ENTRY>Mejor no. Perderías </ENTRY>
+<ENTRY>çánd</ENTRY>
+<ENTRY>hay en</ENTRY>
+<ENTRY>¡</ENTRY>
+<ENTRY>'a </ENTRY>
+<ENTRY> uerta</ENTRY>
+<ENTRY>er</ENTRY>
+<ENTRY> abierta</ENTRY>
+<ENTRY>, Cerrar:</ENTRY>
 <ENTRY>0</ENTRY>
-<ENTRY>a</ENTRY>
-<ENTRY>2</ENTRY>
-<ENTRY>c</ENTRY>
-<ENTRY>;</ENTRY>
+<ENTRY>?</ENTRY>
+<ENTRY>et</ENTRY>
+<ENTRY>Abrir</ENTRY>
+<ENTRY>Cerrar</ENTRY>
+<ENTRY>out</ENTRY>
+<ENTRY>ra</ENTRY>
+<ENTRY>Examine</ENTRY>
+<ENTRY>At</ENTRY>
+<ENTRY>o</ENTRY>
 </KILLRING>

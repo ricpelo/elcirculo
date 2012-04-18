@@ -861,7 +861,7 @@ Object decorado_cuarto_katie cuarto_katie
 !      'silla' "Una silla." G_FEMENINO
       'lampara' "Una lámpara que emite una tenue luz especialmente verdosa." 
                 G_FEMENINO
-      'mesita' "Una pequeña mesita al fondo de la habitación sostiene,
+      'mesita' "Una baja mesita al fondo de la habitación sostiene,
                 solitaria, el televisor del dormitorio." G_FEMENINO
       'puerta' "La puerta de tu habitación permanece entreabierta.";
 
@@ -1031,7 +1031,7 @@ Object telefono_katie "teléfono" cocina_katie
     name 'telefono' 'auricular' 'tlf',
     description "El teléfono de tu casa, de un color blanco gastado, cuelga de
                  la pared junto al frigorífico.",
-    initial "Ves tu teléfono.",
+!    initial "Ves tu teléfono.",
     sonando [;
       return sonido_telefono_katie.sonando();
     ],
@@ -1044,14 +1044,44 @@ Object telefono_katie "teléfono" cocina_katie
       move puerta_katie to pasillo_katie;
     ],
     becca_lo_coge [;
-      telefono_katie.descolgar();
-      "Becca coge el teléfono y te lo da, oyes a tu madre. Luego ella se va.";
+      self.descolgar();
+      print "Becca coge el teléfono con expresión seria.^";
+      HablaBecca("¿Diga?", true);
+      print " -la oyes decir, casi susurrando,
+            al auricular del teléfono.^^";
+      print "Lentamente, a medida que escucha lo que el teléfono le dice, se
+             gira hacia ti con una inclasificable mirada en los ojos, y tu
+             preocupación crece por momentos...";
+      KeyDelay(2000);
+      print " hasta que te muestra una amplia sonrisa y pasándote el teléfono,
+             divertida, te dice:^";
+      HablaBecca("Es tu madre");
+      new_line;
+      self.coges_el_telefono();
+    ],
+    coges_el_telefono [;
+      print "Coges el teléfono, y aún con desconfianza lo acercas a tu oído.
+             Tras emitir un nervioso ~¿Hola?~, oyes al otro lado de la línea
+             la tranquilizadora (y enfática) voz de tu madre preguntándote qué
+             tal va la noche y exhortando que no te vayas tarde a la cama.
+             Durante la corta pero extrañamente tranquilizadora conversación,
+             percibes la voz de Becca preguntando algo mientras se aleja de la
+             cocina escaleras arriba. Finalmente, cuelgas el teléfono...";
+      KeyDelay(5000);
+      print (s_emph) " y estas sola.^";
+      HablaKatie("¿Becca?", true);
+      print " -la llamas temiendo alzar demasiado la voz, sin respuesta.^";
+      HablaKatie("¿BECCA?", true);
+      print " -gritas esta vez, sacando fuerzas del miedo.^^";
+      print_ret (s_emph) "No hay respuesta.";
+!      print (s_user1) "¿Becca?");
     ],
     before [;
       Take, Descolgar:
         if (self.sonando()) {
           self.descolgar();
-          "Descuelgas el auricular y oyes a tu madre.";
+          self.coges_el_telefono();
+          rtrue;
         } else {
           "Descuelgas y no oyes nada. Ni siquiera el tono de marcado.";
         }
@@ -1061,7 +1091,7 @@ Object telefono_katie "teléfono" cocina_katie
 
       LlamarPor:
         if (self.sonando()) {
-          "Alguien está llamando. No puedes llamar tú ahora.";
+          "El teléfono está sonando. No puedes llamar tú ahora.";
         } else {
           <<Descolgar self>>;
         }
@@ -1075,13 +1105,12 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     name_f 'tv' 'television' 'tele' 'pantalla',
     name_m 'televisor',
     description [;
-      print "El televisor. Está ";
-      if (self has on) print "encendido";
+      print "Un pequeño televisor sin aspectos destacables. Está ";
+      if (self has on) print "encendido, emitiendo nieve y ruido de estática";
       else             print "apagado";
-      print " y ";
       ".";
     ],
-    initial "Ves el televisor.",
+!    initial "Ves el televisor.",
     encender [;
       sonido_tv_cuarto_katie.sonar();
     ],
@@ -1093,14 +1122,8 @@ Object tv_cuarto_katie "televisor" cuarto_katie
         PrintOrRun(self, description);
         rtrue;
 
-      SwitchOn:
-        if (self has on) "Ya está encendido.";
-        
-      SwitchOff:
-        if (self hasnt on) "Ya está apagado.";
-        
       Enchufar:
-        "El televisor ya está enchufado.";
+        "El televisor ya estaba enchufado.";
         
       Desenchufar:
         "¿Para qué quieres desenchufarlo?";
@@ -1115,7 +1138,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
         "Apagas el televisor.";
     ],
   has
-    static switchable;
+    scenery switchable;
 
 
 Object tv_salon_katie "televisor" salon_katie
@@ -1291,6 +1314,12 @@ Object becca "Becca" cuarto_katie
     initial "^Junto a ti está Becca.",
     describe [;
       "^Aquí está Becca.";
+    ],
+    react_before [;
+      Gritar:
+        HablaBecca("¡¿Pero qué te pasa?! ¿Qué ocurre? ¿A qué vienen esos
+                    gritos?");
+        rtrue;
     ],
     before [;
       Llamar:
@@ -1908,18 +1937,19 @@ Object ZIPI_Salir
 !-------------------------------------------------------------------------------
 
 
-[ HablaKatie msg;
-  HablaPSI("KATIE", msg);
+[ HablaKatie msg nl;
+  HablaPSI("TÚ:", msg, nl);
 ];
 
 
-[ HablaBecca msg;
-  HablaPSI("BECCA", msg);
+[ HablaBecca msg nl;
+  HablaPSI("BECCA:", msg, nl);
 ];
 
 
-[ HablaPSI psi msg;
-  print_ret "^", (s_user1) psi, ": ~", (string) msg, "~";
+[ HablaPSI psi msg nl;
+  print "^", (s_user1) psi, " ~", (string) msg, "~";
+  if (~~nl) new_line;
 ];
 
 
@@ -2202,6 +2232,16 @@ Verb 'llama'
   *                 -> Llamar
   * 'a//' creature  -> Llamar
   * 'por' noun      -> LlamarPor;
+
+Extend 'cambia' first
+  * 'canal'/'emisora'                -> CambiarCanal
+  * 'el' 'canal'                     -> CambiarCanal
+  * 'la' 'emisora'                   -> CambiarCanal
+  * 'de' 'canal'/'emisora'           -> CambiarCanal
+  * 'canal'/'emisora' 'en' noun      -> CambiarCanal
+  * 'el' 'canal'   'en' noun         -> CambiarCanal
+  * 'la' 'emisora'  'en' noun        -> CambiarCanal
+  * 'de' 'canal'/'emisora' 'en' noun -> CambiarCanal;
 
 
 !===============================================================================
@@ -2503,7 +2543,7 @@ Verb 'llama'
 
 
 [ GritarSub;
-  "Emites un espantoso alarido.";
+  "Emites un sonoro grito, pero nadie responde.";
 ];
 
 
@@ -2514,6 +2554,19 @@ Verb 'llama'
 
 [ LlamarPorSub;
   "Con eso no puedes llamar a ningún sitio.";
+];
+
+
+[ CambiarCanalSub
+  tv;
+  if (noun ~= nothing)                     tv = noun;
+  else if (tv_cuarto_katie in LugarReal()) tv = tv_cuarto_katie;
+  else if (tv_salon_katie in LugarReal())  tv = tv_salon_katie;
+  else "No veo ningún televisor aquí.";
+  
+  if (tv hasnt on) "El televisor está apagado.";
+  
+  "Cambias repetidamente de canal, pero sólo encuentras estática y ruido."; 
 ];
 
 

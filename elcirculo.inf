@@ -878,6 +878,8 @@ Object pasillo_katie "Pasillo del piso superior"
       if (puerta_katie notin self) {
         " La puerta abierta a tu habitación es prácticamente la única
          fuente de luz en este lúgubre pasaje."; 
+      } else {
+        new_line;
       }
     ],
     in_to cuarto_katie,
@@ -1266,9 +1268,33 @@ Object tv_salon_katie "televisor" salon_katie
 Object charco_katie "charco de agua"
   with
     name 'charco' 'agua',
-    description "Un charco de agua cada vez más grande en el suelo que
-                 proviene de tu habitación.",
-    initial "Hay un charco de agua en el suelo.",
+    description "Es, claramente, un charco con forma irregular
+                 alimentado del agua que se filtra por debajo de la puerta
+                 de tu habitación.",
+    initial [;
+      StartTimer(self, 4);
+      "Depositado en mitad del pasillo, como una mancha líquida en el
+       suelo, ves un charco de agua que se extiende filtrándose por
+       debajo de la puerta cerrada de tu habitación.";
+    ],
+    time_left 0,
+    time_out [;
+      give pomo_puerta_katie ~scenery;
+      give pomo_puerta_katie static;
+      self.initial = "El charco es cada vez más grande. No deja de salir agua
+                      por debajo de la puerta.";
+    ],
+    react_before [;
+      Examine:
+        if (noun == d_obj) {
+          <<Examine self>>;
+        }
+    ],
+    before [;
+      Smell:
+        "El agua expele un hedor putrefacto, podrido, como el del agua
+        estancada.";
+    ],
   has
     static;
 
@@ -1277,9 +1303,15 @@ Object puerta_katie "puerta de tu habitación"
   with
     name 'puerta' 'habitacion',
     article "la",
-    description "La puerta de la habitación, cerrada, con agua saliendo por
-                 debajo y goteando por el pomo.",
-    initial "La puerta de tu habitación está cerrada y tiene luz por debajo.",
+    description "Bajo la puerta cerrada de tu habitación se escurre hacia el
+                 pasillo un flujo lento pero constante de agua. Un resplandor
+                 blanquecino proveniente de tu habitación acompaña al río de
+                 agua mientras atraviesa la rendija inferior de la puerta. Del
+                 pomo, empapado como si exhalara humedad, caen continuas gotas
+                 al suelo.",
+    initial "Alguien ha cerrado la puerta de tu habitación, dejando bajo ella
+             una fina abertura por la que salen un líquído hediondo y una
+             luz mortecina.",
     add_to_scope pomo_puerta_katie,
     react_before [;
       Enter, GoIn:

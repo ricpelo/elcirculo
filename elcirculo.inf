@@ -1211,6 +1211,8 @@ Object tv_salon_katie "televisor" salon_katie
            pantalla, que te recuerda al de millones de organismos
            microscópicos moviéndose y chocando entre sí.";
         } else {
+          "El televisor, ahora apagado, se presenta tan oscuro como un mal
+           presagio.";
         }
       }
     ],

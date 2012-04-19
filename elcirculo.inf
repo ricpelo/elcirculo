@@ -948,12 +948,18 @@ Object cocina_katie "Cocina"
                  rtrue;
 
               1: if (tv_salon_katie has on) {
-                   "Algo te dice que no quieres dejar el televisor encendido.
-                    Algo inexplicable, irracional y primario.";
+                   jump NoDejarEncendido;
                  } else {
                    tv_salon_katie.se_enciende_por_segunda_vez(false);
                    rtrue;
                  }
+
+              default:
+                if (tv_salon_katie has on) {
+              .NoDejarEncendido;
+                  "Algo te dice que no quieres dejar el televisor encendido.
+                   Algo inexplicable, irracional y primario.";
+                }
             }
           }
         }
@@ -978,6 +984,20 @@ Object salon_katie "Salón"
                  colgados de las paredes. Una ventana abierta deja pasar la
                  oscuridad del exterior.",
     n_to cocina_katie,
+    before [;
+      Go:
+        if (noun == n_obj && frigorifico_katie has open && 
+            frigorifico_katie hasnt general) {
+          give frigorifico_katie general;
+          print "^Nada más cruzar el arco que separa la cocina del salón, notas
+                 algo moverse junto al teléfono, justo en el extremo de tu
+                 percepción visual. Al girar la mirada, ves la causa y el
+                 corazón te da un vuelco: la puerta del frigorífico se abre
+                 poco a poco hasta quedar a medio abrir.";
+          KeyDelay();
+          new_line;
+        }
+    ],
     sgw_img Oscuridad_jpg;
 
 
@@ -1096,16 +1116,11 @@ Object frigorifico_katie "frigorífico" cocina_katie
          audible que cuando estaba cerrado.";
       }
     ],
+    ya_visto_abierto false,
     when_open [;
-      if (self hasnt general) {
-        give self general;
-        print "^Nada más cruzar el arco que separa la cocina del salón, notas
-               algo moverse junto al teléfono, justo en el extremo de tu
-               percepción visual. Al girar la mirada, ves la causa y el corazón
-               te da un vuelco: la puerta del frigorífico se abre poco a poco
-               hasta quedar a medio abrir.";
-        KeyDelay();
-        new_line;
+      if (~~(self.ya_visto_abierto)) {
+        self.ya_visto_abierto = true;
+        "^Ves el frigorífico abierto, como una invitación a lo desconocido."; 
       } else {
         "^El frigorífico sigue abierto.";
       }
@@ -1228,7 +1243,6 @@ Object tv_salon_katie "televisor" salon_katie
                sí que puedes sentir con claridad los latidos de tu
                corazón rebotando en tu pecho de pura ansiedad.^";
       } else {
-        self.encender();
         if (LugarReal() ~= salon_katie) {
           print "^Un momento... ¿Eso que oyes... no es el televisor?^";
         }

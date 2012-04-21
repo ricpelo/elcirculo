@@ -1141,7 +1141,8 @@ Object frigorifico_katie "frigorífico" cocina_katie
     after [;
       Close:
         self.cerrar();
-        "Cierras el frigorífico sin atreverte a mirar en su interior.";
+        "Cierras el frigorífico con rapidez sin atreverte a mirar en su
+        interior.";
     ];
 
 
@@ -1411,9 +1412,10 @@ Object puerta_katie "puerta de tu habitación"
       Examine:
         PrintOrRun(self, description);
         rtrue;
-        
+
       Open:
-        "Abres la puerta, y mueres.";
+        SecuenciaFinPrologo();
+        rtrue;
         
       Close:
         "La puerta ya está cerrada.";
@@ -2092,6 +2094,30 @@ Object ZIPI_Salir
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+[ SecuenciaFinPrologo;
+  print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
+         en el proceso las plantas de los pies, lo que te provoca una
+         reacción al frío más allá de lo esperable. Apoyas la mano en el
+         goteante pomo de la puerta, y el frío recorre ahora los dedos y el
+         brazo en dirección a tu sobresaltado corazón. Sabes que tienes que
+         abrir, algo te llama... algo tan frío y básico como el agua que
+         se desliza ahora por tu piel, envolviéndote. Y, sin saber bien cómo,
+         te ves girando el pomo y abriendo la puerta de par en par...";
+  KeyDelay(4000);
+  print "^^... sólo para descubrir ", (s_emph) "el horror", ".";
+  KeyDelay(2000);
+  print "^^Tu boca se abre tanto como puede para gritar y gritar y no dejar
+         de gritar. Tu rostro, desencajado por el puro terror, se deforma y
+         se funde como en contacto con el más poderoso ácido. Y tu corazón se
+         detiene justo instantes después de verlo. Sí: de verlo. Porque antes
+         de morir, lo ves.";
+  KeyDelay(3000);
+  print "^^Ves ", (s_user1) "el círculo.";
+  KeyDelay();
+  deadflag = 2;
+];
 
 
 [ HablaKatie msg nl;

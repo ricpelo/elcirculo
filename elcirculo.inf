@@ -60,10 +60,11 @@ Constant GRAFICOS_PEQUENOS   = 250;
 Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
-Constant CANAL_FONDO = 9; Constant VOLUMEN_FONDO = 50;
-Constant CANAL_TV_SALON = 0; Constant VOLUMEN_TV_SALON = 100;
-Constant CANAL_TV_CUARTO = 1; Constant VOLUMEN_TV_CUARTO = 50;
-Constant CANAL_TELEFONO = 2; Constant VOLUMEN_TELEFONO = 100;
+Constant CANAL_FONDO = 9;      Constant VOLUMEN_FONDO = 50;
+Constant CANAL_INCIDENTAL = 0; Constant VOLUMEN_INCIDENTAL = 50;
+Constant CANAL_TV_SALON = 1;   Constant VOLUMEN_TV_SALON = 100;
+Constant CANAL_TV_CUARTO = 2;  Constant VOLUMEN_TV_CUARTO = 50;
+Constant CANAL_TELEFONO = 3;   Constant VOLUMEN_TELEFONO = 100;
 
 ! Vamos a usar Damusix junto con SGW+DMX
 Constant SGW_CON_DAMUSIX;
@@ -420,7 +421,7 @@ Include "Parser";
 !-------------------------------------------------------------------------------
 
 
-Include "Rastros_NG";
+!Include "Rastros_NG";
 
 
 Object LibraryMessages
@@ -530,7 +531,7 @@ Object LibraryMessages
 
 ! Hay que definirla antes de incluir Moviles_NG:
 Class Lugar
-  class LugarConRastro
+!  class LugarConRastro
   with
 !   sgw_mus Estancia_ogg,
 !   sgw_vol VOLUMEN_FONDO,
@@ -630,13 +631,14 @@ Include "EventList_NG";     ! Listas de mensajes
 !  AsignarPersona(PRIMERA_PERSONA + PERSONA_SINGULAR);
 !  give player female;
 
-  clearTextWindow();
+!  clearTextWindow();
 
   IniciarMoviles();
   IniciarPuertas();
-  IniciarRastros();
+!  IniciarRastros();
 
   if (logo) {
+    clearTextWindow();
     clearGraphicWindow();
 !    DibujaLogoAlien();
   }
@@ -829,7 +831,6 @@ Object cuarto_katie "Tu habitación"
                  equilibrado por el pequeño televisor que observa todo sin
                  parpadear su único ojo desde una pequeña mesa situada en
                  la pared contraria.",
-!    "Típica habitación de adolescente.",
     out_to pasillo_katie,
     sgw_img Oscuridad_jpg,
     compass_look [ d;
@@ -852,6 +853,11 @@ Object decorado_cuarto_katie cuarto_katie
         if (self.palabra == 'puerta') {
           HablaBecca("¿Pero no vas a salir a coger el teléfono?");
           rtrue;
+        }
+
+      Take, Push, PushDir:
+        if (self.palabra == 'cama') {
+          "Es demasiado pesada.";
         }
     ],
     sinonimos
@@ -924,7 +930,7 @@ Object cocina_katie "Cocina"
         if (noun == u_obj) {
           if ((~~(sonido_telefono_katie.sonando())) &&
               tv_salon_katie.enchufado) {
-            switch (tv_salon_katie.encendidos) {
+            switch (tv_salon_katie.encendidos_solo) {
               0: if (tv_salon_katie has on) {
                    tv_salon_katie.apagar();
                    print "Justo cuando ibas a salir de la cocina para subir al
@@ -991,7 +997,7 @@ Object salon_katie "Salón"
         if (noun == n_obj && frigorifico_katie has open && 
             frigorifico_katie hasnt general) {
           give frigorifico_katie general;
-          print "^Nada más cruzar el arco que separa la cocina del salón, notas
+          print "Nada más cruzar el arco que separa la cocina del salón, notas
                  algo moverse junto al teléfono, justo en el extremo de tu
                  percepción visual. Al girar la mirada, ves la causa y el
                  corazón te da un vuelco: la puerta del frigorífico se abre
@@ -1241,6 +1247,9 @@ Object tv_salon_katie "televisor" salon_katie
       ! sw == false si viene de cocina_katie al intentar subir
       ! sw == true  si viene del time_out de tv_salon_katie
       self.encender();
+      Damusix.AsignarCanal(Gathering_Darkness_ogg, CANAL_INCIDENTAL,
+                           VOLUMEN_INCIDENTAL, SONIDO_BUCLE_INFINITO);
+      Damusix.TocarCanal(CANAL_INCIDENTAL);
       if (~~sw) {
         print "El televisor se vuelve a encender. Solo. Otra vez.
                Más sonido de estática proveniente del salón,
@@ -1262,12 +1271,12 @@ Object tv_salon_katie "televisor" salon_katie
        en dirección al salón y el televisor encendido.";
     ],
     enchufado true,
-    encendidos 0,
+    encendidos_solo 0,
     encender [ sw;
       give self general;
       give self on;
       sonido_tv_salon_katie.sonar();
-      if (~~sw) self.encendidos++;
+      if (~~sw) self.encendidos_solo++;
     ],
     apagar [;
       give self ~on;
@@ -1324,10 +1333,9 @@ Object tv_salon_katie "televisor" salon_katie
         StopTimer(self);
         if (self hasnt general) {
           give self general;
-          "Al encender el televisor compruebas, para tu sorpresa, que no
-           aparece ninguna emisión salvo la típica imagen de ruido granulado y
-           el sonido de estática que se oye siempre que no se capta ninguna
-           señal.";
+          "Al encender el televisor compruebas que no aparece ninguna emisión
+           salvo la típica imagen de ruido granulado y el sonido de estática
+           que se oye siempre que no se capta ninguna señal.";
         } else {
           "Vuelves a encender el televisor y éste vuelve a mostrar ruido y a
            emitir sonido de estática.";
@@ -1335,7 +1343,7 @@ Object tv_salon_katie "televisor" salon_katie
 
       SwitchOff:
         self.apagar();
-        switch (self.encendidos) {
+        switch (self.encendidos_solo) {
           1: StartTimer(self, 3);
           2: frigorifico_katie.abrir();
         }
@@ -1416,7 +1424,7 @@ Object puerta_katie "puerta de tu habitación"
         rtrue;
 
       Open:
-        SecuenciaFinPrologo();
+        FinPrologo();
         rtrue;
         
       Close:
@@ -1432,6 +1440,7 @@ Object pomo_puerta_katie "pomo de la puerta"
     name 'pomo' 'picaporte',
     description "Del pomo de la puerta cae un goteo continuo de agua que no
                  acabas de comprender de dónde proviene.",
+    add_to_scope gotas_pomo_puerta,
     before [;
       Touch:
         "Está mojado.";
@@ -1443,6 +1452,25 @@ Object pomo_puerta_katie "pomo de la puerta"
     static;
 
 
+Object gotas_pomo_puerta "gotas"
+  with
+    name_f 'gota',
+    name_fp 'gotas',
+    before [;
+      Examine:
+        <<Examine pomo_puerta_katie>>;
+
+      Touch:
+        <<Touch pomo_puerta_katie>>;
+        
+      default:
+        "Las gotas de agua son casi inmateriales y se escurren entre tus
+         dedos.";
+    ],
+  has
+    scenery concealed;
+
+
 ! ====================================================================
 ! PERSONAJES
 ! ====================================================================
@@ -1452,7 +1480,11 @@ Object katie "Katie" cuarto_katie
   class Movil
   with
     name 'katie',
-    description "Soy yo.",
+    description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
+                 responsable, de ojos oscuros y cabello largo, rubio y liso.
+                 Tu mejor amiga Becca y tú estáis pasando una noche solas en tu
+                 casa, aprovechando que tus padres están fuera. Aún llevas
+                 puesto tu uniforme escolar, aunque vas descalza.",
   has
     female;
 
@@ -1461,7 +1493,10 @@ Object becca "Becca" cuarto_katie
   class Movil
   with
     name 'becca',
-    description "Becca.",
+    description "Becca es, sin duda, tu mejor amiga, y lo es desde os
+                 conocísteis, hace ya siglos. Es morena, con grandes ojos
+                 verdes, y de carácter un tanto rebelde. Compañeras de
+                 Instituto que sois, lleva puesto el mismo uniforme que tú.",
     initial "^Junto a ti está Becca.",
     describe [;
       switch (random(3)) {
@@ -1503,10 +1538,15 @@ Object becca "Becca" cuarto_katie
         switch (tema) {
           tema_becca_telefono:
             HablaBecca("¿Crees que puede ser la misma persona que te llamó
-                          en la cabaña?");
+                        en la cabaña?");
+            PreguntaSiNo = 1;
 
           tema_becca_tv:
-            HablaBecca("");
+            if (tv_cuarto_katie has general || tv_salon_katie has general) {
+              HablaBecca("Parece que se ha ido la señal.");
+            } else {
+              HablaBecca("Sí, haces bien en apagar la tele. Es un rollo.");
+            }
             
           default:
             HablaBecca("No entiendo qué quieres decirme.");
@@ -1544,7 +1584,13 @@ Object becca "Becca" cuarto_katie
 Object becca_ausente "Becca ausente"
   with
     name 'becca',
-    description "No ves a Becca por ninguna parte. ¿Estará en tu habitación?",
+    description [;
+      if (location == cocina_katie or salon_katie) {
+        "No ves a Becca por ninguna parte. ¿Estará arriba?";
+      } else {
+        "No ves a Becca por ninguna parte. ¿Estará en tu habitación?";
+      }
+    ],
     found_in false,
     before [;
       Llamar:
@@ -1651,7 +1697,8 @@ Object sonido_telefono_katie
     sonar [ sw;
       self.tocar_sonido(Telefono1_ogg);
       StartTimer(self, self.duracion_alarma);
-      if (~~sw) "Comienza a sonar el teléfono en la planta baja.";
+      if (~~sw) "Son las diez de la noche en punto y, súbitamente, comienza a
+                 sonar el teléfono en la planta baja.";
     ],
     parar [ sw;
       self.parar_sonido();
@@ -1691,7 +1738,7 @@ Object sonido_tv_salon_katie
       return v;
     ],
     sonar [;
-      self.tocar_sonido(Ruido_TV_ogg);
+      self.tocar_sonido(TV_Ruido_ogg);
     ],
     parar [;
       self.parar_sonido();
@@ -1714,7 +1761,7 @@ Object sonido_tv_cuarto_katie
       return v;
     ],
     sonar [;
-      self.tocar_sonido(Ruido_TV_ogg);
+      self.tocar_sonido(TV_Ruido_ogg);
     ],
     parar [;
       self.parar_sonido();
@@ -1758,10 +1805,6 @@ Object tema_becca_telefono "el teléfono" TemasBecca
 Object tema_becca_tv "el televisor" TemasBecca
   with
     name 'televisor' 'tv' 'television' 'pantalla';
-
-Object tema_becca_padres "los padres" TemasBecca
-  with
-    name 'papa' 'padre' 'mama' 'madre' 'padres';
 
 
 ! ====================================================================
@@ -2066,7 +2109,13 @@ Object ZIPI_Salir
 !-------------------------------------------------------------------------------
 
 
-[ SecuenciaFinPrologo;
+[ BanderaFin df;
+  deadflag = df;
+  ControlTimer.DesactivarTick();
+  Damusix.PararTodo();
+];
+
+[ FinPrologo;
   print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
          en el proceso las plantas de los pies, lo que te provoca una
          reacción al frío más allá de lo esperable. Apoyas la mano en el
@@ -2086,7 +2135,7 @@ Object ZIPI_Salir
   KeyDelay(3000);
   print "^^Ves ", (s_user1) "el círculo.";
   KeyDelay();
-  deadflag = 2;
+  BanderaFin(2);
 ];
 
 
@@ -2178,9 +2227,10 @@ Object ZIPI_Salir
 
 [ IniciarSonidos;
   Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
-!  Damusix.VolumenCanal(CANAL_DETECTOR, VOLUMEN_DETECTOR);
-!  Damusix.AsignarCanal(Teletipo_ogg, CANAL_TELETIPO, VOLUMEN_TELETIPO, SONIDO_BUCLE_INFINITO);
-!  Damusix.AsignarCanal(Tic_ogg, CANAL_TICTAC, VOLUMEN_TICTAC, SONIDO_BUCLE_INFINITO);
+  Damusix.VolumenCanal(CANAL_INCIDENTAL, VOLUMEN_INCIDENTAL);
+  Damusix.VolumenCanal(CANAL_TV_SALON, VOLUMEN_TV_SALON);
+  Damusix.VolumenCanal(CANAL_TV_CUARTO, VOLUMEN_TV_CUARTO);
+  Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO);
 ];
 
 [ ComoHablar;
@@ -2190,10 +2240,16 @@ Object ZIPI_Salir
 ];
 
 
-[ Introduccion
-  v;
+[ Introduccion;
   clearMainWindow();
   viewImageCenter(Oscuridad_jpg);
+  
+  InicioPrologo();
+];
+
+
+[ InicioPrologo
+  esp v;
 
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   Damusix.AsignarCanal(Grillos_ogg, CANAL_FONDO, 0, SONIDO_BUCLE_INFINITO);
@@ -2213,14 +2269,113 @@ Object ZIPI_Salir
   }
   
   openGraphicWindow(altoVentanaGrafica);
-!  print "Copyright (c) 2008-2012 Alpha Aventuras";
-!  KeyDelay();
-!  clearMainWindow();
-  ! Desde el primer momento, dibujamos la primera pantalla y activamos el timer:
-!  viewImageCenter(Nave1_jpg);
-  ! Aquí iría la introducción en la que Katie y Becca hablan
-  ConversacionKatieBecca();
-  
+
+  esp = 1000;
+  print "Condado de Eola.";
+  KeyDelay(esp / 2);
+  print " Diez menos cuarto de la noche.";
+  KeyDelay(esp);
+  print "^^Dos jóvenes, dos amigas, solas, disfrutando de una noche de chicas
+         en casa de una de ellas aprovechando que sus padres no están. Una es
+         Becca Kotler, y la otra eres tú: Katie Embry. Solas, en tu casa,
+         donde reina un silencio ahogado, tan sólo roto por el cantar de los
+         grillos en el exterior y el sonido del programa de televisión que
+         estáis viendo en tu habitación.";
+!  print "^^Tú, Katie Embry, una adolescente, pasando la noche en compañía de
+!         tu amiga y compañera de clase, Becca Kotler. Solas, en tu casa,
+!         disfrutando de una noche de chicas aprovechando que tus padres no
+!         están. Reina el silencio, tan sólo roto por el sonido del programa de
+!         televisión que estáis viendo en tu habitación.";
+  Damusix.SimpleFadeOut(Grillos_ogg, 2000, 10);
+  Damusix.AsignarCanal(TV_Fondo_ogg, CANAL_TV_SALON, 0);
+  Damusix.TocarCanal(CANAL_TV_SALON);
+  Damusix.SimpleFadeIn(TV_Fondo_ogg, 2000, VOLUMEN_TV_SALON);
+  KeyDelay(esp * 2);
+  new_line;
+  HablaBecca("La tele es un rollo. Toma: pon lo que quieras.");
+  print "^Becca te da el mando del televisor.";
+  KeyDelay(esp);
+  print " Nada más cogerlo, apagas la tele y tiras el mando lejos de ti,
+         cayendo por el lado contrario de la cama.^";
+  Damusix.PararCanal(CANAL_TV_SALON);
+  Damusix.TocarV(TV_Apaga_ogg);
+  HablaKatie("No hay nada que me guste.", true);
+  print " -comentas, aburrida. Y tras unos instantes jugando con un bucle de
+         tu pelo, continúas:^";
+  KeyDelay(esp);
+  HablaKatie("Dicen que hay tantas ondas magnéticas a nuestro alrededor que
+              perdemos como veinte veces más neuronas de lo normal... El
+              gobierno lo sabe pero no hacen nada. Es una consipiración.");
+  KeyDelay(esp);
+  HablaBecca("Sé algo mejor: ¿Sabes lo de la cinta?");
+  KeyDelay(esp);
+  HablaKatie("¿Qué cinta?");
+  KeyDelay(esp);
+  print "^Becca se incorpora y te mira mientras empieza a contar:^"; 
+  HablaBecca("Una cinta de vídeo, que parece normal... Se alquila, creo,
+              no sé... Pero cuando la pones...");
+  KeyDelay(esp);
+  print "^Ahora eres tú la que se incorpora, con expresión rígida:^";
+  HablaKatie("¿Qué? ¿Qué pasa?");
+  KeyDelay(esp);
+  print "^Becca, con expresión de divertida malicia, continúa su historia:^";
+  print (s_user1) "^BECCA: ", "~Es como una pesadilla...";
+  KeyDelay(esp);
+  print " Y luego ves a una mujer... Y la mujer te sonríe...";
+  KeyDelay(esp);
+  print (s_emph) " Te ve a través de la pantalla...~";
+  KeyDelay(esp);
+  print "^^Tus ojos reflejan el miedo que va creciendo en tu interior, lo que
+         divierte más a Becca, que continúa:";
+  print (s_user1) "^^BECCA: ", "~Y cuando se acaba la cinta... Suena el
+        teléfono... Alguien sabe que lo has visto...";
+  KeyDelay(esp);
+  print " Y te dice: ";
+  KeyDelay(esp);
+  print (s_emph) "'Morirás en siete días'.~";
+  KeyDelay(esp / 2);
+  new_line;
+  HablaKatie("¿Quién te lo ha contado?");
+  KeyDelay(esp);
+  HablaBecca("No sé, alguien debe haber...");
+  print "^La interrumpes:^";
+  HablaKatie("¿Quién ha sido?");
+  KeyDelay(esp);
+  print "^Logras preocupar a Becca:^";
+  HablaBecca("¿Qué te pasa?");
+  KeyDelay(esp * 2);
+  HablaKatie("Yo lo he visto. Josh y yo lo vimos el viernes pasado.");
+  KeyDelay(esp);
+  HablaBecca("Venga ya, Katie... ¡Es un cuento! Pero... ¿no estabas con tus
+              padres? ¿¿Estuviste con Josh el fin de semana??");
+  new_line;
+  print (s_user1) "YO: ~", "Alquilamos una cabaña en las montañas, con unos
+        amigos suyos...";
+  KeyDelay(esp / 2);
+  print " Estaban intentando grabar el partido, la recepción era muy mala...~";
+  KeyDelay(esp / 2);
+  new_line;
+  HablaBecca("¿De qué me estás hab...?");
+  new_line;
+  print (s_user1) "YO: ~", "¡Escúchame! Cuando pusimos la cinta, el partido
+        no estaba... Era... era...~";
+  KeyDelay(esp / 2);
+  new_line;
+  HablaBecca("¿Qué? ¿Qué era?");
+  new_line;
+  print (s_user1) "YO: ", "~Era... ", (s_emph) "otra cosa...";
+  KeyDelay(esp / 2);
+  print " Pensamos que era una broma, pero...";
+  KeyDelay(esp / 2);
+  print " sonó el teléfono...";
+  KeyDelay(esp / 2);
+  print " Fue hace una semana.~";
+  KeyDelay(esp);
+  print "^^La miras a los ojos, llena de terror, y su preocupación hace crecer
+         tu miedo:^^";
+  print (s_user1) "YO: ", "~", (s_emph) "El plazo acaba hoy.", "~";
+  print "^^";
+
   if (v ~= 0) {
     glk($00D6, 500);                      ! request_timer_events
     glk($00D2, gg_mainwin);               ! glk_request_char_event(gg_mainwin);
@@ -2245,31 +2400,6 @@ Object ZIPI_Salir
   }
 .Exit;
   rfalse;
-];
-
-
-[ ConversacionKatieBecca
-  esp;
-  esp = 1000;
-  print "Condado de Eola.";
-  KeyDelay(600);
-  print " Diez menos cuarto de la noche.";
-  KeyDelay(600);
-  Damusix.VolumenCanal(CANAL_FONDO, 10);
-  Damusix.AsignarCanal(TV_Fondo_ogg, CANAL_TV_SALON, VOLUMEN_TV_SALON);
-  Damusix.TocarCanal(CANAL_TV_SALON);
-  new_line;
-  HablaBecca("La tele es un rollo. Toma: pon lo que quieras.");
-  KeyDelay(esp);
-  HablaKatie("No hay nada que me guste.");
-  Damusix.PararCanal(CANAL_TV_SALON);
-  KeyDelay(esp);
-  HablaBecca("¿Sabes lo de la cinta?");
-  KeyDelay(esp);
-  HablaKatie("¿Qué cinta?");
-  KeyDelay(esp);
-  HablaBecca("Esa que te mata cuando la ves.");
-  new_line;
 ];
 
 
@@ -2430,10 +2560,12 @@ Extend 'cambia' first
   ZIPI_RunMenu(ZIPI_Configuracion, true);
   
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
-  m = LugarReal().sgw_mus;
-  if (fondo && haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
-    Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
-    Damusix.TocarCanal(CANAL_FONDO);
+  if (LugarReal() provides sgw_mus) {
+    m = LugarReal().sgw_mus;
+    if (fondo && haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
+      Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
+      Damusix.TocarCanal(CANAL_FONDO);
+    }
   }
   barra_estado.numero_lineas = 1;
   barra_estado.dibujar();
@@ -2559,7 +2691,7 @@ Extend 'cambia' first
        
        if (tlf) Damusix.TocarCanal(CANAL_TELEFONO);
        if (tv)  Damusix.TocarCanal(CANAL_TV_SALON);
-       if (fondo) {
+       if (fondo && LugarReal() provides sgw_mus) {
          v = Damusix.QueVolumenCanal(CANAL_FONDO);
          Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
                               SONIDO_BUCLE_INFINITO);

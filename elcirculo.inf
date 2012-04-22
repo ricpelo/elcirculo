@@ -584,7 +584,6 @@ Include "EventList_NG";     ! Listas de mensajes
 
 
 [ Initialise r v;
-!  if (KeyDelay(30)) hayTeletipo = false;
   IniciarGraficosSonidos();
   openGraphicWindow(250);
   clearGraphicWindow();
@@ -629,7 +628,7 @@ Include "EventList_NG";     ! Listas de mensajes
   location = cuarto_katie;
 
 !  AsignarPersona(PRIMERA_PERSONA + PERSONA_SINGULAR);
-  give player female;
+!  give player female;
 
   clearTextWindow();
 
@@ -647,7 +646,10 @@ Include "EventList_NG";     ! Listas de mensajes
   timer_telefono_katie.AsignarGestor(1);
   timer_becca.AsignarGestor(2);
   ControlTimer.ActivarTick(TIMER_TICK);
-  PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, player);
+  ! Esto hay que ponerlo para que no aparezca tu otro yo moviéndose solo:
+  PNJ_Ruta(katie, MOVIMIENTO_NINGUNO);
+  ChangePlayer(katie, 1);
+  PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
   KeyDelay();
 ];
 
@@ -1446,6 +1448,15 @@ Object pomo_puerta_katie "pomo de la puerta"
 ! ====================================================================
 
 
+Object katie "Katie" cuarto_katie
+  class Movil
+  with
+    name 'katie',
+    description "Soy yo.",
+  has
+    female;
+
+
 Object becca "Becca" cuarto_katie
   class Movil
   with
@@ -1503,6 +1514,7 @@ Object becca "Becca" cuarto_katie
         rtrue;
     ],
     orders [;
+      if (player == self) rfalse;
       Go, GoIn, Enter, Exit, Subir, Bajar:
         HablaBecca("No pienso ir sola a ninguna parte.");
         rtrue;
@@ -1607,33 +1619,6 @@ Object barra_estado
       68 1 true BE_TURNOS,
     lineas_inv
       BE_INV_TOTAL;
-
-
-!Object tt_computadora
-!  class MiTeletipo
-!  private
-!    sonido 1,
-!    elementos
-!      "" POR_LETRA LETRA_FIJA SIN_PAUSA;
-
-      
-!Object tt_inicio
-!  class MiTeletipo
-!  private
-!    sonido 1,
-!    PausaMensaje 250,
-!    elementos
-!      "Miles de millones de kilómetros me separan del lugar en el que fui
-!       creado."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^Llevo incontables ciclos de tiempo viajando"
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^para cumplir la misión que le da sentido a mi existencia."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^Y ahora, por fin..."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL
-!      "^El viaje termina."
-!        POR_MENSAJE LETRA_NORMAL PAUSA_NORMAL;
 
 
 Object sonido_telefono_katie
@@ -1761,6 +1746,9 @@ Object msg_becca
 ! ====================================================================
 
 
+! Cuidado con los infinitivos. Si pones un infinitivo aquí, luego no se puede
+! usar como verbo
+
 Object TemasBecca;
 
 Object tema_becca_telefono "el teléfono" TemasBecca
@@ -1774,10 +1762,6 @@ Object tema_becca_tv "el televisor" TemasBecca
 Object tema_becca_padres "los padres" TemasBecca
   with
     name 'papa' 'padre' 'mama' 'madre' 'padres';
-
-
-! Cuidado con los infinitivos. Si pones un infinitivo aquí, luego no se puede
-! usar como verbo
 
 
 ! ====================================================================
@@ -1989,23 +1973,9 @@ Object ZIPI_Accesibilidad
   with
     ZIPI_titulo "Opciones de accesibilidad",
     ZIPI_item
-!      ZIPI_Efecto_Teletipo
       ZIPI_Tiempo_Real;
 
     
-!Object ZIPI_Efecto_Teletipo
-!  class ZIPI_Otro
-!  with
-!    ZIPI_titulo [;
-!      if (hayTeletipo) "Efecto teletipo: SÍ (recomendado)";
-!      else             "Efecto teletipo: NO";
-!    ],
-!    ZIPI_cambiar [;
-!      hayTeletipo = ~~hayTeletipo;
-!    ],
-!    ZIPI_ejecutar [; rtrue; ];
-
-
 Object ZIPI_Tiempo_Real
   class ZIPI_Otro
   with
@@ -2349,6 +2319,19 @@ Object ZIPI_Salir
 !===============================================================================
 ! (10) Verbos y Gramaticas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+#ifdef DEBUG;
+Verb 'pepe'
+  *           -> Pepe;
+  
+[ PepeSub;
+  PNJ_Ruta(becca, MOVIMIENTO_NINGUNO);
+  ChangePlayer(becca, 1);
+  PNJ_Ruta(katie, MOVIMIENTO_PERSEGUIR, player);
+  <<Look>>;
+];
+#endif;
 
 
 Verb meta 'graficos'

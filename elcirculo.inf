@@ -2115,6 +2115,7 @@ Object ZIPI_Salir
   Damusix.PararTodo();
 ];
 
+
 [ FinPrologo;
   print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
          en el proceso las plantas de los pies, lo que te provoca una
@@ -2136,6 +2137,12 @@ Object ZIPI_Salir
   print "^^Ves ", (s_user1) "el círculo.";
   KeyDelay();
   BanderaFin(2);
+  clearMainWindow();
+  Damusix.TocarV(Mujer_Gritando_ogg);
+  MostrarImagenGradualmente(Logo_Circulo_png, 40, 20);
+  MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
+  print "(c) 2012 Alpha Aventuras";
+  WaitDelay(1000);
 ];
 
 
@@ -2456,10 +2463,11 @@ Verb 'pepe'
   *           -> Pepe;
   
 [ PepeSub;
-  PNJ_Ruta(becca, MOVIMIENTO_NINGUNO);
-  ChangePlayer(becca, 1);
-  PNJ_Ruta(katie, MOVIMIENTO_PERSEGUIR, player);
-  <<Look>>;
+!  PNJ_Ruta(becca, MOVIMIENTO_NINGUNO);
+!  ChangePlayer(becca, 1);
+!  PNJ_Ruta(katie, MOVIMIENTO_PERSEGUIR, player);
+!  <<Look>>;
+  FinPrologo();
 ];
 #endif;
 

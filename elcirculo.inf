@@ -653,6 +653,7 @@ Include "EventList_NG";     ! Listas de mensajes
   ChangePlayer(katie, 1);
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
   KeyDelay();
+  openGraphicWindow(altoVentanaGrafica);
 ];
 
 
@@ -2275,7 +2276,7 @@ Object ZIPI_Salir
     print "Prólogo";
   }
   
-  openGraphicWindow(altoVentanaGrafica);
+  closeGraphicWindow();
 
   esp = 1000;
   print "Condado de Eola.";
@@ -2381,32 +2382,34 @@ Object ZIPI_Salir
   print "^^La miras a los ojos, llena de terror, y su preocupación hace crecer
          tu miedo:^^";
   print (s_user1) "YO: ", "~", (s_emph) "El plazo acaba hoy.", "~";
-  print "^^";
-
-  if (v ~= 0) {
-    glk($00D6, 500);                      ! request_timer_events
-    glk($00D2, gg_mainwin);               ! glk_request_char_event(gg_mainwin);
-    while (1) {
-      glk($00C0, gg_arguments);           ! glk_select(gg_arguments);
-      switch (gg_arguments-->0) {
-        evtype_CharInput:
-          glk($00D3, gg_mainwin);         ! cancel_char_event
+  KeyDelay();
+  
+!  if (v ~= 0) {
+!    glk($00D6, 500);                      ! request_timer_events
+!    glk($00D2, gg_mainwin);               ! glk_request_char_event(gg_mainwin);
+!    while (1) {
+!      glk($00C0, gg_arguments);           ! glk_select(gg_arguments);
+!      switch (gg_arguments-->0) {
+!        evtype_CharInput:
+!          glk($00D3, gg_mainwin);         ! cancel_char_event
 !          Damusix.SimpleFadeOut(Intro_ogg, 3000);
 !          Damusix.PararCanal(CANAL_FONDO);
 !          Damusix.VolumenCanal(CANAL_FONDO, v);
-          jump Exit;
+!          jump Exit;
+! 
+!        evtype_Timer:
+!          glk($00D6, 500);                ! request_timer_events
+! 
+!        evtype_SoundNotify:
+!          glk($00D6, 0);                  ! request_timer_events
+!          jump Exit;
+!      }
+!    }
+!  }
+! .Exit;
+!  rfalse;
 
-        evtype_Timer:
-          glk($00D6, 500);                ! request_timer_events
-
-        evtype_SoundNotify:
-          glk($00D6, 0);                  ! request_timer_events
-          jump Exit;
-      }
-    }
-  }
-.Exit;
-  rfalse;
+  print "^^";
 ];
 
 

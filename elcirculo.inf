@@ -636,18 +636,12 @@ Include "EventList_NG";     ! Listas de mensajes
 
 !  clearTextWindow();
 
-  IniciarMoviles();
-  IniciarPuertas();
-!  IniciarRastros();
-
   if (logo) {
     clearTextWindow();
     clearGraphicWindow();
 !    DibujaLogoAlien();
   }
 
-  Damusix.PararCanal(CANAL_FONDO);
-  sonido_telefono_katie.sonar();
   timer_telefono_katie.AsignarGestor(1);
   timer_becca.AsignarGestor(2);
   ControlTimer.ActivarTick(TIMER_TICK);
@@ -655,6 +649,12 @@ Include "EventList_NG";     ! Listas de mensajes
   PNJ_Ruta(katie, MOVIMIENTO_NINGUNO);
   ChangePlayer(katie, 1);
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
+  PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
+  IniciarMoviles();
+  IniciarPuertas();
+!  IniciarRastros();
+  Damusix.PararCanal(CANAL_FONDO);
+  sonido_telefono_katie.sonar();
   KeyDelay();
   openGraphicWindow(altoVentanaGrafica);
 ];
@@ -771,6 +771,23 @@ Class LugarCasaKatie
 
 Class Sonido
   with
+    fuente 0,      ! El objeto del que parte el sonido
+    propagacion 3, ! El nº de localidades desde el que se puede oir el sonido
+    volumen_principal 100, ! Volumen del sonido cuando el objeto está ahí
+    volumen [
+      d;
+      if (self.fuente == 0) return 0;
+      if (ScopeCeiling(self.fuente) == LugarReal()) {
+        return self.volumen_principal;
+      }
+      move testigo to ScopeCeiling(player);
+      PNJ_Ruta(testigo, MOVIMIENTO_PERSEGUIR, self.fuente);
+      d = testigo.longitud_precamino;
+      PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
+      remove testigo;
+      return self.volumen_principal -
+             (self.volumen_principal / self.propagacion * d);
+    ],
     cambiar_volumen [;
       Damusix.VolumenCanal(self.canal, self.volumen());
     ],
@@ -871,7 +888,6 @@ Object decorado_cuarto_katie cuarto_katie
       'cama' "Te gusta dormir cómoda, y por ello tu cama tiene casi el doble
               de ancho que una cama normal, pero ahora, sin tener muy claro
               el por qué, se te antoja poco acogedora." G_FEMENINO
-!      'silla' "Una silla." G_FEMENINO
       'lampara' "Una lámpara que emite una tenue luz especialmente verdosa." 
                 G_FEMENINO
       'mesita' "Una baja mesita al fondo de la habitación sostiene,
@@ -1361,7 +1377,7 @@ Object tv_salon_katie "televisor" salon_katie
 
 Object charco_katie "charco de agua"
   with
-    name 'charco' 'agua',
+    name 'charco' 'agua' 'liquido',
     description "Es, claramente, un charco con forma irregular
                  alimentado del agua que se filtra por debajo de la puerta
                  de tu habitación.",
@@ -1373,8 +1389,6 @@ Object charco_katie "charco de agua"
     ],
     time_left 0,
     time_out [;
-      give pomo_puerta_katie ~scenery;
-      give pomo_puerta_katie static;
       self.initial = "El charco es cada vez más grande. No deja de salir agua
                       por debajo de la puerta.";
     ],
@@ -1385,6 +1399,10 @@ Object charco_katie "charco de agua"
         }
     ],
     before [;
+      Touch:
+        "Tus pies descalzos ya pisan el charco de agua y perciben su frío y su
+         viscosidad.";
+
       Smell:
         "El agua expele un hedor putrefacto, podrido, como el del agua
         estancada.";
@@ -1406,7 +1424,7 @@ Object puerta_katie "puerta de tu habitación"
     initial "Alguien ha cerrado la puerta de tu habitación, dejando bajo ella
              una fina abertura por la que salen un líquído hediondo y una
              luz mortecina.",
-    add_to_scope pomo_puerta_katie,
+    add_to_scope decorado_puerta_katie,
     react_before [;
       Enter, GoIn:
         <<Open self>>;
@@ -1415,7 +1433,8 @@ Object puerta_katie "puerta de tu habitación"
         rfalse;
         
       default:
-        if (noun == pomo_puerta_katie) {
+        if (noun == decorado_puerta_katie &&
+          decorado_puerta_katie.palabra_usada == 'pomo' or 'picaporte') {
           noun = puerta_katie;
           ! Esto es porque al hacer el truco de la línea anterior (de cambiar
           ! el noun por la cara) luego no se ejecuta la rutina before:
@@ -1440,40 +1459,42 @@ Object puerta_katie "puerta de tu habitación"
     static female openable;
 
 
-Object pomo_puerta_katie "pomo de la puerta"
+Object decorado_puerta_katie
+  class Decorado
   with
-    name 'pomo' 'picaporte',
-    description "Del pomo de la puerta cae un goteo continuo de agua que no
-                 acabas de comprender de dónde proviene.",
-    add_to_scope gotas_pomo_puerta,
     before [;
+      if (action ~= ##Examine) {
+        if (self.palabra_usada == 'gota' or 'gotas') {
+          "Las gotas de agua son casi inmateriales y se escurren entre tus
+          dedos.";
+        } else if (self.palabra == 'luz') {
+          "No puedes tocar la luz, pero de todas formas tampoco te atreves.";
+        }
+      }
+
       Touch:
-        "Está mojado.";
+        if (self.palabra == 'pomo') {
+          "Tocas el pomo mojado de la puerta y la humedad traspasa tu piel.";
+        }
 
       Take:
-        <<Open puerta_katie>>;
+        if (self.palabra_usada == 'pomo' or 'picaporte') {
+          <<Open puerta_katie>>;
+        }
     ],
-  has
-    static;
-
-
-Object gotas_pomo_puerta "gotas"
-  with
-    name_f 'gota',
-    name_fp 'gotas',
-    before [;
-      Examine:
-        <<Examine pomo_puerta_katie>>;
-
-      Touch:
-        <<Touch pomo_puerta_katie>>;
-        
-      default:
-        "Las gotas de agua son casi inmateriales y se escurren entre tus
-         dedos.";
-    ],
-  has
-    scenery concealed;
+    sinonimos
+      'picaporte'  'pomo' (-1)
+      'gota'       'pomo' G_FEMENINO
+      'gotas'      'pomo' G_FEMENINO + G_PLURAL
+      'haz'        'luz'  0
+      'resplandor' 'luz'  0
+      'abertura'   'luz'  (-1),
+    describe
+      'pomo' "Del pomo de la puerta cae un goteo continuo de agua que no
+              acabas de comprender de dónde proviene." 0
+      'luz'  "La luz se proyecta desde el interior de tu habitación y sale
+              por debajo de la puerta proyectando un haz de un color
+              enfermizo." G_FEMENINO;
 
 
 ! ====================================================================
@@ -1678,6 +1699,8 @@ Object sonido_telefono_katie
     found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
     canal CANAL_TELEFONO,
     duracion_alarma 10,
+    volumen_principal VOLUMEN_TELEFONO,
+    fuente telefono_katie,
     time_left,
     time_out [;
       if (self.sonando()) {
@@ -1688,16 +1711,6 @@ Object sonido_telefono_katie
     avisar_que_suena [;
       ControlTimer.PrepararImpresion();
       "^El teléfono sigue sonando.";
-    ],
-    volumen [
-      l v;
-      l = LugarReal(); 
-      if (l == cocina_katie)       v = VOLUMEN_TELEFONO;
-      else if (l == salon_katie)   v = VOLUMEN_TELEFONO / 2;
-      else if (l == pasillo_katie) v = VOLUMEN_TELEFONO / 2;
-      else if (l == cuarto_katie)  v = VOLUMEN_TELEFONO / 4;
-      else                         v = 0;
-      return v;
     ],
     sonar [ sw;
       self.tocar_sonido(Telefono1_ogg);
@@ -1733,15 +1746,9 @@ Object sonido_tv_salon_katie
   with
     found_in salon_katie cocina_katie pasillo_katie,
     canal CANAL_TV_SALON,
-    volumen [
-      l v;
-      l = LugarReal(); 
-      if (l == salon_katie)        v = VOLUMEN_TV_SALON;
-      else if (l == cocina_katie)  v = VOLUMEN_TV_SALON / 2;
-      else if (l == pasillo_katie) v = VOLUMEN_TV_SALON / 4;
-      else                         v = 0;
-      return v;
-    ],
+    fuente tv_salon_katie,
+    volumen_principal VOLUMEN_TV_SALON,
+    propagacion 2,
     sonar [;
       self.tocar_sonido(TV_Ruido_ogg);
     ],
@@ -1757,14 +1764,9 @@ Object sonido_tv_cuarto_katie
   with
     found_in salon_katie pasillo_katie,
     canal CANAL_TV_CUARTO,
-    volumen [
-      l v;
-      l = LugarReal(); 
-      if (l == cuarto_katie)       v = VOLUMEN_TV_CUARTO;
-      else if (l == pasillo_katie) v = VOLUMEN_TV_CUARTO / 3;
-      else                         v = 0;
-      return v;
-    ],
+    fuente tv_cuarto_katie,
+    volumen_principal VOLUMEN_TV_CUARTO,
+    propagacion 2,
     sonar [;
       self.tocar_sonido(TV_Ruido_ogg);
     ],
@@ -1775,6 +1777,10 @@ Object sonido_tv_cuarto_katie
     concealed; 
 
 
+Object testigo
+  class Movil;
+
+
 Object msg_becca
   class StopEventList
   with
@@ -1783,15 +1789,6 @@ Object msg_becca
                "¿Por qué no lo coges?"
                "¡Pero cógelo ya! ¿Tienes miedo o qué?";
   
-
-!Object msg_becca
-!  class MensajesSecuencia
-!  with
-!    mensajes "Katie... Está sonando el teléfono..."
-!             "¿Qué pasa? ¿No lo coges?"
-!             "¿Por qué no lo coges?"
-!             "¡Pero cógelo ya! ¿Tienes miedo o qué?";
-
 
 ! ====================================================================
 ! TEMAS RAIZ
@@ -2415,11 +2412,6 @@ Object ZIPI_Salir
 
   print "^^";
 ];
-
-
-![ Bandera_Fin bf;
-!  rfalse;
-!];
 
 
 #ifndef LugarReal;

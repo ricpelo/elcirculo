@@ -156,6 +156,9 @@ Replace HandleGlkEvent;
 ! Usamos el ParseNoun de IntNombre_NG:
 Replace ParseNoun;
 
+! Lo pide TestMachine_NG.h:
+Replace Parser__parse;
+
 ! Lo pide Timer.h:
 Replace KeyDelay;
 
@@ -736,6 +739,7 @@ Include "EventList_NG";     ! Listas de mensajes
 Include "SpanishG";
 Include "Decir";           ! Para poder usar DECIR ... A ...
 !Include "Mapeador";
+Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 
 
 !===============================================================================
@@ -2462,16 +2466,8 @@ Object ZIPI_Salir
 
 
 #ifdef DEBUG;
-Verb 'pepe'
-  *           -> Pepe;
-  
-[ PepeSub;
-!  PNJ_Ruta(becca, MOVIMIENTO_NINGUNO);
-!  ChangePlayer(becca, 1);
-!  PNJ_Ruta(katie, MOVIMIENTO_PERSEGUIR, player);
-!  <<Look>>;
-  FinPrologo();
-];
+Verb meta 'testprologo'
+  *                 -> TestPrologo;
 #endif;
 
 
@@ -2505,7 +2501,7 @@ Verb meta 'pistas'
   *                 -> Pistas
   * 'no' / 'nx'     -> PistasNo;
 
-Verb 'ayuda'
+Verb meta 'ayuda'
   *                 -> Ayuda;
 
 Verb meta 'creditos'
@@ -2876,6 +2872,27 @@ Extend 'cambia' first
   if (tv hasnt on) "El televisor está apagado.";
   
   "Cambias repetidamente de canal, pero sólo encuentras estática y ruido."; 
+];
+
+
+! Funciones de test. Ver TestMachine_NG.h
+[ TestPrologoSub;
+  test_machine.clear();
+  test_machine.inserta("sal");
+  test_machine.inserta("baja");
+  test_machine.inserta("coge telefono");
+  test_machine.inserta("sube");
+  test_machine.inserta("s");
+  test_machine.inserta("apaga tv");
+  test_machine.inserta("n");
+  test_machine.inserta("sube");
+  test_machine.inserta("s");
+  test_machine.inserta("apaga tv");
+  test_machine.inserta("n");
+  test_machine.inserta("cierra frigorifico");
+  test_machine.inserta("sube");
+  test_machine.inserta("abre puerta");
+  test_machine.run();
 ];
 
 

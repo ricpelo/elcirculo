@@ -1023,8 +1023,9 @@ Object salon_katie "Salón"
           print "Nada más cruzar el arco que separa la cocina del salón, notas
                  algo moverse junto al teléfono, justo en el extremo de tu
                  percepción visual. Al girar la mirada, ves la causa y el
-                 corazón te da un vuelco: la puerta del frigorífico se abre
-                 poco a poco hasta quedar a medio abrir.";
+                 corazón te da un vuelco: la puerta del frigorífico se va
+                 abriendo poco a poco, totalmente silenciosa, hasta quedar a
+                 medio abrir.";
           KeyDelay();
           new_line;
         }

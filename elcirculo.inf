@@ -2468,6 +2468,9 @@ Object ZIPI_Salir
 #ifdef DEBUG;
 Verb meta 'testprologo'
   *                 -> TestPrologo;
+
+Verb meta 't'
+  *                 -> TestPasoAPaso;
 #endif;
 
 
@@ -2892,7 +2895,12 @@ Extend 'cambia' first
   test_machine.inserta("cierra frigorifico");
   test_machine.inserta("sube");
   test_machine.inserta("abre puerta");
-  test_machine.run();
+  TestPasoAPasoSub();
+];
+
+
+[ TestPasoAPasoSub;
+  test_machine.run_once();
 ];
 
 

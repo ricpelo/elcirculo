@@ -19,6 +19,7 @@
 !--------------------------------------------------------------------------------------
 
 ! Versión para INFSP6 por Ricardo Pérez (Sothoth) - Alpha Aventuras, 2012
+! Modificada para permitir la ejecución "paso a paso" del test (run_once)
 !
 ! Sistema automático de testeo para inform
 ! Añadir Replace Parser__parse;
@@ -395,6 +396,9 @@ Object test_machine
             ! el input del jugador
       parse_input_externo = 1;
     ],
+    run_once [; ! Ejecuta un único comando de la cola (c) Alpha
+      parse_input_externo = 2;                      ! (c) Alpha
+    ],                                              ! (c) Alpha
     get_input [   ! Extrae el comando actual
       puntero longitud;
       if (self.posicion == 0) {    
@@ -490,6 +494,7 @@ Object test_machine
         ! Si no había nada en cola ejecuta el flujo normal
         Keyboard(buffer, parse); 
       } else {
+        if (parse_input_externo == 2) parse_input_externo = 0; ! (c) Alpha
         ! En caso contrario toma el buffer directamente.
         Tokenise__(buffer, parse);
         ! Imprime el comando extraido...

@@ -588,7 +588,7 @@ Include "EventList_NG";     ! Listas de mensajes
   IniciarGraficosSonidos();
   openGraphicWindow(250);
   clearGraphicWindow();
-  StatusLineHeight(23);
+  StatusLineHeight(22);
   clearMainWindow();
   viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);

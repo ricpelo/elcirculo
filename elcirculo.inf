@@ -775,7 +775,7 @@ Class Sonido
     propagacion 3, ! El nº de localidades desde el que se puede oir el sonido
     volumen_principal 100, ! Volumen del sonido cuando el objeto está ahí
     volumen [
-      d;
+      d r;
       if (self.fuente == 0) return 0;
       if (ScopeCeiling(self.fuente) == LugarReal()) {
         return self.volumen_principal;
@@ -785,8 +785,10 @@ Class Sonido
       d = testigo.longitud_precamino;
       PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
       remove testigo;
-      return self.volumen_principal -
-             (self.volumen_principal / self.propagacion * d);
+      r = self.volumen_principal -
+          (self.volumen_principal / self.propagacion * d);
+      if (r < 0) r = 0;
+      return r;
     ],
     cambiar_volumen [;
       Damusix.VolumenCanal(self.canal, self.volumen());
@@ -1698,9 +1700,9 @@ Object sonido_telefono_katie
   with
     found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
     canal CANAL_TELEFONO,
-    duracion_alarma 10,
     volumen_principal VOLUMEN_TELEFONO,
     fuente telefono_katie,
+    duracion_alarma 10,
     time_left,
     time_out [;
       if (self.sonando()) {
@@ -2141,10 +2143,10 @@ Object ZIPI_Salir
   BanderaFin(2);
   clearMainWindow();
   Damusix.TocarV(Mujer_Gritando_ogg);
-  MostrarImagenGradualmente(Logo_Circulo_png, 40, 20);
+  MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
   MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
   print "(c) 2012 Alpha Aventuras";
-  WaitDelay(1000);
+  WaitDelay(400);
 ];
 
 
@@ -2168,7 +2170,7 @@ Object ZIPI_Salir
   i;
   for (i = 0 : i < veces : i++) {
     viewImageCenter(imagen, true);
-    KeyDelay(retardo);
+    WaitDelay(retardo);
   }  
 ];
 
@@ -2458,7 +2460,7 @@ Object ZIPI_Salir
 
 
 #ifdef DEBUG;
-Verb meta 'testprologo'
+Verb meta 'test'
   *                 -> TestPrologo;
 
 Verb meta 't'

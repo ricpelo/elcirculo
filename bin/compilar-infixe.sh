@@ -10,4 +10,5 @@ if [ -f elcirculo.ulx ]; then
 #  meta.sh
   blc elcirculo.blc elcirculo.blb
 fi
+cp -f elcirculo.blb ~/Dropbox/AlphaAventuras/ElCirculo/
 

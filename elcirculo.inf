@@ -1712,6 +1712,7 @@ Extend 'cambia' first
 
 
 Include "prologo.inf";     ! Prólogo
+Include "historia.inf";    ! Primer capítulo
 
 
 ! Fin elcirculo.inf

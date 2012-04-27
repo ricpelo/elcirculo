@@ -63,6 +63,8 @@
 
 
 [ InicioHistoria;
+  Damusix.PararTodo();
+  ControlTimer.Resetear();
   "Aquí comienza la historia.";
 ];
 

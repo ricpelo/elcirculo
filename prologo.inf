@@ -1152,13 +1152,14 @@ Object tema_becca_tv "el televisor" TemasBecca
   KeyDelay(3000);
   print "^^Ves ", (s_user1) "el círculo.";
   KeyDelay();
-  BanderaFin(2);
+!  BanderaFin(2);
   clearMainWindow();
   Damusix.TocarV(Mujer_Gritando_ogg);
   MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
   MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
   print "(c) 2012 Alpha Aventuras";
   WaitDelay(400);
+  InicioHistoria();
 ];
 
 

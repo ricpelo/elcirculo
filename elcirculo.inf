@@ -558,6 +558,12 @@ Class Lugar
           "No observas nada en especial al mirar al techo.";
         }        
     ],
+    after [ o;
+      Go:
+        objectloop (o ofclass Sonido && o in self) {
+          o.cambiar_volumen();
+        }
+    ],
   has
     light;
 
@@ -591,7 +597,7 @@ Include "EventList_NG";     ! Listas de mensajes
   IniciarGraficosSonidos();
   openGraphicWindow(250);
   clearGraphicWindow();
-  StatusLineHeight(22);
+  StatusLineHeight(21);
   clearMainWindow();
   viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
@@ -782,6 +788,31 @@ Class Sonido
     parar_sonido [;
       Damusix.PararCanal(self.canal);
     ];
+
+
+!===============================================================================
+! (8) Objetos del Juego
+!-------------------------------------------------------------------------------
+
+
+! ====================================================================
+! OBJETOS DE SOPORTE
+! ====================================================================
+
+
+Object barra_estado
+  class objeto_barra_estado
+  with
+    modo BE_COMPUESTO,
+    disposicion
+      1  1 true BE_LOCALIDAD
+      68 1 true BE_TURNOS,
+    lineas_inv
+      BE_INV_TOTAL;
+
+
+Object testigo
+  class Movil;
 
 
 ! ====================================================================
@@ -1683,4 +1714,4 @@ Extend 'cambia' first
 Include "prologo.inf";     ! Prólogo
 
 
-! Fin del código
+! Fin elcirculo.inf

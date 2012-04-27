@@ -4,14 +4,7 @@
 
 
 Class LugarCasaKatie
-  class Lugar
-  with
-    after [ o;
-      Go:
-        objectloop (o ofclass Sonido && o in self) {
-          o.cambiar_volumen();
-        }
-    ];
+  class Lugar;
 
 
 !===============================================================================
@@ -22,10 +15,6 @@ Class LugarCasaKatie
 ! ====================================================================
 ! HABITACIONES Y DECORADOS
 ! ====================================================================
-
-! ---------------------------------------------
-! PRÓLOGO
-! ---------------------------------------------
 
 
 Object cuarto_katie "Tu habitación"
@@ -869,17 +858,6 @@ Object timer_becca
 ! ====================================================================
 
 
-Object barra_estado
-  class objeto_barra_estado
-  with
-    modo BE_COMPUESTO,
-    disposicion
-      1  1 true BE_LOCALIDAD
-      68 1 true BE_TURNOS,
-    lineas_inv
-      BE_INV_TOTAL;
-
-
 Object sonido_telefono_katie
   class Sonido
   with
@@ -962,10 +940,6 @@ Object sonido_tv_cuarto_katie
     ],
   has
     concealed; 
-
-
-Object testigo
-  class Movil;
 
 
 Object msg_becca
@@ -1198,4 +1172,4 @@ Object tema_becca_tv "el televisor" TemasBecca
 ];
 
 
-
+! Fin prologo.inf

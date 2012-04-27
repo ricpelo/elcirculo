@@ -6,6 +6,7 @@ PICTURE Oscuridad_jpg res/img/oscuridad.jpg
 PICTURE Fundido_png res/img/fundido.png
 PICTURE Logo_Circulo_png res/img/logo_circulo.png
 PICTURE Logo_Circulo_Solo_Letras_png res/img/logo_circulo_solo_letras.png
+PICTURE Cocina_Katie_Prologo_jpg res/img/cocina_katie_prologo.jpg
 SOUND Darkwalk_ogg res/snd/darkwalk.ogg
 SOUND Gathering_Darkness_ogg res/snd/gathering_darkness.ogg
 SOUND Grillos_ogg res/snd/grillos.ogg

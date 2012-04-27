@@ -120,7 +120,7 @@ Object cocina_katie "Cocina"
                  enorme arco sin puerta se accede al salón de la casa.",
     u_to pasillo_katie,
     s_to salon_katie,
-    sgw_img Oscuridad_jpg,
+    sgw_img Cocina_Katie_Prologo_jpg,
     before [;
       Go:
         if (noun == u_obj) {
@@ -682,6 +682,7 @@ Object katie "Katie" cuarto_katie
   class Movil
   with
     name 'katie',
+    short_name "Katie",
     description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
                  responsable, de ojos oscuros y cabello largo, rubio y liso.
                  Tu mejor amiga Becca y tú estáis pasando una noche solas en tu

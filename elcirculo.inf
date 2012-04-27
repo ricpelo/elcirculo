@@ -1140,7 +1140,11 @@ Object ZIPI_Salir
 
 
 [ ImprimirPrompt;
-  print (s_input) "^> ";
+  new_line;
+  glk_set_style(style_User1);
+  print (string) player.short_name;
+  glk_set_style(style_Normal);
+  print " ", (s_input) "> ";
 ];
 
 

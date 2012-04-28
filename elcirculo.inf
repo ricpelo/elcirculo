@@ -162,6 +162,14 @@ Replace Parser__parse;
 ! Lo pide Timer.h:
 Replace KeyDelay;
 
+! Para que el verbo se convierta en Entrar o Examinar dependiendo de si
+! es una localidad o no:
+Replace ExaminarFalsoSub;
+
+! Nuestra versión de LanguageDirection no muestra los puntos cardinales y
+! muestra entre paréntesis el destino de la dirección:
+Replace LanguageDirection;
+
 Include "Parser";
 
 
@@ -550,6 +558,44 @@ Class Lugar
     ],
     number,
     dibujado false,                   ! Necesario para Mapeador.h
+    react_before [
+      l;
+      l = LugarReal();
+
+      ! Cuando se usa "EXAMINA EL PASILLO":
+      Examine:
+        if (noun ofclass Lugar) {
+          if (noun == l) <<Look>>;
+          else if (noun == l.n_to)   <<Examine n_obj>>;
+          else if (noun == l.s_to)   <<Examine s_obj>>;
+          else if (noun == l.e_to)   <<Examine e_obj>>;
+          else if (noun == l.w_to)   <<Examine w_obj>>;
+          else if (noun == l.ne_to)  <<Examine ne_obj>>;
+          else if (noun == l.nw_to)  <<Examine nw_obj>>;
+          else if (noun == l.se_to)  <<Examine se_obj>>;
+          else if (noun == l.sw_to)  <<Examine sw_obj>>;
+          else if (noun == l.u_to)   <<Examine u_obj>>;
+          else if (noun == l.d_to)   <<Examine d_obj>>;
+          else if (noun == l.in_to)  <<Examine in_obj>>;
+          else if (noun == l.out_to) <<Examine out_obj>>;
+        }
+
+      ! Cuando se usa "VE AL PASILLO":
+      Enter:
+        if (noun == l) "Ya estas aquí.";
+        else if (noun == l.n_to)   <<Go n_obj>>;
+        else if (noun == l.s_to)   <<Go s_obj>>;
+        else if (noun == l.e_to)   <<Go e_obj>>;
+        else if (noun == l.w_to)   <<Go w_obj>>;
+        else if (noun == l.ne_to)  <<Go ne_obj>>;
+        else if (noun == l.nw_to)  <<Go nw_obj>>;
+        else if (noun == l.se_to)  <<Go se_obj>>;
+        else if (noun == l.sw_to)  <<Go sw_obj>>;
+        else if (noun == l.u_to)   <<Go u_obj>>;
+        else if (noun == l.d_to)   <<Go d_obj>>;
+        else if (noun == l.in_to)  <<Go in_obj>>;
+        else if (noun == l.out_to) <<Go out_obj>>;
+    ],
     before [;
       Examine, Touch:
         if (noun == d_obj) {          ! Examinamos el suelo
@@ -671,7 +717,24 @@ Include "EventList_NG";     ! Listas de mensajes
 !-------------------------------------------------------------------------------
 
 
-[ InScope;
+[ InScope l;
+  
+  ! Así podemos usar "VE AL SALON" y "EXAMINA EL SALON" en lugar de
+  ! "VE AL SUR" y "EXAMINA EL SUR" (ver también la clase Lugar): 
+  l = LugarReal();
+  if (l provides n_to)   PlaceInScope(l.n_to);
+  if (l provides s_to)   PlaceInScope(l.s_to);
+  if (l provides e_to)   PlaceInScope(l.e_to);
+  if (l provides w_to)   PlaceInScope(l.w_to);
+  if (l provides ne_to)  PlaceInScope(l.ne_to);
+  if (l provides nw_to)  PlaceInScope(l.nw_to);
+  if (l provides se_to)  PlaceInScope(l.se_to);
+  if (l provides sw_to)  PlaceInScope(l.sw_to);
+  if (l provides u_to)   PlaceInScope(l.u_to);
+  if (l provides d_to)   PlaceInScope(l.d_to);
+  if (l provides in_to)  PlaceInScope(l.in_to);
+  if (l provides out_to) PlaceInScope(l.out_to);
+
   ! Así le podemos pedir a Becca que coja el teléfono aunque el teléfono no
   ! esté presente:
   if (actor == becca && LugarReal() ofclass LugarCasaKatie) {
@@ -1707,6 +1770,50 @@ Extend 'cambia' first
 
 [ TestPasoAPasoSub;
   test_machine.run_once();
+];
+
+
+! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
+! Examinar dependiendo de si el objeto de destino es una localidad o no:
+[ ExaminarFalsoSub;
+  noun = ExaminarFalso.objetoVerboDesconocido;
+  PronounNotice(noun);
+  if (noun ofclass Lugar) <<Enter noun>>;
+  else                    <<Examine noun>>;
+];
+
+
+! Esta versión no muestra los puntos cardinales y representa las direcciones
+! como los nombres de los lugares a los que se llega por esa dirección:
+[ LanguageDirection d
+  l par;
+  par = true;
+  switch (d) {
+    n_to:    par = false; ! print "al norte";
+    s_to:    par = false; ! print "al sur";
+    e_to:    par = false; ! print "al este";
+    w_to:    par = false; ! print "al oeste";
+    ne_to:   par = false; ! print "al nordeste";
+    nw_to:   par = false; ! print "al noroeste";
+    se_to:   par = false; ! print "al sudeste";
+    sw_to:   par = false; ! print "al suroeste";
+    u_to:    print "arriba";
+    d_to:    print "abajo";
+    in_to:   print "dentro";
+    out_to:  print "fuera";
+    default: return RunTimeError(9, d);
+  }
+  l = LugarReal();
+  print " ";
+  if (par) print "(";
+  if (l.d has visited) {
+    if (l.d provides nombre_si_visitado) print (string) l.d.nombre_si_visitado;
+    else                                 print (name) l.d;
+  } else {
+    if (l.d provides nombre_no_visitado) print (string) l.d.nombre_no_visitado;
+    else                                 print (name) l.d;
+  }
+  if (par) print ")";
 ];
 
 

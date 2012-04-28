@@ -20,6 +20,8 @@ Class LugarCasaKatie
 Object cuarto_katie "Tu habitación"
   class LugarCasaKatie
   with
+    name 'cuarto' 'habitacion',
+    nombre_si_visitado "tu habitación",
     description "La pequeña lámpara de la mesita situada junto a tu cama
                  proyecta débiles y verdosos haces de luz que iluminan tu
                  habitación con un tono que, en estos momentos, te resulta
@@ -58,6 +60,7 @@ Object decorado_cuarto_katie cuarto_katie
         }
     ],
     sinonimos
+      'habitacion' 'cuarto' G_FEMENINO
       'mesa' 'mesita' (-1),
     describe
       'cama' "Te gusta dormir cómoda, y por ello tu cama tiene casi el doble
@@ -73,6 +76,9 @@ Object decorado_cuarto_katie cuarto_katie
 Object pasillo_katie "Pasillo del piso superior"
   class LugarCasaKatie
   with
+    name 'pasillo',
+    nombre_si_visitado "al pasillo del piso superior",
+    nombre_no_visitado "un pasillo",
     description [;
       print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
              te había parecido tan oscuro y carente de alma. Una fría
@@ -112,6 +118,9 @@ Object decorado_pasillo_katie pasillo_katie
 Object cocina_katie "Cocina"
   class LugarCasaKatie
   with
+    name 'cocina',
+    nombre_si_visitado "la cocina",
+    nombre_no_visitado "una cocina",
     description "La cocina, sobria y funcional, es el núcleo central del
                  piso inferior, el distribuidor por el que llegar a los
                  restantes lugares de la casa. El frigorífico y el teléfono
@@ -180,6 +189,9 @@ Object decorado_cocina_katie cocina_katie
 Object salon_katie "Salón"
   class LugarCasaKatie
   with
+    name 'salon' 'salita' 'sala',
+    nombre_si_visitado "el salón",
+    nombre_no_visitado "el salón",
     description "El salón de tu casa está claramente dominado por un televisor
                  de gran tamaño situado sobre una mesa en la pared frontal.
                  Junto al enorme sofá a unos tres metros de la misma forman

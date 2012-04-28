@@ -77,7 +77,11 @@ Object rachel "Rachel"
 [ InicioHistoria;
   Damusix.PararTodo();
   ControlTimer.Resetear();
+  remove sonido_telefono_katie;
+  remove sonido_tv_cuarto_katie;
+  remove sonido_tv_salon_katie;
   
+  clearMainWindow();
   print "^^Aquí comienza la historia.^^";
   KeyDelay();
   move rachel to fuera_casa_ruth;

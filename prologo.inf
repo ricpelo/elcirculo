@@ -32,6 +32,7 @@ Object cuarto_katie "Tu habitación"
                  la pared contraria.",
     out_to pasillo_katie,
     sgw_img Oscuridad_jpg,
+    sgw_mus 0,
     compass_look [ d;
       if (d == out_obj) {
           "A través de la puerta entreabierta observas el pasillo en penumbra.";
@@ -94,7 +95,8 @@ Object pasillo_katie "Pasillo del piso superior"
     ],
     in_to cuarto_katie,
     d_to cocina_katie,
-    sgw_img Oscuridad_jpg;
+    sgw_img Oscuridad_jpg,
+    sgw_mus 0;
 
 
 Object decorado_pasillo_katie pasillo_katie
@@ -130,6 +132,7 @@ Object cocina_katie "Cocina"
     u_to pasillo_katie,
     s_to salon_katie,
     sgw_img Cocina_Katie_Prologo_jpg,
+    sgw_mus 0,
     before [;
       Go:
         if (noun == u_obj) {
@@ -200,6 +203,8 @@ Object salon_katie "Salón"
                  colgados de las paredes. Una ventana abierta deja pasar la
                  oscuridad del exterior.",
     n_to cocina_katie,
+    sgw_img Oscuridad_jpg,
+    sgw_mus 0,
     before [;
       Go:
         if (noun == n_obj && frigorifico_katie has open && 
@@ -214,8 +219,7 @@ Object salon_katie "Salón"
           KeyDelay();
           new_line;
         }
-    ],
-    sgw_img Oscuridad_jpg;
+    ];
 
 
 Object decorado_salon_katie salon_katie
@@ -456,9 +460,13 @@ Object tv_salon_katie "televisor" salon_katie
       ! sw == false si viene de cocina_katie al intentar subir
       ! sw == true  si viene del time_out de tv_salon_katie
       self.encender();
-      Damusix.AsignarCanal(Gathering_Darkness_ogg, CANAL_INCIDENTAL,
-                           VOLUMEN_INCIDENTAL, SONIDO_BUCLE_INFINITO);
-      Damusix.TocarCanal(CANAL_INCIDENTAL);
+      cuarto_katie.sgw_mus  = Gathering_Darkness_ogg;
+      pasillo_katie.sgw_mus = cuarto_katie.sgw_mus;  
+      cocina_katie.sgw_mus  = cuarto_katie.sgw_mus;
+      salon_katie.sgw_mus   = cuarto_katie.sgw_mus;
+      Damusix.AsignarCanal(real_location.sgw_mus, CANAL_FONDO,
+                           CalcVol(real_location.sgw_vol), -1);
+      Damusix.TocarCanal(CANAL_FONDO);
       if (~~sw) {
         print "El televisor se vuelve a encender. Solo. Otra vez.
                Más sonido de estática proveniente del salón,
@@ -989,11 +997,11 @@ Object tema_becca_tv "el televisor" TemasBecca
 
 
 [ InicioPrologo
-  esp v;
+  esp;
 
-  v = Damusix.QueVolumenCanal(CANAL_FONDO);
-  Damusix.AsignarCanal(Grillos_ogg, CANAL_FONDO, 0, SONIDO_BUCLE_INFINITO);
-  Damusix.TocarCanal(CANAL_FONDO);
+  Damusix.PararCanal(CANAL_FONDO);
+  Damusix.AsignarCanal(Grillos_ogg, CANAL_TELEFONO, 0, SONIDO_REPETIR);
+  Damusix.TocarCanal(CANAL_TELEFONO);
   Damusix.SimpleFadeIn(Grillos_ogg, 2000, 50);
 
   if (hayGraficos) {
@@ -1164,7 +1172,7 @@ Object tema_becca_tv "el televisor" TemasBecca
          de morir, lo ves.";
   KeyDelay(3000);
   print "^^Ves ", (s_user1) "el círculo.";
-  KeyDelay();
+  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 3000);
 !  BanderaFin(2);
   clearMainWindow();
   Damusix.TocarV(Mujer_Gritando_ogg);

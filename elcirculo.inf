@@ -60,15 +60,14 @@ Constant GRAFICOS_PEQUENOS   = 250;
 Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
-Constant CANAL_FONDO = 9;      Constant VOLUMEN_FONDO = 50;
-Constant CANAL_INCIDENTAL = 0; Constant VOLUMEN_INCIDENTAL = 50;
-Constant CANAL_TV_SALON = 1;   Constant VOLUMEN_TV_SALON = 100;
-Constant CANAL_TV_CUARTO = 2;  Constant VOLUMEN_TV_CUARTO = 50;
-Constant CANAL_TELEFONO = 3;   Constant VOLUMEN_TELEFONO = 100;
+Constant CANAL_FONDO     = 9; Constant VOLUMEN_FONDO     = 50;
+Constant CANAL_TV_SALON  = 0; Constant VOLUMEN_TV_SALON  = 100;
+Constant CANAL_TV_CUARTO = 1; Constant VOLUMEN_TV_CUARTO = 50;
+Constant CANAL_TELEFONO  = 2; Constant VOLUMEN_TELEFONO  = 100;
 
 ! Vamos a usar Damusix junto con SGW+DMX
 Constant SGW_CON_DAMUSIX;
-Constant SONIDO_BUCLE_INFINITO = -1;
+Constant SONIDO_REPETIR = -1;
 
 ! El color de fondo de la ventana gráfica es negro:
 Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
@@ -550,7 +549,7 @@ Class Lugar
 !  class LugarConRastro
   with
 !   sgw_mus Estancia_ogg,
-!   sgw_vol VOLUMEN_FONDO,
+    sgw_vol VOLUMEN_FONDO,
     describe [;
       PrintOrRun(self, description);
       if (mostrarSalidas) {
@@ -692,7 +691,7 @@ Include "EventList_NG";     ! Listas de mensajes
   clearMainWindow();
   viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
-  Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
+  Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
   Damusix.Tocar(Darkwalk_ogg);
   ZIPI_Intro();
 .Menu;
@@ -751,6 +750,8 @@ Include "EventList_NG";     ! Listas de mensajes
   IniciarPuertas();
 !  IniciarRastros();
   Damusix.PararCanal(CANAL_FONDO);
+  Damusix.LiberarCanal(DarkWalk_ogg);
+  Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
   sonido_telefono_katie.sonar();
   KeyDelay();
   openGraphicWindow(altoVentanaGrafica);
@@ -940,7 +941,7 @@ Class Sonido
     ],
     tocar_sonido [ snd;
       Damusix.AsignarCanal(snd, self.canal, self.volumen(),
-                           SONIDO_BUCLE_INFINITO);
+                           SONIDO_REPETIR);
       Damusix.TocarCanal(self.canal);
     ],
     parar_sonido [;
@@ -1364,7 +1365,6 @@ Object ZIPI_Salir
 
 [ IniciarSonidos;
   Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
-  Damusix.VolumenCanal(CANAL_INCIDENTAL, VOLUMEN_INCIDENTAL);
   Damusix.VolumenCanal(CANAL_TV_SALON, VOLUMEN_TV_SALON);
   Damusix.VolumenCanal(CANAL_TV_CUARTO, VOLUMEN_TV_CUARTO);
   Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO);
@@ -1596,7 +1596,7 @@ Extend 'cambia' first
   if (LugarReal() provides sgw_mus) {
     m = LugarReal().sgw_mus;
     if (fondo && haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
-      Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_BUCLE_INFINITO);
+      Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_REPETIR);
       Damusix.TocarCanal(CANAL_FONDO);
     }
   }
@@ -1718,7 +1718,7 @@ Extend 'cambia' first
        fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
        v = Damusix.QueVolumenCanal(CANAL_FONDO);
        Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v,
-                            SONIDO_BUCLE_INFINITO);
+                            SONIDO_REPETIR);
        Damusix.TocarCanal(CANAL_FONDO);
        
        ZIPI_Empezar();
@@ -1728,7 +1728,7 @@ Extend 'cambia' first
        if (fondo && LugarReal() provides sgw_mus) {
          v = Damusix.QueVolumenCanal(CANAL_FONDO);
          Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
-                              SONIDO_BUCLE_INFINITO);
+                              SONIDO_REPETIR);
          Damusix.TocarCanal(CANAL_FONDO);
        } else {
          Damusix.PararCanal(CANAL_FONDO);

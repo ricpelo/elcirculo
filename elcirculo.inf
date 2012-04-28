@@ -568,6 +568,12 @@ Class Lugar
           } else {
             print (string) self.nombre_si_visitado;
           }
+        } else if (self provides nombre_direccion) {
+          if (self.nombre_direccion ofclass Routine) {
+            self.nombre_direccion();
+          } else {
+            print (string) self.nombre_direccion;
+          }
         } else {
           print (name) self;
         }
@@ -577,6 +583,12 @@ Class Lugar
             self.nombre_no_visitado();
           } else {
             print (string) self.nombre_no_visitado;
+          }
+        } else if (self provides nombre_direccion) {
+          if (self.nombre_direccion ofclass Routine) {
+            self.nombre_direccion();
+          } else {
+            print (string) self.nombre_direccion;
           }
         } else {
           print (name) self;

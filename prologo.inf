@@ -21,7 +21,7 @@ Object cuarto_katie "Tu habitación"
   class LugarCasaKatie
   with
     name 'cuarto' 'habitacion',
-    nombre_si_visitado "tu habitación",
+    nombre_direccion "tu habitación",
     description "La pequeña lámpara de la mesita situada junto a tu cama
                  proyecta débiles y verdosos haces de luz que iluminan tu
                  habitación con un tono que, en estos momentos, te resulta

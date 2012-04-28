@@ -3,6 +3,8 @@
 !-------------------------------------------------------------------------------
 
 
+Class LugarMovimientoRuth;
+
 
 !===============================================================================
 ! (8) Objetos del Juego
@@ -25,6 +27,7 @@ Object fuera_casa_ruth "Exteriores de la casa de Ruth"
 
 Object salon_ruth "Salón de la casa"
   class Lugar
+  class LugarMovimientoRuth
   with
     name 'salon' 'salita',
     nombre_direccion "el salón de la casa",
@@ -35,6 +38,7 @@ Object salon_ruth "Salón de la casa"
 
 Object cocina_ruth "Cocina"
   class Lugar
+  class LugarMovimientoRuth
   with
     name 'cocina',
     nombre_direccion "la cocina",
@@ -73,6 +77,14 @@ Object aidan "Aidan"
     name 'aidan',
     short_name "Aidan",
     description "Es Aidan.";
+
+
+Object ruth "Ruth"
+  class Personaje
+  with
+    name 'ruth',
+    short_name "Ruth",
+    description "Es Ruth.";
 
     
 ! ====================================================================
@@ -120,6 +132,10 @@ Object aidan "Aidan"
   remove katie;
   move aidan to fuera_casa_ruth;
   PNJ_Ruta(aidan, MOVIMIENTO_PERSEGUIR, rachel);
+  move ruth to salon_ruth;
+  ! Ruth se mueve por la cocina y el salón, con un 30% de probabilidad:
+  PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 30, CAMINO_CUALQUIERA,
+           LugarMovimientoRuth);
   PlayerTo(fuera_casa_ruth);
 ];
 

@@ -1459,9 +1459,8 @@ Object ZIPI_Salir
     default: print "hacia ", (the) i;
   }
   l = LugarReal();
-  print " ";
   if (par) print "(";
-  print "por ";
+  print "hacia ";
   l.(i.door_dir).mostrar_nombre();
   if (par) print ")";
 ];

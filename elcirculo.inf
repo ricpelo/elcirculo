@@ -441,36 +441,33 @@ Include "Parser";
 
 Object LibraryMessages
   with
+    mostrar_nombre [ l;
+      l = LugarReal().(lm_o.door_dir);
+      if (l == nothing || l hasnt visited) print (the) lm_o;
+      else                                 l.mostrar_nombre();
+    ],
     before [;
-!      Look:
-!        ! Copiamos el código de Mensajes.h. Sólo cambiamos el segundo
-!        ! EscribirListaDesde, para que cuando se deje en el suelo la
-!        ! linterna, no diga: "Puedes ver una linterna (en la que ves una batería)."
-!        switch (lm_n) {
-!          1: print " (sobre ", (the) lm_o, ")";
-!          2: print " (en ", (the) lm_o, ")";
-!          3: print " (como ", (object) lm_o, ")";
-!          4: print "^Sobre ", (the) lm_o;
-!             WriteListFrom(child(lm_o), ENGLISH_BIT + RECURSE_BIT +
-!                           PARTINV_BIT + TERSE_BIT + ISARE_BIT + CONCEAL_BIT);
-!             ".";
-!          default:
-!            if (lm_o ~= location) {
-!              if (lm_o has supporter)
-!                print "^Sobre ";
-!              else
-!                print "^En ";
-!              print (the) lm_o;
-!              print " puedes ver ";
-!            } else
-!              print "^También puedes ver ";
-!            if (n == 5) print "también ";    ! ?????
-!            ! Quitamos RECURSIVO_BIT e INFOPARCIAL_BIT:
-!            WriteListFrom(child(lm_o), ENGLISH_BIT + WORKFLAG_BIT +
-!                          TERSE_BIT + CONCEAL_BIT);
-!            if (lm_o ~= location) ".";
-!            ".";
-!        }
+      Look:
+        switch (lm_n) {
+          5, 6: new_line;
+                if (lm_o ~= location) {
+                  if (lm_o has supporter) print "Sobre ";
+                  else                    print "En ";
+                  print (the) lm_o;
+                  print " ", (puedes_) " ver ";
+                } else print "", (_Puedes_) " ver ";
+
+                if (n == 5) print "también ";
+                WriteListFrom(child(lm_o),
+                              ENGLISH_BIT + WORKFLAG_BIT + RECURSE_BIT +
+                              TERSE_BIT + CONCEAL_BIT); ! Quitamos PARTINV_BIT
+                if (lm_o ~= location) ".";
+                ".";
+
+          7: print "No observ", (as_) " nada digno de mención al mirar hacia ";
+             self.mostrar_nombre();
+             ".";
+        }
 
       Prompt:
         ImprimirPrompt();
@@ -635,14 +632,14 @@ Class Lugar
         else if (noun == l.in_to)  <<Go in_obj>>;
         else if (noun == l.out_to) <<Go out_obj>>;
     ],
-    before [;
-      Examine, Touch:
-        if (noun == d_obj) {          ! Examinamos el suelo
-          "No observas nada en especial al mirar al suelo.";
-        } else if (noun == u_obj) {   ! Examinamos el techo
-          "No observas nada en especial al mirar al techo.";
-        }        
-    ],
+!    before [;
+!      Examine, Touch:
+!        if (noun == d_obj) {          ! Examinamos el suelo
+!          "No observas nada en especial al mirar al suelo.";
+!        } else if (noun == u_obj) {   ! Examinamos el techo
+!          "No observas nada en especial al mirar al techo.";
+!        }        
+!    ],
     after [ o;
       Go:
         objectloop (o ofclass Sonido && o in self) {

@@ -29,7 +29,17 @@ Object salon_ruth "Salón de la casa"
     name 'salon' 'salita',
     nombre_direccion "el salón de la casa",
     description "El salón de la casa de Ruth y Katie.",
-    out_to fuera_casa_ruth;
+    out_to fuera_casa_ruth,
+    n_to cocina_ruth;
+
+
+Object cocina_ruth "Cocina"
+  class Lugar
+  with
+    name 'cocina',
+    nombre_direccion "la cocina",
+    description "La cocina de la casa.",
+    s_to salon_ruth;
 
     
 ! ====================================================================

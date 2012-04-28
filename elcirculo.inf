@@ -652,12 +652,14 @@ Class Lugar
   has
     light;
 
+
 #ifdef DEBUG;
 [ WaitDelay delay;
   return KeyDelay(delay);
 ];
 #endif;
-    
+
+
 Include "SGW+DMX_NG";       ! Entre EParser y Acciones
 Include "elcirculo.bli";    ! Los recursos multimedia de la aventura
 Include "VerbLib";
@@ -803,28 +805,31 @@ Include "EventList_NG";     ! Listas de mensajes
 
 
 ! Modificado para que ?, !, ¿, ¡ se separen de las palabras al parsear:
-[ QuitarAcentos buffer parse x i word at len;
-  for (x = 0: x < parse-->0: x++) { ! para cada palabra
-    word = tokenDict(parse, x);
-    at   = tokenPos(parse, x);
-    len  = WordLength(x);
+[ QuitarAcentos buf pars x i word at len;
+  Tokenise__(buf, pars);
+  for (x = 1: x <= tokenCount(pars): x++) { ! para cada token
+    word = tokenDict(pars,x); ! dictionary value of token 1,2,3...
+    at   = tokenPos(pars,x);  ! position in buffer of token 1,2,3...
+    len  = WordLength(x);     ! length in chars of token 1,2,3...
+
     if (word == 0) { ! no comprendida
       for (i = at: i < at + len: i++)
-        ! [080625] Quitados caracteres en mayúscula
-        switch(buffer->i) {
-          225: buffer->i = 'a';       ! 225: á
-          233: buffer->i = 'e';       ! 233: é
-          237: buffer->i = 'i';       ! 237: í
-          243: buffer->i = 'o';       ! 243: ó
-     250, 252: buffer->i = 'u';       ! 250: ú, 252: ü
-          241: buffer->i = 'n';       ! 241: ñ
-          '?': buffer->i = ' ';
-          191: buffer->i = ' ';
-          '!': buffer->i = ' ';
-          161: buffer->i = ' ' ;
+        switch (buf->i) {
+          'á': buf->i = 'a';
+          'é': buf->i = 'e';
+          'ë': buf->i = 'e';
+          'í': buf->i = 'i';
+          'ó': buf->i = 'o';
+          'ú': buf->i = 'u';
+          'ü': buf->i = 'u';
+          'ñ': buf->i = 'n';
+          '?': buf->i = ' ';
+          '¿': buf->i = ' ';
+          '!': buf->i = ' ';
+          '¡': buf->i = ' ' ;
         }
-        Tokenise__(buffer, parse);
-      }
+      Tokenise__(buf, pars);
+    }
   }
 ];
 

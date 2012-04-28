@@ -97,7 +97,7 @@ Global haySonidoFondo = true;
 Global hayTiempoReal = true;
 
 ! Hay efecto de teletipo:
-Global hayTeletipo = false;
+!Global hayTeletipo = false;
 
 ! Si se ha activado el listado automático de salidas:
 Global mostrarSalidas = true;
@@ -173,6 +173,7 @@ Replace LanguageDirection;
 ! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
 ! indicar hacia dónde va un PNJ móvil:
 Replace DirDada;
+
 
 Include "Parser";
 
@@ -652,6 +653,11 @@ Class Lugar
   has
     light;
 
+#ifdef DEBUG;
+[ WaitDelay delay;
+  return KeyDelay(delay);
+];
+#endif;
     
 Include "SGW+DMX_NG";       ! Entre EParser y Acciones
 Include "elcirculo.bli";    ! Los recursos multimedia de la aventura
@@ -664,7 +670,7 @@ Include "PNJacciones_NG";   ! Poner detrás de Moviles y PnjPuertas
 Include "Etemas";           ! Los temas de conversación
 Include "Decorado_NG";      ! Objetos de decorado
 Include "ExaminarFalso";    ! Poder examinar objetos sólo con su nombre
-Include "Teletipo";         ! Teletipo para sacar mensajes letra a letra
+!Include "Teletipo";         ! Teletipo para sacar mensajes letra a letra
 Include "Pistas";           ! Las pistas creadas con ZIPI
 Include "Timer";            ! Mi librería de eventos temporizados
 Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
@@ -836,6 +842,34 @@ Include "EventList_NG";     ! Listas de mensajes
   else                     move i to location;
   if (tmp ~= location && location ~= thedark)
     PrintOrRun(i, describe);                          ! (c) Alpha
+];
+
+
+! Esta versión no muestra los puntos cardinales y representa las direcciones
+! como los nombres de los lugares a los que se llega por esa dirección:
+[ LanguageDirection d
+  l par;
+  par = true;
+  switch (d) {
+    n_to:    par = false; ! print "al norte";
+    s_to:    par = false; ! print "al sur";
+    e_to:    par = false; ! print "al este";
+    w_to:    par = false; ! print "al oeste";
+    ne_to:   par = false; ! print "al nordeste";
+    nw_to:   par = false; ! print "al noroeste";
+    se_to:   par = false; ! print "al sudeste";
+    sw_to:   par = false; ! print "al suroeste";
+    u_to:    print "arriba";
+    d_to:    print "abajo";
+    in_to:   print "dentro";
+    out_to:  print "fuera";
+    default: return RunTimeError(9, d);
+  }
+  l = LugarReal();
+  print " ";
+  if (par) print "(";
+  l.d.mostrar_nombre();
+  if (par) print ")";
 ];
 
 
@@ -1390,6 +1424,65 @@ Object ZIPI_Salir
 ];
 
 
+! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
+! Examinar dependiendo de si el objeto de destino es una localidad o no:
+[ ExaminarFalsoSub;
+  noun = ExaminarFalso.objetoVerboDesconocido;
+  PronounNotice(noun);
+  if (noun ofclass Lugar) <<Enter noun>>;
+  else                    <<Examine noun>>;
+];
+
+
+! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
+! indicar hacia dónde va un PNJ móvil:
+[ DirDada i
+  l par;
+  par = true;
+  switch (i) {
+    n_obj:   par = false; ! print "hacia el norte";
+    s_obj:   par = false; ! print "hacia el sur";
+    e_obj:   par = false; ! print "hacia el este";
+    w_obj:   par = false; ! print "hacia el oeste";
+    ne_obj:  par = false; ! print "hacia el noreste";
+    nw_obj:  par = false; ! print "hacia el noroeste";
+    se_obj:  par = false; ! print "hacia el sureste";
+    sw_obj:  par = false; ! print "hacia el suroeste";
+    u_obj:   print "hacia arriba";
+    d_obj:   print "hacia abajo";
+    in_obj:  print "al interior";
+    out_obj: print "afuera";
+    default: print "hacia ", (the) i;
+  }
+  l = LugarReal();
+  print " ";
+  if (par) print "(";
+  print "por ";
+  l.(i.door_dir).mostrar_nombre();
+  if (par) print ")";
+];
+
+
+! Funciones de test. Ver TestMachine_NG.h:
+[ TestPrologo;
+  test_machine.clear();
+  test_machine.inserta("sal");
+  test_machine.inserta("baja");
+  test_machine.inserta("coge telefono");
+  test_machine.inserta("sube");
+  test_machine.inserta("s");
+  test_machine.inserta("apaga tv");
+  test_machine.inserta("n");
+  test_machine.inserta("sube");
+  test_machine.inserta("s");
+  test_machine.inserta("apaga tv");
+  test_machine.inserta("n");
+  test_machine.inserta("cierra frigorifico");
+  test_machine.inserta("sube");
+  test_machine.inserta("abre puerta");
+];
+
+
 !===============================================================================
 ! (10) Verbos y Gramaticas Propias del Juego
 !-------------------------------------------------------------------------------
@@ -1397,10 +1490,11 @@ Object ZIPI_Salir
 
 #ifdef DEBUG;
 Verb meta 'test'
-  *                 -> TestPrologo;
+  * 'prologo'          -> TestPrologo
+  * 'prologo' 'full'   -> TestPrologoFull;
 
 Verb meta 't'
-  *                 -> TestPasoAPaso;
+  *                    -> TestPasoAPaso;
 #endif;
 
 Verb meta 'graficos'
@@ -1809,95 +1903,20 @@ Extend 'cambia' first
 
 
 ! Funciones de test. Ver TestMachine_NG.h
+[ TestPrologoFullSub;
+  TestPrologo();
+  test_machine.run();
+];
+
+! Funciones de test. Ver TestMachine_NG.h
 [ TestPrologoSub;
-  test_machine.clear();
-  test_machine.inserta("sal");
-  test_machine.inserta("baja");
-  test_machine.inserta("coge telefono");
-  test_machine.inserta("sube");
-  test_machine.inserta("s");
-  test_machine.inserta("apaga tv");
-  test_machine.inserta("n");
-  test_machine.inserta("sube");
-  test_machine.inserta("s");
-  test_machine.inserta("apaga tv");
-  test_machine.inserta("n");
-  test_machine.inserta("cierra frigorifico");
-  test_machine.inserta("sube");
-  test_machine.inserta("abre puerta");
-  TestPasoAPasoSub();
+  TestPrologo();
+  test_machine.run_once();
 ];
 
 
 [ TestPasoAPasoSub;
   test_machine.run_once();
-];
-
-
-! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
-! Examinar dependiendo de si el objeto de destino es una localidad o no:
-[ ExaminarFalsoSub;
-  noun = ExaminarFalso.objetoVerboDesconocido;
-  PronounNotice(noun);
-  if (noun ofclass Lugar) <<Enter noun>>;
-  else                    <<Examine noun>>;
-];
-
-
-! Esta versión no muestra los puntos cardinales y representa las direcciones
-! como los nombres de los lugares a los que se llega por esa dirección:
-[ LanguageDirection d
-  l par;
-  par = true;
-  switch (d) {
-    n_to:    par = false; ! print "al norte";
-    s_to:    par = false; ! print "al sur";
-    e_to:    par = false; ! print "al este";
-    w_to:    par = false; ! print "al oeste";
-    ne_to:   par = false; ! print "al nordeste";
-    nw_to:   par = false; ! print "al noroeste";
-    se_to:   par = false; ! print "al sudeste";
-    sw_to:   par = false; ! print "al suroeste";
-    u_to:    print "arriba";
-    d_to:    print "abajo";
-    in_to:   print "dentro";
-    out_to:  print "fuera";
-    default: return RunTimeError(9, d);
-  }
-  l = LugarReal();
-  print " ";
-  if (par) print "(";
-  l.d.mostrar_nombre();
-  if (par) print ")";
-];
-
-
-! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
-! indicar hacia dónde va un PNJ móvil:
-[ DirDada i
-  l par;
-  par = true;
-  switch (i) {
-    n_obj:   par = false; ! print "hacia el norte";
-    s_obj:   par = false; ! print "hacia el sur";
-    e_obj:   par = false; ! print "hacia el este";
-    w_obj:   par = false; ! print "hacia el oeste";
-    ne_obj:  par = false; ! print "hacia el noreste";
-    nw_obj:  par = false; ! print "hacia el noroeste";
-    se_obj:  par = false; ! print "hacia el sureste";
-    sw_obj:  par = false; ! print "hacia el suroeste";
-    u_obj:   print "hacia arriba";
-    d_obj:   print "hacia abajo";
-    in_obj:  print "al interior";
-    out_obj: print "afuera";
-    default: print "hacia ", (the) i;
-  }
-  l = LugarReal();
-  print " ";
-  if (par) print "(";
-  print "por ";
-  l.(i.door_dir).mostrar_nombre();
-  if (par) print ")";
 ];
 
 

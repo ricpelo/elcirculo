@@ -13,7 +13,13 @@
 ! HABITACIONES Y DECORADOS
 ! ====================================================================
 
-    
+
+Object fuera_casa_ruth "Exteriores de la casa de Ruth"
+  class Lugar
+  with
+    name 'exterior',
+    description "Estas fuera de la casa de Ruth y Rachel.";
+
     
 ! ====================================================================
 ! OBJETOS QUE LLEVAN LOS PERSONAJES AL EMPEZAR
@@ -32,6 +38,12 @@
 ! ====================================================================
 
 
+Object rachel "Rachel"
+  class Personaje
+  with
+    name 'rachel',
+    short_name "Rachel",
+    description "Es Rachel.";
 
     
 ! ====================================================================
@@ -65,7 +77,13 @@
 [ InicioHistoria;
   Damusix.PararTodo();
   ControlTimer.Resetear();
-  "Aquí comienza la historia.";
+  
+  print "^^Aquí comienza la historia.^^";
+  KeyDelay();
+  move rachel to fuera_casa_ruth;
+  ChangePlayer(rachel, 1);
+  remove katie;
+  PlayerTo(fuera_casa_ruth);
 ];
 
 

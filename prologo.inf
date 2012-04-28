@@ -1171,7 +1171,7 @@ Object tema_becca_tv "el televisor" TemasBecca
   MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
   MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
   print "(c) 2012 Alpha Aventuras";
-  WaitDelay(400);
+  KeyDelay();
   InicioHistoria();
 ];
 

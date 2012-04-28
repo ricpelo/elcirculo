@@ -799,9 +799,7 @@ Object becca "Becca" cuarto_katie
       default:
         HablaBecca("Mejor hazlo tú misma.");
         rtrue;
-    ],
-  has
-    animate proper;
+    ];
 
 
 Object becca_ausente "Becca ausente"

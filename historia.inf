@@ -18,7 +18,18 @@ Object fuera_casa_ruth "Exteriores de la casa de Ruth"
   class Lugar
   with
     name 'exterior',
-    description "Estas fuera de la casa de Ruth y Rachel.";
+    nombre_direccion "el exterior de la casa",
+    description "Estas fuera de la casa de Ruth y Katie.",
+    in_to salon_ruth;
+
+
+Object salon_ruth "Salón de la casa"
+  class Lugar
+  with
+    name 'salon' 'salita',
+    nombre_direccion "el salón de la casa",
+    description "El salón de la casa de Ruth y Katie.",
+    out_to fuera_casa_ruth;
 
     
 ! ====================================================================
@@ -44,6 +55,14 @@ Object rachel "Rachel"
     name 'rachel',
     short_name "Rachel",
     description "Es Rachel.";
+
+
+Object aidan "Aidan"
+  class Personaje
+  with
+    name 'aidan',
+    short_name "Aidan",
+    description "Es Aidan.";
 
     
 ! ====================================================================
@@ -84,9 +103,13 @@ Object rachel "Rachel"
   clearMainWindow();
   print "^^Aquí comienza la historia.^^";
   KeyDelay();
+
   move rachel to fuera_casa_ruth;
+  PNJ_Ruta(rachel, MOVIMIENTO_NINGUNO);
   ChangePlayer(rachel, 1);
   remove katie;
+  move aidan to fuera_casa_ruth;
+  PNJ_Ruta(aidan, MOVIMIENTO_PERSEGUIR, rachel);
   PlayerTo(fuera_casa_ruth);
 ];
 

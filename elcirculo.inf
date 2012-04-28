@@ -909,7 +909,9 @@ Class Personaje
         LugarReal().(dir.door_dir).mostrar_nombre();
         print ".^";
       }
-    ];
+    ],
+  has
+    animate proper;
 
 
 Class Sonido
@@ -1495,6 +1497,9 @@ Verb meta 'test'
 
 Verb meta 't'
   *                    -> TestPasoAPaso;
+  
+Verb meta 'inicio'
+  * 'historia'        -> InicioHistoria;  
 #endif;
 
 Verb meta 'graficos'
@@ -1902,6 +1907,7 @@ Extend 'cambia' first
 ];
 
 
+#ifdef DEBUG;
 ! Funciones de test. Ver TestMachine_NG.h
 [ TestPrologoFullSub;
   TestPrologo();
@@ -1918,6 +1924,11 @@ Extend 'cambia' first
 [ TestPasoAPasoSub;
   test_machine.run_once();
 ];
+
+[ InicioHistoriaSub;
+  InicioHistoria();
+];
+#endif;
 
 
 !===============================================================================

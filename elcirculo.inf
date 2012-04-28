@@ -1368,10 +1368,10 @@ Object ZIPI_Salir
 
 
 [ IniciarSonidos;
-  Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
-  Damusix.VolumenCanal(CANAL_TV_SALON, VOLUMEN_TV_SALON);
+  Damusix.VolumenCanal(CANAL_FONDO,     VOLUMEN_FONDO);
+  Damusix.VolumenCanal(CANAL_TV_SALON,  VOLUMEN_TV_SALON);
   Damusix.VolumenCanal(CANAL_TV_CUARTO, VOLUMEN_TV_CUARTO);
-  Damusix.VolumenCanal(CANAL_TELEFONO, VOLUMEN_TELEFONO);
+  Damusix.VolumenCanal(CANAL_TELEFONO,  VOLUMEN_TELEFONO);
 ];
 
 

@@ -156,7 +156,7 @@ Replace HandleGlkEvent;
 Replace ParseNoun;
 
 ! Lo pide TestMachine_NG.h:
-Replace Parser__parse;
+Replace KeyboardPrimitive;
 
 ! Lo pide Timer.h:
 Replace KeyDelay;

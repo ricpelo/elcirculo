@@ -563,13 +563,21 @@ Class Lugar
     mostrar_nombre [;
       if (self has visited) {
         if (self provides nombre_si_visitado) {
-          print (string) self.nombre_si_visitado;
+          if (self.nombre_si_visitado ofclass Routine) {
+            self.nombre_si_visitado();
+          } else {
+            print (string) self.nombre_si_visitado;
+          }
         } else {
           print (name) self;
         }
       } else {
         if (self provides nombre_no_visitado) {
-          print (string) self.nombre_no_visitado;
+          if (self.nombre_no_visitado ofclass Routine) {
+            self.nombre_no_visitado();
+          } else {
+            print (string) self.nombre_no_visitado;
+          }
         } else {
           print (name) self;
         }

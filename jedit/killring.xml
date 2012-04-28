@@ -1,24 +1,60 @@
 <?xml version="1.1" encoding="UTF-8" ?>
 <!DOCTYPE KILLRING SYSTEM "killring.dtd">
 <KILLRING>
-<ENTRY>P</ENTRY>
-<ENTRY>Mejor no. Perderías </ENTRY>
-<ENTRY>çánd</ENTRY>
-<ENTRY>hay en</ENTRY>
-<ENTRY>¡</ENTRY>
-<ENTRY>'a </ENTRY>
-<ENTRY> uerta</ENTRY>
-<ENTRY>er</ENTRY>
-<ENTRY> abierta</ENTRY>
-<ENTRY>, Cerrar:</ENTRY>
-<ENTRY>0</ENTRY>
-<ENTRY>?</ENTRY>
-<ENTRY>et</ENTRY>
-<ENTRY>Abrir</ENTRY>
-<ENTRY>Cerrar</ENTRY>
-<ENTRY>out</ENTRY>
-<ENTRY>ra</ENTRY>
-<ENTRY>Examine</ENTRY>
-<ENTRY>At</ENTRY>
-<ENTRY>o</ENTRY>
+<ENTRY>print (</ENTRY>
+<ENTRY>return (the) </ENTRY>
+<ENTRY>ofclass Lugar</ENTRY>
+<ENTRY>
+      "";</ENTRY>
+<ENTRY>print </ENTRY>
+<ENTRY>as</ENTRY>
+<ENTRY>s </ENTRY>
+<ENTRY> if (l hant visited</ENTRY>
+<ENTRY>8</ENTRY>
+<ENTRY>if (lm_n == 7) {
+          </ENTRY>
+<ENTRY> ! ELIUK: agregado salto de linea inicial (solo I6)</ENTRY>
+<ENTRY>PARTINV_BIT + </ENTRY>
+<ENTRY>+ </ENTRY>
+<ENTRY>oa</ENTRY>
+<ENTRY>!      Look:
+!        ! Copiamos el código de Mensajes.h. Sólo cambiamos el segundo
+!        ! EscribirListaDesde, para que cuando se deje en el suelo la
+!        ! linterna, no diga: "Puedes ver una linterna (en la que ves una batería)."
+!        switch (lm_n) {
+!          1: print " (sobre ", (the) lm_o, ")";
+!          2: print " (en ", (the) lm_o, ")";
+!          3: print " (como ", (object) lm_o, ")";
+!          4: print "^Sobre ", (the) lm_o;
+!             WriteListFrom(child(lm_o), ENGLISH_BIT + RECURSE_BIT +
+!                           PARTINV_BIT + TERSE_BIT + ISARE_BIT + CONCEAL_BIT);
+!             ".";
+!          default:
+!            if (lm_o ~= location) {
+!              if (lm_o has supporter)
+!                print "^Sobre ";
+!              else
+!                print "^En ";
+!              print (the) lm_o;
+!              print " puedes ver ";
+!            } else
+!              print "^También puedes ver ";
+!            if (n == 5) print "también ";    ! ?????
+!            ! Quitamos RECURSIVO_BIT e INFOPARCIAL_BIT:
+!            WriteListFrom(child(lm_o), ENGLISH_BIT + WORKFLAG_BIT +
+!                          TERSE_BIT + CONCEAL_BIT);
+!            if (lm_o ~= location) ".";
+!            ".";
+!        }
+</ENTRY>
+<ENTRY>nombre_salida</ENTRY>
+<ENTRY>
+  Damusix.Volumen
+  </ENTRY>
+<ENTRY>
+  Damus</ENTRY>
+<ENTRY>
+  Damusix</ENTRY>
+<ENTRY>
+  Damu</ENTRY>
 </KILLRING>

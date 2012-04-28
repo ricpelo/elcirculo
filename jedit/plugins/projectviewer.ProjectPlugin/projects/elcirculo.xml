@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project path="/home/ricardo/IF/INFSP6/ElCirculo">
+<property name="projectviewer.folder_tree_state" value="1000000000000000000000000" />
+<property name="projectviewer.version_control_service" value="Git" />
+<property name="projectviewer.import.filterid" value="git.GitSubmoduleImporter" />
+<open-file path="/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf" />
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/Gipi.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/Pistas.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/compilar-zipi.sh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/elcirculo.ztm" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/leeme" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/lenguaje.doc" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/zipi.awk" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/zipi.awk.original" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/zipi.doc" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ZIPI_NG/zipi.inf" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Barra">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Barra/ejemplo1.inf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Barra/ejemplo2.inf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Barra/ejemplo3.inf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Barra/manual.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Barra/rapido.txt" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/SGW+DMX">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/SGW+DMX/license.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/SGW+DMX/logo.jpg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/SGW+DMX/sgw+dmx_doc.html" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/SGW+DMX/spacer.gif" />
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Decorado.pdf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/JEDIT.TXT" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/PNJPuertas.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/Rastros.pdf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/doc/movilman.txt" />
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Contenedor.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Decorado_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/EscenarioAbrible.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/EventList_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/ExaminarFalso.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/IntNombre_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/LEEME.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Mapeador.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Moviles_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/PNJacciones_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/PNJactor_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/PNJpuertas_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/README" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Rastros_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/SGW+DMX_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Teletipo.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/TestMachine_NG.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/Timer.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/infix.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Alpha_pack/inform.xml" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/damusix_demo.bli" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/damusix_demo.inf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/damusix_demo.res" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxintro.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxlista1.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxlista2.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxlista3.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxlista4.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxlista5.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxprincipal.aif" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/fxvirtual.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/musmod.mod" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/musogg.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/musver.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/src/toimusix.jpg" />
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/demo/damusix_demo.blb" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/docs">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/docs/01_leeme_informate.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/docs/cambios.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/docs/damusix_doc.pdf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/docs/license.txt" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/extras">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/extras/fanfarria.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/extras/grito.aif" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/extras/leeme_snd.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/extras/musica.mod" />
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/Dainunek.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/Damusix.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Damusix/infglk.h" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/debian">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/debian/changelog" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/debian/control" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/debian/rules" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/etc">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/etc/xdg">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/etc/xdg/menus">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/etc/xdg/menus/applications-merged">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/etc/xdg/menus/applications-merged/alphaaventuras-alien-ee.menu" />
+</directory>
+</directory>
+</directory>
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/games">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/games/alphaaventuras-alien-ee" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-alien-ee.desktop" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-holocubo.desktop" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-instrucciones.desktop" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-web-alien.desktop" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-web-alphaaventuras.desktop" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-web-caad.desktop" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/applications/alphaaventuras-alien-ee-web-video-intro.desktop" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/desktop-directories">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/desktop-directories/alphaaventuras-alien-ee.directory" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/doc">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/doc/alphaaventuras-alien-ee">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/doc/alphaaventuras-alien-ee/COPYING" />
+</directory>
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/games">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/games/alphaaventuras-alien-ee">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/games/alphaaventuras-alien-ee/pdf-viewer-launcher" />
+</directory>
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/pixmaps">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/pixmaps/alphaaventuras-alien-ee">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Empaquetar/alphaaventuras-alien-ee_120123/usr/share/pixmaps/alphaaventuras-alien-ee/egg-icon.png" />
+</directory>
+</directory>
+</directory>
+</directory>
+</directory>
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/INFSP6">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/INFSP6/INFSPR.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/INFSP6/Spanish.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/INFSP6/SpanishG.h" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/English.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/Grammar.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/Parser.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/VerbLib.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/infix.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/linklpa.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/linklv.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/parserm.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/readme.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/InformLibrary611/verblibm.h" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/Redist">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/Alien.url" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/Alpha_Aventuras.url" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/CAAD Club de Aventuras AD.url" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/CAAD.ico" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/FAQ" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/Gargoyle License.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/INSTALL" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/Leame.ico" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/README" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/alien.iss" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/copyright" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/Redist/cover.jpg" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get/babel-get.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get/get_dir.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get/get_ifiction.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get/get_story.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get/get_url.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel-get/makefile" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/babel-cache.pl" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/babel-infocom.pl" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/babel-list.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/babel-marry.pl" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/babel-wed.pl" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/hotload.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/hotload.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/ifiction-aggregate.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/ifiction-xtract.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/extras/simple-marry.c" />
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/MANIFEST" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/README" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/adrift.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/advsys.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/agt.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/alan.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel_handler.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel_handler.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel_ifiction_functions.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel_multi_functions.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/babel_story_functions.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/blorb.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/executable.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/glulx.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/hugo.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/ifiction.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/ifiction.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/level9.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/magscrolls.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/makefile" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/md5.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/md5.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/misc.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/modules.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/modules.h.gch" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/register.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/register_ifiction.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/tads.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/tads.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/tads2.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/tads3.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/treaty.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/treaty_builder.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/babel_suite/zcode.c" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/bin">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/babel" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/bdiff" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/blc" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/bmerge" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/bpal" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/bres" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/cinform" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/compilar-infixe.sh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/compilar.sh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/front" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/inform" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/inform-infixe" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/jugar.sh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/meta.sh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/path.sh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/bin/redistribuir.sh" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/cinform_source">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/cinform_source/ReleaseNotes.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/cinform_source/cinform" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/cinform_source/lista.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/cinform_source/main.cpp" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/doc">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/ARREGLOS_A_LIBRERIA.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/BUGS.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/CAMBIOS.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/COPYING" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/COSAS POR HACER.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/DESEOS.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/FAQ" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/INSTALL" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/Instrucciones.odt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/LEEME.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/LIBRERIAS.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/doc/copyright" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bdiff" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bdiff.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/blc" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/blc.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bmerge" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bmerge.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bpal" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bpal.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bpal.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bpalcmd.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bres" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bres.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/bres.l" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/front" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/front.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/front.l" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/front.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/makefile" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/short.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/iblorbs/short.h" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/Makefile" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/ReleaseNotes.html" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/arrays.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/asm.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/bpatch.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/chars.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/compilar_ultimo_inform.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/directs.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/errors.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/expressc.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/expressp.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/files.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/header.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/inform" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/inform.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/lexer.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/linker.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/memory.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/objects.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/readme.txt" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/states.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/symbols.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/syntax.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/tables.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/text.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/veneer.c" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/inform_compiler/verbs.c" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/DockableWindowManager">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/DockableWindowManager/perspective-view0.xml" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/console">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/console/commando">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/console/commando/compilar-infixe.xml" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/console/commando/jugar.xml" />
+</directory>
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/BufferTabs.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/Code2HTML.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/CommonControls.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/Console.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/ErrorList.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/InformSideKick.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/Navigator.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/Sessions.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/SideKick.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/TextAutocomplete.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/UpdaterPlugin.jar" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars/kappalayout.jar" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/BufferTabs.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/Code2HTML.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/CommonControls.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/Console.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/ErrorList.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/InformSideKick.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/Navigator.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/QuickNotepad.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/Sessions.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/SideKick.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/TextAutocomplete.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/UpdaterPlugin.jar.summary" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/jars-cache/kappalayout.jar.summary" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/keymaps">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/keymaps/imported_keys.props" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/macros">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/macros/Compilar.bsh" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/macros/Jugar.bsh" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/modes">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/modes/catalog" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/plugins">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/plugins/updater.UpdaterPlugin">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/plugins/updater.UpdaterPlugin/jeditInstall.jar" />
+</directory>
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/sessions">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/sessions/default.xml" />
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/abbrevs" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/history" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/killring.xml" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/mirrorList.xml" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/perspective.xml" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/pluginMgr-Cached.xml.gz" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/properties" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/recent.xml" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/jedit/updaterPlugin.log" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/lib">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/lib/Barra.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/lib/Decir.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/lib/Etemas.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/lib/infglk.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/lib/infix.h" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/lib/infixe.h" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/res">
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/res/img">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/cocina_katie_prologo.jpg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/fundido.png" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/logo_alpha_aventuras.jpg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/logo_alpha_aventuras_corto.jpg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/logo_circulo.png" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/logo_circulo_solo_letras.png" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/oscuridad.jpg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/img/prologo.png" />
+</directory>
+<directory path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd">
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/darkwalk.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/gathering_darkness.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/grillos.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/mujer_gritando.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/telefono1.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/tv_apaga.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/tv_fondo.ogg" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/res/snd/tv_ruido.ogg" />
+</directory>
+</directory>
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/README" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.ifiction" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.res" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/garglk.ini" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/historia.inf" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/meta.blb" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/meta.blc" />
+<file path="/home/ricardo/IF/INFSP6/ElCirculo/prologo.inf" />
+</project>

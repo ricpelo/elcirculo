@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE PERSPECTIVE SYSTEM "perspective.dtd">
 <PERSPECTIVE>
-<BUFFER AUTORELOAD="TRUE" AUTORELOAD_DIALOG="TRUE">/home/ricardo/IF/INFSP6/Alien/alien.inf</BUFFER>
-<BUFFER AUTORELOAD="TRUE" AUTORELOAD_DIALOG="TRUE">/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf</BUFFER>
 <VIEW PLAIN="FALSE">
 <PANES>
-"/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf" buffer "/home/ricardo/IF/INFSP6/Alien/alien.inf" buff "/home/ricardo/IF/INFSP6/ElCirculo/elcirculo.inf" buff "global" bufferset
+"/home/ricardo/IF/INFSP6/ElCirculo/Untitled-1" buffer "global" bufferset
 </PANES>
-<GEOMETRY X="48" Y="37" WIDTH="1280" HEIGHT="976" EXT_STATE="6" />
+<GEOMETRY X="-9" Y="19" WIDTH="1296" HEIGHT="1011" EXT_STATE="6" />
 </VIEW>
 </PERSPECTIVE>

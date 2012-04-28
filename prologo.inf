@@ -77,7 +77,7 @@ Object pasillo_katie "Pasillo del piso superior"
   class LugarCasaKatie
   with
     name 'pasillo',
-    nombre_si_visitado "al pasillo del piso superior",
+    nombre_si_visitado "el pasillo del piso superior",
     nombre_no_visitado "un pasillo",
     description [;
       print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
@@ -191,7 +191,7 @@ Object salon_katie "Salón"
   with
     name 'salon' 'salita' 'sala',
     nombre_si_visitado "el salón",
-    nombre_no_visitado "el salón",
+    nombre_no_visitado "un salón",
     description "El salón de tu casa está claramente dominado por un televisor
                  de gran tamaño situado sobre una mesa en la pared frontal.
                  Junto al enorme sofá a unos tres metros de la misma forman
@@ -691,7 +691,7 @@ Object decorado_puerta_katie
 
 
 Object katie "Katie" cuarto_katie
-  class Movil
+  class Personaje
   with
     name 'katie',
     short_name "Katie",
@@ -705,7 +705,7 @@ Object katie "Katie" cuarto_katie
 
 
 Object becca "Becca" cuarto_katie
-  class Movil
+  class Personaje
   with
     name 'becca',
     description "Becca es, sin duda, tu mejor amiga, y lo es desde os

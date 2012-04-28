@@ -170,6 +170,10 @@ Replace ExaminarFalsoSub;
 ! muestra entre paréntesis el destino de la dirección:
 Replace LanguageDirection;
 
+! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
+! indicar hacia dónde va un PNJ móvil:
+Replace DirDada;
+
 Include "Parser";
 
 
@@ -556,6 +560,21 @@ Class Lugar
         rtrue;
       }
     ],
+    mostrar_nombre [;
+      if (self has visited) {
+        if (self provides nombre_si_visitado) {
+          print (string) self.nombre_si_visitado;
+        } else {
+          print (name) self;
+        }
+      } else {
+        if (self provides nombre_no_visitado) {
+          print (string) self.nombre_no_visitado;
+        } else {
+          print (name) self;
+        }
+      }
+    ],
     number,
     dibujado false,                   ! Necesario para Mapeador.h
     react_before [
@@ -814,6 +833,28 @@ Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 !===============================================================================
 ! (7) Clases del Juego
 !-------------------------------------------------------------------------------
+
+
+Class Personaje
+  class Movil
+  with
+    llega [ dir;
+      print "^", (The) self, " ";
+      if (self.tipo_de_movimiento == MOVIMIENTO_PERSEGUIR) {
+        if (self.perseguido == player) {
+          print "te sigue";
+        } else {
+          print "sigue ", (al) self.perseguido;
+        }
+      } else {
+        print "llega";
+      }
+      if (dir ~= NULL) {
+        print " desde ";
+        LugarReal().(dir.door_dir).mostrar_nombre();
+        print ".^";
+      }
+    ];
 
 
 Class Sonido
@@ -1806,13 +1847,36 @@ Extend 'cambia' first
   l = LugarReal();
   print " ";
   if (par) print "(";
-  if (l.d has visited) {
-    if (l.d provides nombre_si_visitado) print (string) l.d.nombre_si_visitado;
-    else                                 print (name) l.d;
-  } else {
-    if (l.d provides nombre_no_visitado) print (string) l.d.nombre_no_visitado;
-    else                                 print (name) l.d;
+  l.d.mostrar_nombre();
+  if (par) print ")";
+];
+
+
+! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
+! indicar hacia dónde va un PNJ móvil:
+[ DirDada i
+  l par;
+  par = true;
+  switch (i) {
+    n_obj:   par = false; ! print "hacia el norte";
+    s_obj:   par = false; ! print "hacia el sur";
+    e_obj:   par = false; ! print "hacia el este";
+    w_obj:   par = false; ! print "hacia el oeste";
+    ne_obj:  par = false; ! print "hacia el noreste";
+    nw_obj:  par = false; ! print "hacia el noroeste";
+    se_obj:  par = false; ! print "hacia el sureste";
+    sw_obj:  par = false; ! print "hacia el suroeste";
+    u_obj:   print "hacia arriba";
+    d_obj:   print "hacia abajo";
+    in_obj:  print "al interior";
+    out_obj: print "afuera";
+    default: print "hacia ", (the) i;
   }
+  l = LugarReal();
+  print " ";
+  if (par) print "(";
+  print "por ";
+  l.(i.door_dir).mostrar_nombre();
   if (par) print ")";
 ];
 

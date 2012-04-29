@@ -585,7 +585,7 @@ Class Character
    !
    ! If more quips are needed, override this property and add more zeroes
    ! to the array.
-   with qflag 0 0 0 0 0 0,
+   with qflag 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0,
 
    ! the number of our highest quip will be stored here, so that we only
    ! have to calculate it once
@@ -662,7 +662,7 @@ Class Character
             ! menu, report that the player can't think of anything to say,
             ! otherwise assume that something appropriate has already been
             ! printed in our reply.
-            if (qtype == MainMenu)
+!            if (qtype == MainMenu)           (c) Alpha
                print (string) GT_NOQUIP;
 
             return;
@@ -741,7 +741,7 @@ Class Character
          {
             ! print a notice saying that the PC decided not to say anything
             ! after all, but only if nothing has actually been said so far
-            if (~~spoken)
+!            if (~~spoken)                    (c) Alpha
                print (string) GT_NOSAY;
 
             ! return from this method

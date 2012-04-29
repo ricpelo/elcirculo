@@ -171,18 +171,29 @@ Object amigos_katie "amigos de Katie"
     amigo "CHICO:",
     quip [ a b;
       switch (a) {
-        ! Quip 1: Menú principal:
+        ! Quip 1: Menú principal
         11: ! No se necesita nombre de quip para el menú principal
         12: ! No se necesita respuesta
         13: qtype = MainMenu;
             qqon = true;
-            killq = true;
-        14: return Qlist(b, 1, 2);
+        14: return Qlist(b, 2, 2, 3);
             
         ! Quip 2
         21: "Hola, chicos... ¿Cómo estáis?";
-        22: HablaAmigaMorena("Bien.");
+        22: self.qoff(2); self.qon(3);
+            HablaAmigaMorena("Bien.");
+            new_line;
         23: qqon = true;
+            killq = true;
+            qtransfer = 1;
+        
+        ! Quip 3
+        31: "¿Sabéis algo de Katie?";
+        32: self.qoff(3);
+            HablaAmigaMorena("No.");
+            new_line;
+        33: killq = true;
+            qtransfer = 1;        
       }
     ],
     life [
@@ -285,6 +296,7 @@ Object amigos_katie "amigos de Katie"
   test_machine.inserta("entra");
   test_machine.inserta("jardin");
   test_machine.inserta("chicos, hola");
+  test_machine.inserta("1");
   test_machine.inserta("1");
   test_machine.inserta("entra");
 ];

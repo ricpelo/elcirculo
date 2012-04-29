@@ -79,10 +79,10 @@ Constant TIMER_DURACION_BECCA = 5;
 
 ! Constantes de gtalk.h:
 Constant GT_SELECT       = "Selecciona una opción ";
-Constant GT_ZEROEXIT     = "(o 0 para salir) ";
-Constant GT_WOULDLIKE    = "¿Qué vas a decir?^";
-Constant GT_NOQUIP       = "No se te ocurre nada que decir.^";
-Constant GT_NOSAY        = "Prefieres no decir nada.^";
+Constant GT_ZEROEXIT     = "(0 para salir) ";
+Constant GT_WOULDLIKE    = "^¿Qué vas a decir?^";
+Constant GT_NOQUIP       = "No se te ocurre nada más que decir.^";
+Constant GT_NOSAY        = "^Prefieres no decir nada.^";
 Constant GT_OPTIONPREFIX = "(";
 Constant GT_OPTIONSUFFIX = ") ";
 
@@ -685,7 +685,7 @@ Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 !Include "Contenedor";       ! Contenedores
 Include "EventList_NG";     ! Listas de mensajes
-Include "gtalk";            ! Conversaciones
+Include "Gtalk_NG";         ! Conversaciones
 
 
 !===============================================================================

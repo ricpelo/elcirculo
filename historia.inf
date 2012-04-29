@@ -84,7 +84,12 @@ Object ruth "Ruth"
   with
     name 'ruth',
     short_name "Ruth",
-    description "Es Ruth.";
+    description "Es Ruth.",
+    life [
+      tema;
+    ],
+    orders [;
+    ];
 
     
 ! ====================================================================

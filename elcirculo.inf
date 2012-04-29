@@ -1500,7 +1500,10 @@ Verb meta 't'
   *                    -> TestPasoAPaso;
   
 Verb meta 'inicio'
-  * 'historia'        -> InicioHistoria;  
+  * 'historia'        -> InicioHistoria;
+
+Verb meta 'i1'
+  *                   -> InicioHistoria;
 #endif;
 
 Verb meta 'graficos'
@@ -1557,11 +1560,22 @@ Verb 'desenchufa'
 
 VerboIrregular "desenchufar" with imperativo 'desenchufa';
 
-Extend 'grita' first
+Extend only 'grita' replace
   *                 -> Gritar
   * 'a//' creature  -> Gritar;
 
 Verb 'chilla' = 'grita';
+
+Extend 'habla' first
+  * 'con' creature topic     -> Tell
+  * 'con' creature           -> Tell
+  * 'a' creature             -> Tell;
+
+Extend 'di' first
+  * 'a' creature             -> Answer;
+
+Verb 'cuentale' = 'cuenta';
+Verb 'preguntale' = 'pregunta';
 
 Verb 'llama'
   *                 -> Llamar

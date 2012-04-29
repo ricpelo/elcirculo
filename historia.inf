@@ -43,7 +43,17 @@ Object cocina_ruth "Cocina"
     name 'cocina',
     nombre_direccion "la cocina",
     description "La cocina de la casa.",
-    s_to salon_ruth;
+    s_to salon_ruth,
+    u_to pasillo_ruth;
+
+
+Object pasillo_ruth "Pasillo superior"
+  class Lugar
+  with
+    name 'pasillo',
+    nombre_direccion "el pasillo superior",
+    description "El pasillo superior.",
+    d_to cocina_ruth;
 
     
 ! ====================================================================
@@ -68,7 +78,12 @@ Object rachel "Rachel"
   with
     name 'rachel',
     short_name "Rachel",
-    description "Es Rachel.";
+    description [;
+      if (player == self) "Eres tú: Rachel."; 
+      else "Es Rachel.";
+    ],
+  has
+    female;
 
 
 Object aidan "Aidan"
@@ -87,9 +102,27 @@ Object ruth "Ruth"
     description "Es Ruth.",
     life [
       tema;
+      Ask:
+        if (LugarReal() ~= cocina_ruth) {
+          HablaRuth("Aquí no... Vamos a un sitio más tranquilo.");
+          rtrue;
+        }
     ],
     orders [;
-    ];
+      Saludar:
+        HablaRuth("Hola, hermana.");
+        rtrue;
+
+      NotUnderstood, Tell, Answer:
+        <<Ask self>>;
+
+      default:
+        HablaRuth("Perdona si soy brusca, pero mi hija acaba de morir y no me
+                    apetece hacer nada.");
+        rtrue;      
+    ],
+  has
+    female;
 
     
 ! ====================================================================
@@ -133,13 +166,13 @@ Object ruth "Ruth"
 
   move rachel to fuera_casa_ruth;
   PNJ_Ruta(rachel, MOVIMIENTO_NINGUNO);
-  ChangePlayer(rachel, 1);
+  ChangePlayer(rachel);
   remove katie;
   move aidan to fuera_casa_ruth;
   PNJ_Ruta(aidan, MOVIMIENTO_PERSEGUIR, rachel);
   move ruth to salon_ruth;
   ! Ruth se mueve por la cocina y el salón, con un 30% de probabilidad:
-  PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 30, CAMINO_CUALQUIERA,
+  PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 20, CAMINO_CUALQUIERA,
            LugarMovimientoRuth);
   PlayerTo(fuera_casa_ruth);
 ];
@@ -152,6 +185,11 @@ Object ruth "Ruth"
 
 [ HablaRachel msg nl;
   HablaPSI("TÚ:", msg, nl);
+];
+
+
+[ HablaRuth msg nl;
+  HablaPSI("RUTH:", msg, nl);
 ];
 
 

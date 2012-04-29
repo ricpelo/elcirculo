@@ -742,7 +742,7 @@ Include "EventList_NG";     ! Listas de mensajes
   ControlTimer.ActivarTick(TIMER_TICK);
   ! Esto hay que ponerlo para que no aparezca tu otro yo moviéndose solo:
   PNJ_Ruta(katie, MOVIMIENTO_NINGUNO);
-  ChangePlayer(katie, 1);
+  ChangePlayer(katie);
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
   PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
   IniciarMoviles();
@@ -1582,6 +1582,12 @@ Verb 'llama'
   * 'a//' creature  -> Llamar
   * 'por' noun      -> LlamarPor;
 
+Extend 'saluda' first
+  *                 -> Saludar;
+
+Verb 'hola'
+  *                 -> Saludar;
+
 Extend 'cambia' first
   * 'canal'/'emisora'                -> CambiarCanal
   * 'el' 'canal'                     -> CambiarCanal
@@ -1906,6 +1912,11 @@ Extend 'cambia' first
 
 [ LlamarPorSub;
   "Con eso no puedes llamar a ningún sitio.";
+];
+
+
+[ SaludarSub;
+  "Saludas cordialmente.";
 ];
 
 

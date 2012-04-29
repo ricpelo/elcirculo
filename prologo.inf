@@ -793,13 +793,20 @@ Object becca "Becca" cuarto_katie
           }
         }
 
-      NotUnderstood, Tell:
+      Saludar:
+        HablaBecca("Katie, déjate de saludos ahora. El teléfono sigue
+                    sonando.");
+        rtrue;
+
+      NotUnderstood, Tell, Answer:
         <<Ask self>>;
 
       default:
         HablaBecca("Mejor hazlo tú misma.");
         rtrue;
-    ];
+    ],
+  has
+    female;
 
 
 Object becca_ausente "Becca ausente"

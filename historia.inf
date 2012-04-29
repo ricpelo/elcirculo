@@ -3,7 +3,7 @@
 !-------------------------------------------------------------------------------
 
 
-Class LugarMovimientoRuth;
+Class ZonaMovimientoRuth;
 
 
 !===============================================================================
@@ -27,18 +27,29 @@ Object fuera_casa_ruth "Exteriores de la casa de Ruth"
 
 Object salon_ruth "Salón de la casa"
   class Lugar
-  class LugarMovimientoRuth
+  class ZonaMovimientoRuth
   with
     name 'salon' 'salita',
-    nombre_direccion "el salón de la casa",
+    nombre_direccion "el salón",
     description "El salón de la casa de Ruth y Katie.",
     out_to fuera_casa_ruth,
+    e_to jardin_ruth,
     n_to cocina_ruth;
 
 
+Object jardin_ruth "Jardín de la casa"
+  class Lugar
+  with
+    name 'jardin',
+    name_f 'terraza',
+    nombre_direccion "el jardín",
+    description "El jardín de la casa.",
+    in_to salon_ruth;
+
+    
 Object cocina_ruth "Cocina"
   class Lugar
-  class LugarMovimientoRuth
+  class ZonaMovimientoRuth
   with
     name 'cocina',
     nombre_direccion "la cocina",
@@ -82,6 +93,25 @@ Object rachel "Rachel"
       if (player == self) "Eres tú: Rachel."; 
       else "Es Rachel.";
     ],
+    orders [;
+      if (player == self) {
+        ! Este objeto (MANOLO) es el que tiene el foco, es decir
+        ! el que está siendo controlado por el jugador de carne y hueso
+        if (actor == self) {
+          ! Y la orden me está siendo dada a mi, por ejemplo
+          ! el jugador ha puesto: ``SALTA'' mientras controla a MANOLO
+        } else {
+          ! La orden ha sido dada a otro personaje, desde éste
+          ! Por ejemplo el jugador ha puesto ``HELENA, SALTA''
+          ! mientras controla a Manolo
+        }
+      } else {
+        ! La orden proviene de otro personaje (que está siendo controlado
+        ! por el jugador ``real'') y ha sido dirigida a Manolo.
+        ! Por ejemplo, el jugador ha puesto MANOLO, SALTA mientras
+        ! controla a otro personaje.
+      }
+    ],
   has
     female;
 
@@ -113,9 +143,6 @@ Object ruth "Ruth"
         HablaRuth("Hola, hermana.");
         rtrue;
 
-      NotUnderstood, Tell, Answer:
-        <<Ask self>>;
-
       default:
         HablaRuth("Perdona si soy brusca, pero mi hija acaba de morir y no me
                     apetece hacer nada.");
@@ -124,7 +151,55 @@ Object ruth "Ruth"
   has
     female;
 
+
+Object amigos_katie "amigos de Katie"
+  class Character
+  class Personaje
+  with
+    name 'amigo' 'chico',
+    name_f 'amiga',
+    name_mp 'amigos' 'chicos',
+    name_fp 'amigas',
+    adjectives 'katie',
+    article "a unos",
+    short_name "amigos de Katie",
+    description "Tres amigos de Katie.",
+    initial "Tres chicos (probablemente amigos de Katie) conversan entre
+             ellos.",
+    amiga_morena "CHICA MORENA:",
+    amiga_rubia "CHICA RUBIA:",
+    amigo "CHICO:",
+    quip [ a b;
+      switch (a) {
+        ! Quip 1: Menú principal:
+        11: ! No se necesita nombre de quip para el menú principal
+        12: ! No se necesita respuesta
+        13: qtype = MainMenu;
+            qqon = true;
+            killq = true;
+        14: return Qlist(b, 1, 2);
+            
+        ! Quip 2
+        21: "Hola, chicos... ¿Cómo estáis?";
+        22: HablaAmigaMorena("Bien.");
+        23: qqon = true;
+      }
+    ],
+    life [
+      tema;
+      Ask:
+        self.select(1);
+        rtrue;
+    ],
+    orders [;
+      Saludar:
+        self.select(1);
+        rtrue;
+    ],
+  has
+    ~proper pluralname;
     
+
 ! ====================================================================
 ! GESTORES DE TIMER
 ! ====================================================================
@@ -167,13 +242,20 @@ Object ruth "Ruth"
   move rachel to fuera_casa_ruth;
   PNJ_Ruta(rachel, MOVIMIENTO_NINGUNO);
   ChangePlayer(rachel);
+
   remove katie;
+
   move aidan to fuera_casa_ruth;
   PNJ_Ruta(aidan, MOVIMIENTO_PERSEGUIR, rachel);
+
   move ruth to salon_ruth;
   ! Ruth se mueve por la cocina y el salón, con un 30% de probabilidad:
   PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 20, CAMINO_CUALQUIERA,
-           LugarMovimientoRuth);
+           ZonaMovimientoRuth);
+
+  move amigos_katie to jardin_ruth;
+  PNJ_Ruta(amigos_katie, MOVIMIENTO_NINGUNO);
+
   PlayerTo(fuera_casa_ruth);
 ];
 
@@ -190,6 +272,11 @@ Object ruth "Ruth"
 
 [ HablaRuth msg nl;
   HablaPSI("RUTH:", msg, nl);
+];
+
+
+[ HablaAmigaMorena msg nl;
+  HablaPSI(amigos_katie.amiga_morena, msg, nl);
 ];
 
 

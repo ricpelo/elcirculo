@@ -72,9 +72,19 @@ Constant SONIDO_REPETIR = -1;
 ! El color de fondo de la ventana gráfica es negro:
 Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 
+! Constantes para los gestores de timer:
 Constant TIMER_TICK = 1000;
 Constant TIMER_DURACION_TLF_KATIE = 6;
 Constant TIMER_DURACION_BECCA = 5;
+
+! Constantes de gtalk.h:
+Constant GT_SELECT       = "Selecciona una opción ";
+Constant GT_ZEROEXIT     = "(o 0 para salir) ";
+Constant GT_WOULDLIKE    = "¿Qué vas a decir?^";
+Constant GT_NOQUIP       = "No se te ocurre nada que decir.^";
+Constant GT_NOSAY        = "Prefieres no decir nada.^";
+Constant GT_OPTIONPREFIX = "(";
+Constant GT_OPTIONSUFFIX = ") ";
 
 
 ! ====================================================================
@@ -675,6 +685,7 @@ Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 !Include "Contenedor";       ! Contenedores
 Include "EventList_NG";     ! Listas de mensajes
+Include "gtalk";            ! Conversaciones
 
 
 !===============================================================================
@@ -740,14 +751,18 @@ Include "EventList_NG";     ! Listas de mensajes
   timer_telefono_katie.AsignarGestor(1);
   timer_becca.AsignarGestor(2);
   ControlTimer.ActivarTick(TIMER_TICK);
+
   ! Esto hay que ponerlo para que no aparezca tu otro yo moviéndose solo:
   PNJ_Ruta(katie, MOVIMIENTO_NINGUNO);
   ChangePlayer(katie);
+
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
   PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
+
   IniciarMoviles();
   IniciarPuertas();
 !  IniciarRastros();
+
   Damusix.PararCanal(CANAL_FONDO);
   Damusix.LiberarCanal(DarkWalk_ogg);
   Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
@@ -911,6 +926,10 @@ Class Personaje
         LugarReal().(dir.door_dir).mostrar_nombre();
         print ".^";
       }
+    ],
+    orders [;
+      NotUnderstood, Tell, Answer:
+        if (actor ~= player) <<Ask actor>>;
     ],
   has
     animate proper;

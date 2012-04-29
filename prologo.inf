@@ -798,9 +798,6 @@ Object becca "Becca" cuarto_katie
                     sonando.");
         rtrue;
 
-      NotUnderstood, Tell, Answer:
-        <<Ask self>>;
-
       default:
         HablaBecca("Mejor hazlo tú misma.");
         rtrue;

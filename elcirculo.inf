@@ -931,6 +931,15 @@ Class Personaje
       NotUnderstood, Tell, Answer:
         if (actor ~= player) <<Ask actor>>;
     ],
+    ! Nosotros usaremos Qselect en lugar de select, para que funcione con el
+    ! testeador automático:
+    Qselect [ q
+      old_pie;
+      old_pie = parse_input_externo;
+      if (parse_input_externo == -1) parse_input_externo = 1;
+      self.select(q);
+      parse_input_externo = old_pie;
+    ],
   has
     animate proper;
 
@@ -1485,44 +1494,17 @@ Object ZIPI_Salir
 ];
 
 
-! Funciones de test. Ver TestMachine_NG.h:
-[ TestPrologo;
-  test_machine.clear();
-  test_machine.inserta("sal");
-  test_machine.inserta("baja");
-  test_machine.inserta("coge telefono");
-  test_machine.inserta("sube");
-  test_machine.inserta("s");
-  test_machine.inserta("apaga tv");
-  test_machine.inserta("n");
-  test_machine.inserta("sube");
-  test_machine.inserta("s");
-  test_machine.inserta("apaga tv");
-  test_machine.inserta("n");
-  test_machine.inserta("cierra frigorifico");
-  test_machine.inserta("sube");
-  test_machine.inserta("abre puerta");
-];
-
-
 !===============================================================================
 ! (10) Verbos y Gramaticas Propias del Juego
 !-------------------------------------------------------------------------------
 
 
 #ifdef DEBUG;
-Verb meta 'test'
-  * 'prologo'          -> TestPrologo
-  * 'prologo' 'full'   -> TestPrologoFull;
-
 Verb meta 't'
   *                    -> TestPasoAPaso;
-  
-Verb meta 'inicio'
-  * 'historia'        -> InicioHistoria;
 
-Verb meta 'i1'
-  *                   -> InicioHistoria;
+Verb meta 'tt'
+  *                    -> TestContinuar;
 #endif;
 
 Verb meta 'graficos'
@@ -1953,25 +1935,13 @@ Extend 'cambia' first
 
 
 #ifdef DEBUG;
-! Funciones de test. Ver TestMachine_NG.h
-[ TestPrologoFullSub;
-  TestPrologo();
-  test_machine.run();
-];
-
-! Funciones de test. Ver TestMachine_NG.h
-[ TestPrologoSub;
-  TestPrologo();
-  test_machine.run_once();
-];
-
-
 [ TestPasoAPasoSub;
   test_machine.run_once();
 ];
 
-[ InicioHistoriaSub;
-  InicioHistoria();
+
+[ TestContinuarSub;
+  test_machine.run();
 ];
 #endif;
 

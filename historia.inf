@@ -188,12 +188,12 @@ Object amigos_katie "amigos de Katie"
     life [
       tema;
       Ask:
-        self.select(1);
+        self.Qselect(1);
         rtrue;
     ],
     orders [;
       Saludar:
-        self.select(1);
+        self.Qselect(1);
         rtrue;
     ],
   has
@@ -222,7 +222,6 @@ Object amigos_katie "amigos de Katie"
 ! usar como verbo
 
 
-    
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
@@ -278,6 +277,58 @@ Object amigos_katie "amigos de Katie"
 [ HablaAmigaMorena msg nl;
   HablaPSI(amigos_katie.amiga_morena, msg, nl);
 ];
+
+
+#ifdef DEBUG;
+[ TestHistoria;
+  test_machine.clear();
+  test_machine.inserta("entra");
+  test_machine.inserta("jardin");
+  test_machine.inserta("chicos, hola");
+  test_machine.inserta("1");
+  test_machine.inserta("entra");
+];
+#endif;
+
+
+!===============================================================================
+! (10) Verbos y Gramaticas Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+#ifdef DEBUG;
+Verb meta 'i1'
+  *                      -> InicioHistoria;
+  
+Verb meta 'testhistoria'
+  *                      -> TestHistoria
+  * 'full'               -> TestHistoriaFull;
+#endif;
+
+!===============================================================================
+! (11) Rutinas de Acciones Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+#ifdef DEBUG;
+! Funciones de test. Ver TestMachine_NG.h
+[ TestHistoriaFullSub;
+  TestHistoria();
+  test_machine.run();
+];
+
+
+! Funciones de test. Ver TestMachine_NG.h
+[ TestHistoriaSub;
+  TestHistoria();
+  test_machine.run_once();
+];
+
+
+[ InicioHistoriaSub;
+  InicioHistoria();
+];
+#endif;
 
 
 ! Fin historia.inf

@@ -1196,4 +1196,56 @@ Object tema_becca_tv "el televisor" TemasBecca
 ];
 
 
+#ifdef DEBUG;
+[ TestPrologo;
+  test_machine.clear();
+  test_machine.inserta("sal");
+  test_machine.inserta("baja");
+  test_machine.inserta("coge telefono");
+  test_machine.inserta("sube");
+  test_machine.inserta("s");
+  test_machine.inserta("apaga tv");
+  test_machine.inserta("n");
+  test_machine.inserta("sube");
+  test_machine.inserta("s");
+  test_machine.inserta("apaga tv");
+  test_machine.inserta("n");
+  test_machine.inserta("cierra frigorifico");
+  test_machine.inserta("sube");
+  test_machine.inserta("abre puerta");
+];
+#endif;
+
+
+!===============================================================================
+! (10) Verbos y Gramaticas Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+#ifdef DEBUG;
+Verb meta 'testprologo'
+  *                      -> TestPrologo
+  * 'full'               -> TestPrologoFull;
+#endif;
+
+
+!===============================================================================
+! (11) Rutinas de Acciones Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+#ifdef DEBUG;
+[ TestPrologoFullSub;
+  TestPrologo();
+  test_machine.run();
+];
+
+
+[ TestPrologoSub;
+  TestPrologo();
+  test_machine.run_once();
+];
+#endif;
+
+
 ! Fin prologo.inf

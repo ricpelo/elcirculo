@@ -911,17 +911,18 @@ Object sonido_telefono_katie
       StopTimer(self);
       if (~~sw) "El teléfono deja de sonar.";
     ],
+    ultimo_mensaje 0,
     each_turn [;
       if (self.sonando()) {
-        if (becca in cocina_katie && random(100) < 10) { ! &&
-!            msg_becca.at_end()) {
+        if (becca in cocina_katie && random(100) < 10 &&
+            self.ultimo_mensaje == 4) {
           ControlTimer.PrepararImpresion();
           becca.habla("Venga ya, esto es ridículo...");
           new_line;
           telefono_katie.becca_lo_coge();
         } else if (random(100) < 20) {
           ControlTimer.PrepararImpresion();
-          becca.hablalast(
+          self.ultimo_mensaje = becca.hablalast(
             "Katie... Está sonando el teléfono...",
             "¿Qué pasa? ¿No lo coges?",
             "¿Por qué no lo coges?",

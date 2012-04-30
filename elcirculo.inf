@@ -1,7 +1,7 @@
 !% -~S
 !% -G
 !% +language_name=Spanish
-!% $MAX_STATIC_DATA=20000
+!% $MAX_STATIC_DATA=24000
 !% $MAX_PROP_TABLE_SIZE=63840
 !% $MAX_VERBS=200
 !% $MAX_ZCODE_SIZE=45000
@@ -85,6 +85,9 @@ Constant GT_NOQUIP       = "No se te ocurre nada más que decir.^";
 Constant GT_NOSAY        = "^Prefieres no decir nada.^";
 Constant GT_OPTIONPREFIX = "(";
 Constant GT_OPTIONSUFFIX = ") ";
+
+! Número máximo de cadenas DIFERENTES que se han impreso:
+Constant PS_TAB_SIZE = 3000;
 
 
 ! ====================================================================
@@ -185,6 +188,7 @@ Replace DirDada;
 
 ! Cambia la función random() (ver random.h):
 Replace random;
+
 
 Include "Parser";
 

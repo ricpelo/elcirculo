@@ -702,7 +702,7 @@ Object katie "Katie" cuarto_katie
   class Personaje
   with
     name 'katie',
-    short_name "Katie",
+    short_name "Tú",
     description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
                  responsable, de ojos oscuros y cabello largo, rubio y liso.
                  Tu mejor amiga Becca y tú estáis pasando una noche solas en tu

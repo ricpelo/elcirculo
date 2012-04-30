@@ -933,7 +933,12 @@ Class Personaje
     ],
     habla_retardo -1,
     habla_inicio [;
-      print "^", (s_user1) self.short_name, (s_user1) ":", " ~";
+      print "^";
+      glk_set_style(style_User1);
+      if (self == player) print "Tú: ";
+      else                print (string) self.short_name, ": ";
+      glk_set_style(style_Normal);
+      print "~";
     ],
     habla_fin [ nl;
       print "~";

@@ -279,6 +279,7 @@ Object telefono_katie "teléfono" cocina_katie
       becca.habla("Es tu madre");
       new_line;
       self.coges_el_telefono();
+      rtrue;
     ],
     coges_el_telefono [;
       print "Coges el teléfono, y aún con desconfianza lo acercas a tu oído.
@@ -702,7 +703,7 @@ Object katie "Katie" cuarto_katie
   class Personaje
   with
     name 'katie',
-    short_name "Tú",
+    short_name "Katie",
     description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
                  responsable, de ojos oscuros y cabello largo, rubio y liso.
                  Tu mejor amiga Becca y tú estáis pasando una noche solas en tu
@@ -742,18 +743,14 @@ Object becca "Becca" cuarto_katie
           ! Lo hago así para que el mensaje de Becca aparezca DESPUÉS de los
           ! mensajes que genere la rutina after:
           RunRoutines(noun, after);
-          if (c) {
-            becca.habla("Qué extraño... ¿Qué ha pasado con la imagen?");
-          } else {
-            becca.habla("Sigue sin haber imagen...");
-          }
+          if (c) becca.habla("Qué extraño... ¿Qué ha pasado con la imagen?");
+          else   becca.habla("Sigue sin haber imagen...");
           rtrue;
         }
     ],
     before [;
       Llamar:
-        becca.habla("Estoy aquí... ¿No me ves?");
-        rtrue;
+        return becca.habla("Estoy aquí... ¿No me ves?");
     ],
     life [
       tema;
@@ -776,32 +773,34 @@ Object becca "Becca" cuarto_katie
             becca.habla("No entiendo qué quieres decirme.");
         }
         rtrue;
+
+      default:
+        return self.habla("No te entiendo...");
     ],
     orders [;
       if (player == self) rfalse;
+
+      Venir, Seguir:
+        return self.habla("Te sigo, Katie, ya te sigo.");
+
       Go, GoIn, Enter, Exit, Subir, Bajar:
-        becca.habla("No pienso ir sola a ninguna parte.");
-        rtrue;
+        return becca.habla("No pienso ir sola a ninguna parte.");
         
       Take:
         if (noun == telefono_katie) {
           if (LugarReal() == cocina_katie) {
-            telefono_katie.becca_lo_coge();
-            rtrue;
+            return telefono_katie.becca_lo_coge();
           } else {
-            becca.habla("¿Dónde está el teléfono?");
-            rtrue;
+            return becca.habla("¿Dónde está el teléfono?");
           }
         }
 
       Saludar:
-        becca.habla("Katie, déjate de saludos ahora. El teléfono sigue
-                    sonando.");
-        rtrue;
+        return becca.habla("Katie, déjate de saludos ahora. El teléfono sigue
+                            sonando.");
 
       default:
-        becca.habla("Mejor hazlo tú misma.");
-        rtrue;
+        return becca.habla("Mejor hazlo tú misma.");
     ],
   has
     female;
@@ -1020,6 +1019,7 @@ Object tema_becca_tv "el televisor" TemasBecca
   }
   
   closeGraphicWindow();
+  ChangePlayer(katie);
 
   esp = 1000;
   print "Condado de Eola.";

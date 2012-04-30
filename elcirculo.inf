@@ -930,6 +930,7 @@ Class Personaje
         }
       }
       self.habla_fin(nl);
+      rtrue;
     ],
     habla_retardo -1,
     habla_inicio [;
@@ -943,6 +944,13 @@ Class Personaje
     habla_fin [ nl;
       print "~";
       if (~~nl) new_line;
+    ],
+    marcha [ dir;
+      print "^", (The) self, " ";
+      if (dir == in_obj)       print "entra en ";
+      else if (dir == out_obj) print "sale por ";
+      else                     print "se marcha ";
+      print (DirDada) dir, ".^";
     ],
     llega [ dir;
       print "^", (The) self, " ";
@@ -1508,15 +1516,16 @@ Object ZIPI_Salir
     nw_obj:  par = false; ! print "hacia el noroeste";
     se_obj:  par = false; ! print "hacia el sureste";
     sw_obj:  par = false; ! print "hacia el suroeste";
-    u_obj:   print "hacia arriba";
-    d_obj:   print "hacia abajo";
-    in_obj:  print "al interior";
-    out_obj: print "afuera";
+    u_obj:   par = false; ! print "hacia arriba";
+    d_obj:   par = false; ! print "hacia abajo";
+    in_obj:  par = false; ! print "al interior";
+    out_obj: par = false; ! print "afuera";
     default: print "hacia ", (the) i;
   }
   l = LugarReal();
-  if (par) print "(";
-  print "hacia ";
+    
+  if (par) print " (";
+  if (~~(i == in_obj or out_obj)) print "hacia ";
   l.(i.door_dir).mostrar_nombre();
   if (par) print ")";
 ];
@@ -1626,6 +1635,24 @@ Extend 'cambia' first
   * 'el' 'canal'   'en' noun         -> CambiarCanal
   * 'la' 'emisora'  'en' noun        -> CambiarCanal
   * 'de' 'canal'/'emisora' 'en' noun -> CambiarCanal;
+
+Verb 'sigue'
+  * creature               -> Seguir
+  * creature 'aqui'        -> Seguir
+  * 'a//' creature         -> Seguir
+  * 'a//' creature 'aqui'  -> Seguir;
+
+Verb 'ven'
+  *                  -> Venir
+  * 'aqui'           -> Venir
+  * 'conmigo'        -> Venir;
+
+Verb 'vamos'
+  *                  -> Venir;
+
+Verb 'vamonos' 'vayamonos'
+  *                  -> Venir
+  * 'de' 'aqui'      -> Venir;
 
 
 !===============================================================================
@@ -1959,6 +1986,16 @@ Extend 'cambia' first
   if (tv hasnt on) "El televisor está apagado.";
   
   "Cambias repetidamente de canal, pero sólo encuentras estática y ruido."; 
+];
+
+
+[ VenirSub;
+  <<Seguir player>>;
+];
+
+
+[ SeguirSub;
+  "Decide por ti mism", (o) player, " a dónde deseas ir.";
 ];
 
 

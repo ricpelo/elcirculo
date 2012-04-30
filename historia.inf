@@ -34,7 +34,18 @@ Object salon_ruth "Salón de la casa"
     description "El salón de la casa de Ruth y Katie.",
     out_to fuera_casa_ruth,
     e_to jardin_ruth,
-    n_to cocina_ruth;
+    n_to cocina_ruth,
+    each_turn [;
+      if (aidan hasnt general && aidan in self) {
+        give aidan general;
+        PNJ_Ruta(aidan, MOVIMIENTO_POR_META, cuarto_katie_ruth,
+                 CAMINO_CUALQUIERA);
+        aidan.habla("Rachel, voy a pasear un poco por la casa.");
+        aidan.movimiento();
+        rtrue;
+      }
+    ];
+
 
 
 Object jardin_ruth "Jardín de la casa"
@@ -64,9 +75,20 @@ Object pasillo_ruth "Pasillo superior"
     name 'pasillo',
     nombre_direccion "el pasillo superior",
     description "El pasillo superior.",
-    d_to cocina_ruth;
+    d_to cocina_ruth,
+    in_to cuarto_katie_ruth;
 
-    
+
+Object cuarto_katie_ruth "Habitación de Katie"
+  class Lugar
+  with
+    name 'cuarto' 'katie',
+    name_f 'habitacion',
+    nombre_direccion "la habitación de Katie",
+    description "La habitación de Katie.",
+    out_to pasillo_ruth;
+
+
 ! ====================================================================
 ! OBJETOS QUE LLEVAN LOS PERSONAJES AL EMPEZAR
 ! ====================================================================
@@ -121,13 +143,32 @@ Object aidan "Aidan"
   with
     name 'aidan',
     short_name "Aidan",
-    description "Es Aidan.";
+    description "Es Aidan.",
+    pnj_ha_llegado [;
+      if (self.tipo_de_movimiento == MOVIMIENTO_POR_META) {
+        PNJ_Ruta(self, MOVIMIENTO_NINGUNO);
+      }
+    ],
+    life [;
+      Ask:
+        return self.habla("No te entiendo, Rachel.");
+    ],
+    orders [;
+      Venir, Seguir:
+        if (noun == nothing) noun = player;
+        if (noun == self) return self.habla("No puedo.");
+        PNJ_Ruta(self, MOVIMIENTO_PERSEGUIR, noun);
+        return self.habla("Ya voy, Rachel.");
+
+      default:
+        return self.habla("No puedo hacer eso, Rachel.");
+    ];
 
 
 Object ruth "Ruth"
   class Personaje
   with
-    name 'ruth',
+    name 'ruth' 'tia',
     short_name "Ruth",
     description "Es Ruth.",
     life [
@@ -158,19 +199,16 @@ Object ruth "Ruth"
             }
 
           default:
-            self.habla("No lo sé... De verdad que no lo sé...");
-            rtrue;
+            return self.habla("No lo sé... De verdad que no lo sé...");
         }
     ],
     orders [;
       Saludar:
-        self.habla("Hola, hermana.");
-        rtrue;
+        return self.habla("Hola, Rachel.");
 
       default:
-        self.habla("Perdona si soy brusca, pero mi hija acaba de morir y no me
-                    apetece hacer nada.");
-        rtrue;      
+        return self.habla("Perdona si soy brusca, pero mi hija acaba de morir y
+                           no me apetece hacer nada.");
     ],
   has
     female;

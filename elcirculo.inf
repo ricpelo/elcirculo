@@ -910,6 +910,35 @@ Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 Class Personaje
   class Movil
   with
+    habla [ _vararg_count
+      msg nl hablado;
+      self.habla_inicio();
+      for ( : _vararg_count > 0: _vararg_count--) {
+        @copy sp msg;
+        if (msg ofclass String) {
+          if (hablado) {          
+            switch (self.habla_retardo) {
+              -1:
+               0: KeyDelay();
+               default: WaitDelay(self.habla_retardo);
+            }
+          }
+          print (string) msg;
+          hablado = true;
+        } else {
+          nl = msg;
+        }
+      }
+      self.habla_fin(nl);
+    ],
+    habla_retardo -1,
+    habla_inicio [;
+      print "^", (s_user1) self.short_name, (s_user1) ":", " ~";
+    ],
+    habla_fin [ nl;
+      print "~";
+      if (~~nl) new_line;
+    ],
     llega [ dir;
       print "^", (The) self, " ";
       if (self.tipo_de_movimiento == MOVIMIENTO_PERSEGUIR) {
@@ -1312,12 +1341,6 @@ Object ZIPI_Salir
   deadflag = df;
   ControlTimer.DesactivarTick();
   Damusix.PararTodo();
-];
-
-
-[ HablaPSI psi msg nl;
-  print "^", (s_user1) psi, " ~", (string) msg, "~";
-  if (~~nl) new_line;
 ];
 
 

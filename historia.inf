@@ -131,20 +131,44 @@ Object ruth "Ruth"
     short_name "Ruth",
     description "Es Ruth.",
     life [
-      tema;
+      tema old_ret;
       Ask:
         if (LugarReal() ~= cocina_ruth) {
-          HablaRuth("Aquí no... Vamos a un sitio más tranquilo.");
+          self.habla("Aquí no... Vamos a un sitio más tranquilo.");
+          PNJ_Ruta(self, MOVIMIENTO_NINGUNO);
+          PNJIr(self, n_obj);
           rtrue;
+        }
+
+        tema = AveriguarTema(TemasRuth);
+
+        switch (tema) {
+          tema_ruth_katie:
+            if (self hasnt general) {
+              give self general;
+              old_ret = self.habla_retardo;
+              self.habla_retardo = 1000;
+              self.habla("No tiene sentido, Rachel...", " Me he pasado cuatro
+                          horas en Internet y no he podido encontrar ni un solo
+                          caso de una niña de dieciséis años a la que se le
+                          pare el corazón...", " He hablado con tres médicos y
+                          ninguno sabe decirme qué le pasó a Katie...");
+              self.habla_retardo = old_ret;
+              rtrue;
+            }
+
+          default:
+            self.habla("No lo sé... De verdad que no lo sé...");
+            rtrue;
         }
     ],
     orders [;
       Saludar:
-        HablaRuth("Hola, hermana.");
+        self.habla("Hola, hermana.");
         rtrue;
 
       default:
-        HablaRuth("Perdona si soy brusca, pero mi hija acaba de morir y no me
+        self.habla("Perdona si soy brusca, pero mi hija acaba de morir y no me
                     apetece hacer nada.");
         rtrue;      
     ],
@@ -166,9 +190,6 @@ Object amigos_katie "amigos de Katie"
     description "Tres amigos de Katie.",
     initial "Tres chicos (probablemente amigos de Katie) conversan entre
              ellos.",
-    amiga_morena "CHICA MORENA:",
-    amiga_rubia "CHICA RUBIA:",
-    amigo "CHICO:",
     quip [ a b;
       switch (a) {
         ! Quip 1: Menú principal
@@ -181,7 +202,7 @@ Object amigos_katie "amigos de Katie"
         ! Quip 2
         21: "Hola, chicos... ¿Cómo estáis?";
         22: self.qoff(2); self.qon(3);
-            HablaAmigaMorena("Bien.");
+            amiga_morena.habla("Bien.");
             new_line;
         23: qqon = true;
             killq = true;
@@ -190,7 +211,7 @@ Object amigos_katie "amigos de Katie"
         ! Quip 3
         31: "¿Sabéis algo de Katie?";
         32: self.qoff(3);
-            HablaAmigaMorena("No.");
+            amiga_morena.habla("No.");
             new_line;
         33: killq = true;
             qtransfer = 1;        
@@ -209,7 +230,25 @@ Object amigos_katie "amigos de Katie"
     ],
   has
     ~proper pluralname;
-    
+
+
+Object amiga_morena "amiga morena"
+  class Personaje
+  with
+    short_name "Chica morena";
+
+
+Object amiga_rubia "amiga rubia"
+  class Personaje
+  with
+    short_name "Chica rubia";
+
+
+Object amigo_katie "amigo"
+  class Personaje
+  with
+    short_name "Chico";
+
 
 ! ====================================================================
 ! GESTORES DE TIMER
@@ -231,6 +270,12 @@ Object amigos_katie "amigos de Katie"
 
 ! Cuidado con los infinitivos. Si pones un infinitivo aquí, luego no se puede
 ! usar como verbo
+
+Object TemasRuth;
+
+Object tema_ruth_katie "Katie" TemasRuth
+  with
+    name 'katie' 'hija';
 
 
 !===============================================================================
@@ -272,21 +317,6 @@ Object amigos_katie "amigos de Katie"
 
 [ FinHistoria;
   "Aquí acaba.";
-];
-
-
-[ HablaRachel msg nl;
-  HablaPSI("TÚ:", msg, nl);
-];
-
-
-[ HablaRuth msg nl;
-  HablaPSI("RUTH:", msg, nl);
-];
-
-
-[ HablaAmigaMorena msg nl;
-  HablaPSI(amigos_katie.amiga_morena, msg, nl);
 ];
 
 

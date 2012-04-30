@@ -183,6 +183,8 @@ Replace LanguageDirection;
 ! indicar hacia dónde va un PNJ móvil:
 Replace DirDada;
 
+! Cambia la función random() (ver random.h):
+Replace random;
 
 Include "Parser";
 
@@ -684,7 +686,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
 Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 !Include "Contenedor";       ! Contenedores
-Include "EventList_NG";     ! Listas de mensajes
+!Include "EventList_NG";     ! Listas de mensajes
+Include "Prand_NG";         ! Listas de mensajes
 Include "Gtalk_NG";         ! Conversaciones
 
 
@@ -897,6 +900,8 @@ Include "Gtalk_NG";         ! Conversaciones
 
 
 Include "SpanishG";
+
+Include "random";          ! Cambia la función random()
 Include "Decir";           ! Para poder usar DECIR ... A ...
 !Include "Mapeador";
 Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
@@ -910,6 +915,34 @@ Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 Class Personaje
   class Movil
   with
+    hablarand [ _vararg_count
+      a;
+      self.habla_inicio();
+      @call prand _vararg_count a;
+      self.habla_fin();
+      return a;
+    ],
+    hablaonce [ _vararg_count
+      a;
+      self.habla_inicio();
+      @call prandonce _vararg_count a;
+      self.habla_fin();
+      return a;
+    ],
+    hablalast [ _vararg_count
+      a;
+      self.habla_inicio();
+      @call prandlast _vararg_count a;
+      self.habla_fin();
+      return a;
+    ],
+    hablaseq [ _vararg_count
+      a;
+      self.habla_inicio();
+      @call prandseq _vararg_count a;
+      self.habla_fin();
+      return a;
+    ],
     habla [ _vararg_count
       msg nl hablado;
       self.habla_inicio();

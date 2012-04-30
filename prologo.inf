@@ -913,15 +913,20 @@ Object sonido_telefono_katie
     ],
     each_turn [;
       if (self.sonando()) {
-        if (becca in cocina_katie && random(100) < 10 &&
-            msg_becca.at_end()) {
+        if (becca in cocina_katie && random(100) < 10) { ! &&
+!            msg_becca.at_end()) {
           ControlTimer.PrepararImpresion();
           becca.habla("Venga ya, esto es ridículo...");
           new_line;
           telefono_katie.becca_lo_coge();
         } else if (random(100) < 20) {
           ControlTimer.PrepararImpresion();
-          becca.habla(msg_becca.run_script());
+          becca.hablalast(
+            "Katie... Está sonando el teléfono...",
+            "¿Qué pasa? ¿No lo coges?",
+            "¿Por qué no lo coges?",
+            "¡Pero cógelo ya! ¿Tienes miedo o qué?"
+          );
         }
       }
     ],
@@ -965,13 +970,13 @@ Object sonido_tv_cuarto_katie
     concealed; 
 
 
-Object msg_becca
-  class StopEventList
-  with
-    event_list "Katie... Está sonando el teléfono..."
-               "¿Qué pasa? ¿No lo coges?"
-               "¿Por qué no lo coges?"
-               "¡Pero cógelo ya! ¿Tienes miedo o qué?";
+!Object msg_becca
+!  class StopEventList
+!  with
+!    event_list "Katie... Está sonando el teléfono..."
+!               "¿Qué pasa? ¿No lo coges?"
+!               "¿Por qué no lo coges?"
+!               "¡Pero cógelo ya! ¿Tienes miedo o qué?";
   
 
 ! ====================================================================

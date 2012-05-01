@@ -11,4 +11,5 @@ if [ -f elcirculo.ulx ]; then
   blc elcirculo.blc elcirculo.blb
 fi
 cp -f elcirculo.blb ~/Dropbox/AlphaAventuras/ElCirculo/
+cp -f elcirculo.blb ~/Dropbox/Public/
 

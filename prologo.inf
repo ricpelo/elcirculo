@@ -31,7 +31,7 @@ Object cuarto_katie "Tu habitación"
                  parpadear su único ojo desde una pequeña mesa situada en
                  la pared contraria.",
     out_to pasillo_katie,
-    sgw_img Oscuridad_jpg,
+    sgw_img Cuarto_Katie_jpg,
     sgw_mus 0,
     compass_look [ d;
       if (d == out_obj) {
@@ -95,7 +95,7 @@ Object pasillo_katie "Pasillo del piso superior"
     ],
     in_to cuarto_katie,
     d_to cocina_katie,
-    sgw_img Oscuridad_jpg,
+    sgw_img Pasillo_Katie_jpg,
     sgw_mus 0;
 
 
@@ -131,7 +131,7 @@ Object cocina_katie "Cocina"
                  enorme arco sin puerta se accede al salón de la casa.",
     u_to pasillo_katie,
     s_to salon_katie,
-    sgw_img Cocina_Katie_Prologo_jpg,
+    sgw_img Cocina_Katie_jpg,
     sgw_mus 0,
     before [;
       Go:
@@ -203,7 +203,7 @@ Object salon_katie "Salón"
                  colgados de las paredes. Una ventana abierta deja pasar la
                  oscuridad del exterior.",
     n_to cocina_katie,
-    sgw_img Oscuridad_jpg,
+    sgw_img Salon_Katie_jpg,
     sgw_mus 0,
     before [;
       Go:
@@ -263,6 +263,7 @@ Object telefono_katie "teléfono" cocina_katie
       move becca_ausente to LugarReal();
       move charco_katie to pasillo_katie;
       move puerta_katie to pasillo_katie;
+      pasillo_katie.sgw_img = Pasillo_Katie_Charco_jpg;
     ],
     becca_lo_coge [;
       self.descolgar();
@@ -363,6 +364,8 @@ Object frigorifico_katie "frigorífico" cocina_katie
     after [;
       Close:
         self.cerrar();
+        cocina_katie.sgw_img = Cocina_Katie_jpg;
+        viewImageCenter(Cocina_Katie_jpg);
         "Cierras el frigorífico con rapidez sin atreverte a mirar en su
         interior.";
     ];
@@ -382,9 +385,13 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     encender [;
       give self general;
       sonido_tv_cuarto_katie.sonar();
+      cuarto_katie.sgw_img = Cuarto_Katie_TV_Encendida_jpg;
+      viewImageCenter(Cuarto_Katie_TV_Encendida_jpg);
     ],
     apagar [;
       sonido_tv_cuarto_katie.parar();
+      cuarto_katie.sgw_img = Cuarto_Katie_jpg;
+      viewImageCenter(Cuarto_Katie_jpg);
     ],
     before [;
       Examine:
@@ -494,11 +501,19 @@ Object tv_salon_katie "televisor" salon_katie
       give self general;
       give self on;
       sonido_tv_salon_katie.sonar();
+      salon_katie.sgw_img = Salon_Katie_TV_Encendida_jpg;
+      if (location == salon_katie) {
+        viewImageCenter(Salon_Katie_TV_Encendida_jpg);
+      }
       if (~~sw) self.encendidos_solo++;
     ],
     apagar [;
       give self ~on;
       sonido_tv_salon_katie.parar();
+      salon_katie.sgw_img = Salon_Katie_jpg;
+      if (location == salon_katie) {
+        viewImageCenter(salon_katie.sgw_img);
+      }
     ],
     before [;
       Examine:
@@ -564,6 +579,7 @@ Object tv_salon_katie "televisor" salon_katie
         switch (self.encendidos_solo) {
           1: StartTimer(self, 3);
           2: frigorifico_katie.abrir();
+             cocina_katie.sgw_img = Cocina_Frigo_Abierto_jpg;
         }
         "Con un gesto rápido, apagas el televisor y la estática desaparece,
          retornando la estancia a la semioscuridad.";

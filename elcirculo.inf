@@ -459,8 +459,8 @@ Object LibraryMessages
   with
     mostrar_nombre [ l;
       l = LugarReal().(lm_o.door_dir);
-      if (l == nothing || l hasnt visited) print (the) lm_o;
-      else                                 l.mostrar_nombre();
+      if (l == nothing) print (the) lm_o;
+      else              l.mostrar_nombre();
     ],
     before [;
       Look:
@@ -575,42 +575,17 @@ Class Lugar
       }
     ],
     mostrar_nombre [;
-      if (self has visited) {
-        if (self provides nombre_si_visitado) {
-          if (self.nombre_si_visitado ofclass Routine) {
-            self.nombre_si_visitado();
-          } else {
-            print (string) self.nombre_si_visitado;
-          }
-        } else if (self provides nombre_direccion) {
-          if (self.nombre_direccion ofclass Routine) {
-            self.nombre_direccion();
-          } else {
-            print (string) self.nombre_direccion;
-          }
-        } else {
-          print (name) self;
-        }
-      } else {
-        if (self provides nombre_no_visitado) {
-          if (self.nombre_no_visitado ofclass Routine) {
-            self.nombre_no_visitado();
-          } else {
-            print (string) self.nombre_no_visitado;
-          }
-        } else if (self provides nombre_direccion) {
-          if (self.nombre_direccion ofclass Routine) {
-            self.nombre_direccion();
-          } else {
-            print (string) self.nombre_direccion;
-          }
-        } else {
-          print (name) self;
-        }
+      if (self has visited && self provides nombre_si_visitado) {
+        PrintOrRun(self, nombre_si_visitado, 1); rfalse;
       }
+      if (self hasnt visited && self provides nombre_no_visitado) {
+        PrintOrRun(self, nombre_no_visitado, 1); rfalse;
+      }
+      if (self provides nombre_direccion) PrintOrRun(self, nombre_direccion, 1);
+      else                                print (name) self;
     ],
     number,
-    dibujado false,                   ! Necesario para Mapeador.h
+!    dibujado false,                   ! Necesario para Mapeador.h
     react_before [
       l;
       l = LugarReal();
@@ -659,13 +634,11 @@ Class Lugar
 !    ],
     after [ o;
       Go:
-        objectloop (o ofclass Sonido && o in self) {
-          o.cambiar_volumen();
-        }
+        objectloop (o ofclass Sonido && o in self) o.cambiar_volumen();
     ],
   has
     light;
-
+    
 
 #ifdef DEBUG;
 [ WaitDelay delay;
@@ -1070,6 +1043,16 @@ Class Sonido
 ! ====================================================================
 ! OBJETOS DE SOPORTE
 ! ====================================================================
+
+
+! Lugar necesario para que no haya errores al compilar si no hay localidades
+! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
+Object lugar_vacio
+  class Lugar
+  with
+    nombre_si_visitado null,
+    nombre_no_visitado null,
+    nombre_direccion null;
 
 
 Object barra_estado

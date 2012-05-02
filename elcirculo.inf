@@ -1654,7 +1654,7 @@ Verb 'preguntale' = 'pregunta';
 
 Verb 'llama'
   *                 -> Llamar
-  * 'a//' creature  -> Llamar
+  * 'a//' noun      -> Llamar
   * 'por' noun      -> LlamarPor;
 
 Extend 'saluda' first

@@ -613,12 +613,12 @@ Object charco_katie "charco de agua"
     ],
     before [;
       Touch:
-        "Tus pies descalzos ya pisan el charco de agua y perciben su frío y su
-         viscosidad.";
+        "Rozas el charco de agua con el pulgar de uno de tus pies descalzos y
+         perciben su frío y su viscosidad.";
 
       Smell:
         "El agua expele un hedor putrefacto, podrido, como el del agua
-        estancada.";
+         estancada.";
     ],
   has
     static;
@@ -666,7 +666,13 @@ Object puerta_katie "puerta de tu habitación"
       Open:
         FinPrologo();
         rtrue;
-        
+
+      Llamar:
+        "Llamas a la puerta, pero nadie contesta.";
+
+      Attack:
+        "La puerta es demasiado sólida y no eres lo bastante fuerte.";
+
       Close:
         "La puerta ya está cerrada.";
         

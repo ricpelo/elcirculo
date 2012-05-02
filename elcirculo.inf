@@ -504,8 +504,8 @@ Object LibraryMessages
       Take:
         if (lm_n == 1) {
           print "Reco";
-          if (player.persona == PRIMERA_PERSONA + PERSONA_SINGULAR) print "j";
-          else                                                      print "g";
+          if (player.persona == PRIMERA_PERSONA_SINGULAR) print "j";
+          else                                            print "g";
           print (es_) " ";
           if (lm_o has moved) print (the) lm_o;
           else                print (a) lm_o;
@@ -629,14 +629,6 @@ Class Lugar
         else if (noun == l.in_to)  <<Go in_obj>>;
         else if (noun == l.out_to) <<Go out_obj>>;
     ],
-!    before [;
-!      Examine, Touch:
-!        if (noun == d_obj) {          ! Examinamos el suelo
-!          "No observas nada en especial al mirar al suelo.";
-!        } else if (noun == u_obj) {   ! Examinamos el techo
-!          "No observas nada en especial al mirar al techo.";
-!        }        
-!    ],
     after [ o;
       Go:
         objectloop (o ofclass Sonido && o in self) o.cambiar_volumen();
@@ -652,9 +644,11 @@ Class Lugar
 #endif;
 
 
-Include "SGW+DMX_NG";       ! Entre EParser y Acciones
+Include "SGW+DMX_NG";       ! Entre Parser y VerbLib
 Include "elcirculo.bli";    ! Los recursos multimedia de la aventura
+
 Include "VerbLib";
+
 Include "Barra";            ! Barra de estado personalizable
 Include "Moviles_NG";       ! La librería Moviles retocada por mí
 Include "PNJpuertas_NG";    ! La librería PnjPuertas retocada por mí (muy poco)

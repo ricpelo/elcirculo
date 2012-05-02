@@ -329,6 +329,7 @@ Object frigorifico_katie "frigorífico" cocina_katie
     name_m 'frigorifico' 'congelador',
     name_f 'nevera' 'puerta',
     article "el",
+    gender G_MASCULINO,
     description [;
       if (self hasnt open) {
         "Un moderno frigorífico de puertas metálicas y casi imperceptible
@@ -381,6 +382,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
       else             print "apagado";
       ".";
     ],
+    gender G_MASCULINO,
 !    initial "Ves el televisor.",
     encender [;
       give self general;
@@ -429,6 +431,7 @@ Object tv_salon_katie "televisor" salon_katie
   with
     name_f 'tv' 'television' 'tele' 'pantalla',
     name_m 'televisor',
+    gender G_MASCULINO,
     description [;
       if (self hasnt general) {
         "Un televisor negro, impersonal, de gran tamaño, con una pantalla

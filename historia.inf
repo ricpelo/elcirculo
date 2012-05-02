@@ -225,6 +225,7 @@ Object amigos_katie "amigos de Katie"
     adjectives 'katie',
     article "a unos",
     short_name "amigos de Katie",
+    gender G_MASCULINO + G_PLURAL,
     description "Tres amigos de Katie.",
     initial "Tres chicos (probablemente amigos de Katie) conversan entre
              ellos.",
@@ -267,7 +268,7 @@ Object amigos_katie "amigos de Katie"
         rtrue;
     ],
   has
-    ~proper pluralname;
+    ~proper;
 
 
 Object amiga_morena "amiga morena"

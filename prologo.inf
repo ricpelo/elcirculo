@@ -269,7 +269,7 @@ Object telefono_katie "teléfono" cocina_katie
       self.descolgar();
       print "Becca coge el teléfono con expresión seria.^";
       becca.habla("¿Diga?", true);
-      print " -la oyes decir, casi susurrando,
+      print " ---la oyes decir, casi susurrando,
             al auricular del teléfono.^^";
       print "Lentamente, a medida que escucha lo que el teléfono le dice, se
              gira hacia ti con una inclasificable mirada en los ojos, y tu
@@ -293,9 +293,9 @@ Object telefono_katie "teléfono" cocina_katie
       KeyDelay(5000);
       print (s_emph) " y estas sola.^";
       katie.habla("¿Becca?", true);
-      print " -la llamas temiendo alzar demasiado la voz, sin respuesta.^";
+      print " ---la llamas temiendo alzar demasiado la voz, sin respuesta.^";
       katie.habla("¿BECCA?", true);
-      print " -gritas esta vez, sacando fuerzas del miedo.^^";
+      print " ---gritas esta vez, sacando fuerzas del miedo.^^";
       print_ret (s_emph) "No hay respuesta.";
 !      print (s_user1) "¿Becca?");
     ],
@@ -760,7 +760,7 @@ Object becca "Becca" cuarto_katie
     ],
     react_before [;
       Gritar:
-        becca.habla("¡¿Pero qué te pasa?! ¿Qué ocurre? ¿A qué vienen esos
+        self.habla("¡¿Pero qué te pasa?! ¿Qué ocurre? ¿A qué vienen esos
                     gritos?");
         rtrue;
     ],
@@ -771,14 +771,14 @@ Object becca "Becca" cuarto_katie
           ! Lo hago así para que el mensaje de Becca aparezca DESPUÉS de los
           ! mensajes que genere la rutina after:
           RunRoutines(noun, after);
-          if (c) becca.habla("Qué extraño... ¿Qué ha pasado con la imagen?");
-          else   becca.habla("Sigue sin haber imagen...");
+          if (c) self.habla("Qué extraño... ¿Qué ha pasado con la imagen?");
+          else   self.habla("Sigue sin haber imagen...");
           rtrue;
         }
     ],
     before [;
       Llamar:
-        return becca.habla("Estoy aquí... ¿No me ves?");
+        return self.habla("Estoy aquí... ¿No me ves?");
     ],
     life [
       tema;
@@ -786,19 +786,19 @@ Object becca "Becca" cuarto_katie
         tema = AveriguarTema(TemasBecca);
         switch (tema) {
           tema_becca_telefono:
-            becca.habla("¿Crees que puede ser la misma persona que te llamó
+            self.habla("¿Crees que puede ser la misma persona que te llamó
                         en la cabaña?");
             PreguntaSiNo = 1;
 
           tema_becca_tv:
             if (tv_cuarto_katie has general || tv_salon_katie has general) {
-              becca.habla("Parece que se ha ido la señal.");
+              self.habla("Parece que se ha ido la señal.");
             } else {
-              becca.habla("Sí, haces bien en apagar la tele. Es un rollo.");
+              self.habla("Sí, haces bien en apagar la tele. Es un rollo.");
             }
             
           default:
-            becca.habla("No entiendo qué quieres decirme.");
+            self.habla("No entiendo qué quieres decirme.");
         }
         rtrue;
 
@@ -812,23 +812,27 @@ Object becca "Becca" cuarto_katie
         return self.habla("Te sigo, Katie, ya te sigo.");
 
       Go, GoIn, Enter, Exit, Subir, Bajar:
-        return becca.habla("No pienso ir sola a ninguna parte.");
+        return self.habla("No pienso ir sola a ninguna parte.");
         
       Take:
         if (noun == telefono_katie) {
           if (LugarReal() == cocina_katie) {
             return telefono_katie.becca_lo_coge();
           } else {
-            return becca.habla("¿Dónde está el teléfono?");
+            if (cocina_katie has visited) {
+              return self.habla("El teléfono está en la cocina.");
+            } else {
+              return self.habla("¿Dónde está el teléfono?");
+            }
           }
         }
 
       Saludar:
-        return becca.habla("Katie, déjate de saludos ahora. El teléfono sigue
-                            sonando.");
+        return self.habla("Katie, déjate de saludos ahora. El teléfono sigue
+                           sonando.");
 
       default:
-        return becca.habla("Mejor hazlo tú misma.");
+        return self.habla("Mejor hazlo tú misma.");
     ],
   has
     female;
@@ -1092,7 +1096,7 @@ Object tema_becca_tv "el televisor" TemasBecca
   Damusix.PararCanal(CANAL_TV_SALON);
   Damusix.TocarV(TV_Apaga_ogg);
   katie.habla("No hay nada que me guste.", true);
-  print " -comentas, aburrida. Y tras unos instantes jugando con un bucle de
+  print " ---comentas, aburrida. Y tras unos instantes jugando con un bucle de
          tu pelo, continúas:^";
   KeyDelay(esp);
   katie.habla("Dicen que hay tantas ondas magnéticas a nuestro alrededor que
@@ -1201,7 +1205,9 @@ Object tema_becca_tv "el televisor" TemasBecca
 ];
 
 
-[ FinPrologo;
+[ FinPrologo
+  i;
+  StatusLineHeight(0);
   print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
          en el proceso las plantas de los pies, lo que te provoca una
          reacción al frío más allá de lo esperable. Apoyas la mano en el
@@ -1212,22 +1218,41 @@ Object tema_becca_tv "el televisor" TemasBecca
          te ves girando el pomo y abriendo la puerta de par en par...";
   KeyDelay(4000);
   print "^^... sólo para descubrir ", (s_emph) "el horror", ".";
-  KeyDelay(2000);
+  viewImageCenter(Fin_Prologo1_jpg);
+  WaitDelay(1000);
+  viewImageCenter(Fin_Prologo2_jpg);
+!  KeyDelay(2000);
   print "^^Tu boca se abre tanto como puede para gritar y gritar y no dejar
          de gritar. Tu rostro, desencajado por el puro terror, se deforma y
          se funde como en contacto con el más poderoso ácido. Y tu corazón se
-         detiene justo instantes después de verlo. Sí: de verlo. Porque antes
-         de morir, lo ves.";
-  KeyDelay(3000);
+         detiene justo instantes después de verlo.";
+  viewImageCenter(Fin_Prologo3_jpg);
+  WaitDelay(3000);
+  print " Sí: de verlo. Porque antes de morir, lo ves.";
+  viewImageCenter(Fin_Prologo4_jpg);
+  KeyDelay(2000);
   print "^^Ves ", (s_user1) "el círculo.";
-  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 3000);
-!  BanderaFin(2);
+  viewImageCenter(Fin_Prologo5_jpg);
+  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 2000);
   clearMainWindow();
   Damusix.TocarV(Mujer_Gritando_ogg);
+  WaitDelay(400);
   MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
   MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
   print "(c) 2012 Alpha Aventuras";
   KeyDelay();
+!  BanderaFin(2);
+  Damusix.AsignarCanal(TV_Ruido_ogg, CANAL_TV_SALON, VOLUMEN_TV_SALON,
+                       SONIDO_REPETIR);
+  Damusix.TocarCanal(CANAL_TV_SALON);
+  for (i = 0: i < 40: i++) {
+    viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(5)) break;
+    viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(5)) break;
+    viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(5)) break;
+  }
+  Damusix.PararCanal(CANAL_TV_SALON);
+  barra_estado.numero_lineas = 1;
+  barra_estado.dibujar();
   InicioHistoria();
 ];
 

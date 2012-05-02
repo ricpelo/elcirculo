@@ -805,9 +805,10 @@ Include "Gtalk_NG";         ! Conversaciones
 
   ! Así le podemos pedir a Becca que coja el teléfono aunque el teléfono no
   ! esté presente:
-  if (actor == becca && LugarReal() ofclass LugarCasaKatie) {
+  if (actor == becca && LugarReal() ~= cocina_katie) {
     PlaceInScope(telefono_katie);
   }
+
   rfalse;
 ];
 

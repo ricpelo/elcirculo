@@ -330,7 +330,7 @@ Object tema_ruth_katie "Katie" TemasRuth
   remove sonido_tv_salon_katie;
   
   clearMainWindow();
-  print "^^Aquí comienza la historia.^^";
+  print "^^Aquí comienza la historia.^";
   KeyDelay();
 
   move rachel to fuera_casa_ruth;

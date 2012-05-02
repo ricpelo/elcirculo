@@ -553,6 +553,13 @@ Object LibraryMessages
                 4: "No comprendo eso que dices.";
                 5: "¿Qué intentas decir?";
               }
+          39: ! Cuando el jugador intenta examinar usando una palabra que está
+              ! en la lista de nombres de la localidad actual, se describe la
+              ! propia localidad:
+              if (action_to_be == ##Examine) PrintOrRun(location, description);
+              else if (action_to_be == ##Enter) "Ya estás aquí.";
+              else                              "Debes ser más específico.";
+              rtrue;
         }
     ];
 
@@ -593,8 +600,7 @@ Class Lugar
       ! Cuando se usa "EXAMINA EL PASILLO":
       Examine:
         if (noun ofclass Lugar) {
-          if (noun == l) <<Look>>;
-          else if (noun == l.n_to)   <<Examine n_obj>>;
+          if      (noun == l.n_to)   <<Examine n_obj>>;
           else if (noun == l.s_to)   <<Examine s_obj>>;
           else if (noun == l.e_to)   <<Examine e_obj>>;
           else if (noun == l.w_to)   <<Examine w_obj>>;
@@ -610,8 +616,7 @@ Class Lugar
 
       ! Cuando se usa "VE AL PASILLO":
       Enter:
-        if (noun == l) "Ya estas aquí.";
-        else if (noun == l.n_to)   <<Go n_obj>>;
+        if      (noun == l.n_to)   <<Go n_obj>>;
         else if (noun == l.s_to)   <<Go s_obj>>;
         else if (noun == l.e_to)   <<Go e_obj>>;
         else if (noun == l.w_to)   <<Go w_obj>>;

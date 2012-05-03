@@ -775,7 +775,8 @@ Include "Gtalk_NG";         ! Conversaciones
 ];
 
 
-[ InScope l;
+[ InScope actor
+  l;
   
   ! Así podemos usar "VE AL SALON" y "EXAMINA EL SALON" en lugar de
   ! "VE AL SUR" y "EXAMINA EL SUR" (ver también la clase Lugar): 

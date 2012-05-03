@@ -1005,7 +1005,7 @@ Class Personaje
         timer_imagen_personaje.evento();
       }
       MostrarImagenAuxiliar(self.imagen);
-      timer_imagen_personaje.duracion = 4 + ControlTimer.numero_ticks();
+!      timer_imagen_personaje.duracion = 4 + ControlTimer.numero_ticks();
       timer_imagen_personaje.AgregarGestor();
       give timer_imagen_personaje general;
     ],

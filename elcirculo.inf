@@ -194,7 +194,7 @@ Replace random;
 Replace AfterPrompt;
 
 ! No queremos que gg_objwin sea la ventana de objetos, sino de personajes:
-Replace GamePostRoutine;
+!Replace GamePostRoutine;
 
 
 Include "Parser";
@@ -776,9 +776,9 @@ Include "Gtalk_NG";         ! Conversaciones
 ];
 
 
-[ GamePostRoutine;
-  rfalse;
-];
+![ GamePostRoutine;
+!  rfalse;
+!];
 
 
 [ InScope l;
@@ -1604,17 +1604,18 @@ Object ZIPI_Salir
 
 
 [ MostrarImagenAuxiliar img;
-  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0); 
-  gg_objwin = glk_window_open(gg_bigwin,
-                              (winmethod_Above + winmethod_Proportional),
-                              100, wintype_Graphics, GG_OBJWIN_ROCK);
-  drawImageSGW(gg_objwin, img, curr_pic_pos, BORDEWIN, BORDEWIN);
+!  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0); 
+!  gg_objwin = glk_window_open(gg_bigwin,
+!                              (winmethod_Above + winmethod_Proportional),
+!                              100, wintype_Graphics, GG_OBJWIN_ROCK);
+!  drawImageSGW(gg_objwin, img, curr_pic_pos, BORDEWIN, BORDEWIN);
+  viewImageCenter(img);
 ];
 
 
 [ OcultarImagenAuxiliar;
-  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
-  gg_objwin = 0;
+!  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
+!  gg_objwin = 0;
   viewImageCenter(LugarReal().sgw_img);
 ];
 

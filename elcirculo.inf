@@ -193,9 +193,6 @@ Replace random;
 ! localidad actual cuando se está mostrando el gráfico de un personaje:
 Replace AfterPrompt;
 
-! No queremos que gg_objwin sea la ventana de objetos, sino de personajes:
-!Replace GamePostRoutine;
-
 
 Include "Parser";
 
@@ -638,6 +635,7 @@ Class Lugar
     ],
     after [ o;
       Go:
+        SGW_MarcoDeTrabajo(1);
         if (timer_imagen_personaje has general) {
           timer_imagen_personaje.evento();
         }
@@ -769,16 +767,12 @@ Include "Gtalk_NG";         ! Conversaciones
 
 
 [ AfterPrompt;
+  rfalse;
   ! Pasándole el parámetro 3 en lugar de 1, lo que hacemos es pedirle que
   ! actualice la música pero no los gráficos:
-  if (timer_imagen_personaje has general) SGW_MarcoDeTrabajo(3);
-  else                                    SGW_MarcoDeTrabajo(1);
+!  if (timer_imagen_personaje has general) SGW_MarcoDeTrabajo(3);
+!  else                                    SGW_MarcoDeTrabajo(1);
 ];
-
-
-![ GamePostRoutine;
-!  rfalse;
-!];
 
 
 [ InScope l;
@@ -1009,7 +1003,7 @@ Class Personaje
       if (self.imagen == 0) rfalse;
       MostrarImagenAuxiliar(self.imagen);
       if (timer_imagen_personaje has general) {
-        timer_imagen_personaje.EliminarGestor();
+        timer_imagen_personaje.evento();
       }
       timer_imagen_personaje.duracion = ControlTimer.numero_ticks() + 4;
       timer_imagen_personaje.AgregarGestor();

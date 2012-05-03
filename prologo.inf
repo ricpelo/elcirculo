@@ -1182,9 +1182,9 @@ Object tema_becca_tv "el televisor" TemasBecca
   KeyDelay(esp);
   print " Y te dice: ";
   KeyDelay(esp);
-  print (s_emph) "'Morirás en siete días'.~";
+  print (s_emph) "'Morirás en siete días'.";
+  becca.habla_fin();
   KeyDelay(esp / 2);
-  new_line;
   katie.habla("¿Quién te lo ha contado?");
   KeyDelay(esp);
   becca.habla("No sé, alguien debe haber...");

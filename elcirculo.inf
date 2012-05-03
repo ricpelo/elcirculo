@@ -37,7 +37,7 @@
 ! ====================================================================
 
 
-Constant Story "~EL CÍRCULO~";
+Constant Story "@<<EL CÍRCULO@>>";
 Constant Headline "^(c) 2012 Alpha Aventuras^^
                   Teclea CRÉDITOS si quieres saber más acerca de la aventura, o
                   AYUDA cuando estés bloqueado.^";
@@ -970,10 +970,10 @@ Class Personaje
       if (self == player) print "Tú: ";
       else                print (string) self.short_name, ": ";
       glk_set_style(style_Normal);
-      print "~";
+      print "@<<";
     ],
     habla_fin [ nl;
-      print "~";
+      print "@>>";
       if (~~nl) new_line;
     ],
     marcha [ dir;

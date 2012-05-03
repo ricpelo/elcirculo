@@ -705,14 +705,14 @@ Include "Gtalk_NG";         ! Conversaciones
   ! ya la hayamos visitado
   lookmode = 2;
 
-  ! Inventario en una sola frase
+  ! Inventario en una sola frase:
   inventory_style = ENGLISH_BIT + RECURSE_BIT + FULLINV_BIT;
 
   ! Parseado estricto (de la librería IntNombre):
   parseado_estricto = 1;
 
   ! Nombre de la oscuridad
-  thedark.short_name = "Zona de oscuridad";
+  thedark.short_name = "Oscuridad";
   
   ! Localización donde comienza el jugador
   location = cuarto_katie;
@@ -735,6 +735,7 @@ Include "Gtalk_NG";         ! Conversaciones
   ! Esto hay que ponerlo para que no aparezca tu otro yo moviéndose solo:
   PNJ_Ruta(katie, MOVIMIENTO_NINGUNO);
   ChangePlayer(katie);
+!  move uniforme_katie to katie;
 
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
   PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);

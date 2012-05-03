@@ -217,7 +217,7 @@ Object salon_katie "Salón"
                  Junto al enorme sofá a unos tres metros de la misma forman
                  en la práctica el único mobiliario disponible, si exceptuamos
                  un par de sillas a ambos lados del sofá y algunos cuadros
-                 colgados de las paredes. Una ventana abierta deja pasar la
+                 colgados de las paredes. Una ventana cerrada deja pasar la
                  oscuridad del exterior.",
     n_to cocina_katie,
     sgw_img Salon_Katie_jpg,
@@ -242,21 +242,52 @@ Object salon_katie "Salón"
 Object decorado_salon_katie salon_katie
   class Decorado
   with
+    before [;
+      Open, Close:
+        if (self.palabra == 'ventana')
+          "El mecanismo está roto desde hace mucho tiempo y no te permite
+           abrir ni cerrar la ventana.";
+    ],
     sinonimos
       'silla' 'sillas' G_FEMENINO,
     describe
+      'ventana' "Una amplia ventana sin cortinas ni persianas no deja ver lo
+                 que hay más allá de la casa." G_FEMENINO
       'sillas' "Son dos sillas, una a cada lado del sofá central."
                G_FEMENINO + G_PLURAL
       'sofa'   "Aunque sabes que resulta cómodo una vez que te sientas, al tacto
                 resulta resbaladizo, frío y duro. Permanece estático en el
                 centro de la estancia." 0
-      'mesa'   "La mesa que sostiene el televisor tiene el tamaño justo para
-                albergar un aparato de tales dimensiones." G_FEMENINO;
+      'mesa'   "La mesa en la que se apoya el televisor tiene el tamaño justo
+                para albergar un aparato de tales dimensiones." G_FEMENINO;
     
     
 ! ====================================================================
 ! OBJETOS QUE LLEVAN LOS PERSONAJES AL EMPEZAR
 ! ====================================================================
+
+
+Object uniforme_katie "uniforme"
+  with
+    name_m 'uniforme',
+    name_f 'falda' 'blusa',
+    description "El clásico uniforme de Instituto privado americano, compuesto
+                 de una blusa blanca y una falda tableada a cuadros.",
+    before [;
+      Take, Wear:
+        "Ya lo llevas puesto.";
+
+      Disrobe, Drop:
+        "La ocasión recomienda que sigas llevando ropa puesta...";
+        
+      Examine:
+        rfalse;
+        
+      default:
+        "Es mejor que dejes el uniforme como está.";
+    ],
+  has
+    clothing worn;
 
 
 ! ====================================================================
@@ -749,6 +780,7 @@ Object katie "Katie" cuarto_katie
   with
     name 'katie',
     short_name "Katie",
+    add_to_scope uniforme_katie,
     description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
                  responsable, de ojos oscuros y cabello largo, rubio y liso.
                  Tu mejor amiga Becca y tú estáis pasando una noche solas en tu

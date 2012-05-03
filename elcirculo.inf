@@ -1001,11 +1001,11 @@ Class Personaje
     ],
     mostrar_imagen [;
       if (self.imagen == 0) rfalse;
-      MostrarImagenAuxiliar(self.imagen);
       if (timer_imagen_personaje has general) {
         timer_imagen_personaje.evento();
       }
-      timer_imagen_personaje.duracion = ControlTimer.numero_ticks() + 4;
+      MostrarImagenAuxiliar(self.imagen);
+      timer_imagen_personaje.duracion = 4 + ControlTimer.numero_ticks();
       timer_imagen_personaje.AgregarGestor();
       give timer_imagen_personaje general;
     ],

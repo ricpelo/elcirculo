@@ -1658,6 +1658,8 @@ Default LITEXT  = SCBACK; ! se invierte el color
         !------------------------------------------------------------------------
         ! ACTIVIDAD 1: Imagenes y Musica de Fondo automaticas para cada Localidad
         !------------------------------------------------------------------------
+        ! ACTIVIDAD 3: Sólo Musica de Fondo automatica para cada Localidad
+        !------------------------------------------------------------------------
         1, 3:
           if (current_loc == real_location) { return; }
           else {

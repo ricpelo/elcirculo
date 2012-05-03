@@ -7,6 +7,8 @@ PICTURE Fundido_png res/img/fundido.png
 PICTURE Logo_Circulo_png res/img/logo_circulo.png
 PICTURE Logo_Circulo_Solo_Letras_png res/img/logo_circulo_solo_letras.png
 PICTURE Cuarto_Katie_jpg res/img/cuarto_katie.jpg
+PICTURE Katie_jpg res/img/katie.jpg
+PICTURE Becca_jpg res/img/becca.jpg
 PICTURE Cuarto_Katie_TV_Encendida_jpg res/img/cuarto_katie_tv_encendida.jpg
 PICTURE Pasillo_Katie_jpg res/img/pasillo_katie.jpg
 PICTURE Pasillo_Katie_Charco_jpg res/img/pasillo_katie_charco.jpg

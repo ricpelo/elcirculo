@@ -189,6 +189,13 @@ Replace DirDada;
 ! Cambia la función random() (ver random.h):
 Replace random;
 
+! Ajustamos esta rutina para que SGW+DMX no actualice sola el gráfico de la
+! localidad actual cuando se está mostrando el gráfico de un personaje:
+Replace AfterPrompt;
+
+! No queremos que gg_objwin sea la ventana de objetos, sino de personajes:
+Replace GamePostRoutine;
+
 
 Include "Parser";
 
@@ -631,6 +638,9 @@ Class Lugar
     ],
     after [ o;
       Go:
+        if (timer_imagen_personaje has general) {
+          timer_imagen_personaje.evento();
+        }
         objectloop (o ofclass Sonido && o in self) o.cambiar_volumen();
     ],
   has
@@ -756,6 +766,19 @@ Include "Gtalk_NG";         ! Conversaciones
 !===============================================================================
 ! (5) Rutinas de la Libreria Implementadas, Reemplazadas o Ampliadas
 !-------------------------------------------------------------------------------
+
+
+[ AfterPrompt;
+  ! Pasándole el parámetro 3 en lugar de 1, lo que hacemos es pedirle que
+  ! actualice la música pero no los gráficos:
+  if (timer_imagen_personaje has general) SGW_MarcoDeTrabajo(3);
+  else                                    SGW_MarcoDeTrabajo(1);
+];
+
+
+[ GamePostRoutine;
+  rfalse;
+];
 
 
 [ InScope l;
@@ -894,6 +917,7 @@ Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 Class Personaje
   class Movil
   with
+    imagen 0,
     hablarand [ _vararg_count
       a;
       self.habla_inicio();
@@ -981,6 +1005,20 @@ Class Personaje
         print ".^";
       }
     ],
+    mostrar_imagen [;
+      if (self.imagen == 0) rfalse;
+      MostrarImagenAuxiliar(self.imagen);
+      if (timer_imagen_personaje has general) {
+        timer_imagen_personaje.EliminarGestor();
+      }
+      timer_imagen_personaje.duracion = ControlTimer.numero_ticks() + 4;
+      timer_imagen_personaje.AgregarGestor();
+      give timer_imagen_personaje general;
+    ],
+    after [;
+      Examine:
+        self.mostrar_imagen();
+    ],
     orders [;
       NotUnderstood, Tell, Answer:
         if (actor ~= player) <<Ask actor>>;
@@ -997,7 +1035,7 @@ Class Personaje
   has
     animate proper;
 
-
+    
 Class Sonido
   with
     fuente 0,      ! El objeto del que parte el sonido
@@ -1043,6 +1081,18 @@ Class Sonido
 ! ====================================================================
 ! OBJETOS DE SOPORTE
 ! ====================================================================
+
+
+Object timer_imagen_personaje
+  class GestorTimer
+  with
+    duracion 4,
+    evento [;
+      OcultarImagenAuxiliar();
+      give self ~general;
+      self.EliminarGestor();
+      viewImageCenter(LugarReal().sgw_img);
+    ];
 
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades
@@ -1550,6 +1600,22 @@ Object ZIPI_Salir
   if (~~(i == in_obj or out_obj)) print "hacia ";
   l.(i.door_dir).mostrar_nombre();
   if (par) print ")";
+];
+
+
+[ MostrarImagenAuxiliar img;
+  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0); 
+  gg_objwin = glk_window_open(gg_bigwin,
+                              (winmethod_Above + winmethod_Proportional),
+                              100, wintype_Graphics, GG_OBJWIN_ROCK);
+  drawImageSGW(gg_objwin, img, curr_pic_pos, BORDEWIN, BORDEWIN);
+];
+
+
+[ OcultarImagenAuxiliar;
+  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
+  gg_objwin = 0;
+  viewImageCenter(LugarReal().sgw_img);
 ];
 
 

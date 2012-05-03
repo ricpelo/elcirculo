@@ -251,15 +251,15 @@ Object decorado_salon_katie salon_katie
     sinonimos
       'silla' 'sillas' G_FEMENINO,
     describe
-      'ventana' "Una amplia ventana sin cortinas ni persianas no deja ver lo
-                 que hay más allá de la casa." G_FEMENINO
-      'sillas' "Son dos sillas, una a cada lado del sofá central."
-               G_FEMENINO + G_PLURAL
-      'sofa'   "Aunque sabes que resulta cómodo una vez que te sientas, al tacto
-                resulta resbaladizo, frío y duro. Permanece estático en el
-                centro de la estancia." 0
-      'mesa'   "La mesa en la que se apoya el televisor tiene el tamaño justo
-                para albergar un aparato de tales dimensiones." G_FEMENINO;
+      'ventana' "Una amplia ventana sin cortinas ni persianas abre un agujero
+                 a la oscuridad que rodea la casa." G_FEMENINO
+      'sillas'  "Son dos sillas, una a cada lado del sofá central."
+                G_FEMENINO + G_PLURAL
+      'sofa'    "Aunque sabes que resulta cómodo una vez que te sientas, al
+                 tacto resulta resbaladizo, frío y duro. Permanece estático en
+                 el centro de la estancia." 0
+      'mesa'    "La mesa en la que se apoya el televisor tiene el tamaño justo
+                 para albergar un aparato de tales dimensiones." G_FEMENINO;
     
     
 ! ====================================================================
@@ -781,6 +781,7 @@ Object katie "Katie" cuarto_katie
     name 'katie',
     short_name "Katie",
     add_to_scope uniforme_katie,
+    imagen Katie_jpg,
     description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
                  responsable, de ojos oscuros y cabello largo, rubio y liso.
                  Tu mejor amiga Becca y tú estáis pasando una noche solas en tu
@@ -800,6 +801,7 @@ Object becca "Becca" cuarto_katie
                  verdes, y de carácter un tanto rebelde. Compañeras de
                  Instituto que sois, lleva puesto el mismo uniforme que tú.",
     initial "^Junto a ti está Becca.",
+    imagen Becca_jpg,
     describe [;
       switch (random(3)) {
         1: "^A tu lado, tu amiga Becca te observa con inquietud.";

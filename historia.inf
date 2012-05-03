@@ -67,7 +67,6 @@ Object salon_ruth "Salón de la casa"
     ];
 
 
-
 Object jardin_ruth "Jardín de la casa"
   class Lugar
   with

@@ -469,20 +469,20 @@ Object LibraryMessages
     before [;
       Look:
         switch (lm_n) {
-          5, 6: new_line;
-                if (lm_o ~= location) {
-                  if (lm_o has supporter) print "Sobre ";
-                  else                    print "En ";
-                  print (the) lm_o;
-                  print " ", (puedes_) " ver ";
-                } else print "", (_Puedes_) " ver ";
-
-                if (n == 5) print "también ";
-                WriteListFrom(child(lm_o),
-                              ENGLISH_BIT + WORKFLAG_BIT + RECURSE_BIT +
-                              TERSE_BIT + CONCEAL_BIT); ! Quitamos PARTINV_BIT
-                if (lm_o ~= location) ".";
-                ".";
+!          5, 6: new_line;
+!                if (lm_o ~= location) {
+!                  if (lm_o has supporter) print "Sobre ";
+!                  else                    print "En ";
+!                  print (the) lm_o;
+!                  print " ", (puedes_) " ver ";
+!                } else print "", (_Puedes_) " ver ";
+!
+!                if (n == 5) print "también ";
+!                WriteListFrom(child(lm_o),
+!                              ENGLISH_BIT + WORKFLAG_BIT + RECURSE_BIT +
+!                              TERSE_BIT + CONCEAL_BIT); ! Quitamos PARTINV_BIT
+!                if (lm_o ~= location) ".";
+!                ".";
 
           7: print "No observ", (as_) " nada digno de mención al mirar hacia ";
              self.mostrar_nombre();
@@ -636,9 +636,7 @@ Class Lugar
     after [ o;
       Go:
         ! Si se está mostrando la imagen de un personaje, quitarla antes:
-        if (timer_imagen_personaje has general) {
-          timer_imagen_personaje.evento();
-        }
+        timer_imagen_personaje.ocultar_imagen();
         SGW_MarcoDeTrabajo(1);
         ! Actualizar el volumen de los sonidos:
         objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
@@ -771,8 +769,8 @@ Include "Gtalk_NG";         ! Conversaciones
 [ AfterPrompt;
   ! Pasándole el parámetro 3 en lugar de 1, lo que hacemos es pedirle que
   ! actualice la música pero no los gráficos:
-  if (timer_imagen_personaje has general) SGW_MarcoDeTrabajo(3);
-  else                                    SGW_MarcoDeTrabajo(1);
+  if (timer_imagen_personaje.mostrandose()) SGW_MarcoDeTrabajo(3);
+  else                                      SGW_MarcoDeTrabajo(1);
 ];
 
 
@@ -1003,9 +1001,8 @@ Class Personaje
     ],
     mostrar_imagen [;
       if (self.imagen == 0) rfalse;
-      if (timer_imagen_personaje has general) {
-        timer_imagen_personaje.evento();
-      }
+      ! Ocultamos antes la imagen en caso de que ya estuviera:
+      timer_imagen_personaje.ocultar_imagen();
       MostrarImagenAuxiliar(self.imagen);
 !      timer_imagen_personaje.duracion = 4 + ControlTimer.numero_ticks();
       timer_imagen_personaje.AgregarGestorAlFinal();
@@ -1083,6 +1080,12 @@ Object timer_imagen_personaje
   class GestorTimer
   with
     duracion 4,
+    mostrandose [;
+      return self has general;
+    ],
+    ocultar_imagen [;
+      if (self.mostrandose()) self.evento();
+    ],
     evento [;
       OcultarImagenAuxiliar();
       give self ~general;

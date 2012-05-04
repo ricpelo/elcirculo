@@ -639,7 +639,7 @@ Class Lugar
         if (timer_imagen_personaje has general) {
           timer_imagen_personaje.evento();
         }
-        objectloop (o ofclass Sonido && o in self) o.cambiar_volumen();
+        objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
     ],
   has
     light;

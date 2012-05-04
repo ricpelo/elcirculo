@@ -635,10 +635,12 @@ Class Lugar
     ],
     after [ o;
       Go:
-        SGW_MarcoDeTrabajo(1);
+        ! Si se está mostrando la imagen de un personaje, quitarla antes:
         if (timer_imagen_personaje has general) {
           timer_imagen_personaje.evento();
         }
+        SGW_MarcoDeTrabajo(1);
+        ! Actualizar el volumen de los sonidos:
         objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
     ],
   has
@@ -767,11 +769,10 @@ Include "Gtalk_NG";         ! Conversaciones
 
 
 [ AfterPrompt;
-  rfalse;
   ! Pasándole el parámetro 3 en lugar de 1, lo que hacemos es pedirle que
   ! actualice la música pero no los gráficos:
-!  if (timer_imagen_personaje has general) SGW_MarcoDeTrabajo(3);
-!  else                                    SGW_MarcoDeTrabajo(1);
+  if (timer_imagen_personaje has general) SGW_MarcoDeTrabajo(3);
+  else                                    SGW_MarcoDeTrabajo(1);
 ];
 
 
@@ -1086,7 +1087,7 @@ Object timer_imagen_personaje
       OcultarImagenAuxiliar();
       give self ~general;
       self.EliminarGestor();
-      viewImageCenter(LugarReal().sgw_img);
+      viewImageCenter(location.sgw_img);
     ];
 
 
@@ -1533,10 +1534,7 @@ Object ZIPI_Salir
   hayGraficos = true;
   openGraphicWindow(altoVentanaGrafica);
   clearGraphicWindow();
-  if (location ~= thedark) {
-    if (LugarReal() provides sgw_img) viewImageCenter(LugarReal().sgw_img);
-    else                              viewImageCenter(Logo_Alpha_Aventuras_jpg);
-  }
+  viewImageCenter(location.sgw_img);
   if (t) {
     glk_set_style(style_Emphasized);
     print "[Gráficos activados (tamaño ";
@@ -1611,7 +1609,7 @@ Object ZIPI_Salir
 [ OcultarImagenAuxiliar;
 !  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
 !  gg_objwin = 0;
-  viewImageCenter(LugarReal().sgw_img);
+  viewImageCenter(location.sgw_img);
 ];
 
 
@@ -1978,7 +1976,7 @@ Verb 'vamonos' 'vayamonos'
         http://wiki.caad.es/Alpha_Aventuras^
         http://www.facebook.com/alphaaventuras^";
   KeyDelay();
-  viewImageCenter(LugarReal().sgw_img);
+  viewImageCenter(location.sgw_img);
 ];
 
 

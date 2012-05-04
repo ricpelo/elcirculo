@@ -89,6 +89,9 @@ Constant GT_OPTIONSUFFIX = ") ";
 ! Número máximo de cadenas DIFERENTES que se han impreso:
 Constant PS_TAB_SIZE = 1000;
 
+! No queremos marcos en las cajas hechas con el comando box:
+Constant GBOXQUOTE_NOFRAME;
+
 
 ! ====================================================================
 ! VARIABLES GLOBALES
@@ -192,6 +195,9 @@ Replace random;
 ! Ajustamos esta rutina para que SGW+DMX no actualice sola el gráfico de la
 ! localidad actual cuando se está mostrando el gráfico de un personaje:
 Replace AfterPrompt;
+
+! Para usar el comando box con Glulx:
+Replace Box__Routine;
 
 
 Include "Parser";
@@ -674,6 +680,7 @@ Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 !Include "EventList_NG";     ! Listas de mensajes
 Include "Prand_NG";         ! Listas de mensajes
 Include "Gtalk_NG";         ! Conversaciones
+Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
 
 
 !===============================================================================

@@ -1258,7 +1258,7 @@ Object tema_becca_tv "el televisor" TemasBecca
 
 
 [ FinPrologo
-  i;
+  i j sw;
   StatusLineHeight(0);
   print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
          en el proceso las plantas de los pies, lo que te provoca una
@@ -1288,24 +1288,36 @@ Object tema_becca_tv "el televisor" TemasBecca
   Damusix.TocarV(Mujer_Gritando_ogg);
   WaitDelay(100);
   viewImageCenter(Fin_Prologo5_jpg);
-  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 2000);
+  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 1000);
   clearMainWindow();
   print "Ves ", (s_user1) "el círculo.";
-  WaitDelay(200);
+  WaitDelay(20);
   MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
   MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
   clearTextWindow();
-  print "(c) 2012 Alpha Aventuras";
+  box "(c) 2012 Alpha Aventuras";
   KeyDelay();
 !  BanderaFin(2);
   Damusix.AsignarCanal(TV_Ruido_ogg, CANAL_TV_SALON, VOLUMEN_TV_SALON,
                        SONIDO_REPETIR);
   Damusix.TocarCanal(CANAL_TV_SALON);
-  for (i = 0: i < 40: i++) {
-    viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(5)) break;
-    viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(5)) break;
-    viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(5)) break;
+  for (j = 1: j <= 3: j++) {
+    sw = false;
+    for (i = 0: i < 40: i++) {
+      viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(5)) break;
+      viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(5)) break;
+      viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(5)) break;
+      if (~~sw) {
+        sw = true;
+        switch (j) {
+          1: box "Programación y diseño: Ricardo Pérez";
+          2: box "Gráficos: Manuel Millán";
+          3: box "Basada en The Ring, (c) 2002 Dreamworks SKG";
+        }
+      }
+    }
   }
+  Damusix.TocarV(TV_Apaga_ogg);
   Damusix.PararCanal(CANAL_TV_SALON);
   barra_estado.numero_lineas = 1;
   barra_estado.dibujar();

@@ -258,7 +258,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_User2,
                         stylehint_TextColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_User2,
-                        stylehint_BackColor, $00ff00);
+                        stylehint_BackColor, $0000ff);
       glk_stylehint_set(wintype_TextBuffer, style_User2,
                         stylehint_Size, 1);
       glk_stylehint_set(wintype_TextBuffer, style_User2,
@@ -267,7 +267,7 @@ Include "Parser";
                         stylehint_Weight, 1);
 
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
-                        stylehint_TextColor, $00ff00);
+                        stylehint_TextColor, $0000ff);
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
@@ -370,7 +370,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_User2,
                         stylehint_TextColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_User2,
-                        stylehint_BackColor, $00ff00);
+                        stylehint_BackColor, $0000ff);
       glk_stylehint_set(wintype_TextGrid, style_User2,
                         stylehint_Size, 1);
       glk_stylehint_set(wintype_TextGrid, style_User2,
@@ -379,7 +379,7 @@ Include "Parser";
                         stylehint_Weight, 1);
 
       glk_stylehint_set(wintype_TextGrid, style_Alert,
-                        stylehint_TextColor, $00ff00);
+                        stylehint_TextColor, $0000ff);
       glk_stylehint_set(wintype_TextGrid, style_Alert,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Alert,
@@ -1131,6 +1131,10 @@ Object testigo
 ! ====================================================================
 
 
+Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
+                          'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M' 'O'
+                          'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
+
 [ ZIPI_RunOtro _o
   r;
   ZIPI_PintaTitulo(_o.ZIPI_titulo);
@@ -1142,7 +1146,7 @@ Object testigo
 
 
 [ ZIPI_RunMenu _m top
-  i j count cur key target redibujar ft r;
+  i j count cur key target redibujar ft r k tec;
 
   redibujar = 1;
   cur = 0;
@@ -1155,13 +1159,17 @@ Object testigo
       redibujar = 0;
     }
 
-    for (i = 0: i < count - 2: i++) {
+    for (i = 0, tec = 0: i < count - 2: i++) {
       j = i + 3;
       ZIPI_setcursor(5,j);
 !      if (ft && hayTeletipo) {
 !        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
 !      } else {
         style fixed;
+!        if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
+          print (char) teclas_opciones-->i, "- ";
+!          tec++;
+!        }
         if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
           (_m.&ZIPI_item-->i).ZIPI_titulo();
         else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
@@ -1176,14 +1184,14 @@ Object testigo
 !      if (top) tt_computadora.visualiza("Salir");
 !      else     tt_computadora.visualiza("Volver");
 !    } else {
-      if (top) print (s_pref) "Salir";
-      else     print (s_pref) "Volver";
+      if (top) print (s_head) "Q - Salir";
+      else     print (s_head) "Q - Volver";
 !    }
 
     ft = false;
     j = cur + 3;
     ZIPI_setcursor(2, j);
-    print ">";
+    print (s_emph) ">";
     ZIPI_setcursor(2, j);
     key = ZIPI_tecla();
     print " ";
@@ -1226,6 +1234,10 @@ Object testigo
         }
         redibujar = 1;
         break;
+    }
+    ! Busca la tecla entre el vector
+    for (k = 0 : k < 31 : k++) {
+      if (key == (teclas_opciones-->k) && k < count) cur = k;
     }
   }
   rfalse;
@@ -1936,18 +1948,17 @@ Verb 'vamonos' 'vayamonos'
 
 [ CreditosSub;
   viewImageCenter(Logo_Alpha_Aventuras_jpg);
-  print (s_head) "^* EL CÍRCULO *^^";
-  print "(c) 2012 Alpha Aventuras^^";
-  print (s_bold) "- PROGRAMACIÓN Y DISEÑO:^";
+  print (s_head) "^@<<EL CÍRCULO@>>", " --- (c) 2012 Alpha Aventuras^^";
+  print (s_bold) "-- PROGRAMACIÓN Y DISEÑO:^";
   print "    Ricardo Pérez López^^";
-  print (s_bold) "- GRÁFICOS:^";
+  print (s_bold) "-- GRÁFICOS:^";
   print "    Manuel Millán Ruiz^^";
-  print (s_bold) "- TEXTOS:^";
+  print (s_bold) "-- TEXTOS:^";
   print "    Ricardo Pérez López^^";
-  print (s_bold) "- MAPEADO Y DOCUMENTACIÓN:^";
+  print (s_bold) "-- MAPEADO Y DOCUMENTACIÓN:^";
   print "    Ricardo Pérez López^";
   print "    Antonio Matiola Ortiz^^";
-  print (s_bold) "- PRUEBAS:^";
+  print (s_bold) "-- PRUEBAS:^";
   print "    Ricardo Pérez López^";
   print "    Manuel Millán Ruiz^^";
   KeyDelay();
@@ -1958,19 +1969,19 @@ Verb 'vamonos' 'vayamonos'
   print "- Damusix, de Eliuk Blau^";
   print "- PNJactor_NG y PNJacciones_NG (adaptaciones de los originales de Zak
            y Carlos)^";
-  print "- Rastros_NG (adaptación de Rastros, de Mel Hython)^";
+!  print "- Rastros_NG (adaptación de Rastros, de Mel Hython)^";
   print "- Moviles_NG (adaptación de Moviles, de Mel Hython)^";
   print "- PNJpuertas_NG (Adaptación de PnjPuertas, de Jaevius)^";
   print "- Decir, de Zak^";
   print "- Etemas, de Zak^";
   print "- Decorado_NG (adaptación de Decorado, de Zak y Mel Hython)^";
-  print "- Teletipo (adaptación de Escr, de Baltasarq)^";
+!  print "- Teletipo (adaptación de Escr, de Baltasarq)^";
   print "- Adaptación de Barra, de Presi^";
   print "- Adaptación de ZIPI, de Zak^";
   print "- Timer, de Sothoth";
   KeyDelay();
-  print "^^Basado en la novela ~Ringu~ de Koji Suzuki y la película ~The Ring~
-         de Gore Verbinsky.";
+  print "^^Basado en la novela @<<Ringu@>> de Koji Suzuki y el film
+         @<<The Ring@>> (c) 2002 Dreamworks SKG.";
   print "^^Nuestro agradecimiento a todos los integrantes del CAAD que nos han
          ayudado, directa o indirectamente, en el desarrollo de esta aventura.^^
          (c) 2012 Alpha Aventuras^^
@@ -1979,7 +1990,7 @@ Verb 'vamonos' 'vayamonos'
          dirección:^^";
   print (s_pref) "http://www.gnu.org/licenses/gpl.txt^";
   print "^El código fuente del programa está disponible en Github:^^";
-  print (s_pref) "https://github.com/ricpelo/alien/tree/deluxe^";
+  print (s_pref) "https://github.com/ricpelo/elcirculo^";
   KeyDelay();
   print "^Visítanos en:^^";
   print (s_pref) "http://www.alpha-aventuras.es^

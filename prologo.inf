@@ -1312,7 +1312,8 @@ Object tema_becca_tv "el televisor" TemasBecca
         switch (j) {
           1: box "Programación y diseño: Ricardo Pérez";
           2: box "Gráficos: Manuel Millán";
-          3: box "Basada en The Ring, (c) 2002 Dreamworks SKG";
+          3: box " Basada en la novela @<<Ringu@>>, de Koji Suzuki"
+                 "y el film @<<The Ring@>>, (c) 2002 Dreamworks SKG";
         }
       }
     }

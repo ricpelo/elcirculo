@@ -35,6 +35,7 @@ Array _GlulxBoxQuoteAux_ --> 4;
 [ Box__Routine maxlen arr
   i aux lines linelen winwide indent lastnl parwin;
 
+  aux = aux; ! Evita warning
   _CurrQuoteArr_ = arr;
   _CurrQuoteMaxLen_ = maxlen;
   

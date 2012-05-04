@@ -1134,7 +1134,12 @@ Object testigo
 Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
                           'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M' 'O'
                           'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
-
+Array numero_opciones ->  (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
+                          (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
+                          (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
+                          (-1);
+    
+                          
 [ ZIPI_RunOtro _o
   r;
   ZIPI_PintaTitulo(_o.ZIPI_titulo);
@@ -1166,10 +1171,11 @@ Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
 !        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
 !      } else {
         style fixed;
-!        if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-          print (char) teclas_opciones-->i, "- ";
-!          tec++;
-!        }
+        if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
+          print (char) teclas_opciones-->tec, "- ";
+          numero_opciones->tec = i;
+          tec++;
+        }
         if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
           (_m.&ZIPI_item-->i).ZIPI_titulo();
         else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
@@ -1202,7 +1208,7 @@ Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
       else           key = 13;
     }
 
-    switch(key) {
+    switch (key) {
       'k', 'p', '-', '_', 129, -4:
         do {
           cur--;
@@ -1221,6 +1227,7 @@ Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
         rfalse;
  
       132, 13, 'n', ' ', -3, -6:
+    .Aceptar;
         if (cur == count - 1) rfalse;
         if (cur == count - 2) break;
         target = _m.&ZIPI_item-->cur;
@@ -1237,7 +1244,13 @@ Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
     }
     ! Busca la tecla entre el vector
     for (k = 0 : k < 31 : k++) {
-      if (key == (teclas_opciones-->k) && k < count) cur = k;
+      if (key == (teclas_opciones-->k) && k < tec) {
+        if (numero_opciones->k ~= -1) {
+          cur = numero_opciones->k;
+          key = 132;
+          jump Aceptar;
+        }
+      }
     }
   }
   rfalse;

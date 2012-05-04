@@ -76,6 +76,7 @@ Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 Constant TIMER_TICK = 1000;
 Constant TIMER_DURACION_TLF_KATIE = 6;
 Constant TIMER_DURACION_BECCA = 5;
+Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
 
 ! Constantes de gtalk.h:
 Constant GT_SELECT       = "Selecciona una opción ";
@@ -83,8 +84,8 @@ Constant GT_ZEROEXIT     = "(0 para salir) ";
 Constant GT_WOULDLIKE    = "^¿Qué vas a decir?^";
 Constant GT_NOQUIP       = "No se te ocurre nada más que decir.^";
 Constant GT_NOSAY        = "^Prefieres no decir nada.^";
-Constant GT_OPTIONPREFIX = "(";
-Constant GT_OPTIONSUFFIX = ") ";
+Constant GT_OPTIONPREFIX = "[";
+Constant GT_OPTIONSUFFIX = "] ";
 
 ! Número máximo de cadenas DIFERENTES que se han impreso:
 Constant PS_TAB_SIZE = 1000;
@@ -1086,7 +1087,7 @@ Class Sonido
 Object timer_imagen_personaje
   class GestorTimer
   with
-    duracion 4,
+    duracion TIMER_DURACION_IMAGEN_PERSONAJE,
     mostrandose [;
       return self has general;
     ],
@@ -1131,13 +1132,10 @@ Object testigo
 ! ====================================================================
 
 
-Array teclas_opciones --> '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
-                          'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M' 'O'
-                          'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
-Array numero_opciones ->  (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
-                          (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
-                          (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
-                          (-1);
+Array teclas_opciones --> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
+                          'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
+                          'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
+Array numero_opciones -> 30;
     
                           
 [ ZIPI_RunOtro _o
@@ -1170,16 +1168,21 @@ Array numero_opciones ->  (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
 !      if (ft && hayTeletipo) {
 !        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
 !      } else {
-        style fixed;
+        glk_set_style(style_Preformatted);
+!        style fixed;
         if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-          print (char) teclas_opciones-->tec, "- ";
+          print "[";
+          glk_set_style(style_Header);
+          print (char) teclas_opciones-->tec;
+          glk_set_style(style_Preformatted);
+          print "] ";
           numero_opciones->tec = i;
           tec++;
         }
         if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
           (_m.&ZIPI_item-->i).ZIPI_titulo();
         else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
-        style roman;
+        glk_set_style(style_Normal);
 !      }
     }
 
@@ -1190,8 +1193,8 @@ Array numero_opciones ->  (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
 !      if (top) tt_computadora.visualiza("Salir");
 !      else     tt_computadora.visualiza("Volver");
 !    } else {
-      if (top) print (s_head) "Q - Salir";
-      else     print (s_head) "Q - Volver";
+      if (top) print (s_head) "[Q] Salir";
+      else     print (s_head) "[Q] Volver";
 !    }
 
     ft = false;
@@ -1244,12 +1247,10 @@ Array numero_opciones ->  (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1) (-1)
     }
     ! Busca la tecla entre el vector
     for (k = 0 : k < 31 : k++) {
-      if (key == (teclas_opciones-->k) && k < tec) {
-        if (numero_opciones->k ~= -1) {
-          cur = numero_opciones->k;
-          key = 132;
-          jump Aceptar;
-        }
+      if (key == (teclas_opciones-->k) && k < tec) { 
+        cur = numero_opciones->k;
+        key = 132;
+        jump Aceptar;
       }
     }
   }

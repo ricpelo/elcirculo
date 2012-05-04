@@ -40,7 +40,8 @@ Class LugarCasaKatie
 Object cuarto_katie "Tu habitación"
   class LugarCasaKatie
   with
-    name 'cuarto' 'habitacion',
+    name_m 'cuarto',
+    name_f 'habitacion',
     nombre_direccion "tu habitación",
     description "La pequeña lámpara de la mesita situada junto a tu cama
                  proyecta débiles y verdosos haces de luz que iluminan tu
@@ -64,24 +65,21 @@ Object decorado_cuarto_katie cuarto_katie
   class Decorado
   with
     before [;
+      Enter:
+        if (self.palabra == 'puerta') <<Go out_obj>>;
+
       Open:
-        if (self.palabra == 'puerta') {
-          "Ya estaba abierta.";
-        }
+        if (self.palabra == 'puerta') "Ya estaba abierta.";
 
       Close:
         if (self.palabra == 'puerta') {
-          becca.habla("¿Pero no vas a salir a coger el teléfono?");
-          rtrue;
+          return becca.habla("¿Pero no vas a salir a coger el teléfono?");
         }
 
       Take, Push, PushDir:
-        if (self.palabra == 'cama') {
-          "Es demasiado pesada.";
-        }
+        if (self.palabra == 'cama') "Es demasiado pesada.";
     ],
     sinonimos
-      'habitacion' 'cuarto' G_FEMENINO
       'mesa' 'mesita' (-1),
     describe
       'cama' "Te gusta dormir cómoda, y por ello tu cama tiene casi el doble
@@ -91,7 +89,7 @@ Object decorado_cuarto_katie cuarto_katie
                 G_FEMENINO
       'mesita' "Una baja mesita al fondo de la habitación sostiene,
                 solitaria, el televisor del dormitorio." G_FEMENINO
-      'puerta' "La puerta de tu habitación permanece entreabierta.";
+      'puerta' "La puerta de tu habitación permanece entreabierta." G_FEMENINO;
 
 
 Object pasillo_katie "Pasillo del piso superior"
@@ -104,7 +102,7 @@ Object pasillo_katie "Pasillo del piso superior"
              te había parecido tan oscuro y carente de alma. Una fría
              corriente de aire lo recorre de extremo a extremo, subiendo
              por las escaleras que dan a la planta baja y cruzando tu
-             espalda en escalofríos continuos y persistentes.";
+             espalda en forma de escalofríos continuos y persistentes.";
       if (puerta_katie notin self) {
         " La puerta abierta a tu habitación es prácticamente la única
          fuente de luz en este lúgubre pasaje."; 
@@ -122,14 +120,26 @@ Object decorado_pasillo_katie pasillo_katie
   class Decorado
   with
     before [;
+      Enter:
+        if (self.palabra == 'puerta') <<Go in_obj>>;
+
       Open:
-        "Ya estaba abierta.";
+        if (self.palabra == 'puerta') "Ya estaba abierta.";
 
       Close:
-        "Pensándolo bien, será mejor no cerrarla. Perderías la mayor parte de
-         la poca luz que ilumina el pasillo.";
+        if (self.palabra == 'puerta')
+          "Pensándolo bien, será mejor no cerrarla. Perderías la mayor parte de
+           la poca luz que ilumina el pasillo.";
+
+      Bajar:
+        if (self.palabra == 'escaleras') <<Go d_obj>>;
     ],
+    sinonimos
+      'escalera' 'escaleras' G_FEMENINO,
     describe
+      'escaleras' "Las escaleras, de madera recia y resistente, conducen
+                   directamente a la cocina en la planta baja."
+                   G_FEMENINO + G_PLURAL
       'puerta' "La puerta entreabierta muestra una vista parcial de tu
                 habitación, cercándola como el marco de un cuadro vertical y
                 alargado."
@@ -203,7 +213,15 @@ Object cocina_katie "Cocina"
 Object decorado_cocina_katie cocina_katie
   class Decorado
   with
+    before [;
+      Enter:
+        if (self.palabra == 'escaleras') <<Go u_obj>>;
+    ],
+    sinonimos
+      'escalera' 'escaleras' G_FEMENINO,
     describe
+      'escaleras' "Las escaleras permiten el acceso a la planta alta."
+                   G_FEMENINO + G_PLURAL
       'arco' "La pared sur se abre en forma de arco para acceder al salón." 0;
 
 
@@ -215,7 +233,7 @@ Object salon_katie "Salón"
     description "El salón de tu casa está claramente dominado por un televisor
                  de gran tamaño situado sobre una mesa en la pared frontal.
                  Junto al enorme sofá a unos tres metros de la misma forman
-                 en la práctica el único mobiliario disponible, si exceptuamos
+                 en la práctica el único mobiliario disponible, exceptuando
                  un par de sillas a ambos lados del sofá y algunos cuadros
                  colgados de las paredes. Una ventana cerrada deja pasar la
                  oscuridad del exterior.",
@@ -315,7 +333,7 @@ Object telefono_katie "teléfono" cocina_katie
       KeyDelay(2000);
       print " hasta que te muestra una amplia sonrisa y pasándote el teléfono,
              divertida, te dice:^";
-      becca.habla("Es tu madre");
+      becca.habla("Es tu madre.");
       new_line;
       self.coges_el_telefono();
       rtrue;

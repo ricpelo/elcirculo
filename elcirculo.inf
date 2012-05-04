@@ -1007,7 +1007,7 @@ Class Personaje
       }
       MostrarImagenAuxiliar(self.imagen);
 !      timer_imagen_personaje.duracion = 4 + ControlTimer.numero_ticks();
-      timer_imagen_personaje.AgregarGestor();
+      timer_imagen_personaje.AgregarGestorAlFinal();
       give timer_imagen_personaje general;
     ],
     after [;

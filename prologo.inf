@@ -224,18 +224,8 @@ Object salon_katie "Salón"
     sgw_mus 0,
     before [;
       Go:
-        if (noun == n_obj && frigorifico_katie has open && 
-            frigorifico_katie hasnt general) {
-          give frigorifico_katie general;
-          print "Nada más cruzar el arco que separa la cocina del salón, notas
-                 algo moverse junto al teléfono, justo en el extremo de tu
-                 percepción visual. Al girar la mirada, ves la causa y el
-                 corazón te da un vuelco: la puerta del frigorífico se va
-                 abriendo poco a poco, totalmente silenciosa, hasta quedar a
-                 medio abrir.";
-          KeyDelay();
-          new_line;
-        }
+        if (noun == n_obj && frigorifico_katie has open &&
+            frigorifico_katie hasnt general) frigorifico_katie.se_abre_solo(); 
     ];
 
 
@@ -374,7 +364,7 @@ Object telefono_katie "teléfono" cocina_katie
 Object frigorifico_katie "frigorífico" cocina_katie
   class EscenarioAbrible
   with
-    name_m 'frigorifico' 'congelador',
+    name_m 'frigorifico' 'frigo' 'congelador',
     name_f 'nevera' 'puerta',
     article "el",
     gender G_MASCULINO,
@@ -387,6 +377,17 @@ Object frigorifico_katie "frigorífico" cocina_katie
          parte de la cocina a su paso. El sonido del motor resulta más
          audible que cuando estaba cerrado.";
       }
+    ],
+    se_abre_solo [;
+      give self general;
+      print "Nada más cruzar el arco que separa la cocina del salón, notas
+             algo moverse junto al teléfono, justo en el extremo de tu
+             percepción visual. Al girar la mirada, ves la causa y el
+             corazón te da un vuelco: la puerta del frigorífico se va
+             abriendo poco a poco, totalmente silenciosa, hasta quedar a
+             medio abrir.";
+      KeyDelay();
+      new_line;
     ],
     ya_visto_abierto false,
     when_open [;

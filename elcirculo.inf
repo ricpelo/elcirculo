@@ -1458,10 +1458,13 @@ Object ZIPI_Salir
 
 [ ImprimirPrompt;
   new_line;
-  glk_set_style(style_User1);
-  print (string) player.short_name;
-  glk_set_style(style_Normal);
-  print " ", (s_input) "> ";
+  if (player ~= selfobj) {
+    glk_set_style(style_User1);
+    print (string) player.short_name;
+    glk_set_style(style_Normal);
+    print " ";
+  }
+  print (s_input) "> ";
 ];
 
 

@@ -93,6 +93,12 @@ Constant PS_TAB_SIZE = 1000;
 ! No queremos marcos en las cajas hechas con el comando box:
 Constant GBOXQUOTE_NOFRAME;
 
+! Altura (en caracteres) de la ventana grid en el menú principal:
+Constant ALTURA_MENU_PRINCIPAL = 15;
+! Altura (en caracteres) de la ventana grid cuando al mostrar información larga:
+Constant ALTURA_MENU_COMPLETA  = 24;
+! Altura (en px.) de la ventana de logo en el menú principal:
+Constant ALTURA_LOGO_MENU      = 250;
 
 ! ====================================================================
 ! VARIABLES GLOBALES
@@ -691,9 +697,9 @@ Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
 
 [ Initialise r v;
   IniciarGraficosSonidos();
-  openGraphicWindow(250);
+  openGraphicWindow(ALTURA_LOGO_MENU);
   clearGraphicWindow();
-  StatusLineHeight(21);
+  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
   clearMainWindow();
   viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
@@ -1140,10 +1146,16 @@ Array numero_opciones -> 30;
                           
 [ ZIPI_RunOtro _o
   r;
+  closeGraphicWindow();
+  StatusLineHeight(ALTURA_MENU_COMPLETA);
   ZIPI_PintaTitulo(_o.ZIPI_titulo);
   print "^";
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
+  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
+  openGraphicWindow(ALTURA_LOGO_MENU);
+  clearGraphicWindow();
+  viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
   return r;
 ];
 
@@ -1434,7 +1446,7 @@ Object ZIPI_Restaurar
 
     .RFailed;
       glk($002F, gg_statuswin);
-      StatusLineHeight(24);
+      StatusLineHeight(ALTURA_MENU_PRINCIPAL);
       print "^Error: no se ha podido cargar la partida.";
       rfalse;
     ];

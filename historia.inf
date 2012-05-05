@@ -113,9 +113,63 @@ Object salon_ruth "Salón de la casa"
 ! ====================================================================
 
 
+Object llave_cajon_katie "llave del escritorio de Katie"
+  with
+    name 'llave',
+    article "la",
+    description "La llave que abre el escritorio de Katie.",
+  has
+    female;
+
+
 ! ====================================================================
 ! OTROS OBJETOS
 ! ====================================================================
+
+
+Object escritorio_katie "escritorio" cuarto_katie_ruth
+  class EscenarioAbrible
+  class Contenedor
+  with
+    name_m  'escritorio' 'cajon',
+    name_mp 'cajones',
+    descripcion_real "El escritorio de Katie.",
+    when_open "^El cajón del escritorio de Katie aparece abierto.",
+    with_key llave_cajon_katie,
+    after [;
+      Unlock:
+        <<Open self>>;
+    ],
+  has
+    lockable locked;
+
+
+Object carpeta_katie "carpeta" escritorio_katie
+  with
+    name 'carpeta',
+    description "Una carpeta.",
+    initial "Un ticket sobresale ligeramente por un lateral de la carpeta.",
+    after [;
+      Open:
+        move ticket_fotos to LugarReal();
+        "Al abrir la carpeta, ves lo que parece ser un ticket de algún tipo de
+         establecimiento, sobresaliendo un poco por el lado.";
+    ]
+  has
+    openable female;
+
+
+Object ticket_fotos "ticket"
+  with
+    name 'ticket',
+    adjectives 'foto' 'fotos',
+    short_name "ticket",
+    description "Un ticket de un establecimiento de revelado automático de fotos
+                 las 24 horas.",
+    after [;
+      Examine:
+        self.short_name = "ticket de revelado de fotos";
+    ];
 
 
 ! ====================================================================
@@ -288,6 +342,24 @@ Object ruth "Ruth"
                           ninguno sabe decirme qué le pasó a Katie...");
               self.habla_retardo = old_ret;
               rtrue;
+            } else {
+              return self.habla("Por favor, Rachel: descubre qué le ha pasado
+                                 a mi Katie...");
+            }
+
+          tema_ruth_cajon:
+            if (llave_cajon_katie in self) {
+              ! Ruth aún tiene la llave:
+              move llave_cajon_katie to rachel;
+              print "Ruth permanece un momento con la mirada distante. Instantes
+                     después, mete dos dedos en un pequeño bolsillo de su
+                     vestido y saca una minúscula llave plateada. La contempla
+                     brevemente ante sus ojos y te la entrega.^";
+              return self.habla("Toma: me guardé la llave de su escritorio
+                                 ayer, cuando hice limpieza en su habitación.");
+            } else {
+              ! Ya te la ha dado:
+              return self.habla("Espero que te sirva de ayuda.");
             }
 
           default:
@@ -330,6 +402,10 @@ Object tema_ruth_katie "Katie" TemasRuth
   with
     name 'katie' 'hija';
 
+Object tema_ruth_cajon "el cajón del escritorio de Katie" TemasRuth
+  with
+    name 'cajon' 'escritorio' 'llave';
+
 
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
@@ -362,9 +438,10 @@ Object tema_ruth_katie "Katie" TemasRuth
   move aidan to fuera_casa_ruth;
   PNJ_Ruta(aidan, MOVIMIENTO_PERSEGUIR, rachel);
 
+  move llave_cajon_katie to ruth;
   move ruth to salon_ruth;
   ! Ruth se mueve por la cocina y el salón, con un 30% de probabilidad:
-  PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 20, CAMINO_CUALQUIERA,
+  PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 10, CAMINO_CUALQUIERA,
            ZonaMovimientoRuth);
 
   move amigos_katie to jardin_ruth;
@@ -383,6 +460,19 @@ Object tema_ruth_katie "Katie" TemasRuth
   test_machine.inserta("1");
   test_machine.inserta("1");
   test_machine.inserta("entra");
+  test_machine.inserta("ruth, llave");
+  test_machine.inserta("n");
+  test_machine.inserta("ruth, llave");
+  test_machine.inserta("sube");
+  test_machine.inserta("entra");
+  test_machine.inserta("abre cajon con llave");
+  test_machine.inserta("coge carpeta");
+  test_machine.inserta("abre carpeta");
+  test_machine.inserta("x carpeta");
+  test_machine.inserta("x ticket");
+  test_machine.inserta("mira");
+  test_machine.inserta("coge ticket");
+  test_machine.inserta("i");
 ];
 #endif;
 

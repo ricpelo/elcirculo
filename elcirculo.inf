@@ -519,8 +519,8 @@ Object LibraryMessages
              "No ", (puedes_) " ir por ahí, porque no hay salida hacia ",
               (the) noun, ".";
           5: if (estoyEmpujando)
-               "^No ", (puedes_) " empujar nada a través ", (del) lm_o, ".";
-             "No ", (puedes_) " pasar a través ", (del) lm_o, ".";
+               "^No ", (puedes_) " empujar nada a través ", (del) noun, ".";
+             "No ", (puedes_) " pasar a través ", (del) noun, ".";
         }
         
       Take:
@@ -529,8 +529,8 @@ Object LibraryMessages
           if (player.persona == PRIMERA_PERSONA_SINGULAR) print "j";
           else                                            print "g";
           print (es_) " ";
-          if (lm_o has moved) print (the) lm_o;
-          else                print (a) lm_o;
+          if (noun has moved) print (the) noun;
+          else                print (a) noun;
           ".";
         }
 
@@ -611,7 +611,7 @@ Class Lugar
     describe [;
       PrintOrRun(self, description);
       if (mostrarSalidas) {
-        print "^";
+        new_line;
         glk_set_style(style_Emphasized);
         <Salidas>;
         glk_set_style(style_Normal);
@@ -697,7 +697,7 @@ Include "SGW+DMX_NG";       ! Entre Parser y VerbLib
 Include "VerbLib";
 
 Include "Barra";            ! Barra de estado personalizable
-!Include "Contenedor";       ! Contenedores
+Include "Contenedor";       ! Contenedores
 Include "Decorado_NG";      ! Objetos de decorado
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 Include "Etemas";           ! Los temas de conversación
@@ -1006,7 +1006,7 @@ Class Personaje
     ],
     habla_retardo -1,
     habla_inicio [;
-      print "^";
+      print "^---";
       glk_set_style(style_User1);
       if (self == player) print "Tú: ";
       else                print (string) self.short_name, ": ";

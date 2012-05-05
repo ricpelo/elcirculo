@@ -1,7 +1,7 @@
 !% -~S
 !% -G
 !% +language_name=Spanish
-!% $MAX_STATIC_DATA=20000
+!% $MAX_STATIC_DATA=25000
 !% $MAX_PROP_TABLE_SIZE=63840
 !% $MAX_VERBS=200
 !% $MAX_ZCODE_SIZE=45000
@@ -699,6 +699,7 @@ Include "VerbLib";
 Include "Barra";            ! Barra de estado personalizable
 Include "Contenedor";       ! Contenedores
 Include "Decorado_NG";      ! Objetos de decorado
+Include "diary";
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 Include "Etemas";           ! Los temas de conversación
 !Include "EventList_NG";     ! Listas de mensajes
@@ -1128,6 +1129,24 @@ Object barra_estado
     lineas_inv
       BE_INV_TOTAL;
 
+
+Object midiario "Diario del jugador"
+  class Diary
+  with
+    short_name "Diario del jugador",
+    description [;
+      clearMainWindow();
+      box "Diario del jugador"
+          "sdlkjskdljfsdlkj"
+          "lskjdfklsjdfskl";
+    ];   
+
+Object p1 "24 Frobuary"
+  with
+    short_name "24 Frobuary"
+    description "^blah blah blah",
+  has
+    on;
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades
 ! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
@@ -1739,6 +1758,9 @@ VerboIrregular "desenchufar" with imperativo 'desenchufa';
 Extend 'di' first
   * 'a' creature             -> Answer;
 
+Verb 'diario'
+  *           -> Diario;
+
 Extend only 'enchufa' replace
   * noun            -> Enchufar;
 
@@ -1989,6 +2011,14 @@ Verb meta 'tt'
     give noun ~on;
     " Al hacerlo, se apaga.";
   }
+];
+
+
+[ DiarioSub;
+  closeGraphicWindow();
+  midiario.update(p1, 1);
+  midiario.select(midiario.last_page);
+  openGraphicWindow(altoVentanaGrafica);
 ];
 
 

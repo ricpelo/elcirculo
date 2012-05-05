@@ -1,11 +1,12 @@
 CODE elcirculo.ulx
 PICTURE Logo_Alpha_Aventuras_jpg res/img/logo_alpha_aventuras.jpg
-PICTURE Logo_Alpha_Aventuras_Corto_jpg res/img/logo_alpha_aventuras_corto.jpg
+!PICTURE Logo_Alpha_Aventuras_Corto_jpg res/img/logo_alpha_aventuras_corto.jpg
 PICTURE Prologo_png res/img/prologo.png
 PICTURE Oscuridad_jpg res/img/oscuridad.jpg
 PICTURE Fundido_png res/img/fundido.png
 PICTURE Logo_Circulo_png res/img/logo_circulo.png
 PICTURE Logo_Circulo_Solo_Letras_png res/img/logo_circulo_solo_letras.png
+PICTURE Logo_Circulo_Con_Letras_jpg res/img/logo_circulo_con_letras.jpg
 PICTURE Cuarto_Katie_jpg res/img/cuarto_katie.jpg
 PICTURE Katie_jpg res/img/katie.jpg
 PICTURE Becca_jpg res/img/becca.jpg

@@ -59,7 +59,7 @@ Constant ALTURA_MENU_PRINCIPAL = 15;
 ! Altura (en caracteres) de la ventana grid cuando al mostrar información larga:
 Constant ALTURA_MENU_COMPLETA  = 24;
 ! Altura (en px.) de la ventana de logo en el menú principal:
-Constant ALTURA_LOGO_MENU      = 250;
+Constant ALTURA_LOGO_MENU      = 350;
 
 ! Canales y volúmenes para los sonidos:
 Constant CANAL_FONDO     = 9; Constant VOLUMEN_FONDO     = 50;
@@ -97,9 +97,9 @@ Constant SONIDO_REPETIR = -1;
 
 ! Constantes para los gestores de timer:
 Constant TIMER_TICK = 1000;
-Constant TIMER_DURACION_TLF_KATIE = 6;
 Constant TIMER_DURACION_BECCA = 5;
 Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
+Constant TIMER_DURACION_TLF_KATIE = 6;
 
 
 ! ====================================================================
@@ -727,7 +727,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   clearGraphicWindow();
   StatusLineHeight(ALTURA_MENU_PRINCIPAL);
   clearMainWindow();
-  viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
+  viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
   Damusix.Tocar(Darkwalk_ogg);
@@ -1293,7 +1293,7 @@ Array numero_opciones -> 30;
   StatusLineHeight(ALTURA_MENU_PRINCIPAL);
   openGraphicWindow(ALTURA_LOGO_MENU);
   clearGraphicWindow();
-  viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
+  viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   return r;
 ];
 
@@ -1388,7 +1388,7 @@ Object ZIPI_Restaurar
       StatusLineHeight(1);
       clearTextWindow();
       glk($002F, gg_mainwin);    ! set_window
-      ImprimirPrompt();
+!      ImprimirPrompt();
       fref = glk($0062, $01, $02, 0); ! fileref_create_by_prompt
       if (fref == 0) jump RFailed;
       gg_savestr = glk($0042, fref, $02, GG_SAVESTR_ROCK); ! stream_open_file
@@ -1401,6 +1401,7 @@ Object ZIPI_Restaurar
       gg_savestr = 0;
 
     .RFailed;
+      ZIPI_Intro();
       glk($002F, gg_statuswin);
       StatusLineHeight(ALTURA_MENU_PRINCIPAL);
       print "^Error: no se ha podido cargar la partida.";

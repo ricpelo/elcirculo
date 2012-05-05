@@ -54,29 +54,30 @@ Constant NO_SCORE;
 ! Hay curiosidades al final del juego
 Constant AMUSING_PROVIDED;
 
-! Alturas de los gráficos:
-Constant GRAFICOS_MINUSCULOS = 200;
-Constant GRAFICOS_PEQUENOS   = 250;
-Constant GRAFICOS_MEDIANOS   = 350;
-Constant GRAFICOS_GRANDES    = 450;
+! Altura (en caracteres) de la ventana grid en el menú principal:
+Constant ALTURA_MENU_PRINCIPAL = 15;
+! Altura (en caracteres) de la ventana grid cuando al mostrar información larga:
+Constant ALTURA_MENU_COMPLETA  = 24;
+! Altura (en px.) de la ventana de logo en el menú principal:
+Constant ALTURA_LOGO_MENU      = 250;
 
+! Canales y volúmenes para los sonidos:
 Constant CANAL_FONDO     = 9; Constant VOLUMEN_FONDO     = 50;
 Constant CANAL_TV_SALON  = 0; Constant VOLUMEN_TV_SALON  = 100;
 Constant CANAL_TV_CUARTO = 1; Constant VOLUMEN_TV_CUARTO = 50;
 Constant CANAL_TELEFONO  = 2; Constant VOLUMEN_TELEFONO  = 100;
 
-! Vamos a usar Damusix junto con SGW+DMX
-Constant SGW_CON_DAMUSIX;
-Constant SONIDO_REPETIR = -1;
-
 ! El color de fondo de la ventana gráfica es negro:
 Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 
-! Constantes para los gestores de timer:
-Constant TIMER_TICK = 1000;
-Constant TIMER_DURACION_TLF_KATIE = 6;
-Constant TIMER_DURACION_BECCA = 5;
-Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
+! No queremos marcos en las cajas hechas con el comando box:
+Constant GBOXQUOTE_NOFRAME;
+
+! Alturas de los gráficos:
+Constant GRAFICOS_MINUSCULOS = 200;
+Constant GRAFICOS_PEQUENOS   = 250;
+Constant GRAFICOS_MEDIANOS   = 350;
+Constant GRAFICOS_GRANDES    = 450;
 
 ! Constantes de gtalk.h:
 Constant GT_SELECT       = "Selecciona una opción ";
@@ -90,15 +91,15 @@ Constant GT_OPTIONSUFFIX = "] ";
 ! Número máximo de cadenas DIFERENTES que se han impreso:
 Constant PS_TAB_SIZE = 1000;
 
-! No queremos marcos en las cajas hechas con el comando box:
-Constant GBOXQUOTE_NOFRAME;
+! Vamos a usar Damusix junto con SGW+DMX
+Constant SGW_CON_DAMUSIX;
+Constant SONIDO_REPETIR = -1;
 
-! Altura (en caracteres) de la ventana grid en el menú principal:
-Constant ALTURA_MENU_PRINCIPAL = 15;
-! Altura (en caracteres) de la ventana grid cuando al mostrar información larga:
-Constant ALTURA_MENU_COMPLETA  = 24;
-! Altura (en px.) de la ventana de logo en el menú principal:
-Constant ALTURA_LOGO_MENU      = 250;
+! Constantes para los gestores de timer:
+Constant TIMER_TICK = 1000;
+Constant TIMER_DURACION_TLF_KATIE = 6;
+Constant TIMER_DURACION_BECCA = 5;
+Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
 
 
 ! ====================================================================
@@ -109,8 +110,19 @@ Constant ALTURA_LOGO_MENU      = 250;
 ! Alto de la ventana gráfica:
 Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
 
+! Interruptor para indicar si hay que dibujar o no la línea de estado
+! (ver rutina Inicialise):
+Global dibujarEstado = false;
+
+! Se pone a true y false en la rutina PermitirEmpujarDir, y luego se consulta en
+! MensajesLibreria:
+Global estoyEmpujando = false;
+
 ! Hay gráficos o no:
 Global hayGraficos = true;
+
+! Interruptor de pistas:
+Global hayPistas = 0;
 
 ! Hay sonidos:
 Global haySonido = true;
@@ -125,17 +137,6 @@ Global hayTiempoReal = true;
 ! Si se ha activado el listado automático de salidas:
 Global mostrarSalidas = true;
 
-! Se pone a true y false en la rutina PermitirEmpujarDir, y luego se consulta en
-! MensajesLibreria:
-Global estoyEmpujando = false;
-
-! Interruptor de pistas:
-Global hayPistas = 0;
-
-! Interruptor para indicar si hay que dibujar o no la línea de estado
-! (ver rutina Inicialise):
-Global dibujarEstado = false;
-
 ! La imagen que representa la oscuridad:
 Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
 
@@ -145,39 +146,40 @@ Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
 ! ====================================================================
 
 
-! Nuestra versión de esta rutina sólo redibuja la línea de estado cuando
-! la variable global dibujarEstado está a true:
-Replace DrawStatusLine;
-
-! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
-! REGISTRA...):
-Replace SearchSub;
-
-! En este juego no se usa el Consultar (CONSULTA, LEE, BUSCA EN x SOBRE y...):
-Replace ConsultSub;
-
-! En este juego no se habla, ni se responde, ni se dice:
-Replace TellSub;
-Replace AnswerSub;
-Replace DecirSub;
+! Ajustamos esta rutina para que SGW+DMX no actualice sola el gráfico de la
+! localidad actual cuando se está mostrando el gráfico de un personaje:
+Replace AfterPrompt;
 
 ! Con el siguiente Replace conseguimos que el objeto empujado hacia una
 ! dirección aparezca en la descripción de la localidad de destino del "empuje":
 Replace AllowPushDir;
 
-! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
-! para el menú principal y las pistas:
-Replace ZIPI_RunMenu;
-Replace ZIPI_RunOtro;
+! En este juego no se habla, ni se responde, ni se dice:
+Replace AnswerSub;
+Replace DecirSub;
+Replace TellSub;
 
-! Nuestra versión elimina también los signos de admiración e interrogación:
-Replace QuitarAcentos;
+! Para usar el comando box con Glulx:
+Replace Box__Routine;
 
-Replace InitGlkWindow;
+! En este juego no se usa el Consultar (CONSULTA, LEE, BUSCA EN x SOBRE y...):
+Replace ConsultSub;
+
+! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
+! indicar hacia dónde va un PNJ móvil:
+Replace DirDada;
+
+! Nuestra versión de esta rutina sólo redibuja la línea de estado cuando
+! la variable global dibujarEstado está a true:
+Replace DrawStatusLine;
+
+! Para que el verbo se convierta en Entrar o Examinar dependiendo de si
+! es una localidad o no:
+Replace ExaminarFalsoSub;
+
+! Reemplazo de los puntos de entrada de Glulx:
 Replace HandleGlkEvent;
-
-! Usamos el ParseNoun de IntNombre_NG:
-Replace ParseNoun;
+Replace InitGlkWindow;
 
 ! Lo pide TestMachine_NG.h:
 Replace KeyboardPrimitive;
@@ -185,27 +187,27 @@ Replace KeyboardPrimitive;
 ! Lo pide Timer.h:
 Replace KeyDelay;
 
-! Para que el verbo se convierta en Entrar o Examinar dependiendo de si
-! es una localidad o no:
-Replace ExaminarFalsoSub;
-
 ! Nuestra versión de LanguageDirection no muestra los puntos cardinales y
 ! muestra entre paréntesis el destino de la dirección:
 Replace LanguageDirection;
 
-! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
-! indicar hacia dónde va un PNJ móvil:
-Replace DirDada;
+! Usamos el ParseNoun de IntNombre_NG:
+Replace ParseNoun;
+
+! Nuestra versión elimina también los signos de admiración e interrogación:
+Replace QuitarAcentos;
 
 ! Cambia la función random() (ver random.h):
 Replace random;
 
-! Ajustamos esta rutina para que SGW+DMX no actualice sola el gráfico de la
-! localidad actual cuando se está mostrando el gráfico de un personaje:
-Replace AfterPrompt;
+! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
+! REGISTRA...):
+Replace SearchSub;
 
-! Para usar el comando box con Glulx:
-Replace Box__Routine;
+! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
+! para el menú principal y las pistas:
+Replace ZIPI_RunMenu;
+Replace ZIPI_RunOtro;
 
 
 Include "Parser";
@@ -213,8 +215,22 @@ Include "Parser";
 
 !===============================================================================
 ! (2) Puntos de Entrada para Glk [solo en Glulx]:
-!     - InitGlkWindow(), IdentifyGlkObject(), HandleGlkEvent()
+!     -  HandleGlkEvent(), IdentifyGlkObject(), InitGlkWindow()
 !-------------------------------------------------------------------------------
+
+
+[ HandleGlkEvent ev context buffer;
+  SGW_HandleGlk(ev);
+  ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
+!  Mapa_HandleGlkEvent(ev, context, buffer);
+];
+
+
+[ IdentifyGlkObject fase tipo ref rock;
+  SGW_IdentifyGlk(fase,tipo,ref,rock);
+  Damusix.IdentificarSonidos(fase);
+!  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
+];
 
 
 [ InitGlkWindow winrock;
@@ -451,20 +467,6 @@ Include "Parser";
 ];
 
 
-[ IdentifyGlkObject fase tipo ref rock;
-  SGW_IdentifyGlk(fase,tipo,ref,rock);
-  Damusix.IdentificarSonidos(fase);
-!  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
-];
-
-
-[ HandleGlkEvent ev context buffer;
-  SGW_HandleGlk(ev);
-  ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
-!  Mapa_HandleGlkEvent(ev, context, buffer);
-];
-
-
 !===============================================================================
 ! (3) Modificar Mensajes de la Libreria; Otros Includes; Incluir VerbLib.h
 !-------------------------------------------------------------------------------
@@ -689,29 +691,29 @@ Class Lugar
 #endif;
 
 
-Include "SGW+DMX_NG";       ! Entre Parser y VerbLib
 Include "elcirculo.bli";    ! Los recursos multimedia de la aventura
+Include "SGW+DMX_NG";       ! Entre Parser y VerbLib
 
 Include "VerbLib";
 
 Include "Barra";            ! Barra de estado personalizable
+!Include "Contenedor";       ! Contenedores
+Include "Decorado_NG";      ! Objetos de decorado
+Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
+Include "Etemas";           ! Los temas de conversación
+!Include "EventList_NG";     ! Listas de mensajes
+Include "ExaminarFalso";    ! Poder examinar objetos sólo con su nombre
+Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
+Include "Gtalk_NG";         ! Conversaciones
+Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
 Include "Moviles_NG";       ! La librería Moviles retocada por mí
+Include "Pistas";           ! Las pistas creadas con ZIPI
 Include "PNJpuertas_NG";    ! La librería PnjPuertas retocada por mí (muy poco)
 Include "PNJactor_NG";      ! Librerías que hacen que un PNJ pueda coger y dejar
-Include "PNJacciones_NG";   ! Poner detrás de Moviles y PnjPuertas
-Include "Etemas";           ! Los temas de conversación
-Include "Decorado_NG";      ! Objetos de decorado
-Include "ExaminarFalso";    ! Poder examinar objetos sólo con su nombre
-!Include "Teletipo";         ! Teletipo para sacar mensajes letra a letra
-Include "Pistas";           ! Las pistas creadas con ZIPI
-Include "Timer";            ! Mi librería de eventos temporizados
-Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
-Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
-!Include "Contenedor";       ! Contenedores
-!Include "EventList_NG";     ! Listas de mensajes
+Include "PNJacciones_NG";   ! Poner detrás de Moviles, PNJpuertas y PNJactor
 Include "Prand_NG";         ! Listas de mensajes
-Include "Gtalk_NG";         ! Conversaciones
-Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
+!Include "Teletipo";         ! Teletipo para sacar mensajes letra a letra
+Include "Timer";            ! Mi librería de eventos temporizados
 
 
 !===============================================================================

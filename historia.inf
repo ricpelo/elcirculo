@@ -36,6 +36,27 @@ Class ZonaMovimientoRuth;
 ! ====================================================================
 
 
+Object cocina_ruth "Cocina"
+  class Lugar
+  class ZonaMovimientoRuth
+  with
+    name 'cocina',
+    nombre_direccion "la cocina",
+    description "La cocina de la casa.",
+    s_to salon_ruth,
+    u_to pasillo_ruth;
+
+
+Object cuarto_katie_ruth "Habitación de Katie"
+  class Lugar
+  with
+    name 'cuarto' 'katie',
+    name_f 'habitacion',
+    nombre_direccion "la habitación de Katie",
+    description "La habitación de Katie.",
+    out_to pasillo_ruth;
+
+
 Object fuera_casa_ruth "Exteriores de la casa de Ruth"
   class Lugar
   with
@@ -43,6 +64,26 @@ Object fuera_casa_ruth "Exteriores de la casa de Ruth"
     nombre_direccion "el exterior de la casa",
     description "Estas fuera de la casa de Ruth y Katie.",
     in_to salon_ruth;
+
+
+Object jardin_ruth "Jardín de la casa"
+  class Lugar
+  with
+    name 'jardin',
+    name_f 'terraza',
+    nombre_direccion "el jardín",
+    description "El jardín de la casa.",
+    in_to salon_ruth;
+    
+
+Object pasillo_ruth "Pasillo superior"
+  class Lugar
+  with
+    name 'pasillo',
+    nombre_direccion "el pasillo superior",
+    description "El pasillo superior.",
+    d_to cocina_ruth,
+    in_to cuarto_katie_ruth;
 
 
 Object salon_ruth "Salón de la casa"
@@ -67,47 +108,6 @@ Object salon_ruth "Salón de la casa"
     ];
 
 
-Object jardin_ruth "Jardín de la casa"
-  class Lugar
-  with
-    name 'jardin',
-    name_f 'terraza',
-    nombre_direccion "el jardín",
-    description "El jardín de la casa.",
-    in_to salon_ruth;
-
-    
-Object cocina_ruth "Cocina"
-  class Lugar
-  class ZonaMovimientoRuth
-  with
-    name 'cocina',
-    nombre_direccion "la cocina",
-    description "La cocina de la casa.",
-    s_to salon_ruth,
-    u_to pasillo_ruth;
-
-
-Object pasillo_ruth "Pasillo superior"
-  class Lugar
-  with
-    name 'pasillo',
-    nombre_direccion "el pasillo superior",
-    description "El pasillo superior.",
-    d_to cocina_ruth,
-    in_to cuarto_katie_ruth;
-
-
-Object cuarto_katie_ruth "Habitación de Katie"
-  class Lugar
-  with
-    name 'cuarto' 'katie',
-    name_f 'habitacion',
-    nombre_direccion "la habitación de Katie",
-    description "La habitación de Katie.",
-    out_to pasillo_ruth;
-
-
 ! ====================================================================
 ! OBJETOS QUE LLEVAN LOS PERSONAJES AL EMPEZAR
 ! ====================================================================
@@ -118,43 +118,9 @@ Object cuarto_katie_ruth "Habitación de Katie"
 ! ====================================================================
 
 
-
-
 ! ====================================================================
 ! PERSONAJES
 ! ====================================================================
-
-
-Object rachel "Rachel"
-  class Personaje
-  with
-    name 'rachel',
-    short_name "Rachel",
-    description [;
-      if (player == self) "Eres tú: Rachel."; 
-      else "Es Rachel.";
-    ],
-    orders [;
-      if (player == self) {
-        ! Este objeto (MANOLO) es el que tiene el foco, es decir
-        ! el que está siendo controlado por el jugador de carne y hueso
-        if (actor == self) {
-          ! Y la orden me está siendo dada a mi, por ejemplo
-          ! el jugador ha puesto: ``SALTA'' mientras controla a MANOLO
-        } else {
-          ! La orden ha sido dada a otro personaje, desde éste
-          ! Por ejemplo el jugador ha puesto ``HELENA, SALTA''
-          ! mientras controla a Manolo
-        }
-      } else {
-        ! La orden proviene de otro personaje (que está siendo controlado
-        ! por el jugador ``real'') y ha sido dirigida a Manolo.
-        ! Por ejemplo, el jugador ha puesto MANOLO, SALTA mientras
-        ! controla a otro personaje.
-      }
-    ],
-  has
-    female;
 
 
 Object aidan "Aidan"
@@ -184,53 +150,22 @@ Object aidan "Aidan"
     ];
 
 
-Object ruth "Ruth"
+Object amiga_morena "amiga morena"
   class Personaje
   with
-    name 'ruth' 'tia',
-    short_name "Ruth",
-    description "Es Ruth.",
-    life [
-      tema old_ret;
-      Ask:
-        if (LugarReal() ~= cocina_ruth) {
-          self.habla("Aquí no... Vamos a un sitio más tranquilo.");
-          PNJ_Ruta(self, MOVIMIENTO_NINGUNO);
-          PNJIr(self, n_obj);
-          rtrue;
-        }
+    short_name "Chica morena";
 
-        tema = AveriguarTema(TemasRuth);
 
-        switch (tema) {
-          tema_ruth_katie:
-            if (self hasnt general) {
-              give self general;
-              old_ret = self.habla_retardo;
-              self.habla_retardo = 1000;
-              self.habla("No tiene sentido, Rachel...", " Me he pasado cuatro
-                          horas en Internet y no he podido encontrar ni un solo
-                          caso de una niña de dieciséis años a la que se le
-                          pare el corazón...", " He hablado con tres médicos y
-                          ninguno sabe decirme qué le pasó a Katie...");
-              self.habla_retardo = old_ret;
-              rtrue;
-            }
+Object amiga_rubia "amiga rubia"
+  class Personaje
+  with
+    short_name "Chica rubia";
 
-          default:
-            return self.habla("No lo sé... De verdad que no lo sé...");
-        }
-    ],
-    orders [;
-      Saludar:
-        return self.habla("Hola, Rachel.");
 
-      default:
-        return self.habla("Perdona si soy brusca, pero mi hija acaba de morir y
-                           no me apetece hacer nada.");
-    ],
-  has
-    female;
+Object amigo_katie "amigo"
+  class Personaje
+  with
+    short_name "Chico";
 
 
 Object amigos_katie "amigos de Katie"
@@ -290,22 +225,85 @@ Object amigos_katie "amigos de Katie"
     ~proper;
 
 
-Object amiga_morena "amiga morena"
+Object rachel "Rachel"
   class Personaje
   with
-    short_name "Chica morena";
+    name 'rachel',
+    short_name "Rachel",
+    description [;
+      if (player == self) "Eres tú: Rachel."; 
+      else "Es Rachel.";
+    ],
+    orders [;
+      if (player == self) {
+        ! Este objeto (MANOLO) es el que tiene el foco, es decir
+        ! el que está siendo controlado por el jugador de carne y hueso
+        if (actor == self) {
+          ! Y la orden me está siendo dada a mi, por ejemplo
+          ! el jugador ha puesto: ``SALTA'' mientras controla a MANOLO
+        } else {
+          ! La orden ha sido dada a otro personaje, desde éste
+          ! Por ejemplo el jugador ha puesto ``HELENA, SALTA''
+          ! mientras controla a Manolo
+        }
+      } else {
+        ! La orden proviene de otro personaje (que está siendo controlado
+        ! por el jugador ``real'') y ha sido dirigida a Manolo.
+        ! Por ejemplo, el jugador ha puesto MANOLO, SALTA mientras
+        ! controla a otro personaje.
+      }
+    ],
+  has
+    female;
 
 
-Object amiga_rubia "amiga rubia"
+Object ruth "Ruth"
   class Personaje
   with
-    short_name "Chica rubia";
+    name 'ruth' 'tia',
+    short_name "Ruth",
+    description "Es Ruth.",
+    life [
+      tema old_ret;
+      Ask:
+        if (LugarReal() ~= cocina_ruth) {
+          self.habla("Aquí no... Vamos a un sitio más tranquilo.");
+          PNJ_Ruta(self, MOVIMIENTO_NINGUNO);
+          PNJIr(self, n_obj);
+          rtrue;
+        }
 
+        tema = AveriguarTema(TemasRuth);
 
-Object amigo_katie "amigo"
-  class Personaje
-  with
-    short_name "Chico";
+        switch (tema) {
+          tema_ruth_katie:
+            if (self hasnt general) {
+              give self general;
+              old_ret = self.habla_retardo;
+              self.habla_retardo = 1000;
+              self.habla("No tiene sentido, Rachel...", " Me he pasado cuatro
+                          horas en Internet y no he podido encontrar ni un solo
+                          caso de una niña de dieciséis años a la que se le
+                          pare el corazón...", " He hablado con tres médicos y
+                          ninguno sabe decirme qué le pasó a Katie...");
+              self.habla_retardo = old_ret;
+              rtrue;
+            }
+
+          default:
+            return self.habla("No lo sé... De verdad que no lo sé...");
+        }
+    ],
+    orders [;
+      Saludar:
+        return self.habla("Hola, Rachel.");
+
+      default:
+        return self.habla("Perdona si soy brusca, pero mi hija acaba de morir y
+                           no me apetece hacer nada.");
+    ],
+  has
+    female;
 
 
 ! ====================================================================
@@ -313,12 +311,9 @@ Object amigo_katie "amigo"
 ! ====================================================================
 
 
-
-
 ! ====================================================================
 ! OBJETOS DE SOPORTE
 ! ====================================================================
-
 
 
 ! ====================================================================
@@ -339,6 +334,11 @@ Object tema_ruth_katie "Katie" TemasRuth
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+[ FinHistoria;
+  "Aquí acaba.";
+];
 
 
 [ InicioHistoria;
@@ -371,11 +371,6 @@ Object tema_ruth_katie "Katie" TemasRuth
   PNJ_Ruta(amigos_katie, MOVIMIENTO_NINGUNO);
 
   PlayerTo(fuera_casa_ruth);
-];
-
-
-[ FinHistoria;
-  "Aquí acaba.";
 ];
 
 
@@ -412,6 +407,11 @@ Verb meta 'testhistoria'
 
 
 #ifdef DEBUG;
+[ InicioHistoriaSub;
+  InicioHistoria();
+];
+
+
 ! Funciones de test. Ver TestMachine_NG.h
 [ TestHistoriaFullSub;
   TestHistoria();
@@ -423,11 +423,6 @@ Verb meta 'testhistoria'
 [ TestHistoriaSub;
   TestHistoria();
   test_machine.run_once();
-];
-
-
-[ InicioHistoriaSub;
-  InicioHistoria();
 ];
 #endif;
 

@@ -92,60 +92,6 @@ Object decorado_cuarto_katie cuarto_katie
       'puerta' "La puerta de tu habitación permanece entreabierta." G_FEMENINO;
 
 
-Object pasillo_katie "Pasillo del piso superior"
-  class LugarCasaKatie
-  with
-    name 'pasillo',
-    nombre_direccion "el pasillo",
-    description [;
-      print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
-             te había parecido tan oscuro y carente de alma. Una fría
-             corriente de aire lo recorre de extremo a extremo, subiendo
-             por las escaleras que dan a la planta baja y cruzando tu
-             espalda en forma de escalofríos continuos y persistentes.";
-      if (puerta_katie notin self) {
-        " La puerta abierta a tu habitación es prácticamente la única
-         fuente de luz en este lúgubre pasaje."; 
-      } else {
-        new_line;
-      }
-    ],
-    in_to cuarto_katie,
-    d_to cocina_katie,
-    sgw_img Pasillo_Katie_jpg,
-    sgw_mus 0;
-
-
-Object decorado_pasillo_katie pasillo_katie
-  class Decorado
-  with
-    before [;
-      Enter:
-        if (self.palabra == 'puerta') <<Go in_obj>>;
-
-      Open:
-        if (self.palabra == 'puerta') "Ya estaba abierta.";
-
-      Close:
-        if (self.palabra == 'puerta')
-          "Pensándolo bien, será mejor no cerrarla. Perderías la mayor parte de
-           la poca luz que ilumina el pasillo.";
-
-      Bajar:
-        if (self.palabra == 'escaleras') <<Go d_obj>>;
-    ],
-    sinonimos
-      'escalera' 'escaleras' G_FEMENINO,
-    describe
-      'escaleras' "Las escaleras, de madera recia y resistente, conducen
-                   directamente a la cocina en la planta baja."
-                   G_FEMENINO + G_PLURAL
-      'puerta' "La puerta entreabierta muestra una vista parcial de tu
-                habitación, cercándola como el marco de un cuadro vertical y
-                alargado."
-                G_FEMENINO;
-
-    
 Object cocina_katie "Cocina"
   class LugarCasaKatie
   with
@@ -223,6 +169,60 @@ Object decorado_cocina_katie cocina_katie
       'escaleras' "Las escaleras permiten el acceso a la planta alta."
                    G_FEMENINO + G_PLURAL
       'arco' "La pared sur se abre en forma de arco para acceder al salón." 0;
+
+
+Object pasillo_katie "Pasillo del piso superior"
+  class LugarCasaKatie
+  with
+    name 'pasillo',
+    nombre_direccion "el pasillo",
+    description [;
+      print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
+             te había parecido tan oscuro y carente de alma. Una fría
+             corriente de aire lo recorre de extremo a extremo, subiendo
+             por las escaleras que dan a la planta baja y cruzando tu
+             espalda en forma de escalofríos continuos y persistentes.";
+      if (puerta_katie notin self) {
+        " La puerta abierta a tu habitación es prácticamente la única
+         fuente de luz en este lúgubre pasaje."; 
+      } else {
+        new_line;
+      }
+    ],
+    in_to cuarto_katie,
+    d_to cocina_katie,
+    sgw_img Pasillo_Katie_jpg,
+    sgw_mus 0;
+
+
+Object decorado_pasillo_katie pasillo_katie
+  class Decorado
+  with
+    before [;
+      Enter:
+        if (self.palabra == 'puerta') <<Go in_obj>>;
+
+      Open:
+        if (self.palabra == 'puerta') "Ya estaba abierta.";
+
+      Close:
+        if (self.palabra == 'puerta')
+          "Pensándolo bien, será mejor no cerrarla. Perderías la mayor parte de
+           la poca luz que ilumina el pasillo.";
+
+      Bajar:
+        if (self.palabra == 'escaleras') <<Go d_obj>>;
+    ],
+    sinonimos
+      'escalera' 'escaleras' G_FEMENINO,
+    describe
+      'escaleras' "Las escaleras, de madera recia y resistente, conducen
+                   directamente a la cocina en la planta baja."
+                   G_FEMENINO + G_PLURAL
+      'puerta' "La puerta entreabierta muestra una vista parcial de tu
+                habitación, cercándola como el marco de un cuadro vertical y
+                alargado."
+                G_FEMENINO;
 
 
 Object salon_katie "Salón"
@@ -303,6 +303,197 @@ Object uniforme_katie "uniforme"
 ! ====================================================================
 
 
+Object charco_katie "charco de agua"
+  with
+    name 'charco' 'agua' 'liquido',
+    description "Es, claramente, un charco con forma irregular
+                 alimentado del agua que se filtra por debajo de la puerta
+                 de tu habitación.",
+    initial [;
+      StartTimer(self, 4);
+      "Depositado en mitad del pasillo, como una mancha líquida en el
+       suelo, ves un charco de agua que se extiende filtrándose por
+       debajo de la puerta cerrada de tu habitación.";
+    ],
+    time_left 0,
+    time_out [;
+      self.initial = "El charco es cada vez más grande. No deja de salir agua
+                      por debajo de la puerta.";
+    ],
+    react_before [;
+      Examine:
+        if (noun == d_obj) {
+          <<Examine self>>;
+        }
+    ],
+    before [;
+      Touch:
+        "Rozas el charco de agua con el pulgar de uno de tus pies descalzos y
+         perciben su frío y su viscosidad.";
+
+      Smell:
+        "El agua expele un hedor putrefacto, podrido, como el del agua
+         estancada.";
+    ],
+  has
+    static;
+
+
+Object decorado_puerta_katie
+  class Decorado
+  with
+    before [;
+      if (action ~= ##Examine) {
+        if (self.palabra_usada == 'gota' or 'gotas') {
+          "Las gotas de agua son casi inmateriales y se escurren entre tus
+          dedos.";
+        } else if (self.palabra == 'luz') {
+          "No puedes tocar la luz, pero de todas formas tampoco te atreves.";
+        }
+      }
+
+      Touch:
+        if (self.palabra == 'pomo') {
+          "Tocas el pomo mojado de la puerta y la humedad traspasa tu piel.";
+        }
+
+      Take:
+        if (self.palabra_usada == 'pomo' or 'picaporte') {
+          <<Open puerta_katie>>;
+        }
+    ],
+    sinonimos
+      'picaporte'  'pomo' (-1)
+      'gota'       'pomo' G_FEMENINO
+      'gotas'      'pomo' G_FEMENINO + G_PLURAL
+      'haz'        'luz'  0
+      'resplandor' 'luz'  0
+      'abertura'   'luz'  (-1),
+    describe
+      'pomo' "Del pomo de la puerta cae un goteo continuo de agua que no
+              acabas de comprender de dónde proviene." 0
+      'luz'  "La luz se proyecta desde el interior de tu habitación y sale
+              por debajo de la puerta proyectando un haz de un color
+              enfermizo." G_FEMENINO;
+
+
+Object frigorifico_katie "frigorífico" cocina_katie
+  class EscenarioAbrible
+  with
+    name_m 'frigorifico' 'frigo' 'congelador',
+    name_f 'nevera' 'puerta',
+    article "el",
+    gender G_MASCULINO,
+    description [;
+      if (self hasnt open) {
+        "Un moderno frigorífico de puertas metálicas y casi imperceptible
+         ronroneo.";
+      } else {
+        "El frigorífico, entreabierto, emite un haz de luz azulado bañando
+         parte de la cocina a su paso. El sonido del motor resulta más
+         audible que cuando estaba cerrado.";
+      }
+    ],
+    se_abre_solo [;
+      give self general;
+      print "Nada más cruzar el arco que separa la cocina del salón, notas
+             algo moverse junto al teléfono, justo en el extremo de tu
+             percepción visual. Al girar la mirada, ves la causa y el
+             corazón te da un vuelco: la puerta del frigorífico se va
+             abriendo poco a poco, totalmente silenciosa, hasta quedar a
+             medio abrir.";
+      KeyDelay();
+      new_line;
+    ],
+    ya_visto_abierto false,
+    when_open [;
+      if (~~(self.ya_visto_abierto)) {
+        self.ya_visto_abierto = true;
+        "^Ves el frigorífico abierto, como una invitación a lo desconocido."; 
+      } else {
+        "^El frigorífico sigue abierto.";
+      }
+    ],
+    before [;
+      Open:
+        if (self hasnt general) {
+          "Abres el frigorífico, observas la comida con nulo interés, y vuelves
+           a cerrarlo cuestionándote brevemente el por qué de tu falta de
+           apetito.";
+        } else {
+          "No te atreves a volverlo a abrir.";
+        }
+
+      Close:
+        if (self hasnt open) "El frigorífico ya está cerrado.";
+    ],
+    after [;
+      Close:
+        self.cerrar();
+        cocina_katie.sgw_img = Cocina_Katie_jpg;
+        viewImageCenter(Cocina_Katie_jpg);
+        "Cierras el frigorífico con rapidez sin atreverte a mirar en su
+        interior.";
+    ];
+
+
+Object puerta_katie "puerta de tu habitación"
+  with
+    name 'puerta' 'habitacion',
+    article "la",
+    description "Bajo la puerta cerrada de tu habitación se escurre hacia el
+                 pasillo un flujo lento pero constante de agua. Un resplandor
+                 blanquecino proveniente de tu habitación acompaña al río de
+                 agua mientras atraviesa la rendija inferior de la puerta. Del
+                 pomo, empapado como si rezumara humedad, caen continuas gotas
+                 al suelo.",
+    initial "Alguien ha cerrado la puerta de tu habitación, dejando bajo ella
+             una fina abertura por la que salen un líquído hediondo y una
+             luz mortecina.",
+    add_to_scope decorado_puerta_katie,
+    react_before [;
+      Enter, GoIn:
+        <<Open self>>;
+
+      Go:
+        if (noun == in_obj) <<Open self>>;
+
+      Examine:
+        rfalse;
+        
+      default:
+        if (noun == decorado_puerta_katie &&
+          decorado_puerta_katie.palabra_usada == 'pomo' or 'picaporte') {
+          noun = puerta_katie;
+          ! Esto es porque al hacer el truco de la línea anterior (de cambiar
+          ! el noun por la cara) luego no se ejecuta la rutina before:
+          return RunRoutines(self, before);
+        }
+        rfalse;
+    ],
+    before [;
+      Examine:
+        PrintOrRun(self, description);
+        rtrue;
+
+      Open:
+        FinPrologo();
+        rtrue;
+
+      Llamar:
+        "Llamas a la puerta, pero nadie contesta.";
+
+      Attack:
+        "La puerta es demasiado sólida y no eres lo bastante fuerte.";
+
+      Close:
+        "La puerta ya está cerrada.";
+        
+    ],
+  has
+    static female openable;
+
+
 Object telefono_katie "teléfono" cocina_katie
   with
     name 'telefono' 'auricular' 'tlf',
@@ -377,66 +568,6 @@ Object telefono_katie "teléfono" cocina_katie
     ],
   has
     scenery;
-
-
-Object frigorifico_katie "frigorífico" cocina_katie
-  class EscenarioAbrible
-  with
-    name_m 'frigorifico' 'frigo' 'congelador',
-    name_f 'nevera' 'puerta',
-    article "el",
-    gender G_MASCULINO,
-    description [;
-      if (self hasnt open) {
-        "Un moderno frigorífico de puertas metálicas y casi imperceptible
-         ronroneo.";
-      } else {
-        "El frigorífico, entreabierto, emite un haz de luz azulado bañando
-         parte de la cocina a su paso. El sonido del motor resulta más
-         audible que cuando estaba cerrado.";
-      }
-    ],
-    se_abre_solo [;
-      give self general;
-      print "Nada más cruzar el arco que separa la cocina del salón, notas
-             algo moverse junto al teléfono, justo en el extremo de tu
-             percepción visual. Al girar la mirada, ves la causa y el
-             corazón te da un vuelco: la puerta del frigorífico se va
-             abriendo poco a poco, totalmente silenciosa, hasta quedar a
-             medio abrir.";
-      KeyDelay();
-      new_line;
-    ],
-    ya_visto_abierto false,
-    when_open [;
-      if (~~(self.ya_visto_abierto)) {
-        self.ya_visto_abierto = true;
-        "^Ves el frigorífico abierto, como una invitación a lo desconocido."; 
-      } else {
-        "^El frigorífico sigue abierto.";
-      }
-    ],
-    before [;
-      Open:
-        if (self hasnt general) {
-          "Abres el frigorífico, observas la comida con nulo interés, y vuelves
-           a cerrarlo cuestionándote brevemente el por qué de tu falta de
-           apetito.";
-        } else {
-          "No te atreves a volverlo a abrir.";
-        }
-
-      Close:
-        if (self hasnt open) "El frigorífico ya está cerrado.";
-    ],
-    after [;
-      Close:
-        self.cerrar();
-        cocina_katie.sgw_img = Cocina_Katie_jpg;
-        viewImageCenter(Cocina_Katie_jpg);
-        "Cierras el frigorífico con rapidez sin atreverte a mirar en su
-        interior.";
-    ];
 
 
 Object tv_cuarto_katie "televisor" cuarto_katie
@@ -658,156 +789,9 @@ Object tv_salon_katie "televisor" salon_katie
     static switchable;
 
 
-Object charco_katie "charco de agua"
-  with
-    name 'charco' 'agua' 'liquido',
-    description "Es, claramente, un charco con forma irregular
-                 alimentado del agua que se filtra por debajo de la puerta
-                 de tu habitación.",
-    initial [;
-      StartTimer(self, 4);
-      "Depositado en mitad del pasillo, como una mancha líquida en el
-       suelo, ves un charco de agua que se extiende filtrándose por
-       debajo de la puerta cerrada de tu habitación.";
-    ],
-    time_left 0,
-    time_out [;
-      self.initial = "El charco es cada vez más grande. No deja de salir agua
-                      por debajo de la puerta.";
-    ],
-    react_before [;
-      Examine:
-        if (noun == d_obj) {
-          <<Examine self>>;
-        }
-    ],
-    before [;
-      Touch:
-        "Rozas el charco de agua con el pulgar de uno de tus pies descalzos y
-         perciben su frío y su viscosidad.";
-
-      Smell:
-        "El agua expele un hedor putrefacto, podrido, como el del agua
-         estancada.";
-    ],
-  has
-    static;
-
-
-Object puerta_katie "puerta de tu habitación"
-  with
-    name 'puerta' 'habitacion',
-    article "la",
-    description "Bajo la puerta cerrada de tu habitación se escurre hacia el
-                 pasillo un flujo lento pero constante de agua. Un resplandor
-                 blanquecino proveniente de tu habitación acompaña al río de
-                 agua mientras atraviesa la rendija inferior de la puerta. Del
-                 pomo, empapado como si rezumara humedad, caen continuas gotas
-                 al suelo.",
-    initial "Alguien ha cerrado la puerta de tu habitación, dejando bajo ella
-             una fina abertura por la que salen un líquído hediondo y una
-             luz mortecina.",
-    add_to_scope decorado_puerta_katie,
-    react_before [;
-      Enter, GoIn:
-        <<Open self>>;
-
-      Go:
-        if (noun == in_obj) <<Open self>>;
-
-      Examine:
-        rfalse;
-        
-      default:
-        if (noun == decorado_puerta_katie &&
-          decorado_puerta_katie.palabra_usada == 'pomo' or 'picaporte') {
-          noun = puerta_katie;
-          ! Esto es porque al hacer el truco de la línea anterior (de cambiar
-          ! el noun por la cara) luego no se ejecuta la rutina before:
-          return RunRoutines(self, before);
-        }
-        rfalse;
-    ],
-    before [;
-      Examine:
-        PrintOrRun(self, description);
-        rtrue;
-
-      Open:
-        FinPrologo();
-        rtrue;
-
-      Llamar:
-        "Llamas a la puerta, pero nadie contesta.";
-
-      Attack:
-        "La puerta es demasiado sólida y no eres lo bastante fuerte.";
-
-      Close:
-        "La puerta ya está cerrada.";
-        
-    ],
-  has
-    static female openable;
-
-
-Object decorado_puerta_katie
-  class Decorado
-  with
-    before [;
-      if (action ~= ##Examine) {
-        if (self.palabra_usada == 'gota' or 'gotas') {
-          "Las gotas de agua son casi inmateriales y se escurren entre tus
-          dedos.";
-        } else if (self.palabra == 'luz') {
-          "No puedes tocar la luz, pero de todas formas tampoco te atreves.";
-        }
-      }
-
-      Touch:
-        if (self.palabra == 'pomo') {
-          "Tocas el pomo mojado de la puerta y la humedad traspasa tu piel.";
-        }
-
-      Take:
-        if (self.palabra_usada == 'pomo' or 'picaporte') {
-          <<Open puerta_katie>>;
-        }
-    ],
-    sinonimos
-      'picaporte'  'pomo' (-1)
-      'gota'       'pomo' G_FEMENINO
-      'gotas'      'pomo' G_FEMENINO + G_PLURAL
-      'haz'        'luz'  0
-      'resplandor' 'luz'  0
-      'abertura'   'luz'  (-1),
-    describe
-      'pomo' "Del pomo de la puerta cae un goteo continuo de agua que no
-              acabas de comprender de dónde proviene." 0
-      'luz'  "La luz se proyecta desde el interior de tu habitación y sale
-              por debajo de la puerta proyectando un haz de un color
-              enfermizo." G_FEMENINO;
-
-
 ! ====================================================================
 ! PERSONAJES
 ! ====================================================================
-
-
-Object katie "Katie" cuarto_katie
-  class Personaje
-  with
-    name 'katie',
-    short_name "Katie",
-    add_to_scope uniforme_katie,
-    imagen Katie_jpg,
-    description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
-                 responsable, de ojos oscuros y cabello largo, rubio y liso.
-                 Tu mejor amiga Becca y tú estáis pasando una noche solas en tu
-                 casa, aprovechando que tus padres están fuera. Aún llevas
-                 puesto tu uniforme escolar, aunque vas descalza.",
-  has
-    female;
 
 
 Object becca "Becca" cuarto_katie
@@ -943,10 +927,38 @@ Object becca_ausente "Becca ausente"
   has
     animate concealed;
 
+
+Object katie "Katie" cuarto_katie
+  class Personaje
+  with
+    name 'katie',
+    short_name "Katie",
+    add_to_scope uniforme_katie,
+    imagen Katie_jpg,
+    description "Eres tú: Katie Embry, una chica adolescente algo alocada pero
+                 responsable, de ojos oscuros y cabello largo, rubio y liso.
+                 Tu mejor amiga Becca y tú estáis pasando una noche solas en tu
+                 casa, aprovechando que tus padres están fuera. Aún llevas
+                 puesto tu uniforme escolar, aunque vas descalza.",
+  has
+    female;
+
     
 ! ====================================================================
 ! GESTORES DE TIMER
 ! ====================================================================
+
+    
+Object timer_becca
+  class GestorTimer
+  with
+    duracion TIMER_DURACION_BECCA,
+    condicion [;
+      return sonido_telefono_katie.sonando();
+    ],
+    evento [;
+      sonido_telefono_katie.each_turn();
+    ];
 
 
 Object timer_telefono_katie
@@ -963,18 +975,6 @@ Object timer_telefono_katie
       } else {
         sonido_telefono_katie.time_left--;
       }
-    ];
-
-    
-Object timer_becca
-  class GestorTimer
-  with
-    duracion TIMER_DURACION_BECCA,
-    condicion [;
-      return sonido_telefono_katie.sonando();
-    ],
-    evento [;
-      sonido_telefono_katie.each_turn();
     ];
 
 
@@ -1042,13 +1042,13 @@ Object sonido_telefono_katie
     concealed;
 
 
-Object sonido_tv_salon_katie
+Object sonido_tv_cuarto_katie
   class Sonido
   with
-    found_in salon_katie cocina_katie pasillo_katie,
-    canal CANAL_TV_SALON,
-    fuente tv_salon_katie,
-    volumen_principal VOLUMEN_TV_SALON,
+    found_in salon_katie pasillo_katie,
+    canal CANAL_TV_CUARTO,
+    fuente tv_cuarto_katie,
+    volumen_principal VOLUMEN_TV_CUARTO,
     propagacion 2,
     sonar [;
       self.tocar_sonido(TV_Ruido_ogg);
@@ -1060,13 +1060,13 @@ Object sonido_tv_salon_katie
     concealed; 
 
 
-Object sonido_tv_cuarto_katie
+Object sonido_tv_salon_katie
   class Sonido
   with
-    found_in salon_katie pasillo_katie,
-    canal CANAL_TV_CUARTO,
-    fuente tv_cuarto_katie,
-    volumen_principal VOLUMEN_TV_CUARTO,
+    found_in salon_katie cocina_katie pasillo_katie,
+    canal CANAL_TV_SALON,
+    fuente tv_salon_katie,
+    volumen_principal VOLUMEN_TV_SALON,
     propagacion 2,
     sonar [;
       self.tocar_sonido(TV_Ruido_ogg);
@@ -1109,6 +1109,75 @@ Object tema_becca_tv "el televisor" TemasBecca
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+[ FinPrologo
+  i j sw;
+  StatusLineHeight(0);
+  print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
+         en el proceso las plantas de los pies, lo que te provoca una
+         reacción al frío más allá de lo esperable. Apoyas la mano en el
+         goteante pomo de la puerta, y el frío recorre ahora los dedos y el
+         brazo en dirección a tu sobresaltado corazón. Sabes que tienes que
+         abrir, algo te llama... algo tan frío y básico como el agua que
+         se desliza ahora por tu piel, envolviéndote. Y, sin saber bien cómo,
+         te ves girando el pomo y abriendo la puerta de par en par...";
+  KeyDelay(4000);
+  print "^^... sólo para descubrir ", (s_emph) "el horror", ".";
+  viewImageCenter(Fin_Prologo1_jpg);
+  WaitDelay(1000);
+  viewImageCenter(Fin_Prologo2_jpg);
+!  KeyDelay(2000);
+  print "^^Tu boca se abre tanto como puede para gritar y gritar y no dejar
+         de gritar. Tu rostro, desencajado por el puro terror, se deforma y
+         se funde como en contacto con el más poderoso ácido. Y tu corazón se
+         detiene justo instantes después de verlo.";
+  viewImageCenter(Fin_Prologo3_jpg);
+  WaitDelay(3000);
+  print "^^Sí: de verlo. Porque antes de morir, ", (s_emph) "lo ves.";
+  KeyDelay(2000);
+  print "^^Ves ", (s_user1) "el círculo.";
+  KeyDelay(400);
+  viewImageCenter(Fin_Prologo4_jpg);
+  Damusix.TocarV(Mujer_Gritando_ogg);
+  WaitDelay(100);
+  viewImageCenter(Fin_Prologo5_jpg);
+  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 1000);
+  clearMainWindow();
+  print "Ves ", (s_user1) "el círculo.";
+  WaitDelay(20);
+  MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
+  MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
+  clearTextWindow();
+  box "(c) 2012 Alpha Aventuras";
+  KeyDelay();
+!  BanderaFin(2);
+  Damusix.AsignarCanal(TV_Ruido_ogg, CANAL_TV_SALON, VOLUMEN_TV_SALON,
+                       SONIDO_REPETIR);
+  Damusix.TocarCanal(CANAL_TV_SALON);
+  for (j = 1: j <= 3: j++) {
+    sw = false;
+    for (i = 0: i < 40: i++) {
+      viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(5)) break;
+      viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(5)) break;
+      viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(5)) break;
+      if (~~sw) {
+        sw = true;
+        switch (j) {
+          1: box "Programación y diseño: Ricardo Pérez";
+          2: box "Gráficos: Manuel Millán";
+          3: box " Basada en la novela @<<Ringu@>>, de Koji Suzuki"
+                 "y el film @<<The Ring@>>, (c) 2002 Dreamworks SKG";
+        }
+      }
+    }
+  }
+  Damusix.TocarV(TV_Apaga_ogg);
+  Damusix.PararCanal(CANAL_TV_SALON);
+  barra_estado.numero_lineas = 1;
+  barra_estado.dibujar();
+  InicioHistoria();
+];
 
 
 [ InicioPrologo
@@ -1272,75 +1341,6 @@ Object tema_becca_tv "el televisor" TemasBecca
 !  rfalse;
 
   new_line;
-];
-
-
-[ FinPrologo
-  i j sw;
-  StatusLineHeight(0);
-  print "Te acercas, paso a paso, hasta la puerta de tu habitación, mojándote
-         en el proceso las plantas de los pies, lo que te provoca una
-         reacción al frío más allá de lo esperable. Apoyas la mano en el
-         goteante pomo de la puerta, y el frío recorre ahora los dedos y el
-         brazo en dirección a tu sobresaltado corazón. Sabes que tienes que
-         abrir, algo te llama... algo tan frío y básico como el agua que
-         se desliza ahora por tu piel, envolviéndote. Y, sin saber bien cómo,
-         te ves girando el pomo y abriendo la puerta de par en par...";
-  KeyDelay(4000);
-  print "^^... sólo para descubrir ", (s_emph) "el horror", ".";
-  viewImageCenter(Fin_Prologo1_jpg);
-  WaitDelay(1000);
-  viewImageCenter(Fin_Prologo2_jpg);
-!  KeyDelay(2000);
-  print "^^Tu boca se abre tanto como puede para gritar y gritar y no dejar
-         de gritar. Tu rostro, desencajado por el puro terror, se deforma y
-         se funde como en contacto con el más poderoso ácido. Y tu corazón se
-         detiene justo instantes después de verlo.";
-  viewImageCenter(Fin_Prologo3_jpg);
-  WaitDelay(3000);
-  print "^^Sí: de verlo. Porque antes de morir, ", (s_emph) "lo ves.";
-  KeyDelay(2000);
-  print "^^Ves ", (s_user1) "el círculo.";
-  KeyDelay(400);
-  viewImageCenter(Fin_Prologo4_jpg);
-  Damusix.TocarV(Mujer_Gritando_ogg);
-  WaitDelay(100);
-  viewImageCenter(Fin_Prologo5_jpg);
-  Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 1000);
-  clearMainWindow();
-  print "Ves ", (s_user1) "el círculo.";
-  WaitDelay(20);
-  MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
-  MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
-  clearTextWindow();
-  box "(c) 2012 Alpha Aventuras";
-  KeyDelay();
-!  BanderaFin(2);
-  Damusix.AsignarCanal(TV_Ruido_ogg, CANAL_TV_SALON, VOLUMEN_TV_SALON,
-                       SONIDO_REPETIR);
-  Damusix.TocarCanal(CANAL_TV_SALON);
-  for (j = 1: j <= 3: j++) {
-    sw = false;
-    for (i = 0: i < 40: i++) {
-      viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(5)) break;
-      viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(5)) break;
-      viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(5)) break;
-      if (~~sw) {
-        sw = true;
-        switch (j) {
-          1: box "Programación y diseño: Ricardo Pérez";
-          2: box "Gráficos: Manuel Millán";
-          3: box " Basada en la novela @<<Ringu@>>, de Koji Suzuki"
-                 "y el film @<<The Ring@>>, (c) 2002 Dreamworks SKG";
-        }
-      }
-    }
-  }
-  Damusix.TocarV(TV_Apaga_ogg);
-  Damusix.PararCanal(CANAL_TV_SALON);
-  barra_estado.numero_lineas = 1;
-  barra_estado.dibujar();
-  InicioHistoria();
 ];
 
 

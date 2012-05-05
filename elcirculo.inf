@@ -100,6 +100,7 @@ Constant ALTURA_MENU_COMPLETA  = 24;
 ! Altura (en px.) de la ventana de logo en el menú principal:
 Constant ALTURA_LOGO_MENU      = 250;
 
+
 ! ====================================================================
 ! VARIABLES GLOBALES
 ! ====================================================================
@@ -214,13 +215,6 @@ Include "Parser";
 ! (2) Puntos de Entrada para Glk [solo en Glulx]:
 !     - InitGlkWindow(), IdentifyGlkObject(), HandleGlkEvent()
 !-------------------------------------------------------------------------------
-
-
-[ IdentifyGlkObject fase tipo ref rock;
-  SGW_IdentifyGlk(fase,tipo,ref,rock);
-  Damusix.IdentificarSonidos(fase);
-!  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
-];
 
 
 [ InitGlkWindow winrock;
@@ -454,6 +448,13 @@ Include "Parser";
   }
 
   rfalse; ! si te olvidas esta linea, el juego no funcionará bien
+];
+
+
+[ IdentifyGlkObject fase tipo ref rock;
+  SGW_IdentifyGlk(fase,tipo,ref,rock);
+  Damusix.IdentificarSonidos(fase);
+!  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
 ];
 
 
@@ -811,6 +812,36 @@ Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
 ];
 
 
+! Modificado para que al empujar un objeto a una localidad se muestre
+! más información:
+[ AllowPushDir
+  i tmp;
+  if (parent(second) ~= compass) return L__M(##PushDir, 2, noun);
+  if (second == u_obj or d_obj)  return L__M(##PushDir, 3, noun);
+  AfterRoutines(); i = noun; move i to player;
+  tmp = location;                                     ! (c) Alpha
+  estoyEmpujando = true;                              ! (c) Alpha
+  <Go second>;
+  estoyEmpujando = false;                             ! (c) Alpha
+  if (location == thedark) move i to real_location;
+  else                     move i to location;
+  if (tmp ~= location && location ~= thedark)
+    PrintOrRun(i, describe);                          ! (c) Alpha
+];
+
+
+[ Amusing;
+  rfalse;
+];
+
+
+[ DrawStatusLine;
+  if (dibujarEstado) {
+    barra_estado.dibujar();
+  }
+];
+
+
 [ InScope actor
   l;
   
@@ -840,15 +871,31 @@ Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
 ];
 
 
-[ Amusing;
-  rfalse;
-];
-
-
-[ DrawStatusLine;
-  if (dibujarEstado) {
-    barra_estado.dibujar();
+! Esta versión no muestra los puntos cardinales y representa las direcciones
+! como los nombres de los lugares a los que se llega por esa dirección:
+[ LanguageDirection d
+  l par;
+  par = true;
+  switch (d) {
+    n_to:    par = false; ! print "al norte";
+    s_to:    par = false; ! print "al sur";
+    e_to:    par = false; ! print "al este";
+    w_to:    par = false; ! print "al oeste";
+    ne_to:   par = false; ! print "al nordeste";
+    nw_to:   par = false; ! print "al noroeste";
+    se_to:   par = false; ! print "al sudeste";
+    sw_to:   par = false; ! print "al suroeste";
+    u_to:    print "arriba";
+    d_to:    print "abajo";
+    in_to:   print "dentro";
+    out_to:  print "fuera";
+    default: return RunTimeError(9, d);
   }
+  l = LugarReal();
+  print " ";
+  if (par) print "(";
+  l.d.mostrar_nombre();
+  if (par) print ")";
 ];
 
 
@@ -881,50 +928,6 @@ Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
   }
 ];
 
-
-! Modificado para que al empujar un objeto a una localidad se muestre
-! más información:
-[ AllowPushDir i tmp;
-  if (parent(second) ~= compass) return L__M(##PushDir, 2, noun);
-  if (second == u_obj or d_obj)  return L__M(##PushDir, 3, noun);
-  AfterRoutines(); i = noun; move i to player;
-  tmp = location;                                     ! (c) Alpha
-  estoyEmpujando = true;                              ! (c) Alpha
-  <Go second>;
-  estoyEmpujando = false;                             ! (c) Alpha
-  if (location == thedark) move i to real_location;
-  else                     move i to location;
-  if (tmp ~= location && location ~= thedark)
-    PrintOrRun(i, describe);                          ! (c) Alpha
-];
-
-
-! Esta versión no muestra los puntos cardinales y representa las direcciones
-! como los nombres de los lugares a los que se llega por esa dirección:
-[ LanguageDirection d
-  l par;
-  par = true;
-  switch (d) {
-    n_to:    par = false; ! print "al norte";
-    s_to:    par = false; ! print "al sur";
-    e_to:    par = false; ! print "al este";
-    w_to:    par = false; ! print "al oeste";
-    ne_to:   par = false; ! print "al nordeste";
-    nw_to:   par = false; ! print "al noroeste";
-    se_to:   par = false; ! print "al sudeste";
-    sw_to:   par = false; ! print "al suroeste";
-    u_to:    print "arriba";
-    d_to:    print "abajo";
-    in_to:   print "dentro";
-    out_to:  print "fuera";
-    default: return RunTimeError(9, d);
-  }
-  l = LugarReal();
-  print " ";
-  if (par) print "(";
-  l.d.mostrar_nombre();
-  if (par) print ")";
-];
 
 
 !===============================================================================
@@ -1113,6 +1116,31 @@ Class Sonido
 ! ====================================================================
 
 
+Object barra_estado
+  class objeto_barra_estado
+  with
+    modo BE_COMPUESTO,
+    disposicion
+      1  1 true BE_LOCALIDAD
+      68 1 true BE_TURNOS,
+    lineas_inv
+      BE_INV_TOTAL;
+
+
+! Lugar necesario para que no haya errores al compilar si no hay localidades
+! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
+Object lugar_vacio
+  class Lugar
+  with
+    nombre_si_visitado null,
+    nombre_no_visitado null,
+    nombre_direccion null;
+
+
+Object testigo
+  class Movil;
+
+
 Object timer_imagen_personaje
   class GestorTimer
   with
@@ -1131,31 +1159,6 @@ Object timer_imagen_personaje
     ];
 
 
-! Lugar necesario para que no haya errores al compilar si no hay localidades
-! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
-Object lugar_vacio
-  class Lugar
-  with
-    nombre_si_visitado null,
-    nombre_no_visitado null,
-    nombre_direccion null;
-
-
-Object barra_estado
-  class objeto_barra_estado
-  with
-    modo BE_COMPUESTO,
-    disposicion
-      1  1 true BE_LOCALIDAD
-      68 1 true BE_TURNOS,
-    lineas_inv
-      BE_INV_TOTAL;
-
-
-Object testigo
-  class Movil;
-
-
 ! ====================================================================
 ! MENÚS ZIPI
 ! ====================================================================
@@ -1166,22 +1169,6 @@ Array teclas_opciones --> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
                           'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
 Array numero_opciones -> 30;
     
-                          
-[ ZIPI_RunOtro _o
-  r;
-  closeGraphicWindow();
-  StatusLineHeight(ALTURA_MENU_COMPLETA);
-  ZIPI_PintaTitulo(_o.ZIPI_titulo);
-  print "^";
-  r = _o.ZIPI_ejecutar();
-  if (~~r) ZIPI_Espera();
-  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
-  openGraphicWindow(ALTURA_LOGO_MENU);
-  clearGraphicWindow();
-  viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
-  return r;
-];
-
 
 [ ZIPI_RunMenu _m top
   i j count cur key target redibujar ft r k tec;
@@ -1293,19 +1280,30 @@ Array numero_opciones -> 30;
 ];
 
 
-Object ZIPI_Menu_Principal
+[ ZIPI_RunOtro _o
+  r;
+  closeGraphicWindow();
+  StatusLineHeight(ALTURA_MENU_COMPLETA);
+  ZIPI_PintaTitulo(_o.ZIPI_titulo);
+  print "^";
+  r = _o.ZIPI_ejecutar();
+  if (~~r) ZIPI_Espera();
+  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
+  openGraphicWindow(ALTURA_LOGO_MENU);
+  clearGraphicWindow();
+  viewImageCenter(Logo_Alpha_Aventuras_Corto_jpg);
+  return r;
+];
+
+
+Object ZIPI_Accesibilidad
   class ZIPI_Menu
   with
-    ZIPI_titulo "EL CÍRCULO - (c) Alpha Aventuras 2012",
+    ZIPI_titulo "Opciones de accesibilidad",
     ZIPI_item
-      ZIPI_Jugar_Con_Intro
-      ZIPI_Jugar_Sin_Intro
-      ZIPI_Restaurar
-      ZIPI_Configuracion
-      ZIPI_Separador
-      ZIPI_Menu1;
+      ZIPI_Tiempo_Real;
 
-      
+
 Object ZIPI_Configuracion
   class ZIPI_Menu
   with
@@ -1318,7 +1316,7 @@ Object ZIPI_Configuracion
       ZIPI_Separador
       ZIPI_Accesibilidad;
 
-      
+
 Object ZIPI_Graficos
   class ZIPI_Otro
   with
@@ -1331,87 +1329,7 @@ Object ZIPI_Graficos
     ],
     ZIPI_ejecutar [; rtrue; ];
 
-    
-Object ZIPI_Tamano_Graficos
-  class ZIPI_Otro
-  with
-    ZIPI_titulo [;
-      switch (altoVentanaGrafica) {
-        GRAFICOS_MINUSCULOS: "Tamaño de gráficos: ",
-                             GRAFICOS_MINUSCULOS, " px. (MINÚSCULOS)";
-        GRAFICOS_PEQUENOS:   "Tamaño de gráficos: ",
-                             GRAFICOS_PEQUENOS, " px. (PEQUEÑOS)";
-        GRAFICOS_MEDIANOS:   "Tamaño de gráficos: ",
-                             GRAFICOS_MEDIANOS, " px. (MEDIANOS, recomendado)";
-        GRAFICOS_GRANDES:    "Tamaño de gráficos: ",
-                             GRAFICOS_GRANDES,  " px. (GRANDES)";
-        default:             "Tamaño de gráficos: ",
-                             altoVentanaGrafica, " px.";          
-      }
-    ],
-    ZIPI_cambiar [;
-      if (altoVentanaGrafica < GRAFICOS_GRANDES)
-        altoVentanaGrafica = altoVentanaGrafica + 50;
-      else
-        altoVentanaGrafica = GRAFICOS_MINUSCULOS;
-    ],
-    ZIPI_ejecutar [; rtrue; ];
 
-    
-Object ZIPI_Sonido
-  class ZIPI_Otro
-  with
-    ZIPI_titulo [;
-      if (haySonido) "Sonido global: SÍ (recomendado)";
-      else           "Sonido global: NO";
-    ],
-    ZIPI_cambiar [;
-      haySonido = ~~haySonido;
-      if (haySonido) Damusix.ActivarAudio();
-      else           Damusix.DesactivarAudio();
-    ],
-    ZIPI_ejecutar [; rtrue; ];
-
-    
-Object ZIPI_Sonido_Fondo
-  class ZIPI_Otro
-  with
-    ZIPI_titulo [;
-      if (haySonidoFondo) "Sonido de fondo: SÍ (recomendado)";
-      else                "Sonido de fondo: NO";
-    ],
-    ZIPI_cambiar [;
-      haySonidoFondo = ~~haySonidoFondo;
-      if (haySonidoFondo) {
-        Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
-      } else {
-        Damusix.VolumenCanal(CANAL_FONDO, 0);
-      } 
-    ],
-    ZIPI_ejecutar [; rtrue; ];
-
-
-Object ZIPI_Accesibilidad
-  class ZIPI_Menu
-  with
-    ZIPI_titulo "Opciones de accesibilidad",
-    ZIPI_item
-      ZIPI_Tiempo_Real;
-
-    
-Object ZIPI_Tiempo_Real
-  class ZIPI_Otro
-  with
-    ZIPI_titulo [;
-      if (hayTiempoReal) "Tiempo real: SÍ (recomendado)";
-      else               "Tiempo real: NO";
-    ],
-    ZIPI_cambiar [;
-      hayTiempoReal = ~~hayTiempoReal;
-    ],
-    ZIPI_ejecutar [; rtrue; ];
-
-    
 Object ZIPI_Jugar_Con_Intro
   class ZIPI_Otro
   with
@@ -1446,7 +1364,20 @@ Object ZIPI_Jugar_Sin_Intro
       return 2;
     ];
 
-    
+
+Object ZIPI_Menu_Principal
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "EL CÍRCULO - (c) Alpha Aventuras 2012",
+    ZIPI_item
+      ZIPI_Jugar_Con_Intro
+      ZIPI_Jugar_Sin_Intro
+      ZIPI_Restaurar
+      ZIPI_Configuracion
+      ZIPI_Separador
+      ZIPI_Menu1;
+
+
 Object ZIPI_Restaurar
   class ZIPI_Otro
   with
@@ -1473,7 +1404,7 @@ Object ZIPI_Restaurar
       print "^Error: no se ha podido cargar la partida.";
       rfalse;
     ];
-
+      
 
 Object ZIPI_Salir
   class ZIPI_Otro
@@ -1484,9 +1415,88 @@ Object ZIPI_Salir
     ];
 
 
+Object ZIPI_Sonido
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (haySonido) "Sonido global: SÍ (recomendado)";
+      else           "Sonido global: NO";
+    ],
+    ZIPI_cambiar [;
+      haySonido = ~~haySonido;
+      if (haySonido) Damusix.ActivarAudio();
+      else           Damusix.DesactivarAudio();
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Sonido_Fondo
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (haySonidoFondo) "Sonido de fondo: SÍ (recomendado)";
+      else                "Sonido de fondo: NO";
+    ],
+    ZIPI_cambiar [;
+      haySonidoFondo = ~~haySonidoFondo;
+      if (haySonidoFondo) {
+        Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
+      } else {
+        Damusix.VolumenCanal(CANAL_FONDO, 0);
+      } 
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Tamano_Graficos
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      switch (altoVentanaGrafica) {
+        GRAFICOS_MINUSCULOS: "Tamaño de gráficos: ",
+                             GRAFICOS_MINUSCULOS, " px. (MINÚSCULOS)";
+        GRAFICOS_PEQUENOS:   "Tamaño de gráficos: ",
+                             GRAFICOS_PEQUENOS, " px. (PEQUEÑOS)";
+        GRAFICOS_MEDIANOS:   "Tamaño de gráficos: ",
+                             GRAFICOS_MEDIANOS, " px. (MEDIANOS, recomendado)";
+        GRAFICOS_GRANDES:    "Tamaño de gráficos: ",
+                             GRAFICOS_GRANDES,  " px. (GRANDES)";
+        default:             "Tamaño de gráficos: ",
+                             altoVentanaGrafica, " px.";          
+      }
+    ],
+    ZIPI_cambiar [;
+      if (altoVentanaGrafica < GRAFICOS_GRANDES)
+        altoVentanaGrafica = altoVentanaGrafica + 50;
+      else
+        altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Tiempo_Real
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (hayTiempoReal) "Tiempo real: SÍ (recomendado)";
+      else               "Tiempo real: NO";
+    ],
+    ZIPI_cambiar [;
+      hayTiempoReal = ~~hayTiempoReal;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+[ ApagarGraficos t;
+  hayGraficos = false;
+  closeGraphicWindow();
+  if (t) print (s_emph) "[Gráficos desactivados.]^";
+];
 
 
 [ BanderaFin df;
@@ -1496,24 +1506,69 @@ Object ZIPI_Salir
 ];
 
 
-[ MostrarImagenGradualmente imagen veces retardo
-  i;
-  for (i = 0 : i < veces : i++) {
-    viewImageCenter(imagen, true);
-    WaitDelay(retardo);
-  }  
+[ ComoHablar;
+  print_ret "[Para hablar con un personaje, usa la forma ~",
+            (s_input) "PERSONAJE, lo que sea", "~. Por ejemplo: ~",
+            (s_input) "JASON, QUÉ OPINAS DE MADRE", "~.]";
 ];
 
 
-[ ImprimirPrompt;
-  new_line;
-  if (player ~= selfobj) {
-    glk_set_style(style_User1);
-    print (string) player.short_name;
-    glk_set_style(style_Normal);
-    print " ";
+! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
+! indicar hacia dónde va un PNJ móvil:
+[ DirDada i
+  l par;
+  par = true;
+  switch (i) {
+    n_obj:   par = false; ! print "hacia el norte";
+    s_obj:   par = false; ! print "hacia el sur";
+    e_obj:   par = false; ! print "hacia el este";
+    w_obj:   par = false; ! print "hacia el oeste";
+    ne_obj:  par = false; ! print "hacia el noreste";
+    nw_obj:  par = false; ! print "hacia el noroeste";
+    se_obj:  par = false; ! print "hacia el sureste";
+    sw_obj:  par = false; ! print "hacia el suroeste";
+    u_obj:   par = false; ! print "hacia arriba";
+    d_obj:   par = false; ! print "hacia abajo";
+    in_obj:  par = false; ! print "al interior";
+    out_obj: par = false; ! print "afuera";
+    default: print "hacia ", (the) i;
   }
-  print (s_input) "> ";
+  l = LugarReal();
+    
+  if (par) print " (";
+  if (~~(i == in_obj or out_obj)) print "hacia ";
+  l.(i.door_dir).mostrar_nombre();
+  if (par) print ")";
+];
+
+
+[ EncenderGraficos t;
+  hayGraficos = true;
+  openGraphicWindow(altoVentanaGrafica);
+  clearGraphicWindow();
+  viewImageCenter(location.sgw_img);
+  if (t) {
+    glk_set_style(style_Emphasized);
+    print "[Gráficos activados (tamaño ";
+    switch (altoVentanaGrafica) {
+      GRAFICOS_PEQUENOS: print "pequeño";
+      GRAFICOS_MEDIANOS: print "mediano";
+      GRAFICOS_GRANDES:  print "grande";
+      default:           print altoVentanaGrafica, " px";
+    }
+    print ").]^";
+    style roman;
+  }
+];
+
+
+! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
+! Examinar dependiendo de si el objeto de destino es una localidad o no:
+[ ExaminarFalsoSub;
+  noun = ExaminarFalso.objetoVerboDesconocido;
+  PronounNotice(noun);
+  if (noun ofclass Lugar) <<Enter noun>>;
+  else                    <<Examine noun>>;
 ];
 
 
@@ -1563,28 +1618,11 @@ Object ZIPI_Salir
 ];
 
 
-[ RecomiendaGargoyle;
-  print "~El círculo~ ha sido diseñada
-         para funcionar con el intérprete Gargoyle, que puedes
-         descargar de la siguiente dirección:^^",
-         (s_pref) "http://code.google.com/p/garglk/downloads^";
-  KeyDelay();
-  quit;
-];
-
-
 [ IniciarSonidos;
   Damusix.VolumenCanal(CANAL_FONDO,     VOLUMEN_FONDO);
   Damusix.VolumenCanal(CANAL_TV_SALON,  VOLUMEN_TV_SALON);
   Damusix.VolumenCanal(CANAL_TV_CUARTO, VOLUMEN_TV_CUARTO);
   Damusix.VolumenCanal(CANAL_TELEFONO,  VOLUMEN_TELEFONO);
-];
-
-
-[ ComoHablar;
-  print_ret "[Para hablar con un personaje, usa la forma ~",
-            (s_input) "PERSONAJE, lo que sea", "~. Por ejemplo: ~",
-            (s_input) "JASON, QUÉ OPINAS DE MADRE", "~.]";
 ];
 
 
@@ -1596,78 +1634,24 @@ Object ZIPI_Salir
 ];
 
 
+[ ImprimirPrompt;
+  new_line;
+  if (player ~= selfobj) {
+    glk_set_style(style_User1);
+    print (string) player.short_name;
+    glk_set_style(style_Normal);
+    print " ";
+  }
+  print (s_input) "> ";
+];
+
+
 #ifndef LugarReal;
 [ LugarReal;
   if (location == thedark) return real_location;
   else                     return location;
 ];
 #endif;
-
-
-[ EncenderGraficos t;
-  hayGraficos = true;
-  openGraphicWindow(altoVentanaGrafica);
-  clearGraphicWindow();
-  viewImageCenter(location.sgw_img);
-  if (t) {
-    glk_set_style(style_Emphasized);
-    print "[Gráficos activados (tamaño ";
-    switch (altoVentanaGrafica) {
-      GRAFICOS_PEQUENOS: print "pequeño";
-      GRAFICOS_MEDIANOS: print "mediano";
-      GRAFICOS_GRANDES:  print "grande";
-      default:           print altoVentanaGrafica, " px";
-    }
-    print ").]^";
-    style roman;
-  }
-];
-
-
-[ ApagarGraficos t;
-  hayGraficos = false;
-  closeGraphicWindow();
-  if (t) print (s_emph) "[Gráficos desactivados.]^";
-];
-
-
-! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
-! Examinar dependiendo de si el objeto de destino es una localidad o no:
-[ ExaminarFalsoSub;
-  noun = ExaminarFalso.objetoVerboDesconocido;
-  PronounNotice(noun);
-  if (noun ofclass Lugar) <<Enter noun>>;
-  else                    <<Examine noun>>;
-];
-
-
-! Igualmente, esta versión no muestra puntos cardinales, sino lugares, al
-! indicar hacia dónde va un PNJ móvil:
-[ DirDada i
-  l par;
-  par = true;
-  switch (i) {
-    n_obj:   par = false; ! print "hacia el norte";
-    s_obj:   par = false; ! print "hacia el sur";
-    e_obj:   par = false; ! print "hacia el este";
-    w_obj:   par = false; ! print "hacia el oeste";
-    ne_obj:  par = false; ! print "hacia el noreste";
-    nw_obj:  par = false; ! print "hacia el noroeste";
-    se_obj:  par = false; ! print "hacia el sureste";
-    sw_obj:  par = false; ! print "hacia el suroeste";
-    u_obj:   par = false; ! print "hacia arriba";
-    d_obj:   par = false; ! print "hacia abajo";
-    in_obj:  par = false; ! print "al interior";
-    out_obj: par = false; ! print "afuera";
-    default: print "hacia ", (the) i;
-  }
-  l = LugarReal();
-    
-  if (par) print " (";
-  if (~~(i == in_obj or out_obj)) print "hacia ";
-  l.(i.door_dir).mostrar_nombre();
-  if (par) print ")";
-];
 
 
 [ MostrarImagenAuxiliar img;
@@ -1680,10 +1664,29 @@ Object ZIPI_Salir
 ];
 
 
+[ MostrarImagenGradualmente imagen veces retardo
+  i;
+  for (i = 0 : i < veces : i++) {
+    viewImageCenter(imagen, true);
+    WaitDelay(retardo);
+  }  
+];
+
+
 [ OcultarImagenAuxiliar;
 !  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
 !  gg_objwin = 0;
   viewImageCenter(location.sgw_img);
+];
+
+
+[ RecomiendaGargoyle;
+  print "~El círculo~ ha sido diseñada
+         para funcionar con el intérprete Gargoyle, que puedes
+         descargar de la siguiente dirección:^^",
+         (s_pref) "http://code.google.com/p/garglk/downloads^";
+  KeyDelay();
+  quit;
 ];
 
 
@@ -1692,13 +1695,49 @@ Object ZIPI_Salir
 !-------------------------------------------------------------------------------
 
 
-#ifdef DEBUG;
-Verb meta 't'
-  *                    -> TestPasoAPaso;
+Verb meta 'ayuda'
+  *                 -> Ayuda;
 
-Verb meta 'tt'
-  *                    -> TestContinuar;
-#endif;
+Extend 'cambia' first
+  * 'canal'/'emisora'                -> CambiarCanal
+  * 'el' 'canal'                     -> CambiarCanal
+  * 'la' 'emisora'                   -> CambiarCanal
+  * 'de' 'canal'/'emisora'           -> CambiarCanal
+  * 'canal'/'emisora' 'en' noun      -> CambiarCanal
+  * 'el' 'canal'   'en' noun         -> CambiarCanal
+  * 'la' 'emisora'  'en' noun        -> CambiarCanal
+  * 'de' 'canal'/'emisora' 'en' noun -> CambiarCanal;
+
+Verb 'chilla' = 'grita';
+
+Verb meta 'configuracion'
+  *                           -> Configuracion;
+
+Verb meta 'creditos'
+  *                 -> Creditos;
+
+Verb 'cuelga'
+  * noun            -> Colgar;
+
+VerboIrregular "colgar" with imperativo 'cuelga';
+
+Verb 'cuentale' = 'cuenta';
+
+Verb 'descuelga'
+  * noun            -> Descolgar;
+
+VerboIrregular "descolgar" with imperativo 'descuelga';
+
+Verb 'desenchufa'
+  * noun            -> Desenchufar;
+
+VerboIrregular "desenchufar" with imperativo 'desenchufa';
+
+Extend 'di' first
+  * 'a' creature             -> Answer;
+
+Extend only 'enchufa' replace
+  * noun            -> Enchufar;
 
 Verb meta 'graficos'
   *                           -> Graficos
@@ -1708,16 +1747,22 @@ Verb meta 'graficos'
   * 'medianos'                -> GraficosMedianos
   * 'grandes'                 -> GraficosGrandes;
 
-Verb meta 'configuracion'
-  *                           -> Configuracion;
+Extend only 'grita' replace
+  *                 -> Gritar
+  * 'a//' creature  -> Gritar;
 
-Verb meta 'sonido' 'sonidos'
-  *                                   -> Sonido
-  * 'on'/'encendido'/'si'             -> EncenderSonido
-  * 'off'/'apagado'/'no'/'nx'         -> ApagarSonido
-  * 'fondo'                           -> Musica
-  * 'fondo' 'on'/'encendido'/'si'     -> EncenderMusica
-  * 'fondo' 'off'/'apagado'/'no'/'nx' -> ApagarMusica;
+Extend 'habla' first
+  * 'con' creature topic     -> Tell
+  * 'con' creature           -> Tell
+  * 'a' creature             -> Tell;
+
+Verb 'hola'
+  *                 -> Saludar;
+
+Verb 'llama'
+  *                 -> Llamar
+  * 'a//' noun      -> Llamar
+  * 'por' noun      -> LlamarPor;
 
 Verb meta 'musica'
   *                                   -> Musica
@@ -1730,24 +1775,7 @@ Verb meta 'pistas'
   *                 -> Pistas
   * 'no' / 'nx'     -> PistasNo;
 
-Verb meta 'ayuda'
-  *                 -> Ayuda;
-
-Verb meta 'creditos'
-  *                 -> Creditos;
-
-Verb 'descuelga'
-  * noun            -> Descolgar;
-
-VerboIrregular "descolgar" with imperativo 'descuelga';
-
-Verb 'cuelga'
-  * noun            -> Colgar;
-
-VerboIrregular "colgar" with imperativo 'cuelga';
-
-Extend only 'enchufa' replace
-  * noun            -> Enchufar;
+Verb 'preguntale' = 'pregunta';
 
 Extend only 'sal' 'salte' 'salirse' 'salirte'
   * noun            -> SalirA
@@ -1756,48 +1784,8 @@ Extend only 'sal' 'salte' 'salirse' 'salirte'
 Extend 'sal'
   * 'por' noun      -> SalirPor;
 
-Verb 'desenchufa'
-  * noun            -> Desenchufar;
-
-VerboIrregular "desenchufar" with imperativo 'desenchufa';
-
-Extend only 'grita' replace
-  *                 -> Gritar
-  * 'a//' creature  -> Gritar;
-
-Verb 'chilla' = 'grita';
-
-Extend 'habla' first
-  * 'con' creature topic     -> Tell
-  * 'con' creature           -> Tell
-  * 'a' creature             -> Tell;
-
-Extend 'di' first
-  * 'a' creature             -> Answer;
-
-Verb 'cuentale' = 'cuenta';
-Verb 'preguntale' = 'pregunta';
-
-Verb 'llama'
-  *                 -> Llamar
-  * 'a//' noun      -> Llamar
-  * 'por' noun      -> LlamarPor;
-
 Extend 'saluda' first
   *                 -> Saludar;
-
-Verb 'hola'
-  *                 -> Saludar;
-
-Extend 'cambia' first
-  * 'canal'/'emisora'                -> CambiarCanal
-  * 'el' 'canal'                     -> CambiarCanal
-  * 'la' 'emisora'                   -> CambiarCanal
-  * 'de' 'canal'/'emisora'           -> CambiarCanal
-  * 'canal'/'emisora' 'en' noun      -> CambiarCanal
-  * 'el' 'canal'   'en' noun         -> CambiarCanal
-  * 'la' 'emisora'  'en' noun        -> CambiarCanal
-  * 'de' 'canal'/'emisora' 'en' noun -> CambiarCanal;
 
 Verb 'sigue'
   * creature               -> Seguir
@@ -1805,17 +1793,34 @@ Verb 'sigue'
   * 'a//' creature         -> Seguir
   * 'a//' creature 'aqui'  -> Seguir;
 
+Verb meta 'sonido' 'sonidos'
+  *                                   -> Sonido
+  * 'on'/'encendido'/'si'             -> EncenderSonido
+  * 'off'/'apagado'/'no'/'nx'         -> ApagarSonido
+  * 'fondo'                           -> Musica
+  * 'fondo' 'on'/'encendido'/'si'     -> EncenderMusica
+  * 'fondo' 'off'/'apagado'/'no'/'nx' -> ApagarMusica;
+
+Verb 'vamonos' 'vayamonos'
+  *                  -> Venir
+  * 'de' 'aqui'      -> Venir;
+
+Verb 'vamos'
+  *                  -> Venir;
+
 Verb 'ven'
   *                  -> Venir
   * 'aqui'           -> Venir
   * 'conmigo'        -> Venir;
 
-Verb 'vamos'
-  *                  -> Venir;
+  
+#ifdef DEBUG;
+Verb meta 't'
+  *                    -> TestPasoAPaso;
 
-Verb 'vamonos' 'vayamonos'
-  *                  -> Venir
-  * 'de' 'aqui'      -> Venir;
+Verb meta 'tt'
+  *                    -> TestContinuar;
+#endif;
 
 
 !===============================================================================
@@ -1823,16 +1828,54 @@ Verb 'vamonos' 'vayamonos'
 !-------------------------------------------------------------------------------
 
 
-! Para poder poner "SALIR AL PASILLO", que sería lo mismo que "ENTRA EN EL
-! PASILLO".
-[ SalirASub;
-  print_ret (The) noun, " no es algo a donde puedas salir.";
+[ AnswerSub;
+  ComoHablar();
 ];
 
-[ SalirPorSub;
-  if (noun ofclass Lugar) <<Exit>>;
-  else                    <<Enter noun>>;
+
+[ ApagarGraficosSub;
+  ApagarGraficos(true);
 ];
+
+  
+[ ApagarMusicaSub;
+  haySonidoFondo = false;
+  Damusix.VolumenCanal(CANAL_FONDO, 0);
+  print (s_emph) "[Desactivado el sonido de fondo.]^";
+];
+
+
+[ ApagarSonidoSub;
+  haySonido = false;
+  Damusix.DesactivarAudio();
+  print (s_emph) "[Desactivados todos los efectos sonoros.]^";
+];
+
+
+[ AyudaSub;
+  print "Prueba a pedir ayuda a alguien. Si necesitas pistas más elaboradas,
+         puedes usar el sistema de pistas interactivas tecleando el comando ",
+         (s_input) "PISTAS", ".^";
+];
+
+
+[ CambiarCanalSub
+  tv;
+  if (noun ~= nothing)                     tv = noun;
+  else if (tv_cuarto_katie in LugarReal()) tv = tv_cuarto_katie;
+  else if (tv_salon_katie in LugarReal())  tv = tv_salon_katie;
+  else "No veo ningún televisor aquí.";
+  
+  if (tv hasnt on) "El televisor está apagado.";
+  
+  "Cambias repetidamente de canal, pero sólo encuentras estática y ruido."; 
+];
+
+
+[ ColgarSub;
+  "No tiene sentido colgar eso.";
+];
+
 
 [ ConfiguracionSub
   fondo v m;
@@ -1865,154 +1908,8 @@ Verb 'vamonos' 'vayamonos'
 ];
 
 
-[ GraficosSub;
-  print (s_emph) "[Por favor, usa la forma ~", (s_input) "GRAFICOS SI",
-        (s_emph) "~ o ~", (s_input) "GRAFICOS NO", (s_emph) "~ para activar o
-        desactivar, respectivamente, el uso de gráficos. También puedes
-        cambiar el tamaño de la ventana gráfica usando ~",
-        (s_input) "GRAFICOS PEQUEÑOS", (s_emph) "~, ~",
-        (s_input) "GRAFICOS MEDIANOS", (s_emph) "~ o ~",
-        (s_input) "GRAFICOS GRANDES", (s_emph) "~.]^";
-];
-
-
-[ GraficosPequenosSub;
-  altoVentanaGrafica = GRAFICOS_PEQUENOS;
-  EncenderGraficosSub();
-];
-
-
-[ GraficosMedianosSub;
-  altoVentanaGrafica = GRAFICOS_MEDIANOS;
-  EncenderGraficosSub();
-];
-
-
-[ GraficosGrandesSub;
-  altoVentanaGrafica = GRAFICOS_GRANDES;
-  EncenderGraficosSub();
-];
-
-
-[ EncenderGraficosSub;
-  EncenderGraficos(true);
-];
-
-
-[ ApagarGraficosSub;
-  ApagarGraficos(true);
-];
-
-
-[ SonidoSub;
-  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO SI",
-        (s_emph) "~ o ~", (s_input) "SONIDO NO",
-        (s_emph) "~ para activar o desactivar, respectivamente,
-                  todos los efectos sonoros.]^";
-];
-
-
-[ MusicaSub;
-  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO FONDO SI",
-        (s_emph) "~ o ~", (s_input) "SONIDO FONDO NO", (s_emph) "~ para activar
-        o desactivar, respectivamente, el sonido de fondo.]^";
-];
-
-
-[ EncenderSonidoSub;
-  haySonido = true;
-  Damusix.ActivarAudio();
-  print (s_emph) "[Activados todos los efectos sonoros.]^";
-];
-
-
-[ ApagarSonidoSub;
-  haySonido = false;
-  Damusix.DesactivarAudio();
-  print (s_emph) "[Desactivados todos los efectos sonoros.]^";
-];
-
-
-[ EncenderMusicaSub i;
-  haySonidoFondo = true;
-  Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
-
-  if (~~i) {
-    print (s_emph) "[Activado el sonido de fondo.]^";
-  }
-];
-
-  
-[ ApagarMusicaSub;
-  haySonidoFondo = false;
-  Damusix.VolumenCanal(CANAL_FONDO, 0);
-  print (s_emph) "[Desactivado el sonido de fondo.]^";
-];
-
-
-[ PistasSub
-  v tlf tv fondo;
-  switch (hayPistas) {
-    0: hayPistas = 1;
-       print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
-             a veces tan fuerte que se suelen obtener pistas prematuramente.
-             Por tanto, en cualquier momento durante el juego puedes poner ",
-             (s_input) "PISTAS NO", (s_emph) ", y eso te impedirá obtener ayuda
-             en la sesión de juego actual. Si sigues queriendo una pista, pon ",
-             (s_input) "PISTAS", (s_emph) " otra vez.]^";
-    1: ControlTimer.PausarTick();
-       if (hayGraficos) {
-         ApagarGraficos(true);
-         hayGraficos = true;
-       }
-       barra_estado.numero_lineas = 26;
-       barra_estado.dibujar();
-       tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
-       Damusix.PararCanal(CANAL_TELEFONO);
-       tv = Damusix.SonandoDeFondoCanal(CANAL_TV_SALON);
-       Damusix.PararCanal(CANAL_TV_SALON);
-       fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
-       v = Damusix.QueVolumenCanal(CANAL_FONDO);
-       Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v,
-                            SONIDO_REPETIR);
-       Damusix.TocarCanal(CANAL_FONDO);
-       
-       ZIPI_Empezar();
-       
-       if (tlf) Damusix.TocarCanal(CANAL_TELEFONO);
-       if (tv)  Damusix.TocarCanal(CANAL_TV_SALON);
-       if (fondo && LugarReal() provides sgw_mus) {
-         v = Damusix.QueVolumenCanal(CANAL_FONDO);
-         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
-                              SONIDO_REPETIR);
-         Damusix.TocarCanal(CANAL_FONDO);
-       } else {
-         Damusix.PararCanal(CANAL_FONDO);
-       }
-       barra_estado.numero_lineas = 1;
-       barra_estado.dibujar();
-       if (hayGraficos) EncenderGraficos(true);
-       clearTextWindow();
-       ControlTimer.ReanudarTick();
-       <<Look>>;
-    2: print (s_emph) "[Las pistas han sido desactivadas.]^";
-  }
-];
-
-
-[ PistasNoSub;
-  switch (hayPistas) {
-    2:       print (s_emph) "[Las pistas ya han sido desactivadas.]^";
-    default: hayPistas = 2;
-             print (s_emph) "[PISTAS desactivadas.]^";
-  }
-];
-
-
-[ AyudaSub;
-  print "Prueba a pedir ayuda a alguien. Si necesitas pistas más elaboradas,
-         puedes usar el sistema de pistas interactivas tecleando el comando ",
-         (s_input) "PISTAS", ".^";
+[ ConsultSub;
+  <<Examine noun>>;
 ];
 
 
@@ -2076,23 +1973,6 @@ Verb 'vamonos' 'vayamonos'
 ];
 
 
-[ ColgarSub;
-  "No tiene sentido colgar eso.";
-];
-
-
-[ EnchufarSub;
-  if (~~(noun provides enchufado)) {
-    print_ret (The) noun, " no puede enchufarse.";
-  }
-  if (noun.enchufado) {
-    print_ret (The) noun, " ya está enchufado.";
-  }
-  noun.enchufado = true;
-  "Enchufas ", (the) noun, ".";
-];
-
-
 [ DesenchufarSub;
   if (~~(noun provides enchufado)) {
     print_ret (The) noun, " no puede desenchufarse.";
@@ -2109,23 +1989,66 @@ Verb 'vamonos' 'vayamonos'
 ];
 
 
-[ SearchSub;
-  <<Examine noun>>;
+[ EncenderGraficosSub;
+  EncenderGraficos(true);
 ];
 
 
-[ ConsultSub;
-  <<Examine noun>>;
+[ EncenderMusicaSub i;
+  haySonidoFondo = true;
+  Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
+
+  if (~~i) {
+    print (s_emph) "[Activado el sonido de fondo.]^";
+  }
 ];
 
 
-[ TellSub;
-  ComoHablar();
+[ EncenderSonidoSub;
+  haySonido = true;
+  Damusix.ActivarAudio();
+  print (s_emph) "[Activados todos los efectos sonoros.]^";
 ];
 
 
-[ AnswerSub;
-  ComoHablar();
+[ EnchufarSub;
+  if (~~(noun provides enchufado)) {
+    print_ret (The) noun, " no puede enchufarse.";
+  }
+  if (noun.enchufado) {
+    print_ret (The) noun, " ya está enchufado.";
+  }
+  noun.enchufado = true;
+  "Enchufas ", (the) noun, ".";
+];
+
+
+[ GraficosGrandesSub;
+  altoVentanaGrafica = GRAFICOS_GRANDES;
+  EncenderGraficosSub();
+];
+
+
+[ GraficosMedianosSub;
+  altoVentanaGrafica = GRAFICOS_MEDIANOS;
+  EncenderGraficosSub();
+];
+
+
+[ GraficosPequenosSub;
+  altoVentanaGrafica = GRAFICOS_PEQUENOS;
+  EncenderGraficosSub();
+];
+
+
+[ GraficosSub;
+  print (s_emph) "[Por favor, usa la forma ~", (s_input) "GRAFICOS SI",
+        (s_emph) "~ o ~", (s_input) "GRAFICOS NO", (s_emph) "~ para activar o
+        desactivar, respectivamente, el uso de gráficos. También puedes
+        cambiar el tamaño de la ventana gráfica usando ~",
+        (s_input) "GRAFICOS PEQUEÑOS", (s_emph) "~, ~",
+        (s_input) "GRAFICOS MEDIANOS", (s_emph) "~ o ~",
+        (s_input) "GRAFICOS GRANDES", (s_emph) "~.]^";
 ];
 
 
@@ -2134,13 +2057,92 @@ Verb 'vamonos' 'vayamonos'
 ];
 
 
+[ LlamarPorSub;
+  "Con eso no puedes llamar a ningún sitio.";
+];
+
+
 [ LlamarSub;
   "¿Llamar a qué o a quién?";
 ];
 
 
-[ LlamarPorSub;
-  "Con eso no puedes llamar a ningún sitio.";
+[ MusicaSub;
+  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO FONDO SI",
+        (s_emph) "~ o ~", (s_input) "SONIDO FONDO NO", (s_emph) "~ para activar
+        o desactivar, respectivamente, el sonido de fondo.]^";
+];
+
+
+[ PistasNoSub;
+  switch (hayPistas) {
+    2:       print (s_emph) "[Las pistas ya han sido desactivadas.]^";
+    default: hayPistas = 2;
+             print (s_emph) "[PISTAS desactivadas.]^";
+  }
+];
+
+
+[ PistasSub
+  v tlf tv fondo;
+  switch (hayPistas) {
+    0: hayPistas = 1;
+       print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
+             a veces tan fuerte que se suelen obtener pistas prematuramente.
+             Por tanto, en cualquier momento durante el juego puedes poner ",
+             (s_input) "PISTAS NO", (s_emph) ", y eso te impedirá obtener ayuda
+             en la sesión de juego actual. Si sigues queriendo una pista, pon ",
+             (s_input) "PISTAS", (s_emph) " otra vez.]^";
+    1: ControlTimer.PausarTick();
+       if (hayGraficos) {
+         ApagarGraficos(true);
+         hayGraficos = true;
+       }
+       barra_estado.numero_lineas = 26;
+       barra_estado.dibujar();
+       tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
+       Damusix.PararCanal(CANAL_TELEFONO);
+       tv = Damusix.SonandoDeFondoCanal(CANAL_TV_SALON);
+       Damusix.PararCanal(CANAL_TV_SALON);
+       fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
+       v = Damusix.QueVolumenCanal(CANAL_FONDO);
+       Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v,
+                            SONIDO_REPETIR);
+       Damusix.TocarCanal(CANAL_FONDO);
+       
+       ZIPI_Empezar();
+       
+       if (tlf) Damusix.TocarCanal(CANAL_TELEFONO);
+       if (tv)  Damusix.TocarCanal(CANAL_TV_SALON);
+       if (fondo && LugarReal() provides sgw_mus) {
+         v = Damusix.QueVolumenCanal(CANAL_FONDO);
+         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
+                              SONIDO_REPETIR);
+         Damusix.TocarCanal(CANAL_FONDO);
+       } else {
+         Damusix.PararCanal(CANAL_FONDO);
+       }
+       barra_estado.numero_lineas = 1;
+       barra_estado.dibujar();
+       if (hayGraficos) EncenderGraficos(true);
+       clearTextWindow();
+       ControlTimer.ReanudarTick();
+       <<Look>>;
+    2: print (s_emph) "[Las pistas han sido desactivadas.]^";
+  }
+];
+
+
+! Para poder poner "SALIR AL PASILLO", que sería lo mismo que "ENTRA EN EL
+! PASILLO".
+[ SalirASub;
+  print_ret (The) noun, " no es algo a donde puedas salir.";
+];
+
+
+[ SalirPorSub;
+  if (noun ofclass Lugar) <<Exit>>;
+  else                    <<Enter noun>>;
 ];
 
 
@@ -2149,26 +2151,31 @@ Verb 'vamonos' 'vayamonos'
 ];
 
 
-[ CambiarCanalSub
-  tv;
-  if (noun ~= nothing)                     tv = noun;
-  else if (tv_cuarto_katie in LugarReal()) tv = tv_cuarto_katie;
-  else if (tv_salon_katie in LugarReal())  tv = tv_salon_katie;
-  else "No veo ningún televisor aquí.";
-  
-  if (tv hasnt on) "El televisor está apagado.";
-  
-  "Cambias repetidamente de canal, pero sólo encuentras estática y ruido."; 
-];
-
-
-[ VenirSub;
-  <<Seguir player>>;
+[ SearchSub;
+  <<Examine noun>>;
 ];
 
 
 [ SeguirSub;
   "Decide por ti mism", (o) player, " a dónde deseas ir.";
+];
+
+
+[ SonidoSub;
+  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO SI",
+        (s_emph) "~ o ~", (s_input) "SONIDO NO",
+        (s_emph) "~ para activar o desactivar, respectivamente,
+                  todos los efectos sonoros.]^";
+];
+
+
+[ TellSub;
+  ComoHablar();
+];
+
+
+[ VenirSub;
+  <<Seguir player>>;
 ];
 
 

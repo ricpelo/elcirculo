@@ -198,7 +198,7 @@ Global Emphasis_Color = GREEN;        ! Default color is green
 !       (this routine shoud ONLY print text, as it will be called twice)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Array CenterText -> 80;
+Array CenterText -> 84;
 
 [ Center instring i;
   #ifdef TARGET_ZCODE;

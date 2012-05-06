@@ -274,6 +274,7 @@ Class ContentsPage
   with 
     description [
       o i;
+      glk_set_style(style_Preformatted);
       new_line;
       self.PageHeader();
       objectloop (o in parent(self)) {
@@ -285,6 +286,7 @@ Class ContentsPage
           new_line;
         }
       }
+      glk_set_style(style_Normal);
     ],
     ucutoff [
       i;

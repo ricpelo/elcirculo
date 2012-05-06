@@ -126,13 +126,13 @@ Constant MAX_STR_LEN 102;         ! Maximum size of a literal string.  Adjust
                                   ! This is also the maximum width of a justify
                                   ! window.
 
-Array StringBuffer1->MAX_STR_LEN; ! Temporary string buffers
-Array StringBuffer2->MAX_STR_LEN;
+Array StringBuffer1 -> MAX_STR_LEN; ! Temporary string buffers
+Array StringBuffer2 -> MAX_STR_LEN;
 
 [ ReadString str i j;
   j = KeyDelay();
   while (j ~= 13) {
-    str->(i + 2) = j;
+    str->(i + WORDSIZE) = j;
     i++;
     j = KeyDelay();
   }
@@ -140,21 +140,17 @@ Array StringBuffer2->MAX_STR_LEN;
   return i;
 ];
 
-[ WriteString str litstr;
-  if (litstr ofclass string)
-    PrintAnyToArray(str + WORDSIZE, MAX_STR_LEN, litstr);
-  else {
-    CapturarSalida();
-    litstr();
-    FinCapturarSalida();
-  }
-  return str-->0;
+[ WriteString str litstr
+  i;
+  i = PrintAnyToArray(str + WORDSIZE, MAX_STR_LEN, litstr);
+  str-->0 = i;
+  return i;
 ];
 
 #ifndef PrintString;
 [ PrintString str i;
-  for ( : i < (str-->0): i++) print (char) str->(i + 2);
-  return i - 2;
+  for ( : i < (str-->0): i++) print (char) str->(i + WORDSIZE);
+  return i - WORDSIZE;
 ];
 #endif;
 
@@ -164,12 +160,14 @@ Array StringBuffer2->MAX_STR_LEN;
 
 [ StrCpy target source j i;
   target-->0 = source-->0 + j;
-  for (i = 2: i < (target-->0) + 2 - j: i++) target->(i + j) = source->i;
-  return i - 2;
+  for (i = WORDSIZE: i < (target-->0) + WORDSIZE - j: i++)
+    target->(i + j) = source->i;
+  return i - WORDSIZE;
 ];
 
 [ StrCat first second i;
-  for (i = 2: i < 2 + second-->0: i++) first->(i + first-->0) = second->i;
+  for (i = WORDSIZE: i < WORDSIZE + second-->0: i++)
+    first->(i + first-->0) = second->i;
   first-->0 = first-->0 + second-->0;
   return first-->0;
 ];
@@ -183,7 +181,8 @@ Array StringBuffer2->MAX_STR_LEN;
   j = 0;
   if (first-->0 < second-->0) k = first-->0;
   else                        k = second-->0;
-  for (i = i + 2: i < k + 2 && j== 0: i++) j = ((second->i) - (first->i));
+  for (i = i + WORDSIZE: i < k + WORDSIZE && j == 0: i++)
+    j = ((second->i) - (first->i));
   return j;
 ];
 
@@ -205,14 +204,14 @@ Array StringBuffer2->MAX_STR_LEN;
 ];
 
 [ StrChr str char i j k;
-  j = i + 2;
+  j = i + WORDSIZE;
   k = 0;
-  while (k == 0 && j <= str-->0 + 2) {
+  while (k == 0 && j <= str-->0 + WORDSIZE) {
     if (str->j == char) k = 1;
     j++;
   }
-  if (k == 0) j = 2 + i;
-  return j - 2 - i;
+  if (k == 0) j = WORDSIZE + i;
+  return j - WORDSIZE - i;
 ];
 
 [ LStrChr str chr i;
@@ -224,10 +223,10 @@ Array StringBuffer2->MAX_STR_LEN;
   l = 1;
   while (i < (str-->0) && l == 1 && i ~= -1) {
     l = 0;
-    j = StrChr(str, substr->2, i);
+    j = StrChr(str, substr->WORDSIZE, i);
     if (j ~= 0)
-      for (k = 3: k < (substr-->0) + 2 && l == 0: k++)
-        if (StrChr(str, substr->k, j) ~= k - 2) l = 1;
+      for (k = WORDSIZE + 1: k < (substr-->0) + WORDSIZE && l == 0: k++)
+        if (StrChr(str, substr->k, j) ~= k - WORDSIZE) l = 1;
     if (j == 0) i = -1;
     else        i = j + 1;
   }
@@ -242,15 +241,15 @@ Array StringBuffer2->MAX_STR_LEN;
 [ EmptyString str len chr i;
   if (chr == 0) chr = ' ';
   str-->0 = len;
-  for (i = 2: i < len + 2: i++) str->i = chr;
+  for (i = WORDSIZE: i < len + WORDSIZE: i++) str->i = chr;
 ];
 
 #ifndef Justify;
 [ Justify str width align pad_chr i;
   EmptyString(StringBuffer2, width, pad_chr);
   i = StrLen(str);
-  if (align == LEFT) i = 0;
-  else if (align == RIGHT) i = width - i;
+  if      (align == LEFT)     i = 0;
+  else if (align == RIGHT)    i = width - i;
   else if (align == CENTERED) i = (width - i) / 2;
   StrCpy(StringBuffer2, str, i);
   StringBuffer2-->0 = width;

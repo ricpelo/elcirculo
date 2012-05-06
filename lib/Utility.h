@@ -4,6 +4,8 @@
 !                                       Inform 6 functions by
 !       V 4.0                           L. Ross Raszewski
 !
+! Modificaciones (c) 2012 Ricardo Pérez (Sothoth) - Alpha Aventuras
+!
 ! New in 4.0: Glulx support (requires infglk)
 !             Finally fixed the "strict mode" conflict in center
 !             New functions:

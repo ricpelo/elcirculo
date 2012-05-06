@@ -699,7 +699,7 @@ Include "VerbLib";
 Include "Barra";            ! Barra de estado personalizable
 Include "Contenedor";       ! Contenedores
 Include "Decorado_NG";      ! Objetos de decorado
-Include "diary";
+Include "Diary";
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 Include "Etemas";           ! Los temas de conversación
 !Include "EventList_NG";     ! Listas de mensajes
@@ -1130,22 +1130,23 @@ Object barra_estado
       BE_INV_TOTAL;
 
 
-Object midiario "Diario del jugador"
+Object midiario "Diario de Rachel"
   class Diary
   with
-    short_name "Diario del jugador",
+    short_name "Diario de Rachel",
     description [;
       clearMainWindow();
-      box "Diario del jugador"
+      box "Diario de Rachel"
           "sdlkjskdljfsdlkj"
           "lskjdfklsjdfskl";
     ];   
 
-ContentsPage cp "Contenidos";
+Object pagina_contenidos "Contenidos"
+  class ContentsPage;
 
-Object p1 "24 Frobuary"
+Object p1 "24 de febrero"
   with
-    short_name "24 Frobuary",
+    short_name "24 de febrero",
     description "^blah blah blah",
   has
     on;
@@ -2018,7 +2019,7 @@ Verb meta 'tt'
 
 [ DiarioSub;
   clearGraphicWindow();
-  midiario.update(cp, 2);
+  midiario.update(pagina_contenidos, 2);
   midiario.update(p1, 1);
   midiario.select(midiario.last_page);
 ];

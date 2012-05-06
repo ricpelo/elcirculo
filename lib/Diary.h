@@ -2,6 +2,8 @@
 ! diary.h by Gunther Schmidl <gschmidl@gmx.at>                 Release 1.000226
 !==============================================================================
 !
+! Modificaciones (c) 2012 Ricardo Pérez (Sothoth) - Alpha Aventuras
+!
 ! This class defines a diary item that can be filled in by the game author to
 ! provide background information or similar. It is derived from L. Ross
 ! Raszewski's manual.h, and requires his Utility.h and IString.h libraries.
@@ -335,7 +337,7 @@ Array printed_text table 2000;
   j = PrintAnyToArray(printed_text + WORDSIZE, 100, format);
 !  format.print_to_array(printed_text);
 !  j = printed_text-->0;
-  for (k = 2 : k < j + 2 : k++) {
+  for (k = WORDSIZE : k < j + WORDSIZE : k++) {
     if (printed_text-->k == '%') {
       switch (printed_text-->(++k)) {
         '%': print "%";

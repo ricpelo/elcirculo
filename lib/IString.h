@@ -4,6 +4,8 @@
 !   Version 2.1                 By L. Ross Raszewski
 !                               rraszews@acm.org
 !
+! Modificaciones (c) 2012 Ricardo Pérez (Sothoth) - Alpha Aventuras
+!
 ! New in this version: Drop-in support for ZNSI.h
 ! New in version 2.0: support for routines printing strings.  Most places
 !                      where the documentation says "literal string",

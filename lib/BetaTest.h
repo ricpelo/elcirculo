@@ -49,67 +49,100 @@ Replace QuitSub;
 Global betamode = false;
 
 [ ScriptOnSub;
-  if (~~(betamode))
-  {  print "This will also automatically turn beta testing mode on. Continue? (Y or N) >";
-     if (YesOrNo()==0) "^Beta testing mode remains off.";
-     betamode = true;
+  if (~~(betamode)) {
+    print "Esto también activará automáticamente el modo betatesting.
+           ¿Continuar? (S o N) >";
+    if (YesOrNo() == 0) "^El modo betatesting continuará desactivado.";
+    betamode = true;
   }
-  transcript_mode = ((0-->8) & 1);
-  if (transcript_mode) return L__M(##ScriptOn,1);
+  #ifdef TARGET_ZCODE;
+  transcript_mode = ((HDR_GAMEFLAGS-->0) & 1);
+  if (transcript_mode) return L__M(##ScriptOn, 1);
   @output_stream 2;
-  if (((0-->8) & 1) == 0) return L__M(##ScriptOn,3);
-  L__M(##ScriptOn,2); VersionSub();
+  if (((HDR_GAMEFLAGS-->0) & 1) == 0) return L__M(##ScriptOn, 3);
+  L__M(##ScriptOn, 2); VersionSub();
   transcript_mode = true;
-  "^Beta testing mode is now on. Comments may be entered by preceding
-    the line with a !. They will not be parsed by the game.";
+  #ifnot; ! TARGET_GLULX
+  if (gg_scriptstr ~= 0) return L__M(##ScriptOn, 1);
+  if (gg_scriptfref == 0) {
+    ! fileref_create_by_prompt
+    gg_scriptfref = glk($0062, $102, $05, GG_SCRIPTFREF_ROCK);
+    if (gg_scriptfref == 0) jump S1Failed;
+  }
+  ! stream_open_file
+  gg_scriptstr = glk($0042, gg_scriptfref, $05, GG_SCRIPTSTR_ROCK);
+  if (gg_scriptstr == 0) jump S1Failed;
+  glk($002D, gg_mainwin, gg_scriptstr); ! window_set_echo_stream
+  L__M(##ScriptOn, 2);
+  VersionSub();
+  return;
+.S1Failed;
+  L__M(##ScriptOn, 3);
+  #endif;
+  "^Se ha activado el modo betatesting. Podrá introducir comentarios comenzando
+   la línea con un '!' y no serán interpretados por el juego.";
 ];
 	
 [ ScriptOffSub;
-  if (betamode)
-  {  print "This will also automatically turn beta testing mode off. Continue? (Y or N) >";
-     if (YesOrNo()==0) "^Beta testing mode remains on.";
-     betamode = false;
+  if (betamode) {
+    print "Esto también desactivará automáticamente el modo betatesting.
+           ¿Continuar? (S o N) >";
+    if (YesOrNo() == 0) "^El modo betatesting continuará activado.";
+    betamode = false;
   }
-  transcript_mode = ((0-->8) & 1);
-  if (transcript_mode == false) return L__M(##ScriptOff,1);
-  L__M(##ScriptOff,2);
+  #ifdef TARGET_ZCODE;
+  transcript_mode = ((HDR_GAMEFLAGS-->0) & 1);
+  if (transcript_mode == false) return L__M(##ScriptOff, 1);
+  L__M(##ScriptOff, 2);
   @output_stream -2;
-  if ((0-->8) & 1) return L__M(##ScriptOff,3);
+  if ((HDR_GAMEFLAGS-->0) & 1) return L__M(##ScriptOff, 3);
   transcript_mode = false;
-  "^Beta testing mode is now off.";
+  #ifnot; ! TARGET_GLULX
+  if (gg_scriptstr == 0) return L__M(##ScriptOff,1);
+  L__M(##ScriptOff, 2);
+  glk($0044, gg_scriptstr, 0); ! stream_close
+  gg_scriptstr = 0;
+  #endif;
+  "^Se ha desactivado el modo betatesting.";
 ];
 
-[ QuitSub; L__M(##Quit,2);
-  if (YesOrNo()~=0){ if (betamode){ betamode = false; <ScriptOff>; } quit; }
+[ QuitSub;
+  L__M(##Quit, 2);
+  if (YesOrNo() ~= 0) {
+    if (betamode) {
+      betamode = false;
+      <ScriptOff>;
+    }
+    quit;
+  }
 ];
 
 [ BetaTestOnSub;
-  if (betamode) "Beta testing mode is already on.";
+  if (betamode) "El modo betatesting ya está activado.";
   betamode = true;
-  print "Turning scripting on...^";
+  print "Activando scripting...^";
   <<ScriptOn>>;
 ];
 
 [ BetaTestOffSub;
-  if (~~(betamode)) "Beta testing mode is already off.";
+  if (~~(betamode)) "El modo betatesting ya está desactivado.";
   betamode = false;
   <<ScriptOff>>;
 ];
 
 [ BetaCommentSub;
   if (betamode) rtrue;
-  "Comments can only be used in beta testing mode.";
+  "Sólo se pueden usar comentarios en modo betatesting.";
 ];
 
 Verb meta 'beta'
-         *              ->BetaTestOn
-         * 'test'       ->BetaTestOn
-         * 'test' 'off' ->BetaTestOff
-         * 'off'        ->BetaTestOff
-         * 'test' 'on'  ->BetaTestOn
-         * 'on'         ->BetaTestOn;
+  *              -> BetaTestOn
+  * 'test'       -> BetaTestOn
+  * 'test' 'off' -> BetaTestOff
+  * 'off'        -> BetaTestOff
+  * 'test' 'on'  -> BetaTestOn
+  * 'on'         -> BetaTestOn;
 
 Verb meta '!'
-         * topic        ->BetaComment;
-
+  * topic        -> BetaComment;
 

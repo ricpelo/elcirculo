@@ -272,14 +272,16 @@ Class Diary
 
 Class ContentsPage
   with 
-    description [ o i; new_line;
+    description [
+      o i;
+      new_line;
       self.PageHeader();
-      objectloop(i in parent(self)) {
-        o++;
-        if (i has on && o < ValueOrRun(self, ucutoff) &&
-            o > ValueOrRun(self, lcutoff)) {
-          self.listitem = i;
-          self.ListEntry(o);
+      objectloop (o in parent(self)) {
+        i++;
+        if (o has on && i < ValueOrRun(self, ucutoff) &&
+            i > ValueOrRun(self, lcutoff)) {
+          self.listItem = o;
+          self.ListEntry(i);
           new_line;
         }
       }
@@ -302,22 +304,20 @@ Class ContentsPage
     ],
     ListItem 0,
     PrintItem [;
-      print (name) self.ListItem;
+      return self.ListItem.short_name; 
+!      print (name) self.ListItem;
     ],
     ListEntry [ num
       i j;
       glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       j = gg_arguments-->0;
       i = j - 13;
-      if (i <= 0) i = j - 3;
+!      if (i <= 0) i = j - 3;
       spaces(5);
-      LJustify(Self.PrintItem, i, LEFT, '.');
+!      print (string) Self.PrintItem();
+      LJustify(Self.PrintItem(), i, LEFT, '.');
       print num;
     ];
-
-#ifndef temp_obj;
-Object temp_obj;
-#endif;
 
 !----------------------------------------------------------- format text nicely
 

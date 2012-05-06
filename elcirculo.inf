@@ -1141,9 +1141,11 @@ Object midiario "Diario del jugador"
           "lskjdfklsjdfskl";
     ];   
 
+ContentsPage cp "Contenidos";
+
 Object p1 "24 Frobuary"
   with
-    short_name "24 Frobuary"
+    short_name "24 Frobuary",
     description "^blah blah blah",
   has
     on;
@@ -2015,10 +2017,10 @@ Verb meta 'tt'
 
 
 [ DiarioSub;
-  closeGraphicWindow();
+  clearGraphicWindow();
+  midiario.update(cp, 2);
   midiario.update(p1, 1);
   midiario.select(midiario.last_page);
-  openGraphicWindow(altoVentanaGrafica);
 ];
 
 

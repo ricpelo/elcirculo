@@ -141,7 +141,8 @@ Array StringBuffer2->MAX_STR_LEN;
 ];
 
 [ WriteString str litstr;
-  if (litstr ofclass string) litstr.print_to_array(str);
+  if (litstr ofclass string)
+    PrintAnyToArray(str + WORDSIZE, MAX_STR_LEN, litstr);
   else {
     CapturarSalida();
     litstr();

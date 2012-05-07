@@ -1,0 +1,95 @@
+!
+! EL CÍRCULO
+!
+! Copyright (c) 2012 Ricardo Pérez López (Alpha Aventuras)
+!
+
+! This program is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! This program is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+!===============================================================================
+! (8) Objetos del Juego
+!-------------------------------------------------------------------------------
+
+
+! ====================================================================
+! OBJETOS DE SOPORTE
+! ====================================================================
+
+
+Object midiario "Diario de Rachel"
+  class Diary
+  with
+    short_name "Diario de Rachel",
+    description [;
+      clearMainWindow();
+      box "Diario de Rachel"
+          "sdlkjskdljfsdlkj"
+          "lskjdfklsjdfskl";
+    ];
+
+
+Object -> pagina_contenidos "Contenidos"
+  class ContentsPage;
+
+
+Object -> p1 "24 de febrero"
+  class DiaryEntry
+  with
+    short_name "24 de febrero";
+
+
+Object -> -> diario_llave
+  class DiaryEntry
+  with
+    description "Ruth me da una llave pequeña.";
+
+
+Object -> -> diario_ticket
+  class DiaryEntry
+  with
+    description "Dentro de la carpeta de Katie había un ticket de revelado de
+                 fotos.";
+
+
+Object -> p2 "18 de marzo"
+  class DiaryEntry
+  with
+    short_name "18 de marzo";
+
+
+Object -> -> diario_amigos
+  class DiaryEntry
+  with
+    description "He hablado con los amigos.";
+
+
+!===============================================================================
+! (10) Verbos y Gramaticas Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+Verb 'diario'
+  *           -> Diario;
+
+
+!===============================================================================
+! (11) Rutinas de Acciones Propias del Juego
+!-------------------------------------------------------------------------------
+
+
+[ DiarioSub;
+  clearGraphicWindow();
+  midiario.select(midiario.last_page);
+];

@@ -128,13 +128,13 @@ Class Diary
     D_PAGE__TX "Página ",
     D_AWAY__TX "^^Cierras el diario.^",
     D_UPDT__TX "Tu diario se ha actualizado.",         
-    D_INFO__TX "Teclea %BDIARIO%P para leer la última entrada.",
+    D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
     update [ page flag;   
       Pmove(page, self);
       
       if (flag == 1) {
         self.last_page = children(self);
-        print "^^^[";
+        print "^[";
         FormatText(self.D_UPDT__TX);
         if (self.message == 0) {
           self.message = 1;    
@@ -262,8 +262,7 @@ Class Diary
         if (pretty_flag) box "¿A qué página quieres ir?";
         else             print "¿A qué página quieres ir? >";
         KeyboardPrimitive(buffer, parse);
-        k = parse-->1;
-        if (parse-->1 == 0) return 4;
+        if (parse-->(WORDSIZE - 1) == 0) return 4;
         k = TryNumber(1);
         self.pagen = k;
         return 3;
@@ -327,7 +326,7 @@ Class ContentsPage
 
 #ifndef NoFormat;
 
-Array printed_text table 2000;
+Array printed_text -> 2000;
 
 [ Colour f b;
   SetColour(f, b);
@@ -338,8 +337,8 @@ Array printed_text table 2000;
 !  format.print_to_array(printed_text);
 !  j = printed_text-->0;
   for (k = WORDSIZE : k < j + WORDSIZE : k++) {
-    if (printed_text-->k == '%') {
-      switch (printed_text-->(++k)) {
+    if (printed_text->k == '%') {
+      switch (printed_text->(++k)) {
         '%': print "%";
         ' ': spaces 1;
         'B': style bold;
@@ -367,7 +366,7 @@ Array printed_text table 2000;
         'h': Colour(0, 8);
         'i': Colour(0, 9);
       }
-    } else print (char) printed_text-->k;
+    } else print (char) printed_text->k;
   }
 ];   
 

@@ -1152,6 +1152,13 @@ Object p1 "24 de febrero"
   has
     on;
 
+Object p2 "18 de marzo"
+  with
+    short_name "18 de marzo",
+    description "^etc etc etc",
+  has
+    on;
+
 ! Lugar necesario para que no haya errores al compilar si no hay localidades
 ! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
 Object lugar_vacio
@@ -2020,8 +2027,6 @@ Verb meta 'tt'
 
 [ DiarioSub;
   clearGraphicWindow();
-  midiario.update(pagina_contenidos, 2);
-  midiario.update(p1, 1);
   midiario.select(midiario.last_page);
 ];
 
@@ -2090,6 +2095,9 @@ Verb meta 'tt'
 
 
 [ GritarSub;
+!  midiario.update(pagina_contenidos, 2);
+!  midiario.update(p1, 1);
+!  midiario.update(p2, 1);
   "Emites un sonoro grito, pero nadie responde.";
 ];
 

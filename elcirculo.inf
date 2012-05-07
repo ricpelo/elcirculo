@@ -1142,22 +1142,34 @@ Object midiario "Diario de Rachel"
           "lskjdfklsjdfskl";
     ];   
 
-Object pagina_contenidos "Contenidos"
+Object -> pagina_contenidos "Contenidos"
   class ContentsPage;
 
-Object p1 "24 de febrero"
+Object -> p1 "24 de febrero"
+  class DiaryPage
   with
-    short_name "24 de febrero",
-    description "^blah blah blah",
-  has
-    on;
+    short_name "24 de febrero";
 
-Object p2 "18 de marzo"
+Object -> -> diario_llave
+  class DiaryPageEntry
   with
-    short_name "18 de marzo",
-    description "^etc etc etc",
-  has
-    on;
+    description "Ruth me da una llave pequeña.";
+
+Object -> -> diario_ticket
+  class DiaryPageEntry
+  with
+    description "Dentro de la carpeta de Katie había un ticket de revelado de
+                 fotos.";
+
+Object -> p2 "18 de marzo"
+  class DiaryPage
+  with
+    short_name "18 de marzo";
+
+Object -> -> diario_amigos
+  class DiaryPageEntry
+  with
+    description "He hablado con los amigos.";
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades
 ! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
@@ -2095,8 +2107,12 @@ Verb meta 'tt'
 
 
 [ GritarSub;
-!  midiario.update(pagina_contenidos, 2);
-!  midiario.update(p1, 1);
+  midiario.update(pagina_contenidos, 2);
+!  pagina_contenidos.update(2);
+!  p1.update(0);
+  diario_llave.update();
+  diario_ticket.update();  
+  diario_amigos.update();
 !  midiario.update(p2, 1);
   "Emites un sonoro grito, pero nadie responde.";
 ];

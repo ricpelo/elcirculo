@@ -130,10 +130,19 @@ Class Diary
     D_UPDT__TX "Tu diario se ha actualizado.",         
     D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
     update [ page flag;   
-      Pmove(page, self);
-      
+      !Pmove(page, self);
+      give page on;
+      self.notify(flag);      
+    ],
+    notify [ flag
+      o;
+
+      if (flag == 1 or 2) {
+        self.last_page = -1;
+        objectloop (o in self && o has on) self.last_page++;
+      }
+
       if (flag == 1) {
-        self.last_page = children(self);
         print "^[";
         FormatText(self.D_UPDT__TX);
         if (self.message == 0) {
@@ -144,9 +153,7 @@ Class Diary
         } else "]";
       } 
       
-      if (flag == 2) self.last_page = children(self);
-
-      rtrue;
+!      if (flag == 2) self.last_page = children(self);
     ],
     last_page 0,
     message 0,
@@ -156,8 +163,7 @@ Class Diary
       #ifdef TARGET_ZCODE;
       @erase_window -1;
       i = 0->33; if (i == 0) i = 80;
-      #endif;
-      #ifdef TARGET_GLULX;
+      #ifnot; ! TARGET_GLULX
       glk($002A, gg_quotewin); ! window_clear
       glk($002A, gg_statuswin); ! window_clear
       glk($002A, gg_mainwin);   ! window_clear
@@ -165,13 +171,11 @@ Class Diary
       glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
       #endif;
-!      style roman;
       #ifdef TARGET_ZCODE;
       @split_window 3;
       @set_window 1;
       style reverse;
-      #endif;
-      #ifdef TARGET_GLULX;
+      #ifnot; ! TARGET_GLULX 
       StatusLineHeight(3);
       glk($002F, gg_statuswin); ! set_window
       glk_set_style(style_BlockQuote);
@@ -179,13 +183,10 @@ Class Diary
       MoveCursor(1, 1); spaces(i);
       MoveCursor(2, 1); spaces(i);
       MoveCursor(3, 1); spaces(i);
-      MoveCursor(1, 1); print (string) self.D_PAGE__TX, self.pagen;
+      MoveCursor(1, 1);
+      print (string) self.D_PAGE__TX, self.pagen, "/", self.last_page;
       CenterU(self.doname(), 1);
-!      style bold;
-!      style reverse;
       CenterU(self.dopagename(), 2);
-!      style roman;
-!      style reverse;
       MoveCursor(2, 2); print (string) self.D_PKEY__TX;
       j = i - 19;
       MoveCursor(2, j); print (string) self.D_NKEY__TX;
@@ -193,11 +194,9 @@ Class Diary
       MoveCursor(3, j); print (string) self.D_GKEY__TX;
       #ifdef TARGET_ZCODE;
       @set_window 0;
-      #endif;
-      #ifdef TARGET_GLULX;
+      #ifnot; ! TARGET_GLULX 
       glk($002F, gg_mainwin); ! set_window
       #endif;
-!      style roman; font on;
     ],
     Lowkey_emblazon [;
       print "^^---"; self.doname(); print "---^";
@@ -216,8 +215,7 @@ Class Diary
       if (pretty_flag ~= 0) {
         #ifdef TARGET_ZCODE;
         @erase_window -1;
-        #endif;
-        #ifdef TARGET_GLULX;
+        #ifnot; ! TARGET_GLULX 
         glk($002A, gg_mainwin);  ! window_clear
         #endif;
       }
@@ -234,10 +232,14 @@ Class Diary
       return self.page;
     ],
     dopage [
-      j;
-      self.page = Scion(self, self.pagen);
+      j o i;
+      objectloop (o in self && o has on) {
+        if (i == self.pagen) break;
+        i++;
+      }
+      self.page = o;
       self.emblazon();
-      self.page.description();
+      if (self.page ~= nothing) self.page.description();
       j = self.keyloop();
       switch (j) {
         0: self.pagen--;
@@ -245,7 +247,7 @@ Class Diary
         2: return 2;
       }
       if (self.pagen < 0) self.pagen = 0;
-      if (self.pagen > children(self)) self.pagen = children(self);
+      if (self.pagen > self.last_page) self.pagen = self.last_page;
       return 1;
     ],
     keyloop [
@@ -259,6 +261,7 @@ Class Diary
       if (keypress == 129 or 'P' or 'p') return 0;
       if (keypress == 32 or 10 or 13 && self.pagen == 0) return 1;
       if (keypress == 'G' or 'g') {
+        glk($002A, gg_mainwin);   ! window_clear
         if (pretty_flag) box "¿A qué página quieres ir?";
         else             print "¿A qué página quieres ir? >";
         KeyboardPrimitive(buffer, parse);
@@ -269,6 +272,44 @@ Class Diary
       }
       if (keypress == 130 or 'N' or 'n') return 1;
       if (keypress ==  27 or 'Q' or 'q') return 2;
+    ];
+
+Class DiaryPage
+  with
+    update [ flag
+      d;
+      d = parent(self); if (d == nothing) rfalse;
+      if (self hasnt on) {
+        give self on;
+        d.update(self, flag);
+      }
+    ],
+    description [
+      o sp;
+      objectloop (o in self && o has on) {
+        if (sp) print " ";
+        else sp = true;
+        PrintOrRun(o, description, 1);
+      }
+    ];
+    
+Class DiaryPageEntry
+  with
+    update [
+      p;
+      p = parent(self); if (p == nothing) rfalse;
+      if (self hasnt on) {
+        give self on;
+        p.update(1);
+      }
+    ],
+    description [
+      o sp;
+      objectloop (o in self && o has on) {
+        if (sp) print " ";
+        else sp = true;
+        PrintOrRun(o, description, 1);
+      }
     ];
 
 Class ContentsPage
@@ -326,7 +367,7 @@ Class ContentsPage
 
 #ifndef NoFormat;
 
-Array printed_text -> 2000;
+Array printed_text -> 104;
 
 [ Colour f b;
   SetColour(f, b);

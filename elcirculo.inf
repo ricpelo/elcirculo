@@ -1146,28 +1146,28 @@ Object -> pagina_contenidos "Contenidos"
   class ContentsPage;
 
 Object -> p1 "24 de febrero"
-  class DiaryPage
+  class DiaryEntry
   with
     short_name "24 de febrero";
 
 Object -> -> diario_llave
-  class DiaryPageEntry
+  class DiaryEntry
   with
     description "Ruth me da una llave pequeña.";
 
 Object -> -> diario_ticket
-  class DiaryPageEntry
+  class DiaryEntry
   with
     description "Dentro de la carpeta de Katie había un ticket de revelado de
                  fotos.";
 
 Object -> p2 "18 de marzo"
-  class DiaryPage
+  class DiaryEntry
   with
     short_name "18 de marzo";
 
 Object -> -> diario_amigos
-  class DiaryPageEntry
+  class DiaryEntry
   with
     description "He hablado con los amigos.";
 
@@ -2107,9 +2107,7 @@ Verb meta 'tt'
 
 
 [ GritarSub;
-  midiario.update(pagina_contenidos, 2);
-!  pagina_contenidos.update(2);
-!  p1.update(0);
+  pagina_contenidos.update(1);
   diario_llave.update();
   diario_ticket.update();  
   diario_amigos.update();

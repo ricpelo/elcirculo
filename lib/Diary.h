@@ -116,8 +116,10 @@
 !
 !==============================================================================
 
+
 Include "Utility";
 Include "IString";
+
 
 Class Diary
   with    
@@ -129,20 +131,20 @@ Class Diary
     D_AWAY__TX "^^Cierras el diario.^",
     D_UPDT__TX "Tu diario se ha actualizado.",         
     D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
-    update [ page flag;   
+    update [ flag;   
       !Pmove(page, self);
-      give page on;
+!      give page on;
       self.notify(flag);      
     ],
     notify [ flag
       o;
 
-      if (flag == 1 or 2) {
+!      if (flag == 1 or 2) {
         self.last_page = -1;
         objectloop (o in self && o has on) self.last_page++;
-      }
+!      }
 
-      if (flag == 1) {
+      if (flag == 0) {
         print "^[";
         FormatText(self.D_UPDT__TX);
         if (self.message == 0) {
@@ -274,14 +276,15 @@ Class Diary
       if (keypress ==  27 or 'Q' or 'q') return 2;
     ];
 
-Class DiaryPage
+
+Class DiaryEntry
   with
     update [ flag
       d;
       d = parent(self); if (d == nothing) rfalse;
       if (self hasnt on) {
         give self on;
-        d.update(self, flag);
+        d.update(flag);
       }
     ],
     description [
@@ -289,31 +292,27 @@ Class DiaryPage
       objectloop (o in self && o has on) {
         if (sp) print " ";
         else sp = true;
+        if (o hasnt general) glk_set_style(style_Emphasized);
         PrintOrRun(o, description, 1);
-      }
-    ];
-    
-Class DiaryPageEntry
-  with
-    update [
-      p;
-      p = parent(self); if (p == nothing) rfalse;
-      if (self hasnt on) {
-        give self on;
-        p.update(1);
-      }
-    ],
-    description [
-      o sp;
-      objectloop (o in self && o has on) {
-        if (sp) print " ";
-        else sp = true;
-        PrintOrRun(o, description, 1);
+        if (o hasnt general) {
+          glk_set_style(style_Normal);
+          give o general;
+        }
       }
     ];
 
+    
 Class ContentsPage
-  with 
+  class DiaryEntry
+  with
+    update [ flag
+      d;
+      d = parent(self); if (d == nothing) rfalse;
+      if (self hasnt on) {
+        give self on;
+        d.update(flag);
+      }
+    ],
     description [
       o i;
       glk_set_style(style_Preformatted);
@@ -375,8 +374,6 @@ Array printed_text -> 104;
 
 [ FormatText format j k;
   j = PrintAnyToArray(printed_text + WORDSIZE, 100, format);
-!  format.print_to_array(printed_text);
-!  j = printed_text-->0;
   for (k = WORDSIZE : k < j + WORDSIZE : k++) {
     if (printed_text->k == '%') {
       switch (printed_text->(++k)) {

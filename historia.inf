@@ -36,6 +36,59 @@ Class ZonaMovimientoRuth;
 ! ====================================================================
 
 
+Object coche_rachel "Coche"
+  class Lugar
+  with
+    name 'coche',
+    nombre_direccion "el coche",
+    description "El coche de Rachel",
+    n_to fuera_casa_ruth,
+    destinos 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0,
+    agregar_destino [ d
+      i;
+      for (i = 0: i < self.#destinos / WORDSIZE: i++) {
+        if (self.&destinos-->i ~= 0) break;
+      }
+      if (i == self.#destinos) {
+        #ifdef DEBUG;
+        print "*** ERROR: Superado número máximo de destinos ***"; 
+        #endif;
+      }
+      self.&destinos-->i = d;
+    ],
+    eliminar_destino [ d
+      i;
+      for (i = 0: i < self.#destinos / WORDSIZE: i++) {
+        if (self.&destinos-->i == d) {
+          self.&destinos-->i = 0;
+          rfalse;
+        }
+      }
+    ],
+    after [
+      i d m sel;
+      Go:
+        m = 1;
+        for (i = 0: i < self.#destinos / WORDSIZE: i++) {
+          d = self.&destinos-->i;
+          if (d ~= 0) {
+            print "[", m++, "] ";
+            d.mostrar_nombre();
+          }
+        }
+        print "^Elige: ";
+        KeyboardPrimitive(buffer, parse);
+        if (parse-->(WORDSIZE - 1) == 0) sel = -1;
+        else                             sel = TryNumber(1);
+        for (i = 0: i < self.#destinos / WORDSIZE: i++) {
+          d = self.&destinos-->i;
+          if (sel == m) break;
+          else if (d ~= 0) m++;
+        }
+        PlayerTo(d);
+    ];
+
+
 Object cocina_ruth "Cocina"
   class Lugar
   class ZonaMovimientoRuth
@@ -63,7 +116,8 @@ Object fuera_casa_ruth "Exteriores de la casa de Ruth"
     name 'exterior',
     nombre_direccion "el exterior de la casa",
     description "Estas fuera de la casa de Ruth y Katie.",
-    in_to salon_ruth;
+    in_to salon_ruth,
+    s_to coche_rachel;
 
 
 Object jardin_ruth "Jardín de la casa"
@@ -421,10 +475,14 @@ Object tema_ruth_cajon "el cajón del escritorio de Katie" TemasRuth
   Damusix.PararTodo();
   ControlTimer.Resetear();
 
-  remove sonido_telefono_katie;  give sonido_telefono_katie  absent;
-  remove sonido_tv_cuarto_katie; give sonido_tv_cuarto_katie absent;
-  remove sonido_tv_salon_katie;  give sonido_tv_salon_katie  absent;
-  
+!  remove sonido_telefono_katie;  give sonido_telefono_katie  absent;
+!  remove sonido_tv_cuarto_katie; give sonido_tv_cuarto_katie absent;
+!  remove sonido_tv_salon_katie;  give sonido_tv_salon_katie  absent;
+
+  sonido_telefono_katie.quitar();
+  sonido_tv_cuarto_katie.quitar();
+  sonido_tv_salon_katie.quitar();
+
   clearMainWindow();
   print "^^Aquí comienza la historia.^";
   KeyDelay();
@@ -433,14 +491,14 @@ Object tema_ruth_cajon "el cajón del escritorio de Katie" TemasRuth
   PNJ_Ruta(rachel, MOVIMIENTO_NINGUNO);
   ChangePlayer(rachel);
 
-  remove katie;
+  remove katie; give katie absent;
 
   move aidan to fuera_casa_ruth;
   PNJ_Ruta(aidan, MOVIMIENTO_PERSEGUIR, rachel);
 
   move llave_cajon_katie to ruth;
   move ruth to salon_ruth;
-  ! Ruth se mueve por la cocina y el salón, con un 30% de probabilidad:
+  ! Ruth se mueve por la cocina y el salón, con un % de probabilidad:
   PNJ_Ruta(ruth, MOVIMIENTO_ALEATORIO, 10, CAMINO_CUALQUIERA,
            ZonaMovimientoRuth);
 

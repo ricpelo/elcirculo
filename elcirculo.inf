@@ -1107,6 +1107,10 @@ Class Sonido
     ],
     parar_sonido [;
       Damusix.PararCanal(self.canal);
+    ],
+    quitar [;
+      remove self;
+      give self absent;
     ];
 
 

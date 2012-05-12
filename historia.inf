@@ -69,32 +69,32 @@ Object coche_rachel "Coche"
     after [
       i d m sel;
       Go:
-        print "[0] Volver^"; 
-        m = 1;
-        for (i = 0: i < self.#destinos / WORDSIZE: i++) {
-          d = self.&destinos-->i;
-          if (d ~= 0) {
-            print "[", m++, "] ";
-            PrintOrRun(d, nombre_destino);
+        do {
+          print "[0] Volver^"; 
+          for (i = 0, m = 0: i < self.#destinos / WORDSIZE: i++) {
+            d = self.&destinos-->i;
+            if (d ~= 0) {
+              print "[", ++m, "] ";
+              PrintOrRun(d, nombre_destino);
+            }
           }
-        }
-        print "^Elige: ";
-        KeyboardPrimitive(buffer, parse);
-        if (parse-->(WORDSIZE - 1) == 0) sel = -1;
-        else                             sel = TryNumber(1);
+          print "^Elige: ";
+          KeyboardPrimitive(buffer, parse);
+          if (parse-->(WORDSIZE - 1) == 0) sel = -1;
+          else                             sel = TryNumber(1);
+          new_line;
+        } until (sel >= 0 && sel <= m);
         if (sel == 0) {
           PlayerTo(self.volver);
           rfalse;
         }
-        m = 1;
-        for (i = 0: i < self.#destinos / WORDSIZE: i++) {
+        for (i = 0, m = 1: i < self.#destinos / WORDSIZE: i++) {
           d = self.&destinos-->i;
           if (sel == m) break;
           else if (d ~= 0) m++;
         }
-        print "El destino es ", (name) d, ".^";
         if (d ~= 0) PlayerTo(d);
-        PlayerTo(self.volver);   ! Por si acaso
+        else        PlayerTo(self.volver);   ! Por si acaso
     ];
 
 

@@ -1032,7 +1032,7 @@ Object sonido_telefono_katie
           ControlTimer.PrepararImpresion();
           self.ultimo_mensaje = becca.hablalast(
             "Katie... Está sonando el teléfono...",
-            "¿Qué pasa? ¿No lo coges?",
+            "¿Qué pasa? ¿No vas a cogerlo?",
             "¿Por qué no lo coges?",
             "¡Pero cógelo ya! ¿Tienes miedo o qué?"
           );

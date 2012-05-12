@@ -42,17 +42,18 @@ Object coche_rachel "Coche"
     name 'coche',
     nombre_direccion "el coche",
     description "El coche de Rachel",
-    n_to fuera_casa_ruth,
     destinos 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0,
+    volver 0,
     agregar_destino [ d
       i;
       for (i = 0: i < self.#destinos / WORDSIZE: i++) {
-        if (self.&destinos-->i ~= 0) break;
+        if (self.&destinos-->i == 0) break;
       }
-      if (i == self.#destinos) {
+      if (i == self.#destinos / WORDSIZE) {
         #ifdef DEBUG;
-        print "*** ERROR: Superado número máximo de destinos ***"; 
+        print "*** ERROR: Superado número máximo de destinos ***";
         #endif;
+        rfalse;
       }
       self.&destinos-->i = d;
     ],
@@ -68,24 +69,32 @@ Object coche_rachel "Coche"
     after [
       i d m sel;
       Go:
+        print "[0] Volver^"; 
         m = 1;
         for (i = 0: i < self.#destinos / WORDSIZE: i++) {
           d = self.&destinos-->i;
           if (d ~= 0) {
             print "[", m++, "] ";
-            d.mostrar_nombre();
+            PrintOrRun(d, nombre_destino);
           }
         }
         print "^Elige: ";
         KeyboardPrimitive(buffer, parse);
         if (parse-->(WORDSIZE - 1) == 0) sel = -1;
         else                             sel = TryNumber(1);
+        if (sel == 0) {
+          PlayerTo(self.volver);
+          rfalse;
+        }
+        m = 1;
         for (i = 0: i < self.#destinos / WORDSIZE: i++) {
           d = self.&destinos-->i;
           if (sel == m) break;
           else if (d ~= 0) m++;
         }
-        PlayerTo(d);
+        print "El destino es ", (name) d, ".^";
+        if (d ~= 0) PlayerTo(d);
+        PlayerTo(self.volver);   ! Por si acaso
     ];
 
 
@@ -112,9 +121,11 @@ Object cuarto_katie_ruth "Habitación de Katie"
 
 Object fuera_casa_ruth "Exteriores de la casa de Ruth"
   class Lugar
+  class Destino
   with
     name 'exterior',
     nombre_direccion "el exterior de la casa",
+    nombre_destino "La casa de Ruth",
     description "Estas fuera de la casa de Ruth y Katie.",
     in_to salon_ruth,
     s_to coche_rachel;
@@ -505,6 +516,7 @@ Object tema_ruth_cajon "el cajón del escritorio de Katie" TemasRuth
   move amigos_katie to jardin_ruth;
   PNJ_Ruta(amigos_katie, MOVIMIENTO_NINGUNO);
 
+  coche_rachel.agregar_destino(fuera_casa_ruth);
   PlayerTo(fuera_casa_ruth);
 ];
 

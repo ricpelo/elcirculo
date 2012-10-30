@@ -1075,6 +1075,7 @@ Class Personaje
     
 Class Sonido
   with
+    emision 0,     ! El sonido a emitir
     fuente 0,      ! El objeto del que parte el sonido
     propagacion 3, ! El nº de localidades desde el que se puede oir el sonido
     volumen_principal 100, ! Volumen del sonido cuando el objeto está ahí
@@ -1101,17 +1102,33 @@ Class Sonido
       return Damusix.SonandoDeFondoCanal(self.canal);
     ],
     tocar_sonido [ snd;
-      Damusix.AsignarCanal(snd, self.canal, self.volumen(),
-                           SONIDO_REPETIR);
-      Damusix.TocarCanal(self.canal);
+      if (snd ~= 0) self.emision = snd;
+      #ifdef DEBUG;
+      if (self.emision == 0) {
+        "*** ERROR: Se intenta tocar un sonido sin definirlo antes ***"; 
+      }
+      #endif;
+      if (self.emision ~= 0) {
+        Damusix.AsignarCanal(self.emision, self.canal, self.volumen(),
+                             SONIDO_REPETIR);
+        Damusix.TocarCanal(self.canal);
+      }
     ],
     parar_sonido [;
       Damusix.PararCanal(self.canal);
     ],
+    sonar [ snd;
+      self.tocar_sonido(snd);
+    ],
+    parar [;
+      self.parar_sonido();
+    ],    
     quitar [;
       remove self;
       give self absent;
-    ];
+    ],
+  has
+    concealed;
 
 
 Class Destino

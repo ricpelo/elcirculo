@@ -988,6 +988,7 @@ Object sonido_telefono_katie
   class Sonido
   with
     found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
+    emision Telefono1_ogg,
     canal CANAL_TELEFONO,
     volumen_principal VOLUMEN_TELEFONO,
     fuente telefono_katie,
@@ -1009,7 +1010,7 @@ Object sonido_telefono_katie
       }
     ],
     sonar [ sw;
-      self.tocar_sonido(Telefono1_ogg);
+      self.tocar_sonido();
       StartTimer(self, self.duracion_alarma);
       if (~~sw) "Son las diez de la noche en punto y, súbitamente, comienza a
                  sonar el teléfono en la planta baja.";
@@ -1038,45 +1039,29 @@ Object sonido_telefono_katie
           );
         }
       }
-    ],
-  has
-    concealed;
+    ];
 
 
 Object sonido_tv_cuarto_katie
   class Sonido
   with
     found_in salon_katie pasillo_katie,
+    emision TV_Ruido_ogg, 
     canal CANAL_TV_CUARTO,
     fuente tv_cuarto_katie,
     volumen_principal VOLUMEN_TV_CUARTO,
-    propagacion 2,
-    sonar [;
-      self.tocar_sonido(TV_Ruido_ogg);
-    ],
-    parar [;
-      self.parar_sonido();
-    ],
-  has
-    concealed; 
+    propagacion 2;
 
 
 Object sonido_tv_salon_katie
   class Sonido
   with
     found_in salon_katie cocina_katie pasillo_katie,
+    emision TV_Ruido_ogg,
     canal CANAL_TV_SALON,
     fuente tv_salon_katie,
     volumen_principal VOLUMEN_TV_SALON,
-    propagacion 2,
-    sonar [;
-      self.tocar_sonido(TV_Ruido_ogg);
-    ],
-    parar [;
-      self.parar_sonido();
-    ],
-  has
-    concealed; 
+    propagacion 2;
 
 
 !Object msg_becca

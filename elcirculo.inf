@@ -67,6 +67,9 @@ Constant CANAL_TV_SALON  = 0; Constant VOLUMEN_TV_SALON  = 100;
 Constant CANAL_TV_CUARTO = 1; Constant VOLUMEN_TV_CUARTO = 50;
 Constant CANAL_TELEFONO  = 2; Constant VOLUMEN_TELEFONO  = 100;
 
+! La roca de la ventana de menús de acciones:
+Constant GG_MENUWIN_ROCK = 213;
+
 ! El color de fondo de la ventana gráfica es negro:
 Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 
@@ -117,6 +120,9 @@ Global dibujarEstado = false;
 ! Se pone a true y false en la rutina PermitirEmpujarDir, y luego se consulta en
 ! MensajesLibreria:
 Global estoyEmpujando = false;
+
+! La ventana de menús de acciones:
+Global gg_menuwin;
 
 ! Hay gráficos o no:
 Global hayGraficos = true;
@@ -204,6 +210,10 @@ Replace random;
 ! REGISTRA...):
 Replace SearchSub;
 
+! Nuestra versión mejora la de ExaminarFalso en que muestra un menú de
+! acciones si el objeto lo tiene:
+Replace UnknownVerb;
+
 ! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
 ! para el menú principal y las pistas:
 Replace ZIPI_RunMenu;
@@ -219,6 +229,31 @@ Include "Parser";
 !-------------------------------------------------------------------------------
 
 
+! El IdentifyGlkObject de la ventana de menús de acciones:
+[ Menu_IdentifyGlkObject fase tipo ref rock;
+  if (fase == 0) { ! Poner cero en todos nuestros objetos glk
+    gg_menuwin = 0;
+    return;
+  }       
+  if (fase == 1) { ! Reiniciar correctamente las variables glk
+    switch (tipo) {
+      0: ! es una ventana
+         switch (rock) {
+           GG_MENUWIN_ROCK: gg_menuwin = ref;
+         }
+      1: ! es un flujo
+         ! pero no hay flujos en este ejemplo
+      2: ! es una referencia a fichero
+         ! pero no hay ficheros en este ejemplo
+    }
+    return;
+  }       
+  if (fase == 2) { ! Actualizar nuestras ventanas
+    rfalse;
+  }
+];
+
+
 [ HandleGlkEvent ev context buffer;
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
@@ -229,6 +264,7 @@ Include "Parser";
 [ IdentifyGlkObject fase tipo ref rock;
   SGW_IdentifyGlk(fase,tipo,ref,rock);
   Damusix.IdentificarSonidos(fase);
+  Menu_IdentifyGlkObject(fase, tipo, ref, rock);
 !  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
 ];
 
@@ -932,6 +968,33 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
+! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
+! asociado un menú de acciones:
+[ UnknownVerb x
+  tmp uno r;
+  tmp = ExaminarFalso.EF_UnknownVerb(x);
+  if (tmp) {
+    uno = ExaminarFalso.objetoVerboDesconocido;
+    if (uno provides menu) {
+      gg_menuwin = glk_window_open(gg_mainwin,
+                                   winmethod_Right + winmethod_Proportional,
+                                   30, wintype_TextGrid, GG_MENUWIN_ROCK);
+      glk($002F, gg_menuwin); ! select
+      r = RunMenu(uno.menu);
+      glk_window_close(gg_menuwin, 0);
+      gg_menuwin = 0;
+      glk($002F, gg_mainwin);
+      ExaminarFalso.palabraMenu = r;
+      return tmp;
+    } else {
+      return tmp; ! 'examinar.falso'
+    }
+  } else {
+    return tmp; ! false
+  }
+  
+];
+
 
 !===============================================================================
 ! (6) Incluir SpanishG.h; Otros Includes
@@ -1521,6 +1584,137 @@ Object ZIPI_Tiempo_Real
     ZIPI_ejecutar [; rtrue; ];
 
 
+! ====================================================================
+! MENÚS DE ACCIONES
+! ====================================================================
+
+
+! Muestra el menú de acciones de un objeto:
+[ RunMenu _m top
+  i j count cur key target redibujar ft r k tec;
+
+  redibujar = 1;
+  cur = 0;
+  count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
+  ft = true;
+
+  for (::) {
+    if (redibujar) {
+!      ZIPI_PintaTitulo(_m.ZIPI_titulo);
+      redibujar = 0;
+    }
+
+    for (i = 0, tec = 0: i < count - 2: i++) {
+      j = i + 3;
+      glk($002B, gg_menuwin, 4, j - 1);
+      glk_set_style(style_Preformatted);
+      if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
+        print "[";
+        glk_set_style(style_Header);
+        print (char) teclas_opciones-->tec;
+        glk_set_style(style_Preformatted);
+        print "] ";
+        numero_opciones->tec = i;
+        tec++;
+      }
+      if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
+        (_m.&ZIPI_item-->i).ZIPI_titulo();
+      else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
+      glk_set_style(style_Normal);
+    }
+
+    j = i + 4;
+    glk($002B, gg_menuwin, 4, j - 1);
+    if (top) print (s_head) "[Q] Salir";
+    else     print (s_head) "[Q] Volver";
+    ft = false;
+    j = cur + 3;
+    glk($002B, gg_menuwin, 1, j - 1);
+    print (s_emph) ">";
+    glk($002B, gg_menuwin, 1, j - 1);
+    key = ZIPI_tecla();
+    print " ";
+
+    if (key > ZIPI_EVENTO_HYPER) {
+      cur = key - ZIPI_EVENTO_HYPER - 2;
+      if (cur == -1) key = 27;
+      else           key = 13;
+    }
+
+    switch (key) {
+      'k', 'p', '-', '_', 129, -4:
+        do {
+          cur--;
+          if (cur == count - 2) cur--;
+          if (cur < 0) cur = count - 1;
+        } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
+        break;
+      'j', 'n', '=', '+', 130, -5:
+        do {
+          cur++;
+          if (cur == count - 2) cur++;
+          if (cur >= count) cur = 0;
+        } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
+        break;
+      'q', 'Q', 27, 131, 10, 8, -2:
+        rfalse;
+ 
+      132, 13, 'n', ' ', -3, -6:
+    .Aceptar;
+        if (cur == count - 1) rfalse;
+        if (cur == count - 2) break;
+        target = _m.&ZIPI_item-->cur;
+        if (target ofclass ZIPI_Menu)          ZIPI_RunMenu(target);
+        else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
+        else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
+        else {
+          r = target.ZIPI_ejecutar();
+          return r;
+        }
+        redibujar = 1;
+        break;
+    }
+    ! Busca la tecla entre el vector
+    for (k = 0 : k < 31 : k++) {
+      if (key == (teclas_opciones-->k) && k < tec) { 
+        cur = numero_opciones->k;
+        key = 132;
+        jump Aceptar;
+      }
+    }
+  }
+  rfalse;
+];
+
+
+Object Menu_Coger
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Coger",
+    ZIPI_ejecutar [; return 'coge'; ];
+
+
+Object Menu_Dejar
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Dejar",
+    ZIPI_ejecutar [; return 'deja'; ];
+
+
+Object Menu_Encender
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Encender",
+    ZIPI_ejecutar [; return 'enciende'; ];
+
+
+Object Menu_Apagar
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Apagar",
+    ZIPI_ejecutar [; return 'apaga'; ];
+
+
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
@@ -1597,10 +1791,23 @@ Object ZIPI_Tiempo_Real
 
 
 ! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
-! Examinar dependiendo de si el objeto de destino es una localidad o no:
-[ ExaminarFalsoSub;
+! Examinar dependiendo de si el objeto de destino es una localidad o no.
+! Además tiene en cuenta si el objeto lleva asociado un menú de acciones y
+! dispara la que corresponda:
+[ ExaminarFalsoSub
+  tmp;
   noun = ExaminarFalso.objetoVerboDesconocido;
   PronounNotice(noun);
+  if (ExaminarFalso.palabraMenu ~= 0) {
+    tmp = ExaminarFalso.palabraMenu;
+    ExaminarFalso.palabraMenu = 0;
+    switch (tmp) {
+      'coge':     <<Take noun>>;
+      'deja':     <<Drop noun>>;
+      'enciende': <<SwitchOn noun>>;
+      'apaga':    <<SwitchOff noun>>;
+    }
+  }
   if (noun ofclass Lugar) <<Enter noun>>;
   else                    <<Examine noun>>;
 ];

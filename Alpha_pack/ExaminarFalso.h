@@ -50,7 +50,8 @@ Message "|___________________________________________________________|";
 
 Object ExaminarFalso
   with
-    objetoVerboDesconocido 0,
+    objetoVerboDesconocido 0,   ! El objeto sobre el que actuar
+    palabraMenu 0,              ! Se usa para los menús de acciones
     EF_UnknownVerb [x obj;
       objectloop (obj ofclass Object && TestScope(obj)) {
         #ifdef Decorado;

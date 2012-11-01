@@ -575,6 +575,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
   with
     name_f 'tv' 'television' 'tele' 'pantalla',
     name_m 'televisor',
+    menu Menu_tv_cuarto_katie,
     description [;
       print "Un pequeño televisor sin aspectos destacables. Está ";
       if (self has on) print "encendido, emitiendo nieve y ruido de estática";
@@ -624,6 +625,17 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     ],
   has
     scenery switchable;
+
+
+Object Menu_tv_cuarto_katie
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "Menú",
+    ZIPI_item
+      Menu_Coger
+      Menu_Dejar
+      Menu_Encender
+      Menu_Apagar;
 
 
 Object tv_salon_katie "televisor" salon_katie

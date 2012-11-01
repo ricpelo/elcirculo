@@ -681,7 +681,7 @@ Class Lugar
         objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
     ],
   has
-    light;
+    scenery light;
     
 
 #ifdef DEBUG;

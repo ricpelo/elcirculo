@@ -1613,7 +1613,7 @@ Object ZIPI_Tiempo_Real
     }
 
     for (i = 0, tec = 0: i < count - 2: i++) {
-      j = i + 3;
+      j = i + 2;
       glk($002B, gg_menuwin, 4, j - 1);
       glk_set_style(style_Preformatted);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
@@ -1631,12 +1631,12 @@ Object ZIPI_Tiempo_Real
       glk_set_style(style_Normal);
     }
 
-    j = i + 4;
+    j = i + 3;
     glk($002B, gg_menuwin, 4, j - 1);
     if (top) print (s_head) "[Q] Salir";
     else     print (s_head) "[Q] Volver";
     ft = false;
-    j = cur + 3;
+    j = cur + 2;
     glk($002B, gg_menuwin, 1, j - 1);
     print (s_emph) ">";
     glk($002B, gg_menuwin, 1, j - 1);

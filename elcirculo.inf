@@ -587,9 +587,8 @@ Object LibraryMessages
                 4: "No comprendo eso que dices.";
                 5: "¿Qué intentas decir?";
               }
-          39: ! Cuando el jugador intenta examinar usando una palabra que está
-              ! en la lista de nombres de la localidad actual, se describe la
-              ! propia localidad:
+          39: ! Cuando el jugador intenta llevar a cabo una acción usando una
+              ! palabra que está en la lista de nombres de la localidad actual:
               switch (action_to_be) {
                 ##Examine:  PrintOrRun(location, description);
                 ##Enter:    "Ya estás aquí.";
@@ -1159,8 +1158,6 @@ Object barra_estado
       68 1 true BE_TURNOS,
     lineas_inv
       BE_INV_TOTAL;
-
-
 
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades

@@ -168,6 +168,11 @@ Replace TellSub;
 ! Para usar el comando box con Glulx:
 Replace Box__Routine;
 
+! Nuestra versión de CerrarVentanaMapa es prácticamente idéntica a la de
+! Mapeador.h, con la única diferencia de que sólo llama a EncenderGraficos()
+! cuando hayGraficos es true:
+Replace CerrarVentanaMapa;
+
 ! En este juego no se usa el Consultar (CONSULTA, LEE, BUSCA EN x SOBRE y...):
 Replace ConsultSub;
 
@@ -178,6 +183,9 @@ Replace DirDada;
 ! Nuestra versión de esta rutina sólo redibuja la línea de estado cuando
 ! la variable global dibujarEstado está a true:
 Replace DrawStatusLine;
+
+! Sustituimos la rutina EncenderGraficos que aparece en Mapeador:
+Replace EncenderGraficos;
 
 ! Para que el verbo se convierta en Entrar o Examinar dependiendo de si
 ! es una localidad o no:
@@ -257,7 +265,7 @@ Include "Parser";
 [ HandleGlkEvent ev context buffer;
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
-!  Mapa_HandleGlkEvent(ev, context, buffer);
+  Mapa_HandleGlkEvent(ev, context, buffer);
 ];
 
 
@@ -265,7 +273,7 @@ Include "Parser";
   SGW_IdentifyGlk(fase,tipo,ref,rock);
   Damusix.IdentificarSonidos(fase);
   Menu_IdentifyGlkObject(fase, tipo, ref, rock);
-!  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
+  Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
 ];
 
 
@@ -664,7 +672,7 @@ Class Lugar
       else                                print (name) self;
     ],
     number,
-!    dibujado false,                   ! Necesario para Mapeador.h
+    dibujado false,                   ! Necesario para Mapeador.h
     react_before [
       l;
       l = LugarReal();
@@ -1005,7 +1013,7 @@ Include "SpanishG";
 
 Include "random";          ! Cambia la función random()
 Include "Decir";           ! Para poder usar DECIR ... A ...
-!Include "Mapeador";
+Include "Mapeador";
 Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 
 
@@ -1731,6 +1739,18 @@ Object Menu_Apagar
   deadflag = df;
   ControlTimer.DesactivarTick();
   Damusix.PararTodo();
+];
+
+
+[ CerrarVentanaMapa;
+  glk_window_close(gg_mapawin, 0);
+  closeAllWindows();
+  clearMainWindow();
+  if (hayGraficos) EncenderGraficos();
+  #ifdef ControlTimer;
+  ControlTimer.ReanudarTick();
+  #endif;
+  <<Look>>;
 ];
 
 

@@ -267,9 +267,11 @@ Include "Parser";
   switch (ev-->0) {
     evtype_Hyperlink:
       glk_request_hyperlink_event(gg_mainwin);
-      if ((ev-->2) provides input_link)      obj = (ev-->2).input_link;
-      else if ((ev-->2) provides short_name) obj = (ev-->2).short_name;
-      else                                   obj = ev-->2;
+      if ((ev-->2) in Compass) {
+        ImprimirPrompt();
+        print (s_input) "ve ", (s_input) (ev-->2).input_link, "^";
+      }
+      obj = (ev-->2).input_link;
       long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
                              obj);
       buffer-->0 = long;
@@ -1865,21 +1867,30 @@ Object Menu_Apagar
 ! Además tiene en cuenta si el objeto lleva asociado un menú de acciones y
 ! dispara la que corresponda:
 [ ExaminarFalsoSub
-  tmp;
+  pm pl;
   noun = ExaminarFalso.objetoVerboDesconocido;
+  pl = noun.input_link;
   PronounNotice(noun);
+  ImprimirPrompt();
   if (ExaminarFalso.palabraMenu ~= 0) {
-    tmp = ExaminarFalso.palabraMenu;
+    pm = ExaminarFalso.palabraMenu;
     ExaminarFalso.palabraMenu = 0;
-    switch (tmp) {
-      'coge':     <<Take noun>>;
-      'deja':     <<Drop noun>>;
-      'enciende': <<SwitchOn noun>>;
-      'apaga':    <<SwitchOff noun>>;
+    switch (pm) {
+      'coge':     print (s_input) "coge ", (s_input) pl, "^";
+                  <<Take noun>>;
+      'deja':     print (s_input) "deja ", (s_input) pl, "^";
+                  <<Drop noun>>;
+      'enciende': print (s_input) "enciende ", (s_input) pl, "^";
+                  <<SwitchOn noun>>;
+      'apaga':    print (s_input) "apaga ", (s_input) pl, "^";
+                  <<SwitchOff noun>>;
     }
   }
-  if (noun ofclass Lugar) <<Enter noun>>;
-  else                    <<Examine noun>>;
+  if (noun ofclass Lugar) {
+    print (s_input) "ve ", (s_input) pl, "^"; <<Enter noun>>;
+  } else {
+    print (s_input) "ex ", (s_input) pl, "^"; <<Examine noun>>;
+  }
 ];
 
 
@@ -1957,15 +1968,6 @@ Object Menu_Apagar
 ];
 
 
-[ link obj;
-  glk_set_hyperlink(obj);
-  if (obj provides nombre_link)     print (string) obj.nombre_link;
-  else if (obj provides short_name) print (string) obj.short_name;
-  else                              print (object) obj;
-  glk_set_hyperlink(0);
-];
-
-
 #ifndef LugarReal;
 [ LugarReal;
   if (location == thedark) return real_location;
@@ -1990,6 +1992,13 @@ Object Menu_Apagar
     viewImageCenter(imagen, true);
     WaitDelay(retardo);
   }  
+];
+
+
+[ link obj;
+  glk_set_hyperlink(obj);
+  print (string) obj.nombre_link;
+  glk_set_hyperlink(0);
 ];
 
 

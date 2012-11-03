@@ -582,6 +582,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     name_f 'tv' 'television' 'tele' 'pantalla',
     name_m 'televisor',
     nombre_link "televisor",
+    input_link "televisor",
     ZIPI_item
       Menu_Coger
       Menu_Dejar

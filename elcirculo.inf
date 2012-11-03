@@ -1313,6 +1313,7 @@ Array numero_opciones -> 30;
         glk_set_style(style_Preformatted);
 !        style fixed;
         if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
+          glk(256, teclas_opciones-->tec);
           print "[";
           glk_set_style(style_Header);
           print (char) teclas_opciones-->tec;
@@ -1325,6 +1326,7 @@ Array numero_opciones -> 30;
           (_m.&ZIPI_item-->i).ZIPI_titulo();
         else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
         glk_set_style(style_Normal);
+        glk(256, 0);
 !      }
     }
 
@@ -1335,8 +1337,10 @@ Array numero_opciones -> 30;
 !      if (top) tt_computadora.visualiza("Salir");
 !      else     tt_computadora.visualiza("Volver");
 !    } else {
+      glk(256, 'Q');
       if (top) print (s_head) "[Q] Salir";
       else     print (s_head) "[Q] Volver";
+      glk(256, 0);
 !    }
 
     ft = false;
@@ -1344,7 +1348,18 @@ Array numero_opciones -> 30;
     ZIPI_setcursor(2, j);
     print (s_emph) ">";
     ZIPI_setcursor(2, j);
-    key = ZIPI_tecla();
+
+    glk(258, gg_statuswin); ! glk_request_hyperlink_event
+    while (1) {
+      glk($00D2, gg_mainwin);
+      glk($00C0, gg_arguments); ! glk_select(gg_arguments);
+      if ((gg_arguments-->0) == 8) {  ! evType_Hyperlink
+        key = gg_arguments-->2; break;
+      } else if ((gg_arguments-->0) == 2) {
+        key = gg_arguments-->2; break;
+      }
+    }
+
     print " ";
 
     if (key > ZIPI_EVENTO_HYPER) {

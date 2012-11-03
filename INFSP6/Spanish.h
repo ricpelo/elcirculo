@@ -208,12 +208,12 @@ Object Compass "brújula" has concealed female ;
 CompassDirection -> in_obj "interior"
   with
     door_dir in_to,
-    name 'en' 'dentro' 'adentro';
+    name 'en' 'dentro' 'adentro' 'interior';
 
 CompassDirection -> out_obj "exterior"
   with
     door_dir out_to,
-    name 'fuera' 'afuera';
+    name 'fuera' 'afuera' 'exterior';
 
 ! ---------------------------------------------------------------------------
 !   Parte II.   Vocabulario

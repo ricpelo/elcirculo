@@ -262,7 +262,20 @@ Include "Parser";
 ];
 
 
-[ HandleGlkEvent ev context buffer;
+[ HandleGlkEvent ev context buffer
+  obj long;
+  switch (ev-->0) {
+    evtype_Hyperlink:
+      glk_request_hyperlink_event(gg_mainwin);
+      if ((ev-->2) provides input_link)      obj = (ev-->2).input_link;
+      else if ((ev-->2) provides short_name) obj = (ev-->2).short_name;
+      else                                   obj = ev-->2;
+      long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
+                             obj);
+      buffer-->0 = long;
+      glk($00D1, gg_mainwin, gg_event); ! glk_cancel_line_event
+      return 2;
+  }
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
   Mapa_HandleGlkEvent(ev, context, buffer);
@@ -843,6 +856,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   sonido_telefono_katie.sonar();
   KeyDelay();
   openGraphicWindow(altoVentanaGrafica);
+  glk_request_hyperlink_event(gg_mainwin);
 ];
 
 
@@ -932,16 +946,18 @@ Include "Timer";            ! Mi librería de eventos temporizados
     nw_to:   par = false; ! print "al noroeste";
     se_to:   par = false; ! print "al sudeste";
     sw_to:   par = false; ! print "al suroeste";
-    u_to:    print "arriba";
-    d_to:    print "abajo";
-    in_to:   print "dentro";
-    out_to:  print "fuera";
+    u_to:    glk_set_hyperlink(u_obj);   print "arriba"; glk_set_hyperlink(0);
+    d_to:    glk_set_hyperlink(d_obj);   print "abajo";  glk_set_hyperlink(0);
+    in_to:   glk_set_hyperlink(in_obj);  print "dentro"; glk_set_hyperlink(0);
+    out_to:  glk_set_hyperlink(out_obj); print "fuera";  glk_set_hyperlink(0);
     default: return RunTimeError(9, d);
   }
   l = LugarReal();
   print " ";
   if (par) print "(";
+  glk_set_hyperlink(l.d);
   l.d.mostrar_nombre();
+  glk_set_hyperlink(0);
   if (par) print ")";
 ];
 
@@ -1904,6 +1920,15 @@ Object Menu_Apagar
     print " ";
   }
   print (s_input) "> ";
+];
+
+
+[ link obj;
+  glk_set_hyperlink(obj);
+  if (obj provides nombre_link)     print (string) obj.nombre_link;
+  else if (obj provides short_name) print (string) obj.short_name;
+  else                              print (object) obj;
+  glk_set_hyperlink(0);
 ];
 
 

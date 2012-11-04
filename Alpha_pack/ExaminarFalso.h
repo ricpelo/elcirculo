@@ -53,7 +53,9 @@ Object ExaminarFalso
     objetoVerboDesconocido 0,   ! El objeto sobre el que actuar
     palabraMenu 0,              ! Se usa para los menús de acciones
     EF_UnknownVerb [x obj;
-      objectloop (obj ofclass Object && TestScope(obj)) {
+      ! Se busca en todos los objetos que están al alcance, incluyendo la
+      ! localidad actual y exceptuando el propio jugador:
+      objectloop (obj ofclass Object && (TestScope(obj) || obj == location)) {
         #ifdef Decorado;
         if (obj ofclass Decorado && obj.buscar_nombre(x)) {
           jump PalabraEncontrada;

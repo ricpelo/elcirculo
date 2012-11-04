@@ -113,7 +113,7 @@ Class objeto_barra_estado
           }
           for (i = 0: i < n: i = i + 4) { ! Recorre la propiedad disposicion
             x = self.&disposicion-->i;
-            if (x ~= BE_JUNTO) {          ! Calcula el proporcional de tanto por 80
+            if (x ~= BE_JUNTO) {       ! Calcula el proporcional de tanto por 80
               if (self.proporcional) x = (x * ancho) / 80;
               y = self.&disposicion-->(i + 1);
               self.locate(y, x, 1);
@@ -131,7 +131,8 @@ Class objeto_barra_estado
         if (gg_statuswin == 0) return;
         glk($002F, gg_statuswin); ! set_window
         StatusLineHeight(lin);
-        glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE); ! window_get_size
+        glk($0025, gg_statuswin, gg_arguments,
+            gg_arguments + WORDSIZE); ! window_get_size
         if (self.anchura) ancho = self.anchura;
         else              ancho = gg_arguments-->0;
         glk($002A, gg_statuswin); ! window_clear
@@ -145,7 +146,7 @@ Class objeto_barra_estado
         } else {                  ! modo compuesto
           for (i = 0: i < n: i = i + 4) {     ! recorre la propiedad disposicion
             x = self.&disposicion-->i;
-            if (x ~= BE_JUNTO) {              ! calcula el proporcional de tanto por 80
+            if (x ~= BE_JUNTO) {       ! calcula el proporcional de tanto por 80
               if (self.proporcional) x = (x * ancho) / 80;
               y = (self.&disposicion-->(i + 1));
               self.locate(y, x, 1);
@@ -203,7 +204,9 @@ Class objeto_barra_estado
         BE_TEXTO:             ! ctex es el contador de items de texto
           self.texto(++ctex);
         BE_LOCALIDAD:
+          glk_set_hyperlink(location);    ! (c) Alpha
           print (name) location;
+          glk_set_hyperlink(0);           ! (c) Alpha
         BE_AVENTURA:
           print (string) Story;
         ! Si Hora24.h no ha sido incluido, las horas se desactivan
@@ -214,9 +217,11 @@ Class objeto_barra_estado
             print (hora24) the_time;
           BE_HORA_AMPM:
             print "Hora: ";
-            LanguageTimeOfDay(objeto_hora24.horas(the_time), objeto_hora24.minutos(the_time));
+            LanguageTimeOfDay(objeto_hora24.horas(the_time),
+                              objeto_hora24.minutos(the_time));
           BE_SOLO_HORA_AMPM:
-            LanguageTimeOfDay(objeto_hora24.horas(the_time), objeto_hora24.minutos(the_time));
+            LanguageTimeOfDay(objeto_hora24.horas(the_time),
+                              objeto_hora24.minutos(the_time));
         #endif;
         BE_TURNOS:
           print "Turnos: ", turns;

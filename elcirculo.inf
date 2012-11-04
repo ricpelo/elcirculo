@@ -266,7 +266,7 @@ Include "Parser";
   obj long;
   switch (ev-->0) {
     evtype_Hyperlink:
-      glk_request_hyperlink_event(gg_mainwin);
+      glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
       if ((ev-->2) in Compass) {
         ImprimirPrompt();
         print (s_input) "ve ", (s_input) (ev-->2).input_link, "^";
@@ -859,6 +859,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   KeyDelay();
   openGraphicWindow(altoVentanaGrafica);
   glk_request_hyperlink_event(gg_mainwin);
+  glk_request_hyperlink_event(gg_statuswin);
 ];
 
 
@@ -1869,6 +1870,7 @@ Object Menu_Apagar
 [ ExaminarFalsoSub
   pm pl;
   noun = ExaminarFalso.objetoVerboDesconocido;
+  if (noun == location) <<Look>>;
   pl = noun.input_link;
   PronounNotice(noun);
   ImprimirPrompt();

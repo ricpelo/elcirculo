@@ -47,13 +47,13 @@ Object cuarto_katie "Tu habitación"
     adjectives 'tu',
     description [;
        "La pequeña lámpara de la mesita situada junto a tu cama
-             proyecta débiles y verdosos haces de luz que iluminan tu
-             habitación con un tono que, en estos momentos, te resulta
-             enfermizo y asfixiante. El tamaño de tu cama parece pugnar
-             por abarcar el mayor espacio posible de la estancia, sólo
-             equilibrado por el pequeño ", (link) tv_cuarto_katie,
-             " que observa todo sin parpadear su único ojo desde una pequeña
-             mesa situada en la pared contraria.";
+        proyecta débiles y verdosos haces de luz que iluminan tu
+        habitación con un tono que, en estos momentos, te resulta
+        enfermizo y asfixiante. El tamaño de tu cama parece pugnar
+        por abarcar el mayor espacio posible de la estancia, sólo
+        equilibrado por el pequeño ", (link) tv_cuarto_katie,
+        " que observa todo sin parpadear su único ojo desde una pequeña
+        mesa situada en la pared contraria.";
     ],
     out_to pasillo_katie,
     sgw_img Cuarto_Katie_jpg,

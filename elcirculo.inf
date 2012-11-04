@@ -226,6 +226,7 @@ Replace UnknownVerb;
 ! para el menú principal y las pistas:
 Replace ZIPI_RunMenu;
 Replace ZIPI_RunOtro;
+Replace ZIPI_tecla;
 
 
 Include "Parser";
@@ -1357,16 +1358,7 @@ Array numero_opciones -> 30;
     ZIPI_setcursor(2, j);
 
     glk_request_hyperlink_event(gg_statuswin);
-    while (1) {
-      glk($00D2, gg_mainwin);
-      glk($00C0, gg_arguments); ! glk_select(gg_arguments);
-      if ((gg_arguments-->0) == 8) {  ! evType_Hyperlink
-        key = gg_arguments-->2; break;
-      } else if ((gg_arguments-->0) == 2) {
-        key = gg_arguments-->2; break;
-      }
-    }
-
+    key = ZIPI_tecla();
     print " ";
 
     if (key > ZIPI_EVENTO_HYPER) {
@@ -1435,6 +1427,22 @@ Array numero_opciones -> 30;
   clearGraphicWindow();
   viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   return r;
+];
+
+
+[ ZIPI_tecla
+  key;
+  while (1) {
+    glk($00D2, gg_mainwin);
+    glk($00C0, gg_arguments); ! glk_select(gg_arguments);
+    if ((gg_arguments-->0) == 8) {  ! evType_Hyperlink
+      key = gg_arguments-->2; break;
+    } else if ((gg_arguments-->0) == 2) {
+      key = gg_arguments-->2; break;
+    }
+  }
+  glk($00D3, gg_mainwin); ! cancel_char_event
+  return key;
 ];
 
 
@@ -1685,19 +1693,7 @@ Object ZIPI_Tiempo_Real
     glk($002B, gg_menuwin, 1, j - 1);
     
     glk_request_hyperlink_event(gg_menuwin);
-    while (1) {
-      glk($00D2, gg_mainwin);
-      glk($00C0, gg_arguments); ! glk_select(gg_arguments);
-      if ((gg_arguments-->0) == 8) {  ! evType_Hyperlink
-        key = gg_arguments-->2; break;
-      } else if ((gg_arguments-->0) == 2) {
-        key = gg_arguments-->2; break;
-      }
-    }
-    
-    glk($00D3, gg_mainwin);
-    
-!    key = ZIPI_tecla();
+    key = ZIPI_tecla();
     print " ";
 
     if (key > ZIPI_EVENTO_HYPER) {

@@ -12,4 +12,5 @@ if [ -f elcirculo.ulx ]; then
 fi
 cp -f elcirculo.blb ~/Dropbox/AlphaAventuras/ElCirculo/
 cp -f elcirculo.blb ~/Dropbox/Public/
-
+cp -f garglk.ini ~/Dropbox/AlphaAventuras/ElCirculo/
+cp -f garglk.ini ~/Dropbox/Public/

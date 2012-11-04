@@ -1007,10 +1007,14 @@ Include "Timer";            ! Mi librería de eventos temporizados
                                    winmethod_Right + winmethod_Fixed,
                                    25, wintype_TextGrid, GG_MENUWIN_ROCK);
       glk($002F, gg_menuwin); ! select
+      glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
+      glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
       r = RunMenu(uno);
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;
-      glk($002F, gg_mainwin);
+      glk($002F, gg_mainwin); ! select
+      glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
+      glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
       ExaminarFalso.palabraMenu = r;
       return tmp;
     } else {
@@ -1352,7 +1356,7 @@ Array numero_opciones -> 30;
     print (s_emph) ">";
     ZIPI_setcursor(2, j);
 
-    glk(258, gg_statuswin); ! glk_request_hyperlink_event
+    glk_request_hyperlink_event(gg_statuswin);
     while (1) {
       glk($00D2, gg_mainwin);
       glk($00C0, gg_arguments); ! glk_select(gg_arguments);
@@ -1680,7 +1684,7 @@ Object ZIPI_Tiempo_Real
     print (s_emph) ">";
     glk($002B, gg_menuwin, 1, j - 1);
     
-    glk(258, gg_menuwin); ! glk_request_hyperlink_event
+    glk_request_hyperlink_event(gg_menuwin);
     while (1) {
       glk($00D2, gg_mainwin);
       glk($00C0, gg_arguments); ! glk_select(gg_arguments);

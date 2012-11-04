@@ -254,10 +254,9 @@ Verb meta 'mapa'
   glk($002F, gg_statuswin); ! select
   glk($002A, gg_statuswin); ! clear
   glk($0086, style_SubHeader);
+  glk($002B, gg_statuswin, 1, 0); ! locate
   ImprimirNombreSitioMapa(sitio);
-  glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE); ! window_get_size
-  glk($002B, gg_statuswin, gg_arguments-->0 - 11, 0); ! locate
-  print "| H = Ayuda";
+  AyudaMapa();
   glk($002F, gg_mainwin);   ! select
   #ifdef IMPRIMIR_DESCRIPCION_MAPA;
   PrintOrRun(sitio, description);
@@ -312,18 +311,26 @@ Verb meta 'mapa'
   return sitio;
 ];
 
-[ AbrirVentanaMapa;
+[ AbrirVentanaMapa
+  altura;
   #ifdef ControlTimer;
   ControlTimer.PausarTick();
   #endif;
+  openGraphicWindow(200);
   gg_mapawin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional,
                                100, wintype_Graphics, GG_MAPAWIN_ROCK);
   if (gg_mapawin == 0) return;
   glk_window_set_background_color(gg_mapawin, SCBACK);
   glk_window_clear(gg_mapawin);
+  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+  altura = gg_arguments-->1;
+  StatusLineHeight(10);
+  AyudaMapa();
+  return altura;
 ];
 
-[ CerrarVentanaMapa;
+[ CerrarVentanaMapa altura;
+  StatusLineHeight(altura);
   glk_window_close(gg_mapawin, 0);
   closeAllWindows();
   clearMainWindow();
@@ -334,21 +341,8 @@ Verb meta 'mapa'
   <<Look>>;
 ];
 
-[ AyudaMapa sitio cenx ceny
-  altura;
-  glk_window_clear(gg_mainwin);
-  glk_window_clear(gg_mapawin);
-  glk_window_clear(gg_objwin);
-  glk_window_clear(gg_statuswin);
+[ AyudaMapa;
   glk($002F, gg_statuswin); ! select
-  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
-  altura = gg_arguments-->1;
-  StatusLineHeight(12);
-  glk($0086, style_SubHeader);
-  glk($002B, gg_statuswin, 0, 0); ! locate
-  print "Ayuda del mapa";
-  glk($0086, style_Normal);
-
   print "^
          ^ ", (s_input) "Cursor arriba", ", ", (s_input) "8", ", ", (s_input) "Y", ": ", (s_bold) "Norte",
            "       ", (s_input) "7", ", ", (s_input) "T", ": ", (s_bold) "Noroeste",
@@ -365,17 +359,11 @@ Verb meta 'mapa'
         "^ ", (s_input) "Z", ", ", (s_input) "+", ": ", (s_bold) "Acercar",
            "                    ", (s_input) "Q", ": ", (s_bold) "Volver al juego",
         "^ ", (s_input) "X", ", ", (s_input) "-", ": ", (s_bold) "Alejar";
-  print "^^ [ Pulsa una tecla para continuar ]";
-  KeyDelay();
-  StatusLineHeight(altura);
-  glk($0086, style_SubHeader);
-  glk($002F, gg_mainwin);   ! select
-  RefrescarMapa(sitio, cenx, ceny);
 ];
 
 [ MapaSub
-  cenx ceny sitio tecla;
-  AbrirVentanaMapa();
+  cenx ceny sitio tecla altura;
+  altura = AbrirVentanaMapa();
   glk_window_get_size(gg_mapawin, gg_arguments, gg_arguments + WORDSIZE);
   cenx = (gg_arguments-->0) / 2; ! ancho / 2
   ceny = (gg_arguments-->1) / 2; ! alto / 2
@@ -414,7 +402,7 @@ Verb meta 'mapa'
     }
   }
 .Salir;
-  CerrarVentanaMapa();
+  CerrarVentanaMapa(altura);
   g_sitio = 0;
 ];
 

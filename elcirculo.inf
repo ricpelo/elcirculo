@@ -1655,16 +1655,18 @@ Object ZIPI_Tiempo_Real
 
   for (::) {
     if (redibujar) {
+      glk_set_style(style_Input);
+      print " ", (string) _m.input_link, ":^";
+      glk_set_style(style_Preformatted);
 !      ZIPI_PintaTitulo(_m.ZIPI_titulo);
       redibujar = 0;
     }
 
     for (i = 0, tec = 0: i < count - 2: i++) {
-      j = i + 2;
+      j = i + 3;
       glk($002B, gg_menuwin, 4, j - 1);
       glk_set_style(style_Preformatted);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-!        glk(256, -(i + 1) - 10);
         glk(256, teclas_opciones-->tec);
         print "[";
         glk_set_style(style_Header);
@@ -1681,14 +1683,14 @@ Object ZIPI_Tiempo_Real
       glk(256, 0);
     }
 
-    j = i + 3;
+    j = i + 4;
     glk($002B, gg_menuwin, 4, j - 1);
     glk(256, 'Q');
     if (top) print (s_head) "[Q] Salir";
-    else     print (s_head) "[Q] Volver";
+    else     print (s_head) "[Q] Examinar";
     glk(256, 0);
     ft = false;
-    j = cur + 2;
+    j = cur + 3;
     glk($002B, gg_menuwin, 1, j - 1);
     print (s_emph) ">";
     glk($002B, gg_menuwin, 1, j - 1);

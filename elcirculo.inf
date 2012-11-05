@@ -267,8 +267,8 @@ Include "Parser";
   obj long;
   switch (ev-->0) {
     evtype_Hyperlink:
-      if (context == 1) return 1;  ! character input request
       glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
+      if (context == 1) return 1;  ! character input request
       obj = ev-->2;
       if (obj in Compass) {
         ImprimirPrompt();
@@ -288,7 +288,7 @@ Include "Parser";
 
 
 [ IdentifyGlkObject fase tipo ref rock;
-  SGW_IdentifyGlk(fase,tipo,ref,rock);
+  SGW_IdentifyGlk(fase, tipo, ref, rock);
   Damusix.IdentificarSonidos(fase);
   Menu_IdentifyGlkObject(fase, tipo, ref, rock);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);

@@ -91,7 +91,7 @@ Class GestorTimer
 
 
 Object ControlTimer
-with
+  private
     gestores 0 0 0 0 0 0 0 0 0 0          ! Array de gestores de eventos
              0 0 0 0 0 0 0 0 0 0,
     duracion_maxima 0,                    ! Duración máxima entre los gestores (en nº de ticks) 
@@ -183,8 +183,8 @@ with
     CT_WaitDelay [ delay;
       glk($00D6, delay * 5);              ! request_timer_events
       while (1) {
-        glk($00C0, gg_arguments);         ! glk_select(gg_arguments);
-        if ((gg_arguments-->0) == 1) {
+        glk($00C0, gg_arguments);         ! glk_select
+        if ((gg_arguments-->0) == 1) {    ! evtype_Timer
           glk($00D6, self.tick);
           break;
         }
@@ -201,8 +201,7 @@ with
         if (ix == 2) {
           key = gg_arguments-->0;
           done = true;
-        }
-        else if (ix >= 0 && gg_event-->0 == 1 or 2) {
+        } else if (ix >= 0 && gg_event-->0 == 1 or 2) { ! Timer or CharInput
           key = gg_event-->2;
           done = true;
         }

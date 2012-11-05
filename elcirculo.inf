@@ -2002,7 +2002,8 @@ Object Menu_Apagar
 
 [ link obj;
   glk_set_hyperlink(obj);
-  print (string) obj.nombre_link;
+  if (obj provides nombre_link) print (string) obj.nombre_link;
+  else                          print (string) obj.input_link;
   glk_set_hyperlink(0);
 ];
 

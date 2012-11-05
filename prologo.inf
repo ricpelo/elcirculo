@@ -584,6 +584,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     nombre_link "televisor",  ! No hace falta, porque vale igual que input_link
     input_link "televisor",
     ZIPI_item
+      Menu_Examinar
       Menu_Coger
       Menu_Dejar
       Menu_Encender

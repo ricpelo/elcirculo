@@ -1017,6 +1017,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
       glk($002F, gg_mainwin); ! select
       glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+      if (~~r) return 'verbo.nulo';
       ExaminarFalso.palabraMenu = r;
       return tmp;
     } else {
@@ -1646,7 +1647,7 @@ Object ZIPI_Tiempo_Real
 
 ! Muestra el menú de acciones de un objeto:
 [ RunMenu _m top
-  i j count cur key target redibujar ft r k tec;
+  i j count cur key target redibujar ft k tec;
 
   redibujar = 1;
   cur = 0;
@@ -1687,7 +1688,7 @@ Object ZIPI_Tiempo_Real
     glk($002B, gg_menuwin, 4, j - 1);
     glk(256, 'Q');
     if (top) print (s_head) "[Q] Salir";
-    else     print (s_head) "[Q] Examinar";
+    else     print (s_head) "[Q] Volver";
     glk(256, 0);
     ft = false;
     j = cur + 3;
@@ -1731,10 +1732,7 @@ Object ZIPI_Tiempo_Real
         if (target ofclass ZIPI_Menu)          return RunMenu(target);
         else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
         else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
-        else {
-          r = target.ZIPI_ejecutar();
-          return r;
-        }
+        else                                   return target.ZIPI_ejecutar();
         redibujar = 1;
         break;
     }
@@ -1749,6 +1747,13 @@ Object ZIPI_Tiempo_Real
   }
   rfalse;
 ];
+
+
+Object Menu_Apagar
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Apagar",
+    ZIPI_ejecutar [; return 'apaga'; ];
 
 
 Object Menu_Coger
@@ -1771,12 +1776,12 @@ Object Menu_Encender
     ZIPI_titulo "Encender",
     ZIPI_ejecutar [; return 'enciende'; ];
 
-
-Object Menu_Apagar
+    
+Object Menu_Examinar
   class ZIPI_Otro
   with
-    ZIPI_titulo "Apagar",
-    ZIPI_ejecutar [; return 'apaga'; ];
+    ZIPI_titulo "Examinar",
+    ZIPI_ejecutar [; return 'ex'; ];
 
 
 !===============================================================================
@@ -2148,6 +2153,8 @@ Verb 'ven'
   * 'aqui'           -> Venir
   * 'conmigo'        -> Venir;
 
+Verb meta 'verbo.nulo'
+  *                  -> VerboNulo;
   
 #ifdef DEBUG;
 Verb meta 't'
@@ -2516,6 +2523,11 @@ Verb meta 'tt'
 
 [ VenirSub;
   <<Seguir player>>;
+];
+
+
+[ VerboNuloSub;
+  rfalse;
 ];
 
 

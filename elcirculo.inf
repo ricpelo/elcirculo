@@ -1432,19 +1432,15 @@ Array numero_opciones -> 30;
 ];
 
 
-[ ZIPI_tecla
-  key;
-  while (1) {
-    glk($00D2, gg_mainwin);
-    glk($00C0, gg_arguments); ! glk_select(gg_arguments);
-    if ((gg_arguments-->0) == 8) {  ! evType_Hyperlink
-      key = gg_arguments-->2; break;
-    } else if ((gg_arguments-->0) == 2) {
-      key = gg_arguments-->2; break;
+[ ZIPI_tecla;
+  glk($00D2, gg_mainwin);         ! glk_request_char_event
+  while (true) {
+    glk($00C0, gg_event);         ! glk_select
+    if (gg_event-->0 == 2 or 8) { ! CharInput or Hyperlink
+      glk($00D3, gg_mainwin);     ! glk_cancel_char_event
+      return gg_event-->2;
     }
   }
-  glk($00D3, gg_mainwin); ! cancel_char_event
-  return key;
 ];
 
 

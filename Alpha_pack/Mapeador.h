@@ -345,24 +345,34 @@ Verb meta 'mapa'
   <<Look>>;
 ];
 
+Global num_link = -100;
+
+[ s_link str;
+  glk(256, num_link);
+  print (s_bold) str;
+  glk(256, 0);
+  num_link--;
+];
+
 [ AyudaMapa;
   glk($002F, gg_statuswin); ! select
+  num_link = -100;        
   print "^
-         ^ ", (s_input) "Cursor arriba", ", ", (s_input) "8", ", ", (s_input) "Y", ": ", (s_bold) "Norte",
-           "       ", (s_input) "7", ", ", (s_input) "T", ": ", (s_bold) "Noroeste",
-        "^ ", (s_input) "Cursor abajo", ", ", (s_input) "2", ", ", (s_input) "N", ": ", (s_bold) "Sur",
-           "          ", (s_input) "9", ", ", (s_input) "U", ": ", (s_bold) "Noreste",
-        "^ ", (s_input) "Cursor izquierda", ", ", (s_input) "4", ", ", (s_input) "G", ": ", (s_bold) "Oeste",
-           "    ", (s_input) "1", ", ", (s_input) "B", ": ", (s_bold) "Suroeste",
-        "^ ", (s_input) "Cursor derecha", ", ", (s_input) "6", ", ", (s_input) "J", ": ", (s_bold) "Este",
-           "       ", (s_input) "3", ", ", (s_input) "M", ": ", (s_bold) "Sureste",
-        "^ ", (s_input) "Inicio", ", ", (s_input) "5", ": ", (s_bold) "Arriba",
-           "                ", (s_input) "Enter", ", ", (s_input) "*", ": ", (s_bold) "Entrar",
-        "^ ", (s_input) "Fin", ", ", (s_input) "0", ": ", (s_bold) "Abajo",
-           "                    ", (s_input) "Retroceso", ", ", (s_input) "/", ", ", (s_input) ".", ": ", (s_bold) "Salir",
-        "^ ", (s_input) "Z", ", ", (s_input) "+", ": ", (s_bold) "Acercar",
-           "                    ", (s_input) "Q", ": ", (s_bold) "Volver al juego",
-        "^ ", (s_input) "X", ", ", (s_input) "-", ": ", (s_bold) "Alejar";
+         ^ ", (s_input) "Cursor arriba", ", ", (s_input) "8", ", ", (s_input) "Y", ": ", (s_link) "Norte",
+           "       ", (s_input) "7", ", ", (s_input) "T", ": ", (s_link) "Noroeste",
+        "^ ", (s_input) "Cursor abajo", ", ", (s_input) "2", ", ", (s_input) "N", ": ", (s_link) "Sur",
+           "          ", (s_input) "9", ", ", (s_input) "U", ": ", (s_link) "Noreste",
+        "^ ", (s_input) "Cursor izquierda", ", ", (s_input) "4", ", ", (s_input) "G", ": ", (s_link) "Oeste",
+           "    ", (s_input) "1", ", ", (s_input) "B", ": ", (s_link) "Suroeste",
+        "^ ", (s_input) "Cursor derecha", ", ", (s_input) "6", ", ", (s_input) "J", ": ", (s_link) "Este",
+           "       ", (s_input) "3", ", ", (s_input) "M", ": ", (s_link) "Sureste",
+        "^ ", (s_input) "Inicio", ", ", (s_input) "5", ": ", (s_link) "Arriba",
+           "                ", (s_input) "Enter", ", ", (s_input) "*", ": ", (s_link) "Entrar",
+        "^ ", (s_input) "Fin", ", ", (s_input) "0", ": ", (s_link) "Abajo",
+           "                    ", (s_input) "Retroceso", ", ", (s_input) "/", ", ", (s_input) ".", ": ", (s_link) "Salir",
+        "^ ", (s_input) "Z", ", ", (s_input) "+", ": ", (s_link) "Acercar",
+           "                    ", (s_input) "Q", ": ", (s_link) "Volver al juego",
+        "^ ", (s_input) "X", ", ", (s_input) "-", ": ", (s_link) "Alejar";
 ];
 
 [ MapaSub
@@ -375,33 +385,34 @@ Verb meta 'mapa'
   RefrescarMapa(sitio, cenx, ceny);
   while (true) {
     g_sitio = sitio;
-    tecla = KeyDelay();
+!    tecla = KeyDelay();
+    tecla = ZIPI_tecla(gg_statuswin, true);
     glk_window_get_size(gg_mapawin, gg_arguments, gg_arguments + WORDSIZE);
     cenx = (gg_arguments-->0) / 2; ! ancho / 2
     ceny = (gg_arguments-->1) / 2; ! alto / 2
     switch (tecla) {
-      'q', 'Q':           jump Salir;
-      'z', 'Z', '+':      ladoCuadrado = ladoCuadrado + 20;
-                          RefrescarMapa(sitio, cenx, ceny);
-      'x', 'X', '-':      if (ladoCuadrado > 21) {
-                            ladoCuadrado = ladoCuadrado - 20;
-                            RefrescarMapa(sitio, cenx, ceny);
-                          }
-      -5, '2', 'n', 'N':  sitio = ValidarYRefrescarMapa(sitio, s_to,   cenx, ceny);
-      -4, '8', 'y', 'Y':  sitio = ValidarYRefrescarMapa(sitio, n_to,   cenx, ceny);
-      -2, '4', 'g', 'G':  sitio = ValidarYRefrescarMapa(sitio, w_to,   cenx, ceny);
-      -3, '6', 'j', 'J':  sitio = ValidarYRefrescarMapa(sitio, e_to,   cenx, ceny);
-      '7', 't', 'T':      sitio = ValidarYRefrescarMapa(sitio, nw_to,  cenx, ceny);
-      '9', 'u', 'U':      sitio = ValidarYRefrescarMapa(sitio, ne_to,  cenx, ceny);
-      '1', 'b', 'B':      sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
-      '3', 'm', 'M':      sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
-      -12, 'a', 'A', '5': sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
-      -13, 'z', 'Z', '0': sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
-      -6, '*':            sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
-      -7, '.', '/':       sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
-      'h', 'H':           AyudaMapa(sitio, cenx, ceny);
+      'q', 'Q', -113:      jump Salir;
+      'z', 'Z', '+', -112: ladoCuadrado = ladoCuadrado + 20;
+                           RefrescarMapa(sitio, cenx, ceny);
+      'x', 'X', '-', -114: if (ladoCuadrado > 21) {
+                             ladoCuadrado = ladoCuadrado - 20;
+                             RefrescarMapa(sitio, cenx, ceny);
+                           }
+      -5, '2', 'n', 'N', -102:  sitio = ValidarYRefrescarMapa(sitio, s_to,   cenx, ceny);
+      -4, '8', 'y', 'Y', -100:  sitio = ValidarYRefrescarMapa(sitio, n_to,   cenx, ceny);
+      -2, '4', 'g', 'G', -104:  sitio = ValidarYRefrescarMapa(sitio, w_to,   cenx, ceny);
+      -3, '6', 'j', 'J', -106:  sitio = ValidarYRefrescarMapa(sitio, e_to,   cenx, ceny);
+      '7', 't', 'T', -101:      sitio = ValidarYRefrescarMapa(sitio, nw_to,  cenx, ceny);
+      '9', 'u', 'U', -103:      sitio = ValidarYRefrescarMapa(sitio, ne_to,  cenx, ceny);
+      '1', 'b', 'B', -105:      sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
+      '3', 'm', 'M', -107:      sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
+      -12, 'a', 'A', '5', -108: sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
+      -13, 'z', 'Z', '0', -110: sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
+      -6, '*', -109:            sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
+      -7, '.', '/', -111:       sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
+      'h', 'H':                 AyudaMapa(sitio, cenx, ceny);
       #ifdef DEBUG;
-      ' ':                playerTo(sitio); jump Salir;
+      ' ':                      playerTo(sitio); jump Salir;
       #endif;
     }
   }

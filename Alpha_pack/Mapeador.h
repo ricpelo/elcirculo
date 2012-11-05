@@ -316,7 +316,10 @@ Verb meta 'mapa'
   #ifdef ControlTimer;
   ControlTimer.PausarTick();
   #endif;
-  openGraphicWindow(200);
+!  openGraphicWindow(200);
+  if (gg_bigwin ~= 0) glk_window_close(gg_bigwin, 0);
+  gg_bigwin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional,
+                              35, wintype_Graphics, GG_BIGWIN_ROCK);
   if (gg_mapawin == 0) glk_window_close(gg_mapawin, 0);
   gg_mapawin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional,
                                100, wintype_Graphics, GG_MAPAWIN_ROCK);

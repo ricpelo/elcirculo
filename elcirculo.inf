@@ -267,16 +267,18 @@ Include "Parser";
   obj long;
   switch (ev-->0) {
     evtype_Hyperlink:
+      if (context == 1) return 1;  ! character input request
       glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
-      if ((ev-->2) in Compass) {
+      obj = ev-->2;
+      if (obj in Compass) {
         ImprimirPrompt();
-        print (s_input) "ve ", (s_input) (ev-->2).input_link, "^";
+        print (s_input) "ve ", (s_input) obj.input_link, "^";
       }
-      obj = (ev-->2).input_link;
+      obj = obj.input_link;
+      glk($00D1, gg_mainwin, gg_event); ! glk_cancel_line_event
       long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
                              obj);
       buffer-->0 = long;
-      glk($00D1, gg_mainwin, gg_event); ! glk_cancel_line_event
       return 2;
   }
   SGW_HandleGlk(ev);
@@ -1384,7 +1386,7 @@ Array numero_opciones -> 30;
           if (cur >= count) cur = 0;
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
         break;
-      'q', 'Q', 27, 131, 10, 8, -2:
+      'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
         rfalse;
  
       132, 13, 'n', ' ', -3, -6:
@@ -1717,7 +1719,7 @@ Object ZIPI_Tiempo_Real
           if (cur >= count) cur = 0;
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
         break;
-      'q', 'Q', 27, 131, 10, 8, -2:
+      'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
         rfalse;
  
       132, 13, 'n', ' ', -3, -6:

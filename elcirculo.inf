@@ -122,7 +122,7 @@ Global dibujarEstado = false;
 Global estoyEmpujando = false;
 
 ! La ventana de menús de acciones:
-Global gg_menuwin;
+Global gg_menuwin = 0;
 
 ! Hay gráficos o no:
 Global hayGraficos = true;
@@ -1004,6 +1004,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (tmp) {
     uno = ExaminarFalso.objetoVerboDesconocido;
     if (uno provides ZIPI_item) {
+      if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
       gg_menuwin = glk_window_open(gg_mainwin,
                                    winmethod_Right + winmethod_Fixed,
                                    25, wintype_TextGrid, GG_MENUWIN_ROCK);

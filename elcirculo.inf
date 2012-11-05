@@ -1362,6 +1362,7 @@ Array numero_opciones -> 30;
     ZIPI_setcursor(2, j);
 
     glk_request_hyperlink_event(gg_statuswin);
+    glk_request_mouse_event(gg_statuswin);
     key = ZIPI_tecla();
     print " ";
 
@@ -1435,12 +1436,15 @@ Array numero_opciones -> 30;
 
 
 [ ZIPI_tecla;
-  glk($00D2, gg_mainwin);         ! glk_request_char_event
+  glk($00D2, gg_mainwin);             ! glk_request_char_event
   while (true) {
-    glk($00C0, gg_event);         ! glk_select
-    if (gg_event-->0 == 2 or 8) { ! CharInput or Hyperlink
-      glk($00D3, gg_mainwin);     ! glk_cancel_char_event
+    glk($00C0, gg_event);             ! glk_select
+    if (gg_event-->0 == 2 or 8) {     ! evtype_CharInput or evtype_Hyperlink
+      glk($00D3, gg_mainwin);         ! glk_cancel_char_event
       return gg_event-->2;
+    } else if (gg_event-->0 == 4) {   ! evtype_MouseInput
+      glk($00D3, gg_mainwin);         ! glk_cancel_char_event
+      return 0;                       ! Devuelve la tecla 0, para no interferir
     }
   }
 ];

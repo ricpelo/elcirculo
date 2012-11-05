@@ -1444,23 +1444,31 @@ Array numero_opciones -> 30;
 ];
 
 
-[ ZIPI_tecla win sw;
+[ ZIPI_tecla win sw
+  key done ix;
   glk_request_hyperlink_event(win);
-  if (~~sw) glk_request_mouse_event(win);
-  glk($00D2, gg_mainwin);             ! glk_request_char_event
-  while (true) {
-    glk($00C0, gg_event);             ! glk_select
-    HandleGlkEvent(gg_event, 1, gg_arguments);
-    if (gg_event-->0 == 2 or 8) {     ! evtype_CharInput or evtype_Hyperlink
-      glk($00D3, gg_mainwin);         ! glk_cancel_char_event
-      if (gg_event-->0 == 8) glk_request_hyperlink_event(win);
-      return gg_event-->2;
-    } else if (gg_event-->0 == 4) {   ! evtype_MouseInput
-      glk($00D3, gg_mainwin);         ! glk_cancel_char_event
-      if (~~sw) glk_request_mouse_event(win);
-      return 0;                       ! Devuelve la tecla 0, para no interferir
+  if (~~sw) glk_request_mouse_event(win); 
+  glk($00D2, gg_mainwin);             ! request_char_event
+  while (~~done) {
+    glk($00C0, gg_event);             ! select
+    ix = HandleGlkEvent(gg_event, 1, gg_arguments);
+    if (ix == 2) {
+      key = gg_arguments-->0;
+      done = true;
+    } else if (ix >= 0) {
+      if (gg_event-->0 == 2 or 8) {   ! CharInput or Hyperlink
+        key = gg_event-->2;
+        done = true;
+      } else if (gg_event-->0 == 4) { ! evtype_MouseInput
+        key = 0;                      ! Devuelve la tecla 0, para no interferir
+        done = true;
+      }
     }
   }
+  glk($00D3, gg_mainwin); ! cancel_char_event
+  glk_request_hyperlink_event(win);
+  if (~~sw) glk_request_mouse_event(win);
+  return key;
 ];
 
 

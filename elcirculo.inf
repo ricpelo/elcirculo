@@ -2225,8 +2225,7 @@ Verb meta 'tt'
     hayGraficos = true;
   }
   fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
-  barra_estado.numero_lineas = 26;
-  barra_estado.dibujar();
+  StatusLineHeight(26);
   clearMainWindow();
   
   ZIPI_RunMenu(ZIPI_Configuracion, true);
@@ -2239,8 +2238,8 @@ Verb meta 'tt'
       Damusix.TocarCanal(CANAL_FONDO);
     }
   }
-  barra_estado.numero_lineas = 1;
-  barra_estado.dibujar();
+  StatusLineHeight(1);
+  glk($002F, gg_mainwin); ! select
   if (hayGraficos) EncenderGraficos(true);
   clearTextWindow();
   ControlTimer.ReanudarTick();
@@ -2443,8 +2442,7 @@ Verb meta 'tt'
          ApagarGraficos(true);
          hayGraficos = true;
        }
-       barra_estado.numero_lineas = 26;
-       barra_estado.dibujar();
+       StatusLineHeight(26);
        tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
        Damusix.PararCanal(CANAL_TELEFONO);
        tv = Damusix.SonandoDeFondoCanal(CANAL_TV_SALON);
@@ -2467,8 +2465,8 @@ Verb meta 'tt'
        } else {
          Damusix.PararCanal(CANAL_FONDO);
        }
-       barra_estado.numero_lineas = 1;
-       barra_estado.dibujar();
+       StatusLineHeight(1);
+       glk($002F, gg_mainwin); ! select
        if (hayGraficos) EncenderGraficos(true);
        clearTextWindow();
        ControlTimer.ReanudarTick();

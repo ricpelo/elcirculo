@@ -266,6 +266,13 @@ Include "Parser";
 [ HandleGlkEvent ev context buffer
   obj long;
   switch (ev-->0) {
+!    evtype_MouseInput:
+!      glk_request_mouse_event(ev-->1); ! ev-->1 es la ventana
+!      if (context == 0) return 1;      ! line input request
+!      glk($00D3, gg_mainwin);          ! glk_cancel_char_event
+!      buffer-->0 = 0;
+!      return 2;
+
     evtype_Hyperlink:
       glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
       if (context == 1) return 1;  ! character input request
@@ -803,6 +810,9 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
   clearTextWindow();
+  ! Los mouse events hay que iniciarlos aquí, y no en IniciarAventura
+  ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
+  ! glk_request_mouse_event(gg_bigwin);
 ];
 
 
@@ -1360,10 +1370,7 @@ Array numero_opciones -> 30;
     ZIPI_setcursor(2, j);
     print (s_emph) ">";
     ZIPI_setcursor(2, j);
-
-    glk_request_hyperlink_event(gg_statuswin);
-    glk_request_mouse_event(gg_statuswin);
-    key = ZIPI_tecla();
+    key = ZIPI_tecla(gg_statuswin);
     print " ";
 
     if (key > ZIPI_EVENTO_HYPER) {
@@ -1399,7 +1406,9 @@ Array numero_opciones -> 30;
         else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
         else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
         else {
+          glk_request_mouse_event(gg_statuswin);
           r = ZIPI_RunOtro(target);
+          glk_cancel_mouse_event(gg_statuswin);
           if (target == ZIPI_Restaurar) return 3;
           if (r == 2) return r;
         }
@@ -1435,15 +1444,19 @@ Array numero_opciones -> 30;
 ];
 
 
-[ ZIPI_tecla;
+[ ZIPI_tecla win sw;
+  glk_request_hyperlink_event(win);
+  if (~~sw) glk_request_mouse_event(win);
   glk($00D2, gg_mainwin);             ! glk_request_char_event
   while (true) {
     glk($00C0, gg_event);             ! glk_select
     if (gg_event-->0 == 2 or 8) {     ! evtype_CharInput or evtype_Hyperlink
       glk($00D3, gg_mainwin);         ! glk_cancel_char_event
+      if (gg_event-->0 == 8) glk_request_hyperlink_event(win);
       return gg_event-->2;
     } else if (gg_event-->0 == 4) {   ! evtype_MouseInput
       glk($00D3, gg_mainwin);         ! glk_cancel_char_event
+      if (~~sw) glk_request_mouse_event(win);
       return 0;                       ! Devuelve la tecla 0, para no interferir
     }
   }
@@ -1698,8 +1711,7 @@ Object ZIPI_Tiempo_Real
     print (s_emph) ">";
     glk($002B, gg_menuwin, 1, j - 1);
     
-    glk_request_hyperlink_event(gg_menuwin);
-    key = ZIPI_tecla();
+    key = ZIPI_tecla(gg_menuwin, true);
     print " ";
 
     if (key > ZIPI_EVENTO_HYPER) {

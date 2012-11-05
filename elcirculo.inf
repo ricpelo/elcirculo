@@ -1450,6 +1450,7 @@ Array numero_opciones -> 30;
   glk($00D2, gg_mainwin);             ! glk_request_char_event
   while (true) {
     glk($00C0, gg_event);             ! glk_select
+    HandleGlkEvent(gg_event, 1, gg_arguments);
     if (gg_event-->0 == 2 or 8) {     ! evtype_CharInput or evtype_Hyperlink
       glk($00D3, gg_mainwin);         ! glk_cancel_char_event
       if (gg_event-->0 == 8) glk_request_hyperlink_event(win);

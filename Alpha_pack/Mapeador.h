@@ -358,16 +358,16 @@ Global num_link = -100;
   glk($002F, gg_statuswin); ! select
   num_link = -100;
   
-!  T Y U   7 8 9     ^      Arriba: 5 , Inicio  Abajo: 0 , Fin   
-!  G   J   4   6   <   >    Dentro: * , Intro   Fuera: / , Retroceso
-!  B N M   1 2 3     v     Acercar: Z , +      Alejar: X , -
-!                           Volver: Q
+!  T Y U   7 8 9     ^      Arriba: 5 , Inicio   Dentro: * , Intro 
+!  G   J   4   6   <   >     Abajo: 0 , Fin       Fuera: / , Retroceso
+!  B N M   1 2 3     v     Acercar: Z , +        Volver: Q 
+!                           Alejar: X , -
   
   print "^
-         ^ ", (s_link) "T", " ", (s_link) "Y", " ", (s_link) "U", "   ", (s_link) "7", " ", (s_link) "8", " ", (s_link) "9", "     ", (s_link) "@@94", "      ", (s_link) "Arriba: 5 , Inicio", "   ", (s_link) "Abajo: 0 , Fin", "   
-         ^ ", (s_link) "G", "   ", (s_link) "J", "   ", (s_link) "4", "   ", (s_link) "6", "   ", (s_link) "<", "   ", (s_link) ">", "    ", (s_link) "Dentro: * , Intro", "    ", (s_link) "Fuera: / , Retroceso", "
-         ^ ", (s_link) "B", " ", (s_link) "N", " ", (s_link) "M", "   ", (s_link) "1", " ", (s_link) "2", " ", (s_link) "3", "     ", (s_link) "v", "     ", (s_link) "Acercar: Z , +", "       ", (s_link) "Alejar: X , -", "
-         ^                          ", (s_link) "Volver: Q";
+         ^ ", (s_link) "T", " ", (s_link) "Y", " ", (s_link) "U", "   ", (s_link) "7", " ", (s_link) "8", " ", (s_link) "9", "     ", (s_link) "@@94", "     ", (s_link) "Arriba: 5 , Inicio", "   ", (s_link) "Dentro: * , Intro", "   
+         ^ ", (s_link) "G", "   ", (s_link) "J", "   ", (s_link) "4", "   ", (s_link) "6", "   ", (s_link) "<", "   ", (s_link) ">", "    ", (s_link) "Abajo: 0 , Fin", "       ", (s_link) "Fuera: / , Retroceso", "
+         ^ ", (s_link) "B", " ", (s_link) "N", " ", (s_link) "M", "   ", (s_link) "1", " ", (s_link) "2", " ", (s_link) "3", "     ", (s_link) "v", "    ", (s_link) "Acercar: Z , +", "        ", (s_link) "Volver: Q", "
+         ^                         ", (s_link) "Alejar: X , -";
 
 !  print "^
 !         ^ ", (s_input) "Cursor arriba", ", ", (s_input) "8", ", ", (s_input) "Y", ": ", (s_link) "Norte",
@@ -403,10 +403,10 @@ Global num_link = -100;
     cenx = (gg_arguments-->0) / 2; ! ancho / 2
     ceny = (gg_arguments-->1) / 2; ! alto / 2
     switch (tecla) {
-      'q', 'Q', -126:      jump Salir;
+      'q', 'Q', -125:      jump Salir;
       'z', 'Z', '+', -124: ladoCuadrado = ladoCuadrado + 20;
                            RefrescarMapa(sitio, cenx, ceny);
-      'x', 'X', '-', -125: if (ladoCuadrado > 21) {
+      'x', 'X', '-', -126: if (ladoCuadrado > 21) {
                              ladoCuadrado = ladoCuadrado - 20;
                              RefrescarMapa(sitio, cenx, ceny);
                            }
@@ -419,12 +419,12 @@ Global num_link = -100;
       '1', 'b', 'B', -117, -120:           sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
       '3', 'm', 'M', -119, -122:           sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
       -12, 'a', 'A', '5', -107:            sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
-      -13, 'z', 'Z', '0', -108:            sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
-      -6, '*', -115   :                    sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
-      -7, '.', '/', -116   :               sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
-!      'h', 'H':                 AyudaMapa(sitio, cenx, ceny);
+      -13, 'z', 'Z', '0', -115:            sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
+      -6, '*', -108:                       sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
+      -7, '.', '/', -116:                  sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
+!      'h', 'H':                           AyudaMapa(sitio, cenx, ceny);
       #ifdef DEBUG;
-      ' ':                      playerTo(sitio); jump Salir;
+      ' ':                                 playerTo(sitio); jump Salir;
       #endif;
     }
   }

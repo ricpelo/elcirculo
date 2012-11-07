@@ -210,10 +210,22 @@ Class Diary
       print (string) self.D_GKEY__TX;
       new_line; new_line;
     ],
+    Diary_HandleGlkEvent [ ev context buffer;
+      if (self has general) {
+        context = context;
+        buffer = buffer;
+        switch (ev-->0) {
+          evtype_Redraw, evtype_Arrange:
+            self.emblazon();
+        }
+      }
+    ],
     select [ startpage;
       self.pagen = startpage;
+      give self general;          ! Estamos mostrando el diario (ver HandleGlk)
       while (self.dopage() ~= 2)
         ;
+      give self ~general;         ! Ya no lo estamos mostrando
       if (pretty_flag ~= 0) {
         #ifdef TARGET_ZCODE;
         @erase_window -1;

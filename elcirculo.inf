@@ -291,6 +291,7 @@ Include "Parser";
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
   Mapa_HandleGlkEvent(ev, context, buffer);
+  midiario.Diary_HandleGlkEvent(ev, context, buffer);
 ];
 
 

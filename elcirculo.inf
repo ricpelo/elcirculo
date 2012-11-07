@@ -2413,10 +2413,10 @@ Verb meta 'tt'
 
 
 [ GritarSub;
-  pagina_contenidos.update(1);
-  diario_llave.update();
-  diario_ticket.update();  
-  diario_amigos.update();
+!  pagina_contenidos.update(1);
+!  diario_llave.update();
+!  diario_ticket.update();  
+!  diario_amigos.update();
 !  midiario.update(p2, 1);
   "Emites un sonoro grito, pero nadie responde.";
 ];

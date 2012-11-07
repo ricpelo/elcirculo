@@ -166,9 +166,12 @@ Class Diary
       @erase_window -1;
       i = 0->33; if (i == 0) i = 80;
       #ifnot; ! TARGET_GLULX
-      glk($002A, gg_quotewin); ! window_clear
+      glk($002A, gg_quotewin);  ! window_clear
       glk($002A, gg_statuswin); ! window_clear
       glk($002A, gg_mainwin);   ! window_clear
+      #ifdef _SGWDMX_H_;
+      glk($002A, gg_bigwin);    ! window_clear
+      #endif;
       ! window_get_size
       glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
@@ -211,7 +214,7 @@ Class Diary
       new_line; new_line;
     ],
     Diary_HandleGlkEvent [ ev context buffer;
-      if (self has general) {
+      if (self has general) {     ! Si estamos mostrando el diario... 
         context = context;
         buffer = buffer;
         switch (ev-->0) {

@@ -1689,13 +1689,8 @@ Object ZIPI_Tiempo_Real
       redibujar = 0;
     }
 
-    if (count > altura - 2) {
-      glk($002B, gg_menuwin, 1, 8);
-      print "+";
-    }
-    
     if (delta > 0) {
-      glk($002B, gg_menuwin, 1, 4);
+      glk($002B, gg_menuwin, 1, 3);
       print "-";
     }
 
@@ -1727,6 +1722,9 @@ Object ZIPI_Tiempo_Real
       if (top) print (s_head) "[Q] Salir";
       else     print (s_head) "[Q] Volver";
       glk(256, 0);
+    } else {
+      glk($002B, gg_menuwin, 1, 4);
+      print "+";
     }
     ft = false;
     j = cur + 3 - delta;

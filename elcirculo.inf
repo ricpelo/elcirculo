@@ -1332,14 +1332,12 @@ Array numero_opciones -> 30;
 !      if (ft && hayTeletipo) {
 !        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
 !      } else {
-        glk_set_style(style_Preformatted);
-!        style fixed;
         if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
           glk(256, teclas_opciones-->tec);
           print "[";
           glk_set_style(style_Header);
           print (char) teclas_opciones-->tec;
-          glk_set_style(style_Preformatted);
+          glk_set_style(style_Normal);
           print "] ";
           numero_opciones->tec = i;
           tec++;
@@ -1682,21 +1680,19 @@ Object ZIPI_Tiempo_Real
     if (redibujar) {
       glk_set_style(style_Input);
       print " ", (string) _m.input_link, ":^";
-      glk_set_style(style_Preformatted);
-!      ZIPI_PintaTitulo(_m.ZIPI_titulo);
+      glk_set_style(style_Normal);
       redibujar = 0;
     }
 
     for (i = 0, tec = 0: i < count - 2: i++) {
       j = i + 3;
       glk($002B, gg_menuwin, 4, j - 1);
-      glk_set_style(style_Preformatted);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
         glk(256, teclas_opciones-->tec);
         print "[";
         glk_set_style(style_Header);
         print (char) teclas_opciones-->tec;
-        glk_set_style(style_Preformatted);
+        glk_set_style(style_Normal);
         print "] ";
         numero_opciones->tec = i;
         tec++;

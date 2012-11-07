@@ -1679,6 +1679,7 @@ Object ZIPI_Tiempo_Real
 
   glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
   altura = gg_arguments-->1;
+
   for (::) {
     if (redibujar) {
       glk_window_clear(gg_menuwin);
@@ -1686,6 +1687,16 @@ Object ZIPI_Tiempo_Real
       print " ", (string) _m.input_link, ":^";
       glk_set_style(style_Normal);
       redibujar = 0;
+    }
+
+    if (count > altura - 2) {
+      glk($002B, gg_menuwin, 1, 8);
+      print "+";
+    }
+    
+    if (delta > 0) {
+      glk($002B, gg_menuwin, 1, 4);
+      print "-";
     }
 
     for (i = 0 + delta, tec = 0 + delta: i < count - 2: i++) {
@@ -1710,11 +1721,13 @@ Object ZIPI_Tiempo_Real
     }
 
     j = i + 4 - delta;
-    glk($002B, gg_menuwin, 4, j - 1);
-    glk(256, 'Q');
-    if (top) print (s_head) "[Q] Salir";
-    else     print (s_head) "[Q] Volver";
-    glk(256, 0);
+    if (j <= altura) {
+      glk($002B, gg_menuwin, 4, j - 1);
+      glk(256, 'Q');
+      if (top) print (s_head) "[Q] Salir";
+      else     print (s_head) "[Q] Volver";
+      glk(256, 0);
+    }
     ft = false;
     j = cur + 3 - delta;
     glk($002B, gg_menuwin, 1, j - 1);

@@ -1670,23 +1670,27 @@ Object ZIPI_Tiempo_Real
 
 ! Muestra el menú de acciones de un objeto:
 [ RunMenu _m top
-  i j count cur key target redibujar ft k tec;
+  i j count cur key target redibujar ft k tec altura delta oldcur;
 
   redibujar = 1;
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
   ft = true;
 
+  glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
+  altura = gg_arguments-->1;
   for (::) {
     if (redibujar) {
+      glk_window_clear(gg_menuwin);
       glk_set_style(style_Input);
       print " ", (string) _m.input_link, ":^";
       glk_set_style(style_Normal);
       redibujar = 0;
     }
 
-    for (i = 0, tec = 0: i < count - 2: i++) {
-      j = i + 3;
+    for (i = 0 + delta, tec = 0 + delta: i < count - 2: i++) {
+      j = i + 3 - delta;
+      if (j >= altura) break;
       glk($002B, gg_menuwin, 4, j - 1);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
         glk(256, teclas_opciones-->tec);
@@ -1705,14 +1709,14 @@ Object ZIPI_Tiempo_Real
       glk(256, 0);
     }
 
-    j = i + 4;
+    j = i + 4 - delta;
     glk($002B, gg_menuwin, 4, j - 1);
     glk(256, 'Q');
     if (top) print (s_head) "[Q] Salir";
     else     print (s_head) "[Q] Volver";
     glk(256, 0);
     ft = false;
-    j = cur + 3;
+    j = cur + 3 - delta;
     glk($002B, gg_menuwin, 1, j - 1);
     print (s_emph) ">";
     glk($002B, gg_menuwin, 1, j - 1);
@@ -1729,16 +1733,26 @@ Object ZIPI_Tiempo_Real
     switch (key) {
       'k', 'p', '-', '_', 129, -4:
         do {
+          oldcur = cur;
           cur--;
           if (cur == count - 2) cur--;
-          if (cur < 0) cur = count - 1;
+          if (cur < 0) cur = 0; ! cur = count - 1;
+          if (j <= 3) {
+            delta = delta - (oldcur - cur);
+            redibujar = 1;
+          }
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
         break;
       'j', 'n', '=', '+', 130, -5:
         do {
+          oldcur = cur;
           cur++;
           if (cur == count - 2) cur++;
-          if (cur >= count) cur = 0;
+          if (cur > count - 1) cur = count - 1; ! cur = 0;
+          if (j >= altura - 1) {
+            delta = delta + (cur - oldcur);
+            redibujar = 1;
+          }
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
         break;
       'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:

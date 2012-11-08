@@ -1447,24 +1447,30 @@ Array numero_opciones -> 30;
   key done ix;
   glk_request_hyperlink_event(win);
   if (~~sw) glk_request_mouse_event(win); 
-  glk($00D2, gg_mainwin);             ! request_char_event
+  glk($00D2, gg_mainwin);           ! glk_request_char_event
   while (~~done) {
-    glk($00C0, gg_event);             ! select
+    glk($00C0, gg_event);           ! select
     ix = HandleGlkEvent(gg_event, 1, gg_arguments);
     if (ix == 2) {
       key = gg_arguments-->0;
       done = true;
     } else if (ix >= 0) {
-      if (gg_event-->0 == 2 or 8) {   ! CharInput or Hyperlink
-        key = gg_event-->2;
-        done = true;
-      } else if (gg_event-->0 == 4) { ! evtype_MouseInput
-        key = 0;                      ! Devuelve la tecla 0, para no interferir
-        done = true;
+      switch (gg_event-->0) {
+        2, 8: ! evtype_CharInput, evtype_Hyperlink
+              key = gg_event-->2;
+              done = true;
+           4: ! evtype_MouseInput
+              key = 0; ! Devuelve la tecla 0, para no interferir
+              done = true;
+        5, 6: ! evtype_Arrange, evtype_Redraw
+              ! Cuando se redimensiona habiendo un menú de acciones, se
+              ! devuelve la tecla 0, lo que hará que se redibuje la ventana:
+              key = 0;
+              done = true;
       }
     }
   }
-  glk($00D3, gg_mainwin); ! cancel_char_event
+  glk($00D3, gg_mainwin);           ! glk_cancel_char_event
   glk_request_hyperlink_event(win);
   if (~~sw) glk_request_mouse_event(win);
   return key;
@@ -1677,11 +1683,11 @@ Object ZIPI_Tiempo_Real
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
   ft = true;
 
-  glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
-  anchura = gg_arguments-->0;
-  altura  = gg_arguments-->1;
-
   for (::) {
+    glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
+    anchura = gg_arguments-->0;
+    altura  = gg_arguments-->1;
+
     if (redibujar) {
       glk_window_clear(gg_menuwin);
       glk_set_style(style_Input);
@@ -1733,6 +1739,7 @@ Object ZIPI_Tiempo_Real
     glk($002B, gg_menuwin, 1, j - 1);
     
     key = ZIPI_tecla(gg_menuwin, true);
+    if (key == 0) redibujar = 1;
     print " ";
 
     if (key > ZIPI_EVENTO_HYPER) {

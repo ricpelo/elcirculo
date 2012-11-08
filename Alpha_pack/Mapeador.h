@@ -328,7 +328,7 @@ Verb meta 'mapa'
   glk_window_clear(gg_mapawin);
   glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
   altura = gg_arguments-->1;
-  StatusLineHeight(10);
+  StatusLineHeight(7);
   AyudaMapa();
   return altura;
 ];
@@ -364,10 +364,10 @@ Global num_link = -100;
 !                           Alejar: X , -
   
   print "^
-         ^ ", (s_link) "T", " ", (s_link) "Y", " ", (s_link) "U", "   ", (s_link) "7", " ", (s_link) "8", " ", (s_link) "9", "     ", (s_link) "@@94", "     ", (s_link) "Arriba: 5 , Inicio", "   ", (s_link) "Dentro: * , Intro", "   
-         ^ ", (s_link) "G", "   ", (s_link) "J", "   ", (s_link) "4", "   ", (s_link) "6", "   ", (s_link) "<", "   ", (s_link) ">", "    ", (s_link) "Abajo: 0 , Fin", "       ", (s_link) "Fuera: / , Retroceso", "
-         ^ ", (s_link) "B", " ", (s_link) "N", " ", (s_link) "M", "   ", (s_link) "1", " ", (s_link) "2", " ", (s_link) "3", "     ", (s_link) "v", "    ", (s_link) "Acercar: Z , +", "        ", (s_link) "Volver: Q", "
-         ^                         ", (s_link) "Alejar: X , -";
+         ^   ", (s_link) "T", " ", (s_link) "Y", " ", (s_link) "U", "   ", (s_link) "7", " ", (s_link) "8", " ", (s_link) "9", "     ", (s_link) "@@94", "     ", (s_link) "Arriba: 5 , Inicio", "   ", (s_link) "Dentro: * , Intro", "   
+         ^   ", (s_link) "G", "   ", (s_link) "J", "   ", (s_link) "4", "   ", (s_link) "6", "   ", (s_link) "<", "   ", (s_link) ">", "    ", (s_link) "Abajo: 0 , Fin", "       ", (s_link) "Fuera: / , Retroceso", "
+         ^   ", (s_link) "B", " ", (s_link) "N", " ", (s_link) "M", "   ", (s_link) "1", " ", (s_link) "2", " ", (s_link) "3", "     ", (s_link) "v", "    ", (s_link) "Acercar: Z , +", "        ", (s_link) "Volver: Q", "
+         ^                           ", (s_link) "Alejar: X , -";
 
 !  print "^
 !         ^ ", (s_input) "Cursor arriba", ", ", (s_input) "8", ", ", (s_input) "Y", ": ", (s_link) "Norte",

@@ -1670,7 +1670,7 @@ Object ZIPI_Tiempo_Real
 
 ! Muestra el menú de acciones de un objeto:
 [ RunMenu _m top
-  i j count cur key target redibujar ft k tec altura delta oldcur;
+  i j count cur key target redibujar ft k tec altura anchura delta oldcur;
 
   redibujar = 1;
   cur = 0;
@@ -1678,7 +1678,8 @@ Object ZIPI_Tiempo_Real
   ft = true;
 
   glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
-  altura = gg_arguments-->1;
+  anchura = gg_arguments-->0;
+  altura  = gg_arguments-->1;
 
   for (::) {
     if (redibujar) {
@@ -1690,8 +1691,8 @@ Object ZIPI_Tiempo_Real
     }
 
     if (delta > 0) {
-      glk($002B, gg_menuwin, 1, 3);
-      print "-";
+      glk($002B, gg_menuwin, anchura - 1, 1);
+      print "@@94";
     }
 
     for (i = 0 + delta, tec = 0 + delta: i < count - 2: i++) {
@@ -1711,7 +1712,6 @@ Object ZIPI_Tiempo_Real
       if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
         (_m.&ZIPI_item-->i).ZIPI_titulo();
       else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
-      glk_set_style(style_Normal);
       glk(256, 0);
     }
 
@@ -1723,8 +1723,8 @@ Object ZIPI_Tiempo_Real
       else     print (s_head) "[Q] Volver";
       glk(256, 0);
     } else {
-      glk($002B, gg_menuwin, 1, 4);
-      print "+";
+      glk($002B, gg_menuwin, anchura - 1, altura - 1);
+      print "v";
     }
     ft = false;
     j = cur + 3 - delta;

@@ -1275,9 +1275,9 @@ Object barra_estado
 Object lugar_vacio
   class Lugar
   with
-    nombre_si_visitado null,
-    nombre_no_visitado null,
-    nombre_direccion null;
+    nombre_si_visitado NULL,
+    nombre_no_visitado NULL,
+    nombre_direccion NULL;
 
 
 Object testigo

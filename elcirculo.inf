@@ -1272,12 +1272,12 @@ Object barra_estado
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades
 ! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
-Object lugar_vacio
+Object
   class Lugar
   with
     nombre_si_visitado NULL,
     nombre_no_visitado NULL,
-    nombre_direccion NULL;
+    nombre_direccion   NULL;
 
 
 Object testigo

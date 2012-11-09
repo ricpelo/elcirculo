@@ -803,9 +803,9 @@ Include "Timer";            ! Mi librería de eventos temporizados
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
   Damusix.Tocar(Darkwalk_ogg);
   ZIPI_Intro();
-.Menu;
-  r = ZIPI_RunMenu(ZIPI_Menu_Principal, true);
-  if (r == 3) jump Menu;
+  do {
+    r = ZIPI_RunMenu(ZIPI_Menu_Principal, true);
+  } until (r ~= 3);
   if (r ~= 2) quit;
   StatusLineHeight(1);
   if (hayGraficos) EncenderGraficos();

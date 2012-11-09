@@ -1314,12 +1314,11 @@ Array numero_opciones -> 30;
     
 
 [ ZIPI_RunMenu _m top
-  i j count cur key target redibujar ft r k tec;
+  i j count cur key target redibujar r k tec;
 
   redibujar = 1;
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
-  ft = true;
 
   for (::) {
     if (redibujar) {
@@ -1330,41 +1329,29 @@ Array numero_opciones -> 30;
     for (i = 0, tec = 0: i < count - 2: i++) {
       j = i + 3;
       ZIPI_setcursor(5,j);
-!      if (ft && hayTeletipo) {
-!        tt_computadora.visualiza((_m.&ZIPI_item-->i).ZIPI_titulo);
-!      } else {
-        if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-          glk(256, teclas_opciones-->tec);
-          print "[";
-          glk_set_style(style_Header);
-          print (char) teclas_opciones-->tec;
-          glk_set_style(style_Normal);
-          print "] ";
-          numero_opciones->tec = i;
-          tec++;
-        }
-        if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
-          (_m.&ZIPI_item-->i).ZIPI_titulo();
-        else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
+      if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
+        glk(256, teclas_opciones-->tec);
+        print "[";
+        glk_set_style(style_Header);
+        print (char) teclas_opciones-->tec;
         glk_set_style(style_Normal);
-        glk(256, 0);
-!      }
+        print "] ";
+        numero_opciones->tec = i;
+        tec++;
+      }
+      if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
+        (_m.&ZIPI_item-->i).ZIPI_titulo();
+      else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
+      glk_set_style(style_Normal);
+      glk(256, 0);
     }
 
     j = i + 4;
     ZIPI_setcursor(5, j);
-
-!    if (ft) {
-!      if (top) tt_computadora.visualiza("Salir");
-!      else     tt_computadora.visualiza("Volver");
-!    } else {
-      glk(256, 'Q');
-      if (top) print (s_head) "[Q] Salir";
-      else     print (s_head) "[Q] Volver";
-      glk(256, 0);
-!    }
-
-    ft = false;
+    glk(256, 'Q');
+    if (top) print (s_head) "[Q] Salir";
+    else     print (s_head) "[Q] Volver";
+    glk(256, 0);
     j = cur + 3;
     ZIPI_setcursor(2, j);
     print (s_emph) ">";
@@ -1676,12 +1663,11 @@ Object ZIPI_Tiempo_Real
 
 ! Muestra el menú de acciones de un objeto:
 [ RunMenu _m top
-  i j count cur key target redibujar ft k tec altura anchura delta oldcur;
+  i j count cur key target redibujar k tec altura anchura delta oldcur;
 
   redibujar = 1;
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
-  ft = true;
 
   for (::) {
     glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
@@ -1732,7 +1718,6 @@ Object ZIPI_Tiempo_Real
       glk($002B, gg_menuwin, anchura - 1, altura - 1);
       print "v";
     }
-    ft = false;
     j = cur + 3 - delta;
     glk($002B, gg_menuwin, 1, j - 1);
     print (s_emph) ">";

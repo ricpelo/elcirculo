@@ -1916,12 +1916,12 @@ Object Menu_Examinar
   pm pl;
   noun = ExaminarFalso.objetoVerboDesconocido;
   if (noun == location) <<Look>>;
-  pl = noun.input_link;
   PronounNotice(noun);
-  ImprimirPrompt();
-  if (ExaminarFalso.palabraMenu ~= 0) {
-    pm = ExaminarFalso.palabraMenu;
+  pm = ExaminarFalso.palabraMenu;
+  if (pm ~= 0) {
+    pl = noun.input_link;
     ExaminarFalso.palabraMenu = 0;
+    ImprimirPrompt();
     switch (pm) {
       'coge':     print (s_input) "coge ", (s_input) pl, "^";
                   <<Take noun>>;
@@ -1934,9 +1934,11 @@ Object Menu_Examinar
     }
   }
   if (noun ofclass Lugar) {
-    print (s_input) "ve ", (s_input) pl, "^"; <<Enter noun>>;
+    if (pm ~= 0) print (s_input) "ve ", (s_input) pl, "^";
+    <<Enter noun>>;
   } else {
-    print (s_input) "ex ", (s_input) pl, "^"; <<Examine noun>>;
+    if (pm ~= 0) print (s_input) "ex ", (s_input) pl, "^";
+    <<Examine noun>>;
   }
 ];
 

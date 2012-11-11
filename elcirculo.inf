@@ -1021,13 +1021,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
       gg_menuwin = glk_window_open(gg_mainwin,
                                    winmethod_Right + winmethod_Fixed,
                                    25, wintype_TextGrid, GG_MENUWIN_ROCK);
-      glk($002F, gg_menuwin); ! select
+      glk_set_window(gg_menuwin);
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
       glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
       r = RunMenu(uno);
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;
-      glk($002F, gg_mainwin); ! select
+      glk_set_window(gg_mainwin);
       glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
       if (~~r) return 'verbo.nulo';
@@ -1434,9 +1434,9 @@ Array numero_opciones -> 30;
   key done ix;
   glk_request_hyperlink_event(win);
   if (~~sw) glk_request_mouse_event(win); 
-  glk($00D2, gg_mainwin);           ! glk_request_char_event
+  glk_request_char_event(gg_mainwin);
   while (~~done) {
-    glk($00C0, gg_event);           ! select
+    glk_select(gg_event);
     ix = HandleGlkEvent(gg_event, 1, gg_arguments);
     if (ix == 2) {
       key = gg_arguments-->0;
@@ -1457,7 +1457,7 @@ Array numero_opciones -> 30;
       }
     }
   }
-  glk($00D3, gg_mainwin);           ! glk_cancel_char_event
+  glk_cancel_char_event(gg_mainwin);
   glk_request_hyperlink_event(win);
   if (~~sw) glk_request_mouse_event(win);
   return key;
@@ -2280,7 +2280,7 @@ Verb meta 'tt'
     }
   }
   StatusLineHeight(1);
-  glk($002F, gg_mainwin); ! select
+  glk_set_window(gg_mainwin);
   if (hayGraficos) EncenderGraficos(true);
   clearTextWindow();
   ControlTimer.ReanudarTick();
@@ -2507,7 +2507,7 @@ Verb meta 'tt'
          Damusix.PararCanal(CANAL_FONDO);
        }
        StatusLineHeight(1);
-       glk($002F, gg_mainwin); ! select
+       glk_set_window(gg_mainwin);
        if (hayGraficos) EncenderGraficos(true);
        clearTextWindow();
        ControlTimer.ReanudarTick();

@@ -1450,6 +1450,8 @@ Array numero_opciones -> 30;
               key = 0; ! Devuelve la tecla 0, para no interferir
               done = true;
         5, 6: ! evtype_Arrange, evtype_Redraw
+              DrawStatusLine();     ! Redibujamos la línea de estado
+              glk_set_window(win);  ! Volvemos a la ventana anterior
               ! Cuando se redimensiona habiendo un menú de acciones, se
               ! devuelve la tecla 0, lo que hará que se redibuje la ventana:
               key = 0;

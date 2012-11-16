@@ -1940,7 +1940,11 @@ Object Menu_Examinar
 [ ExaminarFalsoSub
   pm pl;
   noun = ExaminarFalso.objetoVerboDesconocido;
-  if (noun == location) <<Look>>;
+  if (noun == location) {
+    ImprimirPrompt();
+    print (s_input) "mirar^";
+    <<Look>>;
+  }
   PronounNotice(noun);
   pm = ExaminarFalso.palabraMenu;
   if (pm ~= 0) {
@@ -1959,10 +1963,16 @@ Object Menu_Examinar
     }
   }
   if (noun ofclass Lugar) {
-    if (pm ~= 0) print (s_input) "ve ", (s_input) pl, "^";
+    if (noun provides input_link) {
+      ImprimirPrompt();
+      print (s_input) "ve ", (s_input) noun.input_link, "^";
+    }
     <<Enter noun>>;
   } else {
-    if (pm ~= 0) print (s_input) "ex ", (s_input) pl, "^";
+    if (noun provides input_link) {
+      ImprimirPrompt();
+      print (s_input) "ex ", (s_input) noun.input_link, "^";
+    }
     <<Examine noun>>;
   }
 ];

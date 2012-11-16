@@ -2553,6 +2553,24 @@ Property persona alias number;
   print (string) x;
 ];
 
+[ hueles_ x;
+  if (player provides persona) {
+    switch (player.persona) {
+      PRIMERA_PERSONA,
+      PRIMERA_PERSONA_SINGULAR: print "huelo";
+      SEGUNDA_PERSONA,
+      SEGUNDA_PERSONA_SINGULAR: print "hueles";
+      TERCERA_PERSONA,
+      TERCERA_PERSONA_SINGULAR: print "huele";
+      PRIMERA_PERSONA_PLURAL:   print "olemos";
+      SEGUNDA_PERSONA_PLURAL:   print "oléis";
+      TERCERA_PERSONA_PLURAL:   print "huelen";
+      default:                  print "hueles";
+    }
+  } else print "hueles";
+  print (string) x;
+];
+
 ! ti_       se_  te_  tu_      as_    es_   _es_  oy_   as__  a_    eo_   e_     os_   z_   ias_   ues_
 ! _________________________________________________________________________________________________________
 ! mí        me   me   mi       o      o     o     oy    é     a     eo    e      o     z    ía     o

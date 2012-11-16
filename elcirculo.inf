@@ -1978,25 +1978,6 @@ Object Menu_Examinar
 ];
 
 
-[ hueles_ x;
-  if (player provides persona) {
-    switch (player.persona) {
-      PRIMERA_PERSONA,
-      PRIMERA_PERSONA_SINGULAR: print "huelo";
-      SEGUNDA_PERSONA,
-      SEGUNDA_PERSONA_SINGULAR: print "hueles";
-      TERCERA_PERSONA,
-      TERCERA_PERSONA_SINGULAR: print "huele";
-      PRIMERA_PERSONA_PLURAL:   print "olemos";
-      SEGUNDA_PERSONA_PLURAL:   print "oléis";
-      TERCERA_PERSONA_PLURAL:   print "huelen";
-      default:                  print "hueles";
-    }
-  } else print "hueles";
-  print (string) x;
-];
-
-
 [ IniciarGraficosSonidos;
   if (~~testGraphics()) {
     print "^Lo sentimos, pero este juego necesita un intérprete Glulx

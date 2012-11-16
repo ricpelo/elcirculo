@@ -1484,6 +1484,9 @@ Object ZIPI_Configuracion
       ZIPI_Sonido
       ZIPI_Sonido_Fondo
       ZIPI_Separador
+      ZIPI_Aumentar_Texto
+      ZIPI_Disminuir_Texto
+      ZIPI_Separador
       ZIPI_Accesibilidad;
 
 
@@ -1641,6 +1644,26 @@ Object ZIPI_Tamano_Graficos
         altoVentanaGrafica = altoVentanaGrafica + 50;
       else
         altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Aumentar_Texto
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Aumentar tamaño del texto",
+    ZIPI_cambiar [;
+      glk($FFFE); ! glk_incr_fontsize();
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Disminuir_Texto
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Disminuir tamaño del texto",
+    ZIPI_cambiar [;
+      glk($FFFD); ! glk_decr_fontsize();
     ],
     ZIPI_ejecutar [; rtrue; ];
 

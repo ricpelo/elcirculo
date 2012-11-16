@@ -819,11 +819,12 @@ Object becca "Becca" cuarto_katie
                  verdes, y de carácter un tanto rebelde. Compañeras de
                  Instituto que sois, lleva puesto el mismo uniforme que tú.",
     initial "^Junto a ti está Becca.",
+    input_link "Becca",
     imagen Becca_jpg,
     describe [;
       switch (random(3)) {
         1: "^A tu lado, tu amiga Becca te observa con inquietud.";
-        2: "^Becca te mira esperando qué vas a hacer.";
+        2: "^", (link) self, " te mira esperando qué vas a hacer.";
         3: "^Tu amiga Becca está a tu lado.";
       }
     ],

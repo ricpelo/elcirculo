@@ -2306,6 +2306,7 @@ Verb meta 'tt'
                              1, 0);
   glk_set_window(gg_mainwin);
   if (hayGraficos) EncenderGraficos();
+  else             ApagarGraficos();
   ControlTimer.ReanudarTick();
 ];
 

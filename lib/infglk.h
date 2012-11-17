@@ -989,5 +989,27 @@ Constant imagealign_MarginRight $05;
   return ret;
 ];
 
+! ====================================================================
+! EXTENSIONES DE ALPHA AVENTURAS (c) Alpha
+! ====================================================================
+
+[ glk_incr_fontsize _vararg_count ret;
+! glk_incr_fontsize ()
+  ! And now the @glk call
+  @glk $FFFE _vararg_count ret;
+  return ret;
+];
+
+[ glk_decr_fontsize _vararg_count ret;
+! glk_decr_fontsize ()
+  ! And now the @glk call
+  @glk $FFFD _vararg_count ret;
+  return ret;
+];
+
+! ====================================================================
+! FIN DE LAS EXTENSIONES DE ALPHA AVENTURAS
+! ====================================================================
+
 #Endif;
 #Endif;

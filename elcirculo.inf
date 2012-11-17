@@ -1653,7 +1653,7 @@ Object ZIPI_Aumentar_Texto
   with
     ZIPI_titulo "Aumentar tamaño del texto",
     ZIPI_cambiar [;
-      glk($FFFE); ! glk_incr_fontsize();
+      glk_incr_fontsize();
     ],
     ZIPI_ejecutar [; rtrue; ];
 
@@ -1663,7 +1663,7 @@ Object ZIPI_Disminuir_Texto
   with
     ZIPI_titulo "Disminuir tamaño del texto",
     ZIPI_cambiar [;
-      glk($FFFD); ! glk_decr_fontsize();
+      glk_decr_fontsize();
     ],
     ZIPI_ejecutar [; rtrue; ];
 

@@ -1654,6 +1654,16 @@ Object ZIPI_Aumentar_Texto
     ZIPI_titulo "Aumentar tamaño del texto",
     ZIPI_cambiar [;
       glk_incr_fontsize();
+      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments, gg_arguments + WORDSIZE,
+                                 gg_arguments + 2 * WORDSIZE);
+      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments-->0, gg_arguments-->1,
+                                 gg_arguments-->2);
+      ! Esto sólo se ve en el menú principal, porque durante el juego
+      ! el menú de configuración ocupa toda la pantalla, y luego
+      ! restauramos el gráfico de la localidad actual:
+      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
     ],
     ZIPI_ejecutar [; rtrue; ];
 
@@ -1664,6 +1674,16 @@ Object ZIPI_Disminuir_Texto
     ZIPI_titulo "Disminuir tamaño del texto",
     ZIPI_cambiar [;
       glk_decr_fontsize();
+      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments, gg_arguments + WORDSIZE,
+                                 gg_arguments + 2 * WORDSIZE);
+      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments-->0, gg_arguments-->1,
+                                 gg_arguments-->2);
+      ! Esto sólo se ve en el menú principal, porque durante el juego
+      ! el menú de configuración ocupa toda la pantalla, y luego
+      ! restauramos el gráfico de la localidad actual:
+      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
     ],
     ZIPI_ejecutar [; rtrue; ];
 

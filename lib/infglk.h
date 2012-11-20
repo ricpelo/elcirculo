@@ -41,6 +41,7 @@ Constant gestalt_LineTerminators 18;
 Constant gestalt_LineTerminatorKey 19;
 Constant gestalt_DateTime 20;
 Constant gestalt_Sound2 21;
+Constant gestalt_AlphaAventuras $ffff;
 Constant evtype_None 0;
 Constant evtype_Timer 1;
 Constant evtype_CharInput 2;

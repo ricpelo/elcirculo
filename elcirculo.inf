@@ -1999,6 +1999,14 @@ Object Menu_Examinar
 
 
 [ IniciarGraficosSonidos;
+  if (glk_gestalt(gestalt_AlphaAventuras, 0) == 0) {
+    print "^Lo sentimos, pero este juego necesita un intérprete
+            propio y no funcionará con ningún otro intérprete Glulx
+            estándar.^";
+    KeyDelay();
+    quit;
+  }
+
   if (~~testGraphics()) {
     print "^Lo sentimos, pero este juego necesita un intérprete Glulx
             con capacidades gráficas.^^";

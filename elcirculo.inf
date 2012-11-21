@@ -2573,6 +2573,8 @@ Verb meta 'tt'
 
 
 [ SaludarSub;
+!  glk_window_stylehint_set(gg_mainwin, style_Normal,
+!                           stylehint_TextColor, $ff0000);
   "Saludas cordialmente.";
 ];
 

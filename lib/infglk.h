@@ -1008,6 +1008,13 @@ Constant imagealign_MarginRight $05;
   return ret;
 ];
 
+[ glk_window_stylehint_set _vararg_count ret;
+! glk_window_stylehint_set (win styl hint val)
+  ! And now the @glk call
+  @glk $FFFC _vararg_count ret;
+  return ret;
+];
+
 ! ====================================================================
 ! FIN DE LAS EXTENSIONES DE ALPHA AVENTURAS
 ! ====================================================================

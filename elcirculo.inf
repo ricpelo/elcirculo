@@ -1298,7 +1298,7 @@ Object timer_imagen_personaje
       OcultarImagenAuxiliar();
       give self ~general;
       self.EliminarGestor();
-      viewImageCenter(location.sgw_img);
+      MostrarImagenLocalidad();
     ];
 
 
@@ -1937,7 +1937,7 @@ Object Menu_Examinar
   hayGraficos = true;
   openGraphicWindow(altoVentanaGrafica);
   clearGraphicWindow();
-  viewImageCenter(location.sgw_img);
+  MostrarImagenLocalidad();
   if (t) {
     glk_set_style(style_Emphasized);
     print "[Gráficos activados (tamaño ";
@@ -2079,6 +2079,12 @@ Object Menu_Examinar
 ];
 
 
+[ MostrarImagenLocalidad loc;
+  if (~~loc) loc = location;
+  if (loc provides sgw_img) viewImageCenter(loc.sgw_img);
+];
+
+
 [ MostrarImagenGradualmente imagen veces retardo
   i;
   for (i = 0 : i < veces : i++) {
@@ -2099,7 +2105,7 @@ Object Menu_Examinar
 [ OcultarImagenAuxiliar;
 !  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
 !  gg_objwin = 0;
-  viewImageCenter(location.sgw_img);
+  MostrarImagenLocalidad();
 ];
 
 
@@ -2386,7 +2392,7 @@ Verb meta 'tt'
         http://wiki.caad.es/Alpha_Aventuras^
         http://www.facebook.com/alphaaventuras^";
   KeyDelay();
-  viewImageCenter(location.sgw_img);
+  MostrarImagenLocalidad();
 ];
 
 

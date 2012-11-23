@@ -275,18 +275,20 @@ Include "Parser";
 
     evtype_Hyperlink:
       glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
-      if (context == 1) return 1;  ! character input request
-      obj = ev-->2;
-      if (obj in Compass) {
+      if (context == 1) return 1;  ! character input request, no se hace nada
+      obj = ev-->2;                        ! ev-->2 es el número de hyperlink
+      if (obj in Compass) {   ! El jugador ha pulsado sobre un punto cardinal
         ImprimirPrompt();
         print (s_input) "ve ", (s_input) obj.input_link, "^";
       }
       obj = obj.input_link;
-      glk($00D1, gg_mainwin, gg_event); ! glk_cancel_line_event
+      glk_cancel_line_event(gg_mainwin, gg_event);
+      ! Rellenamos el búffer con el nombre del objeto, como si el jugador
+      ! lo hubiese tecleado:
       long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
                              obj);
       buffer-->0 = long;
-      return 2;
+      return 2;  ! Retornamos 2 para que acepte como si hubiese pulsado Intro
   }
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
@@ -1012,11 +1014,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
 ! asociado un menú de acciones:
 [ UnknownVerb x
-  tmp uno r;
+  tmp obj r;
   tmp = ExaminarFalso.EF_UnknownVerb(x);
   if (tmp) {
-    uno = ExaminarFalso.objetoVerboDesconocido;
-    if (uno provides ZIPI_item) {
+    obj = ExaminarFalso.objetoVerboDesconocido;
+    if (obj provides ZIPI_item) {
       if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
       gg_menuwin = glk_window_open(gg_mainwin,
                                    winmethod_Right + winmethod_Fixed,
@@ -1024,20 +1026,30 @@ Include "Timer";            ! Mi librería de eventos temporizados
       glk_set_window(gg_menuwin);
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
       glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
-      r = RunMenu(uno);
+      r = RunMenu(obj);
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;
       glk_set_window(gg_mainwin);
       glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+      ! Si no se ha escogido nada en el menú de acciones (se ha seleccionado
+      ! 'Q' de salir), devolvemos 'verbo.nulo' para no lanzar ninguna acción:
       if (~~r) return 'verbo.nulo';
+      ! Si se ha escogido una acción en el menú, guardamos en palabraMenu
+      ! el verbo asociado a esa acción y devolvemos 'examinar.falso' para
+      ! que el control vaya ahora a ExaminarFalsoSub():
       ExaminarFalso.palabraMenu = r;
-      return tmp;
+      return tmp; ! 'examinar.falso'
     } else {
+      ! El jugador ha tecleado el nombre de un objeto que no tiene menú, por
+      ! lo que sólo pueden haber dos posibilidades: o se examina el objeto, o
+      ! se mueve al jugador a una nueva localidad. Ambas cosas se harán en
+      ! ExaminarFalsoSub():
       return tmp; ! 'examinar.falso'
     }
   } else {
-    return tmp; ! false
+    ! Error de palabra no reconocida:
+    return tmp;   ! false
   }
   
 ];
@@ -1959,29 +1971,32 @@ Object Menu_Examinar
 ! dispara la que corresponda:
 [ ExaminarFalsoSub
   pm pl;
+  ! Esta propiedad se establece en ExaminarFalso.EF_UnknownVerb(x):
   noun = ExaminarFalso.objetoVerboDesconocido;
+  ! Si es el nombre de la localidad actual, hacemos un MIRAR:
   if (noun == location) {
     ImprimirPrompt();
-    print (s_input) "mirar^";
+    print (s_input) "mira^";
     <<Look>>;
   }
   PronounNotice(noun);
   pm = ExaminarFalso.palabraMenu;
-  if (pm ~= 0) {
+  if (pm ~= 0) {      ! Si se ha escogido una opción en el menú de acciones...
     pl = noun.input_link;
     ExaminarFalso.palabraMenu = 0;
     ImprimirPrompt();
+    glk_set_style(style_Input);
+    print (address) pm, " ", (string) pl, "^";
+    glk_set_style(style_Normal);
     switch (pm) {
-      'coge':     print (s_input) "coge ", (s_input) pl, "^";
-                  <<Take noun>>;
-      'deja':     print (s_input) "deja ", (s_input) pl, "^";
-                  <<Drop noun>>;
-      'enciende': print (s_input) "enciende ", (s_input) pl, "^";
-                  <<SwitchOn noun>>;
-      'apaga':    print (s_input) "apaga ", (s_input) pl, "^";
-                  <<SwitchOff noun>>;
+          'coge': <<Take noun>>;
+          'deja': <<Drop noun>>;
+      'enciende': <<SwitchOn noun>>;
+         'apaga': <<SwitchOff noun>>;
+            'ex': jump Examinar;
     }
   }
+  ! El jugador ha tecleado el nombre del objeto y éste no tiene menú de acciones
   if (noun ofclass Lugar) {
     if (noun provides input_link) {
       ImprimirPrompt();
@@ -1991,6 +2006,7 @@ Object Menu_Examinar
   } else {
     if (noun provides input_link) {
       ImprimirPrompt();
+    .Examinar;
       print (s_input) "ex ", (s_input) noun.input_link, "^";
     }
     <<Examine noun>>;

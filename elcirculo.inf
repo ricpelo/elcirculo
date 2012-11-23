@@ -277,14 +277,22 @@ Include "Parser";
       glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                        ! ev-->2 es el número de hyperlink
-      if (obj in Compass) {   ! El jugador ha pulsado sobre un punto cardinal
-        ImprimirPrompt();
-        print (s_input) "ve ", (s_input) obj.input_link, "^";
+      if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
+      else {                       ! En caso contrario, es un objeto
+        if (obj in Compass) {   ! El jugador ha pulsado sobre un punto cardinal
+          ImprimirPrompt();
+          print (s_input) "ve ", (s_input) obj.input_link, "^";
+        }
+        obj = obj.input_link;
+        glk_cancel_line_event(gg_mainwin, gg_event);
       }
-      obj = obj.input_link;
-      glk_cancel_line_event(gg_mainwin, gg_event);
-      ! Rellenamos el búffer con el nombre del objeto, como si el jugador
-      ! lo hubiese tecleado:
+      ExaminarFalso.mostrarExaminar = true; ! Mostramos "> ex objeto"
+      ! Cuando se ha pulsado sobre un texto que no es un objeto,
+      ! guardamos la cadena pulsada, con signo negativo para distinguir este
+      ! caso en ExaminarFalsoSub():
+      ExaminarFalso.palabraMenu = -obj;
+      ! Rellenamos el búffer con el nombre del objeto (o con la cadena), como si
+      ! el jugador lo hubiese tecleado:
       long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
                              obj);
       buffer-->0 = long;
@@ -1039,12 +1047,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
       ! el verbo asociado a esa acción y devolvemos 'examinar.falso' para
       ! que el control vaya ahora a ExaminarFalsoSub():
       ExaminarFalso.palabraMenu = r;
+      ExaminarFalso.mostrarExaminar = true;      ! Mostramos "> ex objeto"
       return tmp; ! 'examinar.falso'
     } else {
       ! El jugador ha tecleado el nombre de un objeto que no tiene menú, por
       ! lo que sólo pueden haber dos posibilidades: o se examina el objeto, o
       ! se mueve al jugador a una nueva localidad. Ambas cosas se harán en
-      ! ExaminarFalsoSub():
+      ! la rutina ExaminarFalsoSub():
       return tmp; ! 'examinar.falso'
     }
   } else {
@@ -1980,10 +1989,16 @@ Object Menu_Examinar
     <<Look>>;
   }
   PronounNotice(noun);
+  ! ExaminarFalso.palabraMenu puede ser:
+  ! > 0, lo que significa que el jugador ha escogido una opción en el menú
+  !      de acciones del objeto
+  ! = 0, lo que significa que el jugador ha tecleado el nombre del objeto
+  ! < 0, lo que significa que el jugador ha pulsado un hyperlink que no es
+  !      un objeto, sino simple texto; se usa sobre todo para los decorados
   pm = ExaminarFalso.palabraMenu;
-  if (pm ~= 0) {      ! Si se ha escogido una opción en el menú de acciones...
+  ExaminarFalso.palabraMenu = 0;
+  if (pm > 0) {      ! Si se ha escogido una opción en el menú de acciones...
     pl = noun.input_link;
-    ExaminarFalso.palabraMenu = 0;
     ImprimirPrompt();
     glk_set_style(style_Input);
     print (address) pm, " ", (string) pl, "^";
@@ -1993,10 +2008,13 @@ Object Menu_Examinar
           'deja': <<Drop noun>>;
       'enciende': <<SwitchOn noun>>;
          'apaga': <<SwitchOff noun>>;
-            'ex': jump Examinar;
+            'ex': <<Examine noun>>;
     }
+    print "*** Aquí no se debería llegar ***";
+    rfalse;
   }
-  ! El jugador ha tecleado el nombre del objeto y éste no tiene menú de acciones
+  ! El jugador ha tecleado el nombre del objeto y éste no tiene asociado un menú
+  ! de acciones, o bien ha pulsado sobre un hyperlink que no es un objeto: 
   if (noun ofclass Lugar) {
     if (noun provides input_link) {
       ImprimirPrompt();
@@ -2004,10 +2022,18 @@ Object Menu_Examinar
     }
     <<Enter noun>>;
   } else {
-    if (noun provides input_link) {
-      ImprimirPrompt();
-    .Examinar;
-      print (s_input) "ex ", (s_input) noun.input_link, "^";
+    ! Si pm < 0, quiere decir que el jugador ha pulsado sobre una palabra que
+    ! no es un objeto, sino una simple cadena de texto:
+    if (noun provides input_link || pm < 0) {
+      if (ExaminarFalso.mostrarExaminar) {
+        ExaminarFalso.mostrarExaminar = false;
+        ImprimirPrompt();
+        if (noun provides input_link) {
+          print (s_input) "ex ", (s_input) noun.input_link, "^";
+        } else {
+          print (s_input) "ex ", (s_input) -pm, "^";
+        }
+      }
     }
     <<Examine noun>>;
   }
@@ -2110,11 +2136,19 @@ Object Menu_Examinar
 ];
 
 
-[ link obj;
-  glk_set_hyperlink(obj);
-  if (obj provides nombre_link) print (string) obj.nombre_link;
-  else                          print (string) obj.input_link;
-  glk_set_hyperlink(0);
+[ link obj msg;
+  if (obj ofclass String) {
+    glk_set_hyperlink(-obj);  ! Hyperlinks negativos son cadenas
+    if (msg ~= 0) print (string) msg;
+    else          print (string) obj;
+    glk_set_hyperlink(0);
+  } else {
+    glk_set_hyperlink(obj);   ! Hyperlinks positivos son objetos
+    if (msg ~= 0)                      print (string) msg;    
+    else if (obj provides nombre_link) print (string) obj.nombre_link;
+    else                               print (string) obj.input_link;
+    glk_set_hyperlink(0);
+  }
 ];
 
 

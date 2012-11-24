@@ -368,6 +368,8 @@ Object ControlTimer
         self.ha_imprimido_algo = true;
         glk($00D1, gg_mainwin, gg_event); ! glk_cancel_line_event(gg_mainwin, gg_event);
         self.longitud = gg_event-->2;
+        ! Esta línea sólo debe ejecutarse cuando se use
+        ! el intérprete de Gargoyle modificado por mí:
         if (self.contexto_handle_glk) new_line;
       }
     ],

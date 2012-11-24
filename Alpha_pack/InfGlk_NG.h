@@ -1015,7 +1015,10 @@ Constant imagealign_MarginRight $05;
   return ret;
 ];
 
-Constant config_LinkColor 0;
+Constant config_LinkColor   0;
+Constant config_BorderColor 1;
+Constant config_WBorderX    2;
+Constant config_WBorderY    3;
 
 [ glk_set_config _vararg_count ret;
 ! glk_set_config (param value)

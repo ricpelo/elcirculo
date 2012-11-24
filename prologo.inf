@@ -1146,8 +1146,8 @@ Object tema_becca_tv "el televisor" TemasBecca
   clearMainWindow();
   print "Ves ", (s_user1) "el círculo.";
   WaitDelay(100);
-  MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
-  MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
+  MostrarImagenGradualmente(Logo_Circulo_png, 40, 50);
+  MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 100);
   clearTextWindow();
   box "(c) 2012 Alpha Aventuras";
   KeyDelay();
@@ -1194,9 +1194,9 @@ Object tema_becca_tv "el televisor" TemasBecca
     gg_bigwin = glk_window_open(gg_mainwin,
                                 winmethod_Above + winmethod_Proportional, 100,
                                 wintype_Graphics, GG_BIGWIN_ROCK);
-    MostrarImagenGradualmente(Prologo_png, 30, 10);
+    MostrarImagenGradualmente(Prologo_png, 30, 50);
     KeyDelay(1500);
-    MostrarImagenGradualmente(Fundido_png, 40, 5);
+    MostrarImagenGradualmente(Fundido_png, 40, 25);
   } else {
     print "Prólogo";
   }

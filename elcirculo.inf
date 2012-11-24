@@ -280,10 +280,10 @@ Include "Parser";
       if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
       else {                       ! En caso contrario, es un objeto
         if (obj in Compass) {   ! El jugador ha pulsado sobre un punto cardinal
+          glk_cancel_line_event(gg_mainwin, gg_event);
           print (s_input) "ve ", (s_input) obj.input_link, "^";
         }
         obj = obj.input_link;
-        glk_cancel_line_event(gg_mainwin, gg_event);
       }
       ExaminarFalso.mostrarExaminar = true; ! Mostramos "> ex objeto"
       ! Cuando se ha pulsado sobre un texto que no es un objeto,
@@ -1984,6 +1984,7 @@ Object Menu_Examinar
   noun = ExaminarFalso.objetoVerboDesconocido;
   ! Si es el nombre de la localidad actual, hacemos un MIRAR:
   if (noun == location) {
+    glk_cancel_line_event(gg_mainwin, gg_event);
     print (s_input) "mira^";
     <<Look>>;
   }
@@ -1998,6 +1999,7 @@ Object Menu_Examinar
   ExaminarFalso.palabraMenu = 0;
   if (pm > 0) {      ! Si se ha escogido una opción en el menú de acciones...
     pl = noun.input_link;
+    glk_cancel_line_event(gg_mainwin, gg_event);
     glk_set_style(style_Input);
     print (address) pm, " ", (string) pl, "^";
     glk_set_style(style_Normal);
@@ -2015,6 +2017,7 @@ Object Menu_Examinar
   ! de acciones, o bien ha pulsado sobre un hyperlink que no es un objeto: 
   if (noun ofclass Lugar) {
     if (noun provides input_link) {
+      glk_cancel_line_event(gg_mainwin, gg_event);
       print (s_input) "ve ", (s_input) noun.input_link, "^";
     }
     <<Enter noun>>;

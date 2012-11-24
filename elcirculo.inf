@@ -274,18 +274,19 @@ Include "Parser";
 !      return 2;
 
     evtype_Hyperlink:
-      glk_request_hyperlink_event(ev-->1); ! ev-->1 es la ventana
+      glk_request_hyperlink_event(ev-->1);  ! ev-->1 es la ventana
       if (context == 1) return 1;  ! character input request, no se hace nada
-      obj = ev-->2;                        ! ev-->2 es el número de hyperlink
+      obj = ev-->2;                ! ev-->2 es el número de hyperlink
+      ExaminarFalso.mostrarExaminar = true; ! Mostramos "> ex objeto"
       if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
       else {                       ! En caso contrario, es un objeto
-        if (obj in Compass) {   ! El jugador ha pulsado sobre un punto cardinal
+        if (obj in Compass) {      ! Se ha pulsado sobre un punto cardinal
           glk_cancel_line_event(gg_mainwin, gg_event);
           print (s_input) "ve ", (s_input) obj.input_link, "^";
+          ExaminarFalso.mostrarExaminar = false; ! No mostramos "> ex objeto"
         }
         obj = obj.input_link;
       }
-      ExaminarFalso.mostrarExaminar = true; ! Mostramos "> ex objeto"
       ! Cuando se ha pulsado sobre un texto que no es un objeto,
       ! guardamos la cadena pulsada, con signo negativo para distinguir este
       ! caso en ExaminarFalsoSub():
@@ -1026,6 +1027,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (tmp) {
     obj = ExaminarFalso.objetoVerboDesconocido;
     if (obj provides ZIPI_item) {
+      glk_cancel_line_event(gg_mainwin, gg_event);
       if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
       gg_menuwin = glk_window_open(gg_mainwin,
                                    winmethod_Right + winmethod_Fixed,
@@ -2014,29 +2016,22 @@ Object Menu_Examinar
     rfalse;
   }
   ! El jugador ha tecleado el nombre del objeto y éste no tiene asociado un menú
-  ! de acciones, o bien ha pulsado sobre un hyperlink que no es un objeto: 
-  if (noun ofclass Lugar) {
-    if (noun provides input_link) {
+  ! de acciones, o bien ha pulsado sobre un hyperlink que no es un objeto:
+  
+  if (noun provides input_link || pm < 0) {
+    if (ExaminarFalso.mostrarExaminar) {
+      ExaminarFalso.mostrarExaminar = false;
       glk_cancel_line_event(gg_mainwin, gg_event);
-      print (s_input) "ve ", (s_input) noun.input_link, "^";
+      if (noun ofclass Lugar) print (s_input) "ve ";
+      else                    print (s_input) "ex ";
+      if (noun provides input_link) pl = noun.input_link;
+      else                          pl = -pm;
+      print (s_input) pl, "^";
     }
-    <<Enter noun>>;
-  } else {
-    ! Si pm < 0, quiere decir que el jugador ha pulsado sobre una palabra que
-    ! no es un objeto, sino una simple cadena de texto:
-    if (noun provides input_link || pm < 0) {
-      if (ExaminarFalso.mostrarExaminar) {
-        ExaminarFalso.mostrarExaminar = false;
-        glk_cancel_line_event(gg_mainwin, gg_event);
-        if (noun provides input_link) {
-          print (s_input) "ex ", (s_input) noun.input_link, "^";
-        } else {
-          print (s_input) "ex ", (s_input) -pm, "^";
-        }
-      }
-    }
-    <<Examine noun>>;
-  }
+  }  
+  
+  if (noun ofclass Lugar) <<Enter noun>>;
+  else                    <<Examine noun>>;  
 ];
 
 

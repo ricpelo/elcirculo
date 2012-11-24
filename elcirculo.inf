@@ -277,7 +277,7 @@ Include "Parser";
       glk_request_hyperlink_event(ev-->1);  ! ev-->1 es la ventana
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
-      ExaminarFalso.mostrarExaminar = true; ! Mostramos "> ex objeto"
+      ExaminarFalso.mostrarExaminar = 2; ! Mostramos "> ex objeto"
       if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
       else {                       ! En caso contrario, es un objeto
         if (obj in Compass) {      ! Se ha pulsado sobre un punto cardinal
@@ -586,6 +586,7 @@ Object LibraryMessages
         }
 
       Prompt:
+        new_line;
         ImprimirPrompt();
         rtrue;
 
@@ -1043,13 +1044,17 @@ Include "Timer";            ! Mi librería de eventos temporizados
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
       ! Si no se ha escogido nada en el menú de acciones (se ha seleccionado
       ! 'Q' de salir), devolvemos 'verbo.nulo' para no lanzar ninguna acción:
-      ExaminarFalso.mostrarExaminar = false;     ! No mostramos "> ex objeto"
-      if (~~r) return 'verbo.nulo';
+      if (~~r) {
+        ExaminarFalso.mostrarExaminar = false;     ! No mostramos "> ex objeto"
+        return 'verbo.nulo';
+      }
       ! Si se ha escogido una acción en el menú, guardamos en palabraMenu
       ! el verbo asociado a esa acción y devolvemos 'examinar.falso' para
       ! que el control vaya ahora a ExaminarFalsoSub():
       ExaminarFalso.palabraMenu = r;
-      ExaminarFalso.mostrarExaminar = true;      ! Mostramos "> ex objeto"
+      if (~~(ExaminarFalso.mostrarExaminar)) {
+        ExaminarFalso.mostrarExaminar = true;
+      }
       return tmp; ! 'examinar.falso'
     } else {
       ! El jugador ha tecleado el nombre de un objeto que no tiene menú, por
@@ -1992,16 +1997,21 @@ Object Menu_Examinar
   }
   PronounNotice(noun);
   ! ExaminarFalso.palabraMenu puede ser:
-  ! > 0, lo que significa que el jugador ha escogido una opción en el menú
-  !      de acciones del objeto
-  ! = 0, lo que significa que el jugador ha tecleado el nombre del objeto
-  ! < 0, lo que significa que el jugador ha pulsado un hyperlink que no es
-  !      un objeto, sino simple texto; se usa sobre todo para los decorados
+  ! > 0, el jugador ha escogido una opción en el menú de acciones del objeto
+  ! = 0, el jugador ha tecleado el nombre del objeto
+  ! < 0, el jugador ha pulsado un hyperlink que no es un objeto, sino simple
+  !      texto; se usa sobre todo para los decorados
   pm = ExaminarFalso.palabraMenu;
   ExaminarFalso.palabraMenu = 0;
   if (pm > 0) {      ! Si se ha escogido una opción en el menú de acciones...
     pl = noun.input_link;
-    glk_cancel_line_event(gg_mainwin, gg_event);
+    ! ExaminarFalso.mostrarExaminar puede ser:
+    ! false: no mostrar prompt ni input
+    ! true:  mostrar input y, en el caso de haber escogido una opción de menú,
+    !        también el prompt
+    ! 2:     mostrar input pero no el prompt
+    if (ExaminarFalso.mostrarExaminar == 1) ImprimirPrompt();
+    ExaminarFalso.mostrarExaminar = false;
     glk_set_style(style_Input);
     print (address) pm, " ", (string) pl, "^";
     glk_set_style(style_Normal);
@@ -2087,7 +2097,6 @@ Object Menu_Examinar
 
 
 [ ImprimirPrompt;
-  new_line;
   if (player ~= selfobj) {
     glk_set_style(style_User1);
     print (string) player.short_name;

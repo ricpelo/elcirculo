@@ -1517,7 +1517,8 @@ Object ZIPI_Accesibilidad
   with
     ZIPI_titulo "Opciones de accesibilidad",
     ZIPI_item
-      ZIPI_Tiempo_Real;
+      ZIPI_Tiempo_Real
+      ZIPI_Mostrar_Hyperlinks;
 
 
 Object ZIPI_Configuracion
@@ -1743,6 +1744,30 @@ Object ZIPI_Tiempo_Real
     ],
     ZIPI_cambiar [;
       hayTiempoReal = ~~hayTiempoReal;
+    ],
+    ZIPI_ejecutar [; rtrue; ];
+
+
+Object ZIPI_Mostrar_Hyperlinks
+  class ZIPI_Otro
+  with
+    mostrarLink true,
+    colorLink 0,
+    ZIPI_titulo [;
+      if (self.mostrarLink) "Mostrar hipervínculos: SÍ (recomendado)";
+      else                  "Mostrar hipervínculos: NO";
+    ],
+    ZIPI_cambiar [ c;
+      if (self.mostrarLink) {
+        self.mostrarLink = false;
+        self.colorLink = glk_get_config(config_LinkColor);
+        c = glk_window_stylehint_get(gg_statuswin, style_Normal,
+                                     stylehint_TextColor);
+        glk_set_config(config_LinkColor, c);
+      } else {
+        self.mostrarLink = true;
+        glk_set_config(config_LinkColor, self.colorLink);
+      }
     ],
     ZIPI_ejecutar [; rtrue; ];
 

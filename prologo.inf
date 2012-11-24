@@ -528,7 +528,7 @@ Object telefono_katie "teléfono" cocina_katie
       print "Lentamente, a medida que escucha lo que el teléfono le dice, se
              gira hacia ti con una inclasificable mirada en los ojos, y tu
              preocupación crece por momentos...";
-      KeyDelay(2000);
+      KeyDelay(10000);
       print " hasta que te muestra una amplia sonrisa y pasándote el teléfono,
              divertida, te dice:^";
       becca.habla("Es tu madre.");
@@ -544,7 +544,7 @@ Object telefono_katie "teléfono" cocina_katie
              Durante la corta pero extrañamente tranquilizadora conversación,
              percibes la voz de Becca preguntando algo mientras se aleja de la
              cocina escaleras arriba. Finalmente, cuelgas el teléfono...";
-      KeyDelay(5000);
+      KeyDelay(25000);
       print (s_emph) " y estas sola.^";
       katie.habla("¿Becca?", true);
       print " ---la llamas temiendo alzar demasiado la voz, sin respuesta.^";
@@ -1123,30 +1123,29 @@ Object tema_becca_tv "el televisor" TemasBecca
          abrir, algo te llama... algo tan frío y básico como el agua que
          se desliza ahora por tu piel, envolviéndote. Y, sin saber bien cómo,
          te ves girando el pomo y abriendo la puerta de par en par...";
-  KeyDelay(); ! 4000);
+  KeyDelay();
   print "^^... sólo para descubrir ", (s_emph) "el horror", ".";
   viewImageCenter(Fin_Prologo1_jpg);
-  KeyDelay(); ! WaitDelay(1000);
+  KeyDelay();
   viewImageCenter(Fin_Prologo2_jpg);
-!  KeyDelay(2000);
   print "^^Tu boca se abre tanto como puede para gritar y gritar y no dejar
          de gritar. Tu rostro, desencajado por el puro terror, se deforma y
          se funde como en contacto con el más poderoso ácido. Y tu corazón se
          detiene justo instantes después de verlo.";
   viewImageCenter(Fin_Prologo3_jpg);
-  KeyDelay(); ! WaitDelay(3000);
+  KeyDelay();
   print "^^Sí: de verlo. Porque antes de morir, ", (s_emph) "lo ves.";
-  KeyDelay(2000);
+  KeyDelay(10000);
   print "^^Ves ", (s_user1) "el círculo.";
-  KeyDelay(400);
+  KeyDelay(2000);
   viewImageCenter(Fin_Prologo4_jpg);
   Damusix.TocarV(Mujer_Gritando_ogg);
-  WaitDelay(100);
+  WaitDelay(500);
   viewImageCenter(Fin_Prologo5_jpg);
   Damusix.SimpleFadeOut(Gathering_Darkness_ogg, 1000);
   clearMainWindow();
   print "Ves ", (s_user1) "el círculo.";
-  WaitDelay(20);
+  WaitDelay(100);
   MostrarImagenGradualmente(Logo_Circulo_png, 40, 10);
   MostrarImagenGradualmente(Logo_Circulo_Solo_Letras_png, 40, 20);
   clearTextWindow();
@@ -1159,9 +1158,9 @@ Object tema_becca_tv "el televisor" TemasBecca
   for (j = 1: j <= 3: j++) {
     sw = false;
     for (i = 0: i < 40: i++) {
-      viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(5)) break;
-      viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(5)) break;
-      viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(5)) break;
+      viewImageCenter(Nieve_TV1_jpg); if (KeyDelay(25)) break;
+      viewImageCenter(Nieve_TV2_jpg); if (KeyDelay(25)) break;
+      viewImageCenter(Nieve_TV3_jpg); if (KeyDelay(25)) break;
       if (~~sw) {
         sw = true;
         switch (j) {
@@ -1196,7 +1195,7 @@ Object tema_becca_tv "el televisor" TemasBecca
                                 winmethod_Above + winmethod_Proportional, 100,
                                 wintype_Graphics, GG_BIGWIN_ROCK);
     MostrarImagenGradualmente(Prologo_png, 30, 10);
-    KeyDelay(300);
+    KeyDelay(1500);
     MostrarImagenGradualmente(Fundido_png, 40, 5);
   } else {
     print "Prólogo";
@@ -1205,7 +1204,7 @@ Object tema_becca_tv "el televisor" TemasBecca
   closeGraphicWindow();
   ChangePlayer(katie);
 
-  esp = 1000;
+  esp = 5000;
   print "Condado de Eola.";
   KeyDelay(esp / 2);
   print " Febrero de 2002.";
@@ -1227,11 +1226,11 @@ Object tema_becca_tv "el televisor" TemasBecca
   Damusix.AsignarCanal(TV_Fondo_ogg, CANAL_TV_SALON, 0);
   Damusix.TocarCanal(CANAL_TV_SALON);
   Damusix.SimpleFadeIn(TV_Fondo_ogg, 2000, VOLUMEN_TV_SALON);
-  KeyDelay(); ! esp * 2);
+  KeyDelay();
   new_line;
   becca.habla("La tele es un rollo. Toma: pon lo que quieras.");
   print "^Becca te da el mando del televisor.";
-  KeyDelay(); ! esp);
+  KeyDelay();
   print " Nada más cogerlo, apagas la tele y tiras el mando lejos de ti,
          cayendo por el lado contrario de la cama.^";
   Damusix.PararCanal(CANAL_TV_SALON);
@@ -1239,77 +1238,77 @@ Object tema_becca_tv "el televisor" TemasBecca
   katie.habla("No hay nada que me guste.", true);
   print " ---comentas, aburrida. Y tras unos instantes jugando con un bucle de
          tu pelo, continúas:^";
-  KeyDelay(); ! esp);
+  KeyDelay();
   katie.habla("Dicen que hay tantas ondas magnéticas a nuestro alrededor que
               perdemos como veinte veces más neuronas de lo normal... El
               gobierno lo sabe pero no hacen nada. Es una consipiración.");
-  KeyDelay(); ! esp);
+  KeyDelay();
   becca.habla("Sé algo mejor: ¿Sabes lo de la cinta?");
-  KeyDelay(); ! esp);
+  KeyDelay();
   katie.habla("¿Qué cinta?");
-  KeyDelay(); ! esp);
+  KeyDelay();
   print "^Becca se incorpora y te mira mientras empieza a contar:^"; 
   becca.habla("Una cinta de vídeo, que parece normal... Se alquila, creo,
               no sé... Pero cuando la pones...");
-  KeyDelay(); ! esp);
+  KeyDelay();
   print "^Ahora eres tú la que se incorpora, con expresión rígida:^";
   katie.habla("¿Qué? ¿Qué pasa cuando la pones?");
-  KeyDelay(); ! esp);
+  KeyDelay();
   print "^Becca, con expresión de divertida malicia, continúa su historia:^";
   becca.habla_inicio();
   print "Es como una pesadilla...";
-  KeyDelay(); ! esp);
+  KeyDelay();
   print " Y luego ves a una mujer... Y la mujer te sonríe...";
-  KeyDelay(); ! esp);
+  KeyDelay();
   print (s_emph) " Te ve a través de la pantalla...";
   becca.habla_fin(true);
-  KeyDelay(); ! esp);
+  KeyDelay();
   print "^^Tus ojos reflejan el miedo que va creciendo en tu interior, lo que
          divierte más a Becca, que continúa:^";
   becca.habla_inicio();
   print "Y cuando se acaba la cinta... Suena el
         teléfono... Alguien sabe que lo has visto...";
-  KeyDelay(); ! esp);
+  KeyDelay();
   print " Y te dice: ";
-  KeyDelay(); ! esp);
+  KeyDelay();
   print (s_emph) "'Morirás en siete días'.";
   becca.habla_fin();
   KeyDelay(esp / 2);
   katie.habla("¿Quién te lo ha contado?");
-  KeyDelay(); ! esp);
+  KeyDelay();
   becca.habla("No sé, alguien debe haber...");
   print "^La interrumpes:^";
   katie.habla("¿Quién ha sido?");
-  KeyDelay(); ! esp);
+  KeyDelay();
   print "^Logras preocupar a Becca:^";
   becca.habla("¿Qué te pasa?");
-  KeyDelay(); ! esp * 2);
+  KeyDelay();
   katie.habla("Yo lo he visto. Josh y yo lo vimos el viernes pasado.");
-  KeyDelay(); ! esp);
+  KeyDelay();
   becca.habla("Venga ya, Katie... ¡Es un cuento! Pero... ¿no estabas con tus
               padres? ¡¿Estuviste con Josh el fin de semana?!");
   katie.habla_inicio();
   print "Alquilamos una cabaña en las montañas, con unos
         amigos suyos...";
-  KeyDelay(); ! esp / 2);
+  KeyDelay();
   print " Estaban intentando grabar el partido, la recepción era muy mala...";
   katie.habla_fin();
-  KeyDelay(); ! esp / 2);
+  KeyDelay();
   becca.habla("¿De qué me estás hab...?");
   katie.habla("¡Escúchame! Cuando pusimos la cinta, el partido
         no estaba... Era... era...");
-  KeyDelay(); ! esp / 2);
+  KeyDelay();
   becca.habla("¿Qué? ¿Qué era?");
   katie.habla_inicio();
   print "Era... ", (s_emph) "otra cosa...";
-  KeyDelay(); ! esp / 2);
+  KeyDelay();
   print " Pensamos que era una broma, pero...";
-  KeyDelay(); ! esp / 2);
+  KeyDelay();
   print " sonó el teléfono...";
-  KeyDelay(); ! esp / 2);
+  KeyDelay();
   print " Fue hace una semana.";
   katie.habla_fin();
-  KeyDelay(); ! esp);
+  KeyDelay();
   print "^La miras a los ojos, llena de terror, y su preocupación hace crecer
          tu miedo:^";
   katie.habla_inicio();

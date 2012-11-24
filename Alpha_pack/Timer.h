@@ -181,7 +181,7 @@ Object ControlTimer
     ],
     ! Nuestra propia versión de WaitDelay:
     CT_WaitDelay [ delay;
-      glk($00D6, delay * 5);              ! request_timer_events
+      glk($00D6, delay);                  ! request_timer_events
       while (1) {
         glk($00C0, gg_arguments);         ! glk_select
         if ((gg_arguments-->0) == 1) {    ! evtype_Timer
@@ -194,7 +194,7 @@ Object ControlTimer
     CT_KeyDelay [ delay
       key done ix;
       glk($00D2, gg_mainwin); ! request_char_event
-      glk($00D6, delay * 5);  ! request_timer_events
+      glk($00D6, delay);      ! request_timer_events
       while (~~done) {
         glk($00C0, gg_event); ! select
         ix = HandleGlkEvent(gg_event, 1, gg_arguments);

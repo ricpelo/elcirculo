@@ -1042,14 +1042,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
         glk_window_set_arrangement(glk_window_get_parent(gg_menuwin),
                                    winmethod_Right + winmethod_Fixed,
                                    i, 0);
-        glk($00D6, 1);              ! request_timer_events
-        while (1) {
-          glk($00C0, gg_arguments);         ! glk_select
-          if ((gg_arguments-->0) == 1) {    ! evtype_Timer
-            glk($00D6, 0);
-            break;
-          }
-        }
+        WaitDelay(1);
       }
       glk_set_window(gg_menuwin);
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
@@ -1059,14 +1052,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
         glk_window_set_arrangement(glk_window_get_parent(gg_menuwin),
                                    winmethod_Right + winmethod_Fixed,
                                    i, 0);
-        glk($00D6, 1);              ! request_timer_events
-        while (1) {
-          glk($00C0, gg_arguments);         ! glk_select
-          if ((gg_arguments-->0) == 1) {    ! evtype_Timer
-            glk($00D6, 0);
-            break;
-          }
-        }
+        WaitDelay(1);
       }
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;

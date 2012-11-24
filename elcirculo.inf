@@ -280,7 +280,6 @@ Include "Parser";
       if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
       else {                       ! En caso contrario, es un objeto
         if (obj in Compass) {   ! El jugador ha pulsado sobre un punto cardinal
-          ImprimirPrompt();
           print (s_input) "ve ", (s_input) obj.input_link, "^";
         }
         obj = obj.input_link;
@@ -1042,6 +1041,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
       ! Si no se ha escogido nada en el menú de acciones (se ha seleccionado
       ! 'Q' de salir), devolvemos 'verbo.nulo' para no lanzar ninguna acción:
+      ExaminarFalso.mostrarExaminar = false;     ! No mostramos "> ex objeto"
       if (~~r) return 'verbo.nulo';
       ! Si se ha escogido una acción en el menú, guardamos en palabraMenu
       ! el verbo asociado a esa acción y devolvemos 'examinar.falso' para
@@ -1984,7 +1984,6 @@ Object Menu_Examinar
   noun = ExaminarFalso.objetoVerboDesconocido;
   ! Si es el nombre de la localidad actual, hacemos un MIRAR:
   if (noun == location) {
-    ImprimirPrompt();
     print (s_input) "mira^";
     <<Look>>;
   }
@@ -1999,7 +1998,6 @@ Object Menu_Examinar
   ExaminarFalso.palabraMenu = 0;
   if (pm > 0) {      ! Si se ha escogido una opción en el menú de acciones...
     pl = noun.input_link;
-    ImprimirPrompt();
     glk_set_style(style_Input);
     print (address) pm, " ", (string) pl, "^";
     glk_set_style(style_Normal);
@@ -2017,7 +2015,6 @@ Object Menu_Examinar
   ! de acciones, o bien ha pulsado sobre un hyperlink que no es un objeto: 
   if (noun ofclass Lugar) {
     if (noun provides input_link) {
-      ImprimirPrompt();
       print (s_input) "ve ", (s_input) noun.input_link, "^";
     }
     <<Enter noun>>;
@@ -2027,7 +2024,7 @@ Object Menu_Examinar
     if (noun provides input_link || pm < 0) {
       if (ExaminarFalso.mostrarExaminar) {
         ExaminarFalso.mostrarExaminar = false;
-        ImprimirPrompt();
+        glk_cancel_line_event(gg_mainwin, gg_event);
         if (noun provides input_link) {
           print (s_input) "ex ", (s_input) noun.input_link, "^";
         } else {

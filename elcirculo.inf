@@ -82,6 +82,9 @@ Constant GRAFICOS_PEQUENOS   = 250;
 Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
+! Ancho de la ventana de acciones:
+Constant ANCHO_ACCIONES  = 25;
+
 ! Constantes de gtalk.h:
 Constant GT_SELECT       = "Selecciona una opción ";
 Constant GT_ZEROEXIT     = "(0 para salir) ";
@@ -1023,7 +1026,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
 ! asociado un menú de acciones:
 [ UnknownVerb x
-  tmp obj r;
+  tmp obj r i;
   tmp = ExaminarFalso.EF_UnknownVerb(x);
   if (tmp) {
     obj = ExaminarFalso.objetoVerboDesconocido;
@@ -1032,11 +1035,38 @@ Include "Timer";            ! Mi librería de eventos temporizados
       if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
       gg_menuwin = glk_window_open(gg_mainwin,
                                    winmethod_Right + winmethod_Fixed,
-                                   25, wintype_TextGrid, GG_MENUWIN_ROCK);
+                                   0, wintype_TextGrid,
+                                   GG_MENUWIN_ROCK);
+      for (i = 0 : i <= ANCHO_ACCIONES : i = i + 5) {
+        glk_window_set_arrangement(glk_window_get_parent(gg_menuwin),
+                                   winmethod_Right + winmethod_Fixed,
+                                   i, 0);
+        glk($00D6, 1);              ! request_timer_events
+        while (1) {
+          glk($00C0, gg_arguments);         ! glk_select
+          if ((gg_arguments-->0) == 1) {    ! evtype_Timer
+            glk($00D6, 0);
+            break;
+          }
+        }
+      }
       glk_set_window(gg_menuwin);
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
       glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
       r = RunMenu(obj);
+      for (i = ANCHO_ACCIONES : i > 0 : i = i - 5) {
+        glk_window_set_arrangement(glk_window_get_parent(gg_menuwin),
+                                   winmethod_Right + winmethod_Fixed,
+                                   i, 0);
+        glk($00D6, 1);              ! request_timer_events
+        while (1) {
+          glk($00C0, gg_arguments);         ! glk_select
+          if ((gg_arguments-->0) == 1) {    ! evtype_Timer
+            glk($00D6, 0);
+            break;
+          }
+        }
+      }
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;
       glk_set_window(gg_mainwin);

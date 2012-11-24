@@ -2635,6 +2635,10 @@ Verb meta 'tt'
 [ SaludarSub;
 !  glk_window_stylehint_set(gg_mainwin, style_Normal,
 !                           stylehint_TextColor, $ff0000);
+!  x = glk_get_config(config_LinkColor);
+!  glk_set_config(config_Linkcolor, $ffffff);
+!  KeyDelay();
+!  glk_set_config(config_LinkColor, x);
   "Saludas cordialmente.";
 ];
 

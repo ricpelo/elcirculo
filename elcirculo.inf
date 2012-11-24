@@ -1031,6 +1031,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (tmp) {
     obj = ExaminarFalso.objetoVerboDesconocido;
     if (obj provides ZIPI_item) {
+      ControlTimer.PausarTick();
       glk_cancel_line_event(gg_mainwin, gg_event);
       if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
       gg_menuwin = glk_window_open(gg_mainwin,
@@ -1072,6 +1073,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
       glk_set_window(gg_mainwin);
       glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+      ControlTimer.ReanudarTick();
       ! Si no se ha escogido nada en el menú de acciones (se ha seleccionado
       ! 'Q' de salir), devolvemos 'verbo.nulo' para no lanzar ninguna acción:
       if (~~r) {

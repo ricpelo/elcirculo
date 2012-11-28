@@ -56,10 +56,10 @@ Constant AMUSING_PROVIDED;
 
 ! Altura (en caracteres) de la ventana grid en el menú principal:
 Constant ALTURA_MENU_PRINCIPAL = 15;
-! Altura (en caracteres) de la ventana grid cuando al mostrar información larga:
+! Altura (en caracteres) de la ventana grid al mostrar información larga:
 Constant ALTURA_MENU_COMPLETA  = 24;
 ! Altura (en px.) de la ventana de logo en el menú principal:
-Constant ALTURA_LOGO_MENU      = 350;
+Constant ALTURA_LOGO_MENU      = 450;
 
 ! Canales y volúmenes para los sonidos:
 Constant CANAL_FONDO     = 9; Constant VOLUMEN_FONDO     = 50;
@@ -808,6 +808,10 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ Initialise r v;
   IniciarGraficosSonidos();
+  if (gg_menuwin) {
+    glk_window_close(gg_menuwin, 0);
+    gg_menuwin = 0;
+  }
   openGraphicWindow(ALTURA_LOGO_MENU);
   clearGraphicWindow();
   StatusLineHeight(ALTURA_MENU_PRINCIPAL);
@@ -821,13 +825,17 @@ Include "Timer";            ! Mi librería de eventos temporizados
     r = ZIPI_RunMenu(ZIPI_Menu_Principal, true);
   } until (r ~= 3);
   if (r ~= 2) quit;
-  StatusLineHeight(1);
-  if (hayGraficos) EncenderGraficos();
-  else             ApagarGraficos();
   clearTextWindow();
+  closeAllWindows();
+  glk_window_close(gg_statuswin, 0);
   ! Los mouse events hay que iniciarlos aquí, y no en IniciarAventura
   ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
   ! glk_request_mouse_event(gg_bigwin);
+  AbrirMenuAcciones();
+  gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
+                                 winmethod_Above + winmethod_Fixed,
+                                 1, wintype_TextGrid, GG_STATUSWIN_ROCK);
+  if (hayGraficos) EncenderGraficos();
 ];
 
 
@@ -1026,36 +1034,18 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
 ! asociado un menú de acciones:
 [ UnknownVerb x
-  tmp obj r i;
+  tmp obj r;
   tmp = ExaminarFalso.EF_UnknownVerb(x);
   if (tmp) {
     obj = ExaminarFalso.objetoVerboDesconocido;
     if (obj provides ZIPI_item) {
       ControlTimer.PausarTick();
       glk_cancel_line_event(gg_mainwin, gg_event);
-      if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
-      gg_menuwin = glk_window_open(gg_mainwin,
-                                   winmethod_Right + winmethod_Fixed,
-                                   0, wintype_TextGrid,
-                                   GG_MENUWIN_ROCK);
-      for (i = 0 : i <= ANCHO_ACCIONES : i = i + 5) {
-        glk_window_set_arrangement(glk_window_get_parent(gg_menuwin),
-                                   winmethod_Right + winmethod_Fixed,
-                                   i, 0);
-        WaitDelay(1);
-      }
       glk_set_window(gg_menuwin);
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
       glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
       r = RunMenu(obj);
-      for (i = ANCHO_ACCIONES : i > 0 : i = i - 5) {
-        glk_window_set_arrangement(glk_window_get_parent(gg_menuwin),
-                                   winmethod_Right + winmethod_Fixed,
-                                   i, 0);
-        WaitDelay(1);
-      }
-      glk_window_close(gg_menuwin, 0);
-      gg_menuwin = 0;
+      glk_window_clear(gg_menuwin);
       glk_set_window(gg_mainwin);
       glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
@@ -1085,7 +1075,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
     ! Error de palabra no reconocida:
     return tmp;   ! false
   }
-  
 ];
 
 
@@ -1461,25 +1450,30 @@ Array numero_opciones -> 30;
 
 
 [ ZIPI_RunOtro _o
-  r;
-  closeGraphicWindow();
+  r gr;
+  gr = gg_bigwin ~= 0;
+  if (gr) closeGraphicWindow();
   StatusLineHeight(ALTURA_MENU_COMPLETA);
   ZIPI_PintaTitulo(_o.ZIPI_titulo);
   print "^";
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
   StatusLineHeight(ALTURA_MENU_PRINCIPAL);
-  openGraphicWindow(ALTURA_LOGO_MENU);
-  clearGraphicWindow();
-  viewImageCenter(Logo_Circulo_Con_Letras_jpg);
+  if (gr) {
+    openGraphicWindow(ALTURA_LOGO_MENU);
+    clearGraphicWindow();
+    viewImageCenter(Logo_Circulo_Con_Letras_jpg);
+  }
   return r;
 ];
 
 
 [ ZIPI_tecla win sw
   key done ix;
-  glk_request_hyperlink_event(win);
-  if (~~sw) glk_request_mouse_event(win); 
+  if (win) {
+    glk_request_hyperlink_event(win);
+    if (~~sw) glk_request_mouse_event(win);
+  }
   glk_request_char_event(gg_mainwin);
   while (~~done) {
     glk_select(gg_event);
@@ -1497,7 +1491,7 @@ Array numero_opciones -> 30;
               done = true;
         5, 6: ! evtype_Arrange, evtype_Redraw
               DrawStatusLine();     ! Redibujamos la línea de estado
-              glk_set_window(win);  ! Volvemos a la ventana anterior
+              if (win) glk_set_window(win);  ! Volvemos a la ventana anterior
               ! Cuando se redimensiona habiendo un menú de acciones, se
               ! devuelve la tecla 0, lo que hará que se redibuje la ventana:
               key = 0;
@@ -1506,8 +1500,10 @@ Array numero_opciones -> 30;
     }
   }
   glk_cancel_char_event(gg_mainwin);
-  glk_request_hyperlink_event(win);
-  if (~~sw) glk_request_mouse_event(win);
+  if (win) {
+    glk_request_hyperlink_event(win);
+    if (~~sw) glk_request_mouse_event(win);
+  }
   return key;
 ];
 
@@ -2150,6 +2146,14 @@ Object Menu_Examinar
 #endif;
 
 
+[ AbrirMenuAcciones;
+  gg_menuwin = glk_window_open(gg_mainwin,
+                               winmethod_Right + winmethod_Fixed,
+                               ANCHO_ACCIONES, wintype_TextGrid,
+                               GG_MENUWIN_ROCK);
+];
+
+
 [ MostrarImagenAuxiliar img;
 !  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0); 
 !  gg_objwin = glk_window_open(gg_bigwin,
@@ -2617,10 +2621,11 @@ Verb meta 'tt'
              (s_input) "PISTAS", (s_emph) " otra vez.]^";
     1: ControlTimer.PausarTick();
        if (hayGraficos) {
-         ApagarGraficos(true);
+         ApagarGraficos();
          hayGraficos = true;
        }
-       StatusLineHeight(26);
+       glk_window_close(gg_menuwin, 0);
+       StatusLineHeight(ALTURA_MENU_COMPLETA); ! 26);
        tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
        Damusix.PararCanal(CANAL_TELEFONO);
        tv = Damusix.SonandoDeFondoCanal(CANAL_TV_SALON);
@@ -2643,6 +2648,7 @@ Verb meta 'tt'
        } else {
          Damusix.PararCanal(CANAL_FONDO);
        }
+       AbrirMenuAcciones();
        StatusLineHeight(1);
        glk_set_window(gg_mainwin);
        if (hayGraficos) EncenderGraficos();

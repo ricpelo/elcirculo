@@ -908,7 +908,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
         !---------------------------------------------------------------------------
         ! si la ventana grafica superior no existe, ahora la abrimos
         if (gg_bigwin == 0) {
-          gg_bigwin = glk_window_open(gg_mainwin,
+          gg_bigwin = glk_window_open(glk_window_get_parent(gg_mainwin),
             (winmethod_Above+winmethod_Fixed), h, wintype_Graphics, GG_BIGWIN_ROCK);
         }
         ! si la ventana grafica superior no se ha creado con exito...

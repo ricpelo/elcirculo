@@ -319,10 +319,13 @@ Verb meta 'mapa'
   ControlTimer.PausarTick();
   #endif;
 !  openGraphicWindow(200);
+  if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
+  gg_menuwin = 0;
   if (gg_bigwin ~= 0) glk_window_close(gg_bigwin, 0);
-  gg_bigwin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional,
+  gg_bigwin = glk_window_open(gg_mainwin,
+                              winmethod_Above + winmethod_Proportional,
                               35, wintype_Graphics, GG_BIGWIN_ROCK);
-  if (gg_mapawin == 0) glk_window_close(gg_mapawin, 0);
+  if (gg_mapawin ~= 0) glk_window_close(gg_mapawin, 0);
   gg_mapawin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional,
                                100, wintype_Graphics, GG_MAPAWIN_ROCK);
   if (gg_mapawin == 0) return;
@@ -338,6 +341,7 @@ Verb meta 'mapa'
 [ CerrarVentanaMapa altura;
   StatusLineHeight(altura);
   glk_window_close(gg_mapawin, 0);
+  gg_mapawin = 0;
   closeAllWindows();
   clearMainWindow();
   EncenderGraficos();

@@ -831,7 +831,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   ! Los mouse events hay que iniciarlos aquí, y no en IniciarAventura
   ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
   ! glk_request_mouse_event(gg_bigwin);
-  AbrirMenuAcciones();
+  AbrirVentanaMenu();
   gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
                                  winmethod_Above + winmethod_Fixed,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
@@ -1946,7 +1946,9 @@ Object Menu_Examinar
 
 [ CerrarVentanaMapa;
   glk_window_close(gg_mapawin, 0);
+  gg_mapawin = 0;
   closeAllWindows();
+  AbrirVentanaMenu();
   clearMainWindow();
   if (hayGraficos) EncenderGraficos();
   #ifdef ControlTimer;
@@ -2146,7 +2148,7 @@ Object Menu_Examinar
 #endif;
 
 
-[ AbrirMenuAcciones;
+[ AbrirVentanaMenu;
   gg_menuwin = glk_window_open(gg_mainwin,
                                winmethod_Right + winmethod_Fixed,
                                ANCHO_ACCIONES, wintype_TextGrid,
@@ -2648,7 +2650,7 @@ Verb meta 'tt'
        } else {
          Damusix.PararCanal(CANAL_FONDO);
        }
-       AbrirMenuAcciones();
+       AbrirVentanaMenu();
        StatusLineHeight(1);
        glk_set_window(gg_mainwin);
        if (hayGraficos) EncenderGraficos();

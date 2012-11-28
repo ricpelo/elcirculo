@@ -1546,8 +1546,7 @@ Object ZIPI_Graficos
     ],
     ZIPI_cambiar [;
       hayGraficos = ~~hayGraficos;
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Jugar_Con_Intro
@@ -1647,8 +1646,7 @@ Object ZIPI_Sonido
       haySonido = ~~haySonido;
       if (haySonido) Damusix.ActivarAudio();
       else           Damusix.DesactivarAudio();
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Sonido_Fondo
@@ -1665,8 +1663,7 @@ Object ZIPI_Sonido_Fondo
       } else {
         Damusix.VolumenCanal(CANAL_FONDO, 0);
       } 
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Tamano_Graficos
@@ -1691,8 +1688,7 @@ Object ZIPI_Tamano_Graficos
         altoVentanaGrafica = altoVentanaGrafica + 50;
       else
         altoVentanaGrafica = GRAFICOS_MINUSCULOS;
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Aumentar_Texto
@@ -1711,8 +1707,7 @@ Object ZIPI_Aumentar_Texto
       ! el menú de configuración ocupa toda la pantalla, y luego
       ! restauramos el gráfico de la localidad actual:
       viewImageCenter(Logo_Circulo_Con_Letras_jpg);
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Disminuir_Texto
@@ -1731,8 +1726,7 @@ Object ZIPI_Disminuir_Texto
       ! el menú de configuración ocupa toda la pantalla, y luego
       ! restauramos el gráfico de la localidad actual:
       viewImageCenter(Logo_Circulo_Con_Letras_jpg);
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Tiempo_Real
@@ -1744,8 +1738,7 @@ Object ZIPI_Tiempo_Real
     ],
     ZIPI_cambiar [;
       hayTiempoReal = ~~hayTiempoReal;
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 Object ZIPI_Mostrar_Hyperlinks
@@ -1768,8 +1761,7 @@ Object ZIPI_Mostrar_Hyperlinks
         self.mostrarLink = true;
         glk_set_config(config_LinkColor, self.colorLink);
       }
-    ],
-    ZIPI_ejecutar [; rtrue; ];
+    ];
 
 
 ! ====================================================================

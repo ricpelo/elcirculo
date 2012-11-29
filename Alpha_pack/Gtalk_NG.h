@@ -694,9 +694,13 @@ Class Character
                ! print the number of this option (not the internal number,
                ! of course, but one that starts at 1 and increases for every
                ! option that we display)
-               print (string) GT_OPTIONPREFIX,
-                     ++onoptions,
-                     (string) GT_OPTIONSUFFIX;
+               print (string) GT_OPTIONPREFIX;
+               glk($0086, 8); ! set input style
+               glk($100, ++onoptions + 48);
+               print onoptions;
+               glk($100, 0);
+               glk($0086, 0); ! set input style
+               print (string) GT_OPTIONSUFFIX;
  
                ! print the option text
                self.quip(curquip * 10 + 1);
@@ -716,19 +720,27 @@ Class Character
             ! if the player can exit the conversation by typing 0, mention
             ! this as well
             if (~~killz)
-               print (string) GT_ZEROEXIT;
+               if (metaclass(GT_ZEROEXIT) == Routine) GT_ZEROEXIT(); ! (c) Alpha
+               else print (string) GT_ZEROEXIT;
 
             print ">> ";
 
-            ! read a line of input
-            KeyboardPrimitive(buffer, parse);
+            selected = KeyCharPrimitive();
+            selected = selected - 48;
 
-            ! Check for empty input, otherwise for a number. In any case,
-            ! invalid input will set selected to something < 0.
-            if (parse->(WORDSIZE - 1) == 0)
-               selected = -1;
-            else
-               selected = TryNumber(1);
+            glk($0086, 8); ! set input style
+            print selected, "^";
+            glk($0086, 0); ! set input style
+
+!            ! read a line of input
+!            KeyboardPrimitive(buffer, parse);
+!
+!            ! Check for empty input, otherwise for a number. In any case,
+!            ! invalid input will set selected to something < 0.
+!            if (parse->(WORDSIZE - 1) == 0)
+!               selected = -1;
+!            else
+!               selected = TryNumber(1);
 
             ! disallow 0, if desired
             if (killz && selected == 0)

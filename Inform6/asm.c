@@ -2,7 +2,7 @@
 /*   "asm" : The Inform assembler                                            */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -177,6 +177,10 @@ extern char *variable_name(int32 i)
       if (i==251) return("self");
       if (i==250) return("sender");
       if (i==249) return("sw__var");
+      if (i >= 256 && i < 286)
+      {   if (i - 256 < NUMBER_SYSTEM_FUNCTIONS) return system_functions.keywords[i - 256];
+          return "<unnamed system function>";
+      }
     }
     else {
       switch (i - MAX_LOCAL_VARIABLES) {
@@ -228,7 +232,12 @@ static void print_operand_g(assembly_operand o)
     else
       printf("%s (local_%d)", variable_name(o.value), o.value-1); 
     return;
-  case SYSFUN_OT: printf("sysfun_"); break;
+  case SYSFUN_OT:
+    if (o.value >= 0 && o.value < NUMBER_SYSTEM_FUNCTIONS)
+      printf("%s", system_functions.keywords[o.value]);
+    else
+      printf("<unnamed system function>");
+    return;
   case OMITTED_OT: printf("<no value>"); return;
   default: printf("???_"); break; 
   }
@@ -1389,7 +1398,7 @@ extern int32 assemble_routine_header(int no_locals,
 
     if (veneer_mode) routine_starts_line = -1;
     else routine_starts_line = ErrorReport.line_number
-             + 0x10000*ErrorReport.file_number;
+             + FILE_LINE_SCALE_FACTOR*ErrorReport.file_number;
 
     if (asm_trace_level > 0)
     {   printf("\n%5d  +%05lx  [ %s ", ErrorReport.line_number,
@@ -1411,6 +1420,18 @@ extern int32 assemble_routine_header(int no_locals,
         write_debug_byte(0);
 
         routine_start_pc = zmachine_pc;
+    }
+
+    if (track_unused_routines) {
+        /* The name of an embedded function is in a temporary buffer,
+           so we shouldn't keep a reference to it. (It is sad that we
+           have to know this here.) */
+        char *funcname = name;
+        if (embedded_flag)
+            funcname = "<embedded>";
+
+        df_note_function_start(funcname, zmachine_pc, embedded_flag,
+                               routine_starts_line);
     }
 
     /*  Update the routine counter                                           */
@@ -1520,16 +1541,44 @@ extern int32 assemble_routine_header(int no_locals,
 
       next_label = 0; next_sequence_point = 0; last_label = -1; 
 
-      if (define_INFIX_switch) {
-        if (embedded_flag) {
-        }
-        else {
-            i = no_named_routines++;
-            named_routine_symbols[i] = the_symbol;
-        }
-      }
-    }
+      if ((routine_asterisked) || (define_INFIX_switch))
+      {   char fnt[80]; assembly_operand PV, CON, SLF; int ln2;
 
+          ln2 = next_label++;
+          if (define_INFIX_switch)
+          {
+            if (embedded_flag)
+            {   SLF.value = MAX_LOCAL_VARIABLES+4; SLF.type = GLOBALVAR_OT; SLF.marker = 0;
+                CON.value = 8; CON.type = BYTECONSTANT_OT; CON.marker = 0;
+            }
+            else
+            {   i = no_named_routines++;
+                  named_routine_symbols[i] = the_symbol;
+                CON.value = i; CON.type = CONSTANT_OT; CON.marker = 0;
+                SLF.value = routine_flags_array_SC;
+                SLF.type = CONSTANT_OT; SLF.marker = INCON_MV;
+            }
+            assembleg_3(aloadbit_gc, SLF, CON, stack_pointer);
+            assembleg_1_branch(jz_gc, stack_pointer, ln2);
+          }
+          CON.marker = STRING_MV; CON.type = CONSTANT_OT;
+          sprintf(fnt, "[ %s(", name);
+          CON.value  = compile_string(fnt, FALSE, FALSE);
+          assembleg_1(streamstr_gc, CON);
+          for (i=1; (i<=7)&&(i<=no_locals); i++)
+          {   sprintf(fnt, "%s%s = ", (i==1)?"":", ", variable_name(i));
+              CON.value  = compile_string(fnt, FALSE, FALSE);
+              assembleg_1(streamstr_gc, CON);
+              PV.type = LOCALVAR_OT; PV.value = i; PV.marker = 0;
+              assembleg_1(streamnum_gc, PV);
+          }
+          sprintf(fnt, ") ]^");
+          CON.value  = compile_string(fnt, FALSE, FALSE);
+          assembleg_1(streamstr_gc, CON);
+          assemble_label_no(ln2);
+       }
+    }
+	
     return rv;
 }
 
@@ -1566,6 +1615,9 @@ void assemble_routine_end(int embedded_flag, dbgl *line_ref)
       transfer_routine_z();
     else
       transfer_routine_g();
+
+    if (track_unused_routines)
+        df_note_function_end(zmachine_pc);
 
     /* Tell the debugging file about the routine just ended.                 */
 
@@ -2187,6 +2239,21 @@ void assemblez_4_to(int internal_number,
     AI.operand[1] = o2;
     AI.operand[2] = o3;
     AI.operand[3] = o4;
+    AI.store_variable_number = st.value;
+    AI.branch_label_number = -1;
+    assemblez_instruction(&AI);
+}
+
+void assemblez_5_to(int internal_number,
+    assembly_operand o1, assembly_operand o2, assembly_operand o3,
+    assembly_operand o4, assembly_operand o5, assembly_operand st)
+{   AI.internal_number = internal_number;
+    AI.operand_count = 5;
+    AI.operand[0] = o1;
+    AI.operand[1] = o2;
+    AI.operand[2] = o3;
+    AI.operand[3] = o4;
+    AI.operand[4] = o5;
     AI.store_variable_number = st.value;
     AI.branch_label_number = -1;
     assemblez_instruction(&AI);

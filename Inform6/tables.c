@@ -4,7 +4,7 @@
 /*               tables.                                                     */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -47,6 +47,7 @@ int32 code_offset,
       array_names_offset,
       prop_defaults_offset,
       prop_values_offset,
+	  prop_indiv_values_offset,
       static_memory_offset,
       attribute_names_offset,
       action_names_offset,
@@ -164,8 +165,8 @@ static int32 rough_size_of_paged_memory_z(void)
     for (i=0; i<no_Inform_verbs; i++)
         total += 2 + 1 +                        /* address of grammar table, */
                                                   /* number of grammar lines */
-                 (grammar_version_number == 1)?
-                 (8*Inform_verbs[i].lines):0;               /* grammar lines */
+                 ((grammar_version_number == 1)?
+                  (8*Inform_verbs[i].lines):0);             /* grammar lines */
 
     if (grammar_version_number != 1)
         total += grammar_lines_top;            /* size of grammar lines area */
@@ -211,6 +212,9 @@ static int32 rough_size_of_paged_memory_g(void)
     total += (no_actions + no_fake_actions) * 4;
     total += 4 + no_arrays * 4;
 
+    total += (no_globals + no_named_routines + no_named_constants) * 4;
+    total += 4 + no_named_routines / 8;
+
     total += 4 + no_Inform_verbs * 4; /* index of grammar tables */
     total += grammar_lines_top; /* grammar tables */
 
@@ -227,7 +231,7 @@ static int32 rough_size_of_paged_memory_g(void)
 
 static void construct_storyfile_z(void)
 {   uchar *p;
-    int32 i, j, k, l, mark, objs, strings_length,
+    int32 i, j, k, l, mark, objs, strings_length, code_length,
           limit, excess, extend_offset, headerext_length;
     int32 globals_at, link_table_at, dictionary_at, actions_at, preactions_at,
           abbrevs_at, prop_defaults_at, object_tree_at, object_props_at,
@@ -604,7 +608,15 @@ or less.");
     /*  -------------------------------------------------------------------- */
 
     Write_Code_At = mark;
-    mark += zmachine_pc;
+    if (!OMIT_UNUSED_ROUTINES) {
+        code_length = zmachine_pc;
+    }
+    else {
+        if (zmachine_pc != df_total_size_before_stripping)
+            compiler_error("Code size does not match (zmachine_pc and df_total_size).");
+        code_length = df_total_size_after_stripping;
+    }
+    mark += code_length;
 
     /*  ------------------ Another synchronising gap ----------------------- */
 
@@ -683,7 +695,7 @@ or less.");
          * With the standard memory model, we only need the earlier total size
          * check.
          */
-        excess = zmachine_pc + code_offset - (scale_factor*((int32) 0x10000L));
+        excess = code_length + code_offset - (scale_factor*((int32) 0x10000L));
         if (excess > 0)
         {   char code_full_error[80];
             sprintf(code_full_error,
@@ -838,14 +850,20 @@ or less.");
 
         mark = actions_at;
         for (i=0; i<no_actions; i++)
-        {   j=action_byte_offset[i] + code_offset/scale_factor;
+        {   j=action_byte_offset[i];
+            if (OMIT_UNUSED_ROUTINES)
+                j = df_stripped_address_for_address(j);
+            j += code_offset/scale_factor;
             p[mark++]=j/256; p[mark++]=j%256;
         }
 
         if (grammar_version_number == 1)
         {   mark = preactions_at;
             for (i=0; i<no_grammar_token_routines; i++)
-            {   j=grammar_token_routine[i] + code_offset/scale_factor;
+            {   j=grammar_token_routine[i];
+                if (OMIT_UNUSED_ROUTINES)
+                    j = df_stripped_address_for_address(j);
+                j += code_offset/scale_factor;
                 p[mark++]=j/256; p[mark++]=j%256;
             }
         }
@@ -866,6 +884,8 @@ or less.");
                                         + dictionary_offset + 7;
                                 break;
                             case 2:
+                                if (OMIT_UNUSED_ROUTINES)
+                                    value = df_stripped_address_for_address(value);
                                 value += code_offset/scale_factor;
                                 break;
                         }
@@ -933,6 +953,16 @@ Out:   Version %d \"%s\" %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
                  no_properties-2, ((version_number==3)?30:62),
                  no_individual_properties - 64);
 
+            if (track_unused_routines)
+            {
+                uint32 diff = df_total_size_before_stripping - df_total_size_after_stripping;
+                printf(
+"%6ld bytes of Z-code              %6ld unused bytes %s (%.1f%%)\n",
+                 (long int) df_total_size_before_stripping, (long int) diff,
+                 (OMIT_UNUSED_ROUTINES ? "stripped out" : "detected"),
+                 100 * (float)diff / (float)df_total_size_before_stripping);
+            }
+
             printf(
 "%6ld characters used in text      %6ld bytes compressed (rate %d.%3ld)\n\
 %6d abbreviations (maximum %d)   %6d routines (unlimited)\n\
@@ -950,6 +980,7 @@ Out:   Version %d \"%s\" %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
                  (long int) Out_Size,
                  (long int)
                       (((long int) (limit*1024L)) - ((long int) Out_Size)));
+
         }
     }
 
@@ -1102,7 +1133,7 @@ printf("        +---------------------+   %05lx\n", (long int) Out_Size);
     if (percentages_switch)
     {   printf("Approximate percentage breakdown of %s:\n",
                 output_called);
-        percentage("Z-code",                zmachine_pc,Out_Size);
+        percentage("Z-code",             code_length,Out_Size);
         if (module_switch)
             percentage("Linking data",   link_data_size,Out_Size);
         percentage("Static strings",     strings_length,Out_Size);
@@ -1141,7 +1172,7 @@ static void construct_storyfile_g(void)
           abbrevs_at, prop_defaults_at, object_tree_at, object_props_at,
           grammar_table_at, charset_at, headerext_at,
           unicode_at, arrays_at;
-    int32 threespaces;
+    int32 threespaces, code_length;
     char *output_called = (module_switch)?"module":"story file";
 
     ASSERT_GLULX();
@@ -1189,7 +1220,15 @@ static void construct_storyfile_g(void)
        memory layout. This is why the code starts eight bytes after
        the header. */
     Write_Code_At = GLULX_HEADER_SIZE + GLULX_STATIC_ROM_SIZE;
-    Write_Strings_At = Write_Code_At + zmachine_pc;
+    if (!OMIT_UNUSED_ROUTINES) {
+        code_length = zmachine_pc;
+    }
+    else {
+        if (zmachine_pc != df_total_size_before_stripping)
+            compiler_error("Code size does not match (zmachine_pc and df_total_size).");
+        code_length = df_total_size_after_stripping;
+    }
+    Write_Strings_At = Write_Code_At + code_length;
     strings_length = compression_table_size + compression_string_size;
 
     /* Now figure out where RAM starts. */
@@ -1329,7 +1368,7 @@ static void construct_storyfile_g(void)
     WriteInt32(p+mark, 0);
     mark += 4;
 
-    /* -------------------- Table of Property Names ------------------------ */
+    /* --------- Table of Property and Identifier Names -------------------- */
 
     /* We try to format this bit with some regularity...
        address of common properties
@@ -1358,6 +1397,11 @@ static void construct_storyfile_g(void)
     WriteInt32(p+identifier_names_offset+8, Write_RAM_At + mark);
     WriteInt32(p+identifier_names_offset+12, 
       no_individual_properties-INDIV_PROP_START);
+	
+	// The Common properties table has a fixed size of 64 elements.
+	//printf ("Common properties: %u, Indiv properties: %u, Start of Individual properties: %u\n",no_properties,INDIV_PROP_START,no_individual_properties);
+	//mark = mark + 4*((INDIV_PROP_START/4)-no_properties); // Leave 64 elements for common properties
+	prop_indiv_values_offset = mark;
     for (i=INDIV_PROP_START; i<no_individual_properties; i++) {
       j = individual_name_strings[i];
       if (j)
@@ -1368,7 +1412,8 @@ static void construct_storyfile_g(void)
 
     WriteInt32(p+identifier_names_offset+16, Write_RAM_At + mark);
     WriteInt32(p+identifier_names_offset+20, NUM_ATTR_BYTES*8);
-    for (i=0; i<NUM_ATTR_BYTES*8; i++) {
+    attribute_names_offset = mark;
+	for (i=0; i<NUM_ATTR_BYTES*8; i++) {
       j = attribute_name_strings[i];
       if (j)
         j = Write_Strings_At + compressed_offsets[j-1];
@@ -1391,13 +1436,34 @@ static void construct_storyfile_g(void)
     array_names_offset = mark;
     WriteInt32(p+mark, no_arrays);
     mark += 4;
-    for (i=0; i<no_arrays; i++) {
-      j = array_name_strings[i];
-      if (j)
-        j = Write_Strings_At + compressed_offsets[j-1];
-      WriteInt32(p+mark, j);
-      mark += 4;
-    }    
+
+    array_names_offset = mark;
+    global_names_offset = mark + 4*no_arrays;
+    routine_names_offset = global_names_offset + 4*no_globals;
+    constant_names_offset = routine_names_offset + 4*no_named_routines;
+
+    for (i=0; i<no_arrays + no_globals
+                    + no_named_routines + no_named_constants; i++)
+    {   if ((i == no_arrays) && (define_INFIX_switch == FALSE)) break;
+        j = array_name_strings[i];
+        if (j)
+            j = Write_Strings_At + compressed_offsets[j-1];
+        WriteInt32(p+mark, j);
+        mark += 4;
+    }
+
+    routine_flags_array_offset = mark;
+
+    if (define_INFIX_switch)
+    {   for (i=0, k=1, l=0; i<no_named_routines; i++)
+        {   if (sflags[named_routine_symbols[i]] & STAR_SFLAG) l=l+k;
+            k=k*2;
+            if (k==256) { p[mark++] = l; k=1; l=0; }
+        }
+        if (k!=1) p[mark++]=l;
+    }
+    while (mark % 4 >0) mark++;
+
 
     individuals_offset = mark;
 
@@ -1509,7 +1575,10 @@ table format requested (producing number 2 format instead)");
 
         mark = actions_at + 4;
         for (i=0; i<no_actions; i++) {
-          j = action_byte_offset[i] + code_offset;
+          j = action_byte_offset[i];
+          if (OMIT_UNUSED_ROUTINES)
+            j = df_stripped_address_for_address(j);
+          j += code_offset;
           WriteInt32(p+mark, j);
           mark += 4;
         }
@@ -1532,6 +1601,8 @@ table format requested (producing number 2 format instead)");
                   + final_dict_order[value]*DICT_ENTRY_BYTE_LENGTH;
                 break;
               case 2:
+                if (OMIT_UNUSED_ROUTINES)
+                  value = df_stripped_address_for_address(value);
                 value += code_offset;
                 break;
               }
@@ -1551,8 +1622,8 @@ table format requested (producing number 2 format instead)");
         k_long=(Out_Size/1024);
         if ((Out_Size-1024*k_long) >= 512) { k_long++; k_str=""; }
         else if ((Out_Size-1024*k_long) > 0) { k_str=".5"; }
-        if (total_bytes_trans == 0) rate = 0;
-        else rate=total_bytes_trans*1000/total_chars_trans;
+        if (strings_length == 0) rate = 0;
+        else rate=strings_length*1000/total_chars_trans;
 
         {   printf("In:\
 %3d source code files            %6d syntactic lines\n\
@@ -1603,6 +1674,16 @@ Out:   %s %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
                  no_properties-2, ((version_number==3)?30:62),
                  no_individual_properties - 64);
 
+            if (track_unused_routines)
+            {
+                uint32 diff = df_total_size_before_stripping - df_total_size_after_stripping;
+                printf(
+"%6ld bytes of code                %6ld unused bytes %s (%.1f%%)\n",
+                 (long int) df_total_size_before_stripping, (long int) diff,
+                 (OMIT_UNUSED_ROUTINES ? "stripped out" : "detected"),
+                 100 * (float)diff / (float)df_total_size_before_stripping);
+            }
+
             printf(
 "%6ld characters used in text      %6ld bytes compressed (rate %d.%3ld)\n\
 %6d abbreviations (maximum %d)   %6d routines (unlimited)\n\
@@ -1610,8 +1691,8 @@ Out:   %s %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
 %6ld bytes readable memory used (maximum 65536)\n\
 %6ld bytes used in machine    %10ld bytes free in machine\n",
                  (long int) total_chars_trans,
-                 (long int) total_bytes_trans,
-                 (total_chars_trans>total_bytes_trans)?0:1,
+                 (long int) strings_length,
+                 (total_chars_trans>strings_length)?0:1,
                  (long int) rate,
                  no_abbreviations, MAX_ABBREVS,
                  no_routines,
@@ -1620,6 +1701,7 @@ Out:   %s %s %d.%c%c%c%c%c%c (%ld%sK long):\n",
                  (long int) Out_Size,
                  (long int)
                       (((long int) (limit*1024L)) - ((long int) Out_Size)));
+
         }
     }
 
@@ -1769,7 +1851,7 @@ printf("        +---------------------+   %06lx\n", (long int) Out_Size);
     if (percentages_switch)
     {   printf("Approximate percentage breakdown of %s:\n",
                 output_called);
-        percentage("Code",                zmachine_pc,Out_Size);
+        percentage("Code",               code_length,Out_Size);
         if (module_switch)
             percentage("Linking data",   link_data_size,Out_Size);
         percentage("Static strings",     strings_length,Out_Size);
@@ -1779,7 +1861,7 @@ printf("        +---------------------+   %06lx\n", (long int) Out_Size);
         percentage("Parsing tables",   dictionary_at-grammar_table_at,Out_Size);
         percentage("Header and synonyms", prop_defaults_at,Out_Size);
         percentage("Total of save area", grammar_table_at,Out_Size);
-        percentage("Total of text",      total_bytes_trans,Out_Size);
+        percentage("Total of text",      strings_length,Out_Size);
     }
     if (frequencies_switch)
     {

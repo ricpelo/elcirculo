@@ -2,7 +2,7 @@
 /*   "lexer" : Lexical analyser                                              */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -19,7 +19,8 @@ int total_source_line_count,            /* Number of source lines so far     */
                                            token type DQ_TT, i.e., as if
                                            they had double-quotes around)
                                            and not as entries in the symbol
-                                           table, when TRUE                  */
+                                           table, when TRUE. If -2, only the
+                                           keyword table is searched.        */
     return_sp_as_variable;              /* When TRUE, the word "sp" denotes
                                            the stack pointer variable
                                            (used in assembly language only)  */
@@ -294,7 +295,7 @@ keyword_group directives =
     "iffalse", "import", "include", "link", "lowstring", "message",
     "nearby", "object", "property", "release", "replace",
     "serial", "switches", "statusline", "stub", "system_file", "trace",
-    "verb", "version", "zcharacter",
+    "undef", "verb", "version", "zcharacter",
     "" },
     DIRECTIVE_TT, FALSE, FALSE
 };
@@ -504,7 +505,7 @@ extern void construct_local_variable_tables(void)
     for (i=0; i<no_locals; i++)
     {   char *q = local_variables.keywords[i];
         if (q[1] == 0)
-        {   one_letter_locals[q[0]] = i;
+        {   one_letter_locals[(uchar)q[0]] = i;
             if (isupper(q[0])) one_letter_locals[tolower(q[0])] = i;
             if (islower(q[0])) one_letter_locals[toupper(q[0])] = i;
         }
@@ -541,7 +542,7 @@ static void interpret_identifier(int pos, int dirs_only_flag)
 
     if (local_variables.enabled)
     {   if (p[1]==0)
-        {   index = one_letter_locals[p[0]];
+        {   index = one_letter_locals[(uchar)p[0]];
             if (index<MAX_LOCAL_VARIABLES)
             {   circle[pos].type = LOCAL_VARIABLE_TT;
                 circle[pos].value = index+1;
@@ -1314,7 +1315,7 @@ extern void get_next_token(void)
             *lex_p++ = 0;
             circle[circle_position].type = NUMBER_TT;
             circle[circle_position].value = n;
-            if (!glulx_mode) error("Floating-point literals are not available in Z-code");
+            if (!glulx_mode && dont_enter_into_symbol_table != -2) error("Floating-point literals are not available in Z-code");
             break;
 
         case RADIX_CODE:

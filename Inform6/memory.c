@@ -3,7 +3,7 @@
 /*              (For "memoryerror", see "errors.c")                          */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -12,6 +12,7 @@
 int32 malloced_bytes=0;                /* Total amount of memory allocated   */
 
 #ifdef PC_QUICKC
+
 extern void *my_malloc(int32 size, char *whatfor)
 {   char _huge *c;
     if (memout_switch)
@@ -21,6 +22,26 @@ extern void *my_malloc(int32 size, char *whatfor)
     if (c==0) memory_out_error(size, 1, whatfor);
     return(c);
 }
+
+extern void my_realloc(void *pointer, int32 oldsize, int32 size, 
+    char *whatfor)
+{   char _huge *c;
+    if (size==0) {
+        my_free(pointer, whatfor);
+        return;
+    }
+    c=halloc(size,1); malloced_bytes+=size;
+    if (c==0) memory_out_error(size, 1, whatfor);
+    if (memout_switch)
+        printf("Increasing allocation to %ld bytes for %s was (%08lx) \
+now (%08lx)\n",
+            (long int) size,whatfor,(long int) (*(int **)pointer), 
+            (long int) c);
+    memcpy(c, *(int **)pointer, MIN(oldsize, size));
+    hfree(*(int **)pointer);
+    *(int **)pointer = c;
+}
+
 extern void *my_calloc(int32 size, int32 howmany, char *whatfor)
 {   void _huge *c;
     if (memout_switch)
@@ -31,7 +52,29 @@ extern void *my_calloc(int32 size, int32 howmany, char *whatfor)
     if (c==0) memory_out_error(size, howmany, whatfor);
     return(c);
 }
+
+extern void my_recalloc(void *pointer, int32 size, int32 oldhowmany, 
+    int32 howmany, char *whatfor)
+{   void _huge *c;
+    if (size*howmany==0) {
+        my_free(pointer, whatfor);
+        return;
+    }
+    c=(void _huge *)halloc(size*howmany,1); malloced_bytes+=size*howmany;
+    if (c==0) memory_out_error(size, howmany, whatfor);
+    if (memout_switch)
+        printf("Increasing allocation to %ld bytes: array (%ld entries size %ld) \
+for %s was (%08lx) now (%08lx)\n",
+            ((long int)size) * ((long int)howmany),
+            (long int)howmany,(long int)size,whatfor,
+            (long int) *(int **)pointer, (long int) c);
+    memcpy(c, *(int **)pointer, MIN(size*oldhowmany, size*howmany));
+    hfree(*(int **)pointer);
+    *(int **)pointer = c;
+}
+
 #else
+
 extern void *my_malloc(int32 size, char *whatfor)
 {   char *c;
     if (size==0) return(NULL);
@@ -42,6 +85,24 @@ extern void *my_malloc(int32 size, char *whatfor)
             (long int) size,whatfor,(long int) c);
     return(c);
 }
+
+extern void my_realloc(void *pointer, int32 oldsize, int32 size, 
+    char *whatfor)
+{   void *c;
+    if (size==0) {
+        my_free(pointer, whatfor);
+        return;
+    }
+    c=realloc(*(int **)pointer, (size_t) size); malloced_bytes+=size;
+    if (c==0) memory_out_error(size, 1, whatfor);
+    if (memout_switch)
+        printf("Increasing allocation to %ld bytes for %s was (%08lx) \
+now (%08lx)\n",
+            (long int) size,whatfor,(long int) (*(int **)pointer), 
+            (long int) c);
+    *(int **)pointer = c;
+}
+
 extern void *my_calloc(int32 size, int32 howmany, char *whatfor)
 {   void *c;
     if (size*howmany==0) return(NULL);
@@ -55,6 +116,26 @@ for %s at (%08lx)\n",
             (long int) c);
     return(c);
 }
+
+extern void my_recalloc(void *pointer, int32 size, int32 oldhowmany, 
+    int32 howmany, char *whatfor)
+{   void *c;
+    if (size*howmany==0) {
+        my_free(pointer, whatfor);
+        return;
+    }
+    c=realloc(*(int **)pointer, (size_t)size*(size_t)howmany); 
+    malloced_bytes+=size*howmany;
+    if (c==0) memory_out_error(size, howmany, whatfor);
+    if (memout_switch)
+        printf("Increasing allocation to %ld bytes: array (%ld entries size %ld) \
+for %s was (%08lx) now (%08lx)\n",
+            ((long int)size) * ((long int)howmany),
+            (long int)howmany,(long int)size,whatfor,
+            (long int) *(int **)pointer, (long int) c);
+    *(int **)pointer = c;
+}
+
 #endif
 
 extern void my_free(void *pointer, char *whatitwas)
@@ -179,6 +260,8 @@ int32 MAX_UNICODE_CHARS;
 int32 MAX_STACK_SIZE;
 int32 MEMORY_MAP_EXTENSION;
 int ALLOC_CHUNK_SIZE;
+int WARN_UNUSED_ROUTINES; /* 0: no, 1: yes except in system files, 2: yes always */
+int OMIT_UNUSED_ROUTINES; /* 0: no, 1: yes */
 
 /* The way memory sizes are set causes great nuisance for those parameters
    which have different defaults under Z-code and Glulx. We have to get
@@ -251,6 +334,8 @@ static void list_memory_sizes(void)
     if (glulx_mode)
       printf("|  %25s = %-7ld |\n","MAX_UNICODE_CHARS",
            (long int) MAX_UNICODE_CHARS);
+    printf("|  %25s = %-7d |\n","WARN_UNUSED_ROUTINES",WARN_UNUSED_ROUTINES);
+    printf("|  %25s = %-7d |\n","OMIT_UNUSED_ROUTINES",OMIT_UNUSED_ROUTINES);
     printf("|  %25s = %-7d |\n","MAX_VERBS",MAX_VERBS);
     printf("|  %25s = %-7d |\n","MAX_VERBSPACE",MAX_VERBSPACE);
     printf("|  %25s = %-7ld |\n","MAX_ZCODE_SIZE",
@@ -429,6 +514,8 @@ extern void set_memory_sizes(int size_flag)
        size. Note that Inform 7 wants more stack, so if you're
        compiling an I7 game, crank this up. */
     MAX_STACK_SIZE = 4096;
+    OMIT_UNUSED_ROUTINES = 0;
+    WARN_UNUSED_ROUTINES = 0;
 
     adjust_memory_sizes();
 }
@@ -714,6 +801,22 @@ static void explain_parameter(char *command)
   memory after the game file. (Glulx only)\n");
         return;
     }
+    if (strcmp(command,"WARN_UNUSED_ROUTINES")==0)
+    {
+        printf(
+"  WARN_UNUSED_ROUTINES, if set to 2, will display a warning for each \n\
+  routine in the game file which is never called. (This includes \n\
+  routines called only from uncalled routines, etc.) If set to 1, will warn \n\
+  only about functions in game code, not in the system library.\n");
+        return;
+    }
+    if (strcmp(command,"OMIT_UNUSED_ROUTINES")==0)
+    {
+        printf(
+"  OMIT_UNUSED_ROUTINES, if set to 1, will avoid compiling unused routines \n\
+  into the game file.\n");
+        return;
+    }
 
     printf("No such memory setting as \"%s\"\n",command);
 
@@ -864,6 +967,18 @@ extern void memory_command(char *command)
                 MEMORY_MAP_EXTENSION=j, flag=1;
                 /* Adjust up to a 256-byte boundary. */
                 MEMORY_MAP_EXTENSION = (MEMORY_MAP_EXTENSION + 0xFF) & (~0xFF);
+            }
+            if (strcmp(command,"WARN_UNUSED_ROUTINES")==0)
+            {
+                WARN_UNUSED_ROUTINES=j, flag=1;
+                if (WARN_UNUSED_ROUTINES > 2 || WARN_UNUSED_ROUTINES < 0)
+                    WARN_UNUSED_ROUTINES = 2;
+            }
+            if (strcmp(command,"OMIT_UNUSED_ROUTINES")==0)
+            {
+                OMIT_UNUSED_ROUTINES=j, flag=1;
+                if (OMIT_UNUSED_ROUTINES > 1 || OMIT_UNUSED_ROUTINES < 0)
+                    OMIT_UNUSED_ROUTINES = 1;
             }
 
             if (flag==0)

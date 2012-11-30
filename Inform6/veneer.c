@@ -4,7 +4,7 @@
 /*              provide                                                      */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -146,7 +146,8 @@ static VeneerRoutine VRs_z[VENEER_ROUTINES] =
         legal syntaxes (such as <<Action a b>>;) are used.                   */
 
     {   "R_Process",
-        "a b c; print \"Action <\", a, \" \", b, \" \", c, \">^\";\
+        "a b c d; print \"Action <\", a, \" \", b, \" \", c;\
+         if (d) print \", \", d; print \">^\";\
          ]", "", "", "", "", ""
     },
     {   "DefArt",
@@ -922,7 +923,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
         legal syntaxes (such as <<Action a b>>;) are used.                   */
 
     {   "R_Process",
-        "a b c; print \"Action <\", a, \" \", b, \" \", c, \">^\";\
+        "a b c d; print \"Action <\", a, \" \", b, \" \", c;\
+         if (d) print \", \", d; print \">^\";\
          ]", "", "", "", "", ""
     },
     {   "DefArt",
@@ -1020,7 +1022,7 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
             the need for a full metaclass inheritance scheme.
         */
         "CA__Pr",
-        "_vararg_count obj id zr s s2 z addr len m val;\
+        "_vararg_count obj id zr z s s2 addr len m n val;\
            @copy sp obj;\
            @copy sp id;\
            _vararg_count = _vararg_count - 2;\
@@ -1045,7 +1047,8 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
                  @copy sp len;\
                }\
                else {\
-                 RT__Err(37); rfalse;\
+                 @copy sp m;\
+                 len = $7FFFFFFF;\
                }\
                s2 = glk($0048);\
                s = glk($0043, m+4, len-4, 1, 0);",
@@ -1067,20 +1070,20 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
            }",
         "  if (zr ~= 1)\
              jump Call__Error;\
-           #ifdef DEBUG;#ifdef InformLibrary;\
-           if (debug_flag & 1 ~= 0) {\
-             debug_flag--;\
-             print \"[ ~\", (name) obj, \"~.\", (property) id, \"(\";\
+           #ifdef INFIX;if (obj has infix__watching) n=1;#endif;\
+           #ifdef DEBUG;#ifdef InformLibrary;if (debug_flag & 1 ~= 0) n=1;#endif;#endif;\
+           if (n==1) {\
+             #ifdef DEBUG_FLAG;n=debug_flag & 1; debug_flag=debug_flag-n;#endif;\
+		   print \"[ ~\", (name) obj, \"~.\", (property) id, \"(\";\
              @stkcopy _vararg_count;\
              for (val=0 : val < _vararg_count : val++) {\
                if (val) print \", \";\
                @streamnum sp;\
              }\
              print \") ]^\";\
-             debug_flag++;\
+             #ifdef DEBUG_FLAG;debug_flag = debug_flag + n;#endif;\
            }\
-           #endif;#endif;\
-           if (obj in Class) {\
+		   if (obj in Class) {\
              switch (id) {\
                remaining:\
                  return Cl__Ms(obj, id);\
@@ -1402,7 +1405,7 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
          \" in the\"; switch(size&7){0,1:q=0; 2:print \" string\";\
          q=1; 3:print \" table\";q=1; 4:print \" buffer\";q=WORDSIZE;} \
          if(size&16) print\" (->)\"; if(size&8) print\" (-->)\";\
-         \" array ~\", (string) #array_names_offset-->(p+1),\
+         \" array ~\", (string) #array_names_offset-->(p),\
          \"~, which has entries \", q, \" up to \",id,\" **]\"; }\
          if (crime >= 24 && crime <=27) { if (crime<=25) print \"read\";\
          else print \"write\"; print \" outside memory using \";\
@@ -2167,6 +2170,11 @@ static void compile_symbol_table_routine(void)
     assembly_operand AO, AO2, AO3; dbgl null_dbgl;
     null_dbgl.b1 = 0; null_dbgl.b2 = 0; null_dbgl.b3 = 0; null_dbgl.cc = 0;
 
+    /* Assign local var names for the benefit of the debugging information 
+       file. */
+    local_variable_texts[0] = "dummy1";
+    local_variable_texts[1] = "dummy2";
+
     veneer_mode = TRUE; j = symbol_index("Symb__Tab", -1);
     assign_symbol(j,
         assemble_routine_header(2, FALSE, "Symb__Tab", &null_dbgl, FALSE, j),
@@ -2295,7 +2303,111 @@ static void compile_symbol_table_routine(void)
         return;
     }
 
-    error("*** Infix symbol-table routine is not yet implemented. ***");
+    AO.value = 1; AO.type = LOCALVAR_OT; AO.marker = 0;
+    AO2.type = BYTECONSTANT_OT; AO2.marker = 0;
+    AO3.type = CONSTANT_OT; AO3.marker = 0;
+
+    arrays_l = next_label++;
+    routines_l = next_label++;
+    constants_l = next_label++;
+
+    sequence_point_follows = FALSE;
+    AO2.value = 1;
+    assembleg_2_branch(jeq_gc, AO, AO2, arrays_l);
+    sequence_point_follows = FALSE;
+    AO2.value = 2;
+    assembleg_2_branch(jeq_gc, AO, AO2, routines_l);
+    sequence_point_follows = FALSE;
+    AO2.value = 3;
+    assembleg_2_branch(jeq_gc, AO, AO2, constants_l);
+    sequence_point_follows = FALSE;
+    assembleg_1(return_gc, one_operand);
+
+    assemble_label_no(arrays_l);
+    AO.value = 2;
+    for (j=0; j<no_arrays; j++)
+    {   {   AO2.value = j;
+            if (AO2.value<128) AO2.type = BYTECONSTANT_OT;
+            else if (AO2.value<32768) AO2.type = HALFCONSTANT_OT;
+            else AO2.type = CONSTANT_OT;
+            nl = next_label++;
+            sequence_point_follows = FALSE;
+            assembleg_2_branch(jne_gc, AO, AO2, nl);
+            AO3.value = array_sizes[j];
+            AO3.marker = 0;
+            assembleg_store(temp_var2, AO3);
+            AO3.value = array_types[j];
+            if (sflags[array_symbols[j]] & (INSF_SFLAG+SYSTEM_SFLAG))
+                AO3.value = AO3.value + 16;
+            AO3.marker = 0;
+            assembleg_store(temp_var3, AO3);
+            AO3.value = svals[array_symbols[j]];
+            AO3.marker = ARRAY_MV;
+            assembleg_1(return_gc, AO3);
+            assemble_label_no(nl);
+        }
+    }
+    sequence_point_follows = FALSE;
+    assembleg_1(return_gc, one_operand);
+
+    assemble_label_no(routines_l);
+    for (j=0; j<no_named_routines; j++)
+    {   AO2.value = j;
+        if (AO2.value<128) AO2.type = BYTECONSTANT_OT;
+        else if (AO2.value<32768) AO2.type = HALFCONSTANT_OT;
+        else AO2.type = CONSTANT_OT;
+        nl = next_label++;
+        sequence_point_follows = FALSE;
+        assembleg_2_branch(jne_gc, AO, AO2, nl);
+        AO3.value = 0;
+        if (sflags[named_routine_symbols[j]]
+            & (INSF_SFLAG+SYSTEM_SFLAG)) AO3.value = 16;
+        AO3.marker = 0;
+        assembleg_store(temp_var3, AO3);
+        AO3.value = svals[named_routine_symbols[j]];
+        AO3.marker = IROUTINE_MV;
+        assembleg_1(return_gc, AO3);
+        assemble_label_no(nl);
+    }
+    sequence_point_follows = FALSE;
+    assembleg_1(return_gc, one_operand);
+
+    assemble_label_no(constants_l);
+    for (j=0, no_named_constants=0; j<no_symbols; j++)
+    {   if (((stypes[j] == OBJECT_T) || (stypes[j] == CLASS_T)
+            || (stypes[j] == CONSTANT_T))
+            && ((sflags[j] & (UNKNOWN_SFLAG+ACTION_SFLAG))==0))
+        {   AO2.value = no_named_constants++;
+            if (AO2.value<128) AO2.type = BYTECONSTANT_OT;
+            else if (AO2.value<32768) AO2.type = HALFCONSTANT_OT;
+            else AO2.type = CONSTANT_OT;
+            nl = next_label++;
+            sequence_point_follows = FALSE;
+            assembleg_2_branch(jne_gc, AO, AO2, nl);
+            AO3.value = 0;
+            if (stypes[j] == OBJECT_T) AO3.value = 2;
+            if (stypes[j] == CLASS_T) AO3.value = 1;
+            if (sflags[j] & (INSF_SFLAG+SYSTEM_SFLAG))
+                AO3.value = AO3.value + 16;
+            AO3.marker = 0;
+            assembleg_store(temp_var3, AO3);
+            AO3.value = j;
+            AO3.marker = SYMBOL_MV;
+            assembleg_1(return_gc, AO3);
+            assemble_label_no(nl);
+        }
+    }
+    no_named_constants = 0; AO3.marker = 0;
+
+    sequence_point_follows = FALSE;
+    assembleg_1(return_gc, zero_operand);
+    variable_usage[1] = TRUE;
+    variable_usage[2] = TRUE;
+    assemble_routine_end(FALSE, &null_dbgl);
+    veneer_mode = FALSE;
+
+
+
   }
 }
 

@@ -7,7 +7,7 @@
 /*                    specifications for the object-maker.                   */
 /*                                                                           */
 /*   Part of Inform 6.32                                                     */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
@@ -98,7 +98,9 @@ extern void make_attribute(void)
 game to get an extra 16)");
         else
             error("All 48 attributes already declared");
-        panic_mode_error_recovery(); return;
+        panic_mode_error_recovery();
+        put_token_back();
+        return;
     }
  }
  else {
@@ -108,6 +110,7 @@ game to get an extra 16)");
 more than", 
         NUM_ATTR_BYTES*8);
       panic_mode_error_recovery(); 
+      put_token_back();
       return;
     }
  }
@@ -116,7 +119,9 @@ more than",
     i = token_value; name = token_text;
     if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
     {   ebf_error("new attribute name", token_text);
-        panic_mode_error_recovery(); return;
+        panic_mode_error_recovery(); 
+        put_token_back();
+        return;
     }
 
     directive_keywords.enabled = TRUE;
@@ -128,7 +133,10 @@ more than",
         if (!((token_type == SYMBOL_TT)
               && (stypes[token_value] == ATTRIBUTE_T)))
         {   ebf_error("an existing attribute name after 'alias'",
-                token_text); panic_mode_error_recovery(); return;
+                token_text);
+            panic_mode_error_recovery();
+            put_token_back();
+            return;
         }
         assign_symbol(i, svals[token_value], ATTRIBUTE_T);
         sflags[token_value] |= ALIASED_SFLAG;
@@ -155,7 +163,9 @@ extern void make_property(void)
 Advanced game to get an extra 62)");
             else
                 error("All 62 properties already declared");
-            panic_mode_error_recovery(); return;
+            panic_mode_error_recovery();
+            put_token_back();
+            return;
         }
     }
     else {
@@ -164,6 +174,7 @@ Advanced game to get an extra 62)");
             error_numbered("All properties already declared -- max is",
                 INDIV_PROP_START);
             panic_mode_error_recovery(); 
+            put_token_back();
             return;
         }
     }
@@ -186,7 +197,9 @@ Advanced game to get an extra 62)");
     i = token_value; name = token_text;
     if ((token_type != SYMBOL_TT) || (!(sflags[i] & UNKNOWN_SFLAG)))
     {   ebf_error("new property name", token_text);
-        panic_mode_error_recovery(); return;
+        panic_mode_error_recovery();
+        put_token_back();
+        return;
     }
 
     directive_keywords.enabled = TRUE;
@@ -199,13 +212,17 @@ Advanced game to get an extra 62)");
     {   if (additive_flag)
         {   error("'alias' incompatible with 'additive'");
             panic_mode_error_recovery();
+            put_token_back();
             return;
         }
         get_next_token();
         if (!((token_type == SYMBOL_TT)
             && (stypes[token_value] == PROPERTY_T)))
         {   ebf_error("an existing property name after 'alias'",
-                token_text); panic_mode_error_recovery(); return;
+                token_text);
+            panic_mode_error_recovery();
+            put_token_back();
+            return;
         }
 
         assign_symbol(i, svals[token_value], PROPERTY_T);
@@ -961,7 +978,17 @@ static void manufacture_object_g(void)
 /*   Properties ("with" or "private") segment.                               */
 /* ------------------------------------------------------------------------- */
 
-static int defined_this_segment[128], def_t_s;
+static int *defined_this_segment;
+static long defined_this_segment_size; /* calloc size */
+static int def_t_s;
+
+static void ensure_defined_this_segment(int newsize)
+{
+    int oldsize = defined_this_segment_size;
+    defined_this_segment_size = newsize;
+    my_recalloc(&defined_this_segment, sizeof(int), oldsize,
+        defined_this_segment_size, "defined this segment table");
+}
 
 static void properties_segment_z(int this_segment)
 {
@@ -977,7 +1004,7 @@ static void properties_segment_z(int this_segment)
           individual_property, this_identifier_number;
 
     do
-    {   get_next_token();
+    {   get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1011,6 +1038,8 @@ and may not be used as a property name too",
                 }
             }
 
+            if (def_t_s >= defined_this_segment_size)
+                ensure_defined_this_segment(def_t_s*2);
             defined_this_segment[def_t_s++] = token_value;
 
             if (individual_prop_table_size++ == 0)
@@ -1040,6 +1069,8 @@ and may not be used as a property name too",
             if (this_segment == PRIVATE_SEGMENT)
                 error_named("Property should be declared in 'with', \
 not 'private':", token_text);
+            if (def_t_s >= defined_this_segment_size)
+                ensure_defined_this_segment(def_t_s*2);
             defined_this_segment[def_t_s++] = token_value;
             property_number = svals[token_value];
 
@@ -1069,7 +1100,7 @@ the names '%s' and '%s' actually refer to the same property",
         length=0;
         do
         {   assembly_operand AO;
-            get_next_token();
+            get_next_token_with_directives();
             if ((token_type == EOF_TT)
                 || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                 || ((token_type == SEP_TT) && (token_value == COMMA_SEP)))
@@ -1232,7 +1263,7 @@ static void properties_segment_g(int this_segment)
     int32 property_name_symbol, property_number, length;
 
     do
-    {   get_next_token();
+    {   get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1266,6 +1297,8 @@ and may not be used as a property name too",
                 }
             }
 
+            if (def_t_s >= defined_this_segment_size)
+                ensure_defined_this_segment(def_t_s*2);
             defined_this_segment[def_t_s++] = token_value;
             property_number = svals[token_value];
 
@@ -1286,6 +1319,8 @@ and may not be used as a property name too",
                 error_named("Property should be declared in 'with', \
 not 'private':", token_text);
 
+            if (def_t_s >= defined_this_segment_size)
+                ensure_defined_this_segment(def_t_s*2);
             defined_this_segment[def_t_s++] = token_value;
             property_number = svals[token_value];
 
@@ -1323,7 +1358,7 @@ the names '%s' and '%s' actually refer to the same property",
         length=0;
         do
         {   assembly_operand AO;
-            get_next_token();
+            get_next_token_with_directives();
             if ((token_type == EOF_TT)
                 || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP))
                 || ((token_type == SEP_TT) && (token_value == COMMA_SEP)))
@@ -1466,7 +1501,7 @@ static void attributes_segment(void)
 
         ParseAttrN:
 
-        get_next_token();
+        get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1553,7 +1588,7 @@ static void classes_segment(void)
         <class-1> ... <class-n>                                              */
 
     do
-    {   get_next_token();
+    {   get_next_token_with_directives();
         if ((token_type == SEGMENT_MARKER_TT)
             || (token_type == EOF_TT)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
@@ -1584,7 +1619,7 @@ static void parse_body_of_definition(void)
     do
     {   commas_in_row = -1;
         do
-        {   get_next_token(); commas_in_row++;
+        {   get_next_token_with_directives(); commas_in_row++;
         } while ((token_type == SEP_TT) && (token_value == COMMA_SEP));
 
         if (commas_in_row>1)
@@ -1594,6 +1629,8 @@ static void parse_body_of_definition(void)
             || ((token_type == SEP_TT) && (token_value == SEMICOLON_SEP)))
         {   if (commas_in_row > 0)
                 error("Object/class definition finishes with ','");
+            if (token_type == EOF_TT)
+                error("Object/class definition incomplete (no ';') at end of file");
             break;
         }
 
@@ -1662,7 +1699,7 @@ extern void make_class(char * metaclass_name)
     if (no_classes==VENEER_CONSTRAINT_ON_CLASSES)
         fatalerror("Inform's maximum possible number of classes (whatever \
 amount of memory is allocated) has been reached. If this causes serious \
-inconvenience, please contact the author.");
+inconvenience, please contact the maintainers.");
 
     directives.enabled = FALSE;
 
@@ -1877,7 +1914,7 @@ extern void make_object(int nearby_flag,
     /*  The next word is either a parent object, or
         a textual short name, or the end of the header part                  */
 
-    get_next_token();
+    get_next_token_with_directives();
     if (end_of_header()) goto HeaderPassed;
 
     if (token_type == DQ_TT)
@@ -1917,7 +1954,7 @@ extern void make_object(int nearby_flag,
 
     /*  Now it really has to be the body of the definition.                  */
 
-    get_next_token();
+    get_next_token_with_directives();
     if (end_of_header()) goto HeaderPassed;
 
     ebf_error("body of object definition", token_text);
@@ -2086,6 +2123,10 @@ extern void objects_allocate_arrays(void)
     individuals_table     = my_malloc(MAX_INDIV_PROP_TABLE_SIZE,
                                 "individual properties table");
 
+    defined_this_segment_size = 128;
+    defined_this_segment  = my_calloc(sizeof(int), defined_this_segment_size,
+                                "defined this segment table");
+
     if (!glulx_mode) {
       objectsz            = my_calloc(sizeof(objecttz), MAX_OBJECTS, 
                                 "z-objects");
@@ -2118,6 +2159,8 @@ extern void objects_free_arrays(void)
 
     my_free(&properties_table, "properties table");
     my_free(&individuals_table,"individual properties table");
+
+    my_free(&defined_this_segment,"defined this segment table");
 
     if (!glulx_mode) {
         my_free(&full_object_g.props, "object property list");

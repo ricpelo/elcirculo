@@ -4,7 +4,7 @@
 /*                              Inform 6.32                                  */
 /*                                                                           */
 /*   This header file and the others making up the Inform source code are    */
-/*   copyright (c) Graham Nelson 1993 - 2011                                 */
+/*   copyright (c) Graham Nelson 1993 - 2012                                 */
 /*                                                                           */
 /*   Manuals for this language are available from the IF-Archive at          */
 /*   http://www.ifarchive.org/                                               */
@@ -30,7 +30,7 @@
 /*                                                                           */
 /* ------------------------------------------------------------------------- */
 
-#define RELEASE_DATE "28th December 2011"
+#define RELEASE_DATE "14th October 2012"
 #define RELEASE_NUMBER 1632
 #define GLULX_RELEASE_NUMBER 38
 #define MODULE_VERSION_NUMBER 1
@@ -624,11 +624,7 @@ static int32 unique_task_id(void)
     void hfree(void *);
 #define subtract_pointers(p1,p2) (long)((char _huge *)p1-(char _huge *)p2)
 #else
-#ifdef UNIX64
 #define subtract_pointers(p1,p2) (((char *) p1)-((char *) p2))
-#else
-#define subtract_pointers(p1,p2) (((int32) p1)-((int32) p2))
-#endif
 #endif
 
 /* ------------------------------------------------------------------------- */
@@ -714,6 +710,20 @@ static int32 unique_task_id(void)
 #define  GPAGESIZE 256
 /* All Glulx memory boundaries must be multiples of GPAGESIZE. */
 
+/* In many places the compiler encodes a source-code location (file and
+   line number) into an int32 value. The encoded value looks like
+   line_number + FILE_LINE_SCALE_FACTOR*file_number. This will go
+   badly if a source file has more than FILE_LINE_SCALE_FACTOR lines,
+   of course. But this value is roughly eight million, which is a lot
+   of lines. 
+
+   There is also potential trouble if we have more than 512 source files;
+   perhaps 256, depending on signedness issues. However, there are other
+   spots in the compiler that assume no more than 255 source files, so
+   we'll stick with this for now.
+*/
+#define  FILE_LINE_SCALE_FACTOR  (0x800000L)
+
 /* ------------------------------------------------------------------------- */
 /*   Structure definitions (there are a few others local to files)           */
 /* ------------------------------------------------------------------------- */
@@ -740,7 +750,7 @@ typedef struct prop {
 /* Only one of this object. */
 typedef struct fpropt {
     uchar atts[6];
-    char l;
+    int l;
     prop pp[64];
 } fpropt;
 
@@ -1308,9 +1318,10 @@ typedef struct operator_s
 #define STUB_CODE        32
 #define SYSTEM_CODE      33
 #define TRACE_CODE       34
-#define VERB_CODE        35
-#define VERSION_CODE     36
-#define ZCHARACTER_CODE  37
+#define UNDEF_CODE       35
+#define VERB_CODE        36
+#define VERSION_CODE     37
+#define ZCHARACTER_CODE  38
 
 #define OPENBLOCK_CODE   100
 #define CLOSEBLOCK_CODE  101
@@ -1528,6 +1539,8 @@ typedef struct operator_s
 
 
 /*  Index numbers into the keyword group "system_functions" (see "lexer.c")  */
+
+#define NUMBER_SYSTEM_FUNCTIONS 12
 
 #define CHILD_SYSF       0
 #define CHILDREN_SYSF    1
@@ -2123,6 +2136,10 @@ extern void assemblez_4_to(int internal_number,
                        assembly_operand o1, assembly_operand o2,
                        assembly_operand o3, assembly_operand o4,
                        assembly_operand st);
+extern void assemblez_5_to(int internal_number,
+                       assembly_operand o1, assembly_operand o2,
+                       assembly_operand o3, assembly_operand o4,
+                       assembly_operand o5, assembly_operand st);
 
 extern void assemblez_inc(assembly_operand o1);
 extern void assemblez_dec(assembly_operand o1);
@@ -2206,7 +2223,7 @@ extern int32 routine_starts_line;
 extern int  no_routines, no_named_routines, no_locals, no_termcs;
 extern int  terminating_characters[];
 
-extern int  parse_given_directive(void);
+extern int  parse_given_directive(int internal_flag);
 
 /* ------------------------------------------------------------------------- */
 /*   Extern definitions for "errors"                                         */
@@ -2235,6 +2252,7 @@ extern void warning(char *s);
 extern void warning_numbered(char *s1, int val);
 extern void warning_named(char *s1, char *s2);
 extern void dbnu_warning(char *type, char *name, int32 report_line);
+extern void uncalled_routine_warning(char *type, char *name, int32 report_line);
 extern void obsolete_warning(char *s1);
 extern void link_error(char *s);
 extern void link_error_named(char *s1, char *s2);
@@ -2259,7 +2277,7 @@ extern operator operators[];
 
 extern assembly_operand stack_pointer, temp_var1, temp_var2, temp_var3, 
     temp_var4, zero_operand, one_operand, two_operand, three_operand,
-    valueless_operand;
+    four_operand, valueless_operand;
 
 assembly_operand code_generate(assembly_operand AO, int context, int label);
 assembly_operand check_nonzero_at_runtime(assembly_operand AO1, int label,
@@ -2451,9 +2469,14 @@ extern int32 MAX_STATIC_STRINGS, MAX_ZCODE_SIZE, MAX_LINK_DATA_SIZE,
 extern int32 MAX_OBJ_PROP_COUNT, MAX_OBJ_PROP_TABLE_SIZE;
 extern int MAX_LOCAL_VARIABLES, MAX_GLOBAL_VARIABLES;
 extern int DICT_WORD_SIZE, DICT_CHAR_SIZE, DICT_WORD_BYTES, NUM_ATTR_BYTES;
+extern int WARN_UNUSED_ROUTINES, OMIT_UNUSED_ROUTINES;
 
 extern void *my_malloc(int32 size, char *whatfor);
+extern void my_realloc(void *pointer, int32 oldsize, int32 size, 
+    char *whatfor);
 extern void *my_calloc(int32 size, int32 howmany, char *whatfor);
+extern void my_recalloc(void *pointer, int32 size, int32 oldhowmany, 
+    int32 howmany, char *whatfor);
 extern void my_free(void *pointer, char *whatitwas);
 
 extern void set_memory_sizes(int size_flag);
@@ -2518,16 +2541,31 @@ extern int32 *individual_name_strings;
 extern int32 *attribute_name_strings;
 extern int32 *action_name_strings;
 extern int32 *array_name_strings;
+extern int track_unused_routines;
+extern int df_dont_note_global_symbols;
+extern uint32 df_total_size_before_stripping;
+extern uint32 df_total_size_after_stripping;
 
 extern char *typename(int type);
 extern int hash_code_from_string(char *p);
 extern int strcmpcis(char *p, char *q);
 extern int symbol_index(char *lexeme_text, int hashcode);
+extern void end_symbol_scope(int k);
 extern void describe_symbol(int k);
 extern void list_symbols(int level);
 extern void assign_marked_symbol(int index, int marker, int32 value, int type);
 extern void assign_symbol(int index, int32 value, int type);
 extern void issue_unused_warnings(void);
+extern void add_symbol_replacement_mapping(int original, int renamed);
+extern int find_symbol_replacement(int *value);
+extern void df_note_function_start(char *name, uint32 address, 
+    int embedded_flag, int32 source_line);
+extern void df_note_function_end(uint32 endaddress);
+extern void df_note_function_symbol(int symbol);
+extern void locate_dead_functions(void);
+extern uint32 df_stripped_address_for_address(uint32);
+extern void df_prepare_function_iterate(void);
+extern uint32 df_next_function_iterate(int *);
 
 /* ------------------------------------------------------------------------- */
 /*   Extern definitions for "syntax"                                         */
@@ -2536,6 +2574,7 @@ extern void issue_unused_warnings(void);
 extern int   no_syntax_lines;
 
 extern void  panic_mode_error_recovery(void);
+extern void  get_next_token_with_directives(void);
 extern int   parse_directive(int internal_flag);
 extern void  parse_program(char *source);
 extern int32 parse_routine(char *source, int embedded_flag, char *name,

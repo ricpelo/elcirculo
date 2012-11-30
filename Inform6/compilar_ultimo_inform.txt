@@ -1,0 +1,6 @@
+Para compilar la última versión del compilador de inform:
+
+1. git clone https://github.com/ricpelo/Inform6.git
+2. comprobar si hay novedades en https://github.com/DavidKinder/Inform6.git
+3. make
+

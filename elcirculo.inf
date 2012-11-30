@@ -333,7 +333,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Normal,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Normal,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Normal,
                         stylehint_Weight, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Normal,
@@ -346,7 +346,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Input,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Input,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Input,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Input,
@@ -358,7 +358,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_User1,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_User1,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_User1,
                         stylehint_Proportional, 1);
       glk_stylehint_set(wintype_TextBuffer, style_User1,
@@ -369,7 +369,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_User2,
                         stylehint_BackColor, $0000ff);
       glk_stylehint_set(wintype_TextBuffer, style_User2,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_User2,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextBuffer, style_User2,
@@ -380,7 +380,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
                         stylehint_Proportional, 1);
       glk_stylehint_set(wintype_TextBuffer, style_Alert,
@@ -393,7 +393,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
                         stylehint_Proportional, 1);
       glk_stylehint_set(wintype_TextBuffer, style_Emphasized,
@@ -406,7 +406,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Preformatted,
@@ -417,7 +417,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Header,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_Header,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_Header,
                         stylehint_Weight, 1);
 
@@ -426,7 +426,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextBuffer, style_Subheader,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextBuffer, style_SubHeader,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextBuffer, style_SubHeader,
                         stylehint_Weight, 1);
 
@@ -446,7 +446,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Normal,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Normal,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_Normal,
                         stylehint_Weight, 0);
       glk_stylehint_set(wintype_TextGrid, style_Normal,
@@ -459,7 +459,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Input,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Input,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_Input,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextGrid, style_Input,
@@ -470,7 +470,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_User1,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_User1,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_User1,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextGrid, style_User1,
@@ -481,7 +481,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_User2,
                         stylehint_BackColor, $0000ff);
       glk_stylehint_set(wintype_TextGrid, style_User2,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_User2,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextGrid, style_User2,
@@ -492,7 +492,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Alert,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Alert,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_Alert,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextGrid, style_Alert,
@@ -505,7 +505,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Emphasized,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Emphasized,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_Emphasized,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextGrid, style_Emphasized,
@@ -520,7 +520,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Preformatted,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Preformatted,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_Preformatted,
                         stylehint_Proportional, 0);
       glk_stylehint_set(wintype_TextGrid, style_Preformatted,
@@ -531,7 +531,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Header,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_Header,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_Header,
                         stylehint_Weight, 1);
 
@@ -540,7 +540,7 @@ Include "Parser";
       glk_stylehint_set(wintype_TextGrid, style_Subheader,
                         stylehint_BackColor, $000000);
       glk_stylehint_set(wintype_TextGrid, style_SubHeader,
-                        stylehint_Size, 1);
+                        stylehint_Size, 0);
       glk_stylehint_set(wintype_TextGrid, style_SubHeader,
                         stylehint_Weight, 1);
 
@@ -565,6 +565,25 @@ Include "Parser";
 
 
 !Include "Rastros_NG";
+
+
+[ quieres_ x;
+  if (player provides persona) {
+    switch (player.persona) {
+      PRIMERA_PERSONA,
+      PRIMERA_PERSONA_SINGULAR: print "quiero";
+      SEGUNDA_PERSONA,
+      SEGUNDA_PERSONA_SINGULAR: print "quieres";
+      TERCERA_PERSONA,
+      TERCERA_PERSONA_SINGULAR: print "quiere";
+      PRIMERA_PERSONA_PLURAL:   print "queremos";
+      SEGUNDA_PERSONA_PLURAL:   print "queréis";
+      TERCERA_PERSONA_PLURAL:   print "quieren";
+      default:                  print "quieres";
+    }
+  } else print "quieres";
+  print (string) x;
+];
 
 
 Object LibraryMessages
@@ -608,7 +627,7 @@ Object LibraryMessages
                "^No ", (puedes_) " seguir empujando porque no hay salida
                hacia ", (the) noun, ".";
              if (noun == in_obj)
-               "No ves ningún sitio en el que puedas entrar.";
+               "No v", (eo_) " ningún sitio en el que ", (pueda_) " entrar.";
              "No ", (puedes_) " ir por ahí, porque no hay salida hacia ",
               (the) noun, ".";
           5: if (estoyEmpujando)
@@ -640,14 +659,14 @@ Object LibraryMessages
         }
 
       GetOff:
-        print "Pero si no estas en ";
+        print "Pero si no est", (oy_) " en ";
         if (lm_o ofclass Lugar) lm_o.mostrar_nombre();
         else                    print (the) lm_o;
         "...";
 
       Exit:
         if (lm_n == 1) {
-          "Si quieres moverte, indica hacia dónde quieres ir.";
+          "Si ", (quieres_) " moverte, indica hacia dónde quieres ir.";
         }
 
       Miscellany:

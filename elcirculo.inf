@@ -304,11 +304,26 @@ Include "Parser";
       ! caso en ExaminarFalsoSub():
       ExaminarFalso.palabraMenu = -obj;
       ! Rellenamos el búffer con el nombre del objeto (o con la cadena), como si
-      ! el jugador lo hubiese tecleado:
-      long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
-                             obj);
-      buffer-->0 = long;
-      return 2;  ! Retornamos 2 para que acepte como si hubiese pulsado Intro
+      ! el jugador lo hubiese tecleado: 
+      glk_cancel_line_event(gg_mainwin, gg_event);
+      long = gg_event-->2;
+      long = PrintAnyToArray(buffer + WORDSIZE + long,
+                             INPUT_BUFFER_LEN - WORDSIZE, obj);
+      buffer-->0 = long + gg_event-->2;
+      ! Si ya había algo escrito, se entiende que el jugador quiere completar la
+      ! entrada que estaba escribiendo, por lo que retornamos 1. Si no había
+      ! nada escrito, retornamos 2 para simular la pulsación de Intro:
+      if (gg_event-->2 > 0) {
+        ! Añadimos un espacio en blanco al final:
+        long = PrintAnyToArray(buffer + WORDSIZE + buffer-->0,
+                             INPUT_BUFFER_LEN - WORDSIZE, " ");
+        buffer-->0 = buffer-->0 + long;
+        glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                               INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+        return 1;  ! Retornamos 1 para que el jugador pueda seguir tecleando 
+      } else {
+        return 2;  ! Retornamos 2 para que acepte como si hubiese pulsado Intro
+      }
   }
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);

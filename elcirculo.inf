@@ -54,12 +54,14 @@ Constant NO_SCORE;
 ! Hay curiosidades al final del juego
 Constant AMUSING_PROVIDED;
 
-! Altura (en caracteres) de la ventana grid en el menú principal:
-Constant ALTURA_MENU_PRINCIPAL = 15;
-! Altura (en caracteres) de la ventana grid al mostrar información larga:
-Constant ALTURA_MENU_COMPLETA  = 24;
 ! Altura (en px.) de la ventana de logo en el menú principal:
 Constant ALTURA_LOGO_MENU      = 450;
+! Altura (en caracteres) de la ventana grid al mostrar información larga:
+Constant ALTURA_MENU_COMPLETA  = 24;
+! Altura (en caracteres) de la ventana grid en el menú principal:
+Constant ALTURA_MENU_PRINCIPAL = 15;
+! Ancho de la ventana de acciones:
+Constant ANCHO_ACCIONES  = 25;
 
 ! Canales y volúmenes para los sonidos:
 Constant CANAL_FONDO     = 9; Constant VOLUMEN_FONDO     = 50;
@@ -67,23 +69,20 @@ Constant CANAL_TV_SALON  = 0; Constant VOLUMEN_TV_SALON  = 100;
 Constant CANAL_TV_CUARTO = 1; Constant VOLUMEN_TV_CUARTO = 50;
 Constant CANAL_TELEFONO  = 2; Constant VOLUMEN_TELEFONO  = 100;
 
-! La roca de la ventana de menús de acciones:
-Constant GG_MENUWIN_ROCK = 213;
-
 ! El color de fondo de la ventana gráfica es negro:
 Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 
 ! No queremos marcos en las cajas hechas con el comando box:
 Constant GBOXQUOTE_NOFRAME;
 
+! La roca de la ventana de menús de acciones:
+Constant GG_MENUWIN_ROCK = 213;
+
 ! Alturas de los gráficos:
 Constant GRAFICOS_MINUSCULOS = 200;
 Constant GRAFICOS_PEQUENOS   = 250;
 Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
-
-! Ancho de la ventana de acciones:
-Constant ANCHO_ACCIONES  = 25;
 
 ! Constantes de gtalk.h:
 Constant GT_SELECT       = "Selecciona una opción ";
@@ -248,31 +247,6 @@ Include "Parser";
 ! (2) Puntos de Entrada para Glk [solo en Glulx]:
 !     -  HandleGlkEvent(), IdentifyGlkObject(), InitGlkWindow()
 !-------------------------------------------------------------------------------
-
-
-! El IdentifyGlkObject de la ventana de menús de acciones:
-[ Menu_IdentifyGlkObject fase tipo ref rock;
-  if (fase == 0) { ! Poner cero en todos nuestros objetos glk
-    gg_menuwin = 0;
-    return;
-  }       
-  if (fase == 1) { ! Reiniciar correctamente las variables glk
-    switch (tipo) {
-      0: ! es una ventana
-         switch (rock) {
-           GG_MENUWIN_ROCK: gg_menuwin = ref;
-         }
-      1: ! es un flujo
-         ! pero no hay flujos en este ejemplo
-      2: ! es una referencia a fichero
-         ! pero no hay ficheros en este ejemplo
-    }
-    return;
-  }       
-  if (fase == 2) { ! Actualizar nuestras ventanas
-    rfalse;
-  }
-];
 
 
 [ HandleGlkEvent ev context buffer
@@ -571,6 +545,30 @@ Include "Parser";
   }
 
   rfalse; ! si te olvidas esta linea, el juego no funcionará bien
+];
+
+! El IdentifyGlkObject de la ventana de menús de acciones:
+[ Menu_IdentifyGlkObject fase tipo ref rock;
+  if (fase == 0) { ! Poner cero en todos nuestros objetos glk
+    gg_menuwin = 0;
+    return;
+  }       
+  if (fase == 1) { ! Reiniciar correctamente las variables glk
+    switch (tipo) {
+      0: ! es una ventana
+         switch (rock) {
+           GG_MENUWIN_ROCK: gg_menuwin = ref;
+         }
+      1: ! es un flujo
+         ! pero no hay flujos en este ejemplo
+      2: ! es una referencia a fichero
+         ! pero no hay ficheros en este ejemplo
+    }
+    return;
+  }       
+  if (fase == 2) { ! Actualizar nuestras ventanas
+    rfalse;
+  }
 ];
 
 
@@ -1139,6 +1137,15 @@ Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 !-------------------------------------------------------------------------------
 
 
+Class Destino
+  with
+    nombre_destino 0,
+    before [;
+      Go:
+        coche_rachel.volver = location;
+    ];
+
+
 Class Personaje
   class Movil
   with
@@ -1316,15 +1323,6 @@ Class Sonido
     ],
   has
     concealed;
-
-
-Class Destino
-  with
-    nombre_destino 0,
-    before [;
-      Go:
-        coche_rachel.volver = location;
-    ];
 
 
 !===============================================================================
@@ -1559,6 +1557,25 @@ Object ZIPI_Accesibilidad
       ZIPI_Tiempo_Real
       ZIPI_Mostrar_Hyperlinks;
 
+      
+Object ZIPI_Aumentar_Texto
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Aumentar tamaño del texto",
+    ZIPI_cambiar [;
+      glk_incr_fontsize();
+      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments, gg_arguments + WORDSIZE,
+                                 gg_arguments + 2 * WORDSIZE);
+      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments-->0, gg_arguments-->1,
+                                 gg_arguments-->2);
+      ! Esto sólo se ve en el menú principal, porque durante el juego
+      ! el menú de configuración ocupa toda la pantalla, y luego
+      ! restauramos el gráfico de la localidad actual:
+      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
+    ];
+
 
 Object ZIPI_Configuracion
   class ZIPI_Menu
@@ -1574,6 +1591,25 @@ Object ZIPI_Configuracion
       ZIPI_Disminuir_Texto
       ZIPI_Separador
       ZIPI_Accesibilidad;
+
+
+Object ZIPI_Disminuir_Texto
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Disminuir tamaño del texto",
+    ZIPI_cambiar [;
+      glk_decr_fontsize();
+      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments, gg_arguments + WORDSIZE,
+                                 gg_arguments + 2 * WORDSIZE);
+      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                                 gg_arguments-->0, gg_arguments-->1,
+                                 gg_arguments-->2);
+      ! Esto sólo se ve en el menú principal, porque durante el juego
+      ! el menú de configuración ocupa toda la pantalla, y luego
+      ! restauramos el gráfico de la localidad actual:
+      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
+    ];
 
 
 Object ZIPI_Graficos
@@ -1634,6 +1670,29 @@ Object ZIPI_Menu_Principal
       ZIPI_Configuracion
       ZIPI_Separador
       ZIPI_Menu1;
+
+
+Object ZIPI_Mostrar_Hyperlinks
+  class ZIPI_Otro
+  with
+    mostrarLink true,
+    colorLink 0,
+    ZIPI_titulo [;
+      if (self.mostrarLink) "Mostrar hipervínculos: SÍ (recomendado)";
+      else                  "Mostrar hipervínculos: NO";
+    ],
+    ZIPI_cambiar [ c;
+      if (self.mostrarLink) {
+        self.mostrarLink = false;
+        self.colorLink = glk_get_config(config_LinkColor);
+        c = glk_window_stylehint_get(gg_statuswin, style_Normal,
+                                     stylehint_TextColor);
+        glk_set_config(config_LinkColor, c);
+      } else {
+        self.mostrarLink = true;
+        glk_set_config(config_LinkColor, self.colorLink);
+      }
+    ];
 
 
 Object ZIPI_Restaurar
@@ -1730,44 +1789,6 @@ Object ZIPI_Tamano_Graficos
     ];
 
 
-Object ZIPI_Aumentar_Texto
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "Aumentar tamaño del texto",
-    ZIPI_cambiar [;
-      glk_incr_fontsize();
-      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments, gg_arguments + WORDSIZE,
-                                 gg_arguments + 2 * WORDSIZE);
-      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments-->0, gg_arguments-->1,
-                                 gg_arguments-->2);
-      ! Esto sólo se ve en el menú principal, porque durante el juego
-      ! el menú de configuración ocupa toda la pantalla, y luego
-      ! restauramos el gráfico de la localidad actual:
-      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
-    ];
-
-
-Object ZIPI_Disminuir_Texto
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "Disminuir tamaño del texto",
-    ZIPI_cambiar [;
-      glk_decr_fontsize();
-      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments, gg_arguments + WORDSIZE,
-                                 gg_arguments + 2 * WORDSIZE);
-      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments-->0, gg_arguments-->1,
-                                 gg_arguments-->2);
-      ! Esto sólo se ve en el menú principal, porque durante el juego
-      ! el menú de configuración ocupa toda la pantalla, y luego
-      ! restauramos el gráfico de la localidad actual:
-      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
-    ];
-
-
 Object ZIPI_Tiempo_Real
   class ZIPI_Otro
   with
@@ -1777,29 +1798,6 @@ Object ZIPI_Tiempo_Real
     ],
     ZIPI_cambiar [;
       hayTiempoReal = ~~hayTiempoReal;
-    ];
-
-
-Object ZIPI_Mostrar_Hyperlinks
-  class ZIPI_Otro
-  with
-    mostrarLink true,
-    colorLink 0,
-    ZIPI_titulo [;
-      if (self.mostrarLink) "Mostrar hipervínculos: SÍ (recomendado)";
-      else                  "Mostrar hipervínculos: NO";
-    ],
-    ZIPI_cambiar [ c;
-      if (self.mostrarLink) {
-        self.mostrarLink = false;
-        self.colorLink = glk_get_config(config_LinkColor);
-        c = glk_window_stylehint_get(gg_statuswin, style_Normal,
-                                     stylehint_TextColor);
-        glk_set_config(config_LinkColor, c);
-      } else {
-        self.mostrarLink = true;
-        glk_set_config(config_LinkColor, self.colorLink);
-      }
     ];
 
 
@@ -1971,6 +1969,14 @@ Object Menu_Examinar
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+[ AbrirVentanaMenu;
+  gg_menuwin = glk_window_open(gg_mainwin,
+                               winmethod_Right + winmethod_Fixed,
+                               ANCHO_ACCIONES, wintype_TextGrid,
+                               GG_MENUWIN_ROCK);
+];
 
 
 [ ApagarGraficos t;
@@ -2183,20 +2189,28 @@ Object Menu_Examinar
 ];
 
 
+[ link obj msg;
+  if (obj ofclass String) {
+    glk_set_hyperlink(-obj);  ! Hyperlinks negativos son cadenas
+    if (msg ~= 0) print (string) msg;
+    else          print (string) obj;
+    glk_set_hyperlink(0);
+  } else {
+    glk_set_hyperlink(obj);   ! Hyperlinks positivos son objetos
+    if (msg ~= 0)                      print (string) msg;    
+    else if (obj provides nombre_link) print (string) obj.nombre_link;
+    else                               print (string) obj.input_link;
+    glk_set_hyperlink(0);
+  }
+];
+
+
 #ifndef LugarReal;
 [ LugarReal;
   if (location == thedark) return real_location;
   else                     return location;
 ];
 #endif;
-
-
-[ AbrirVentanaMenu;
-  gg_menuwin = glk_window_open(gg_mainwin,
-                               winmethod_Right + winmethod_Fixed,
-                               ANCHO_ACCIONES, wintype_TextGrid,
-                               GG_MENUWIN_ROCK);
-];
 
 
 [ MostrarImagenAuxiliar img;
@@ -2221,22 +2235,6 @@ Object Menu_Examinar
     viewImageCenter(imagen, true);
     WaitDelay(retardo);
   }  
-];
-
-
-[ link obj msg;
-  if (obj ofclass String) {
-    glk_set_hyperlink(-obj);  ! Hyperlinks negativos son cadenas
-    if (msg ~= 0) print (string) msg;
-    else          print (string) obj;
-    glk_set_hyperlink(0);
-  } else {
-    glk_set_hyperlink(obj);   ! Hyperlinks positivos son objetos
-    if (msg ~= 0)                      print (string) msg;    
-    else if (obj provides nombre_link) print (string) obj.nombre_link;
-    else                               print (string) obj.input_link;
-    glk_set_hyperlink(0);
-  }
 ];
 
 

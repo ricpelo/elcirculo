@@ -491,14 +491,10 @@ System_file;
 #default GT_OPTIONPREFIX = "(";
 #default GT_OPTIONSUFFIX = ") ";
 
-
 #ifndef WORDSIZE;
-
 Constant TARGET_ZCODE;
 Constant WORDSIZE = 2;
-
 #endif;
-
 
 ! This array of two-powers is used in order to save some time when
 ! processing quips.
@@ -523,477 +519,412 @@ Global killq;
 Constant MainMenu = 1;
 Constant SubMenu  = 2;
 
-
 ! The Qlist function is used as a shorthand to defining options in a 
 ! quip's ###4 clause. We define separate Z-code and Glulx versions, 
 ! since the latter benefits from being able to accept any number of 
 ! arguments.
-
 #ifdef TARGET_ZCODE;
-
 [ Qlist num a1 a2 a3 a4 a5 a6;
-   switch (num)
-   {
-      0: return a1;
-      1: return a2;
-      2: return a3;
-      3: return a4;
-      4: return a5;
-      5: return a6;
+   switch (num) {
+     0: return a1;
+     1: return a2;
+     2: return a3;
+     3: return a4;
+     4: return a5;
+     5: return a6;
    }
    return 0;
 ];
-
 #ifnot;
-
 [ Qlist _vararg_count n t;
-   @copy sp n;
-   _vararg_count--;
-   if (n < 0 || n >= _vararg_count)
-   {
-      return 0;
-   }
-   while (n > 0)
-   {
-      n--;
-      @copy sp t;
-   }
-   @copy sp t;
-   return t;
+  @copy sp n;
+  _vararg_count--;
+  if (n < 0 || n >= _vararg_count) return 0;
+  while (n > 0) {
+    n--;
+    @copy sp t;
+  }
+  @copy sp t;
+  return t;
 ];
-
 #endif;
-
 
 ! The Character class. All NPCs with conversation menus should belong to
 ! this class.
 Class Character
-   has  animate,
+  has animate,
 
-   ! This is the array in which we store the on/off status of all our quips.
-   ! The number of entries determines how many quips we can have at most,
-   ! and this can be calculated like so:
-   !
-   !   For the    For
-   ! Z-machine: Glulx:
-   !         6      6 elements in the default "qflag" word array
-   !     *   2  *   4 bytes per word
-   !     *   8  *   8 bits per byte
-   !     =  96  = 192
-   !     -   1  -   1 because it's 0-95 or 0-191
-   !     =  95  = 191 highest quip value for each NPC
-   !
-   ! If more quips are needed, override this property and add more zeroes
-   ! to the array.
-   with qflag 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0,
+  ! This is the array in which we store the on/off status of all our quips.
+  ! The number of entries determines how many quips we can have at most,
+  ! and this can be calculated like so:
+  !
+  !   For the    For
+  ! Z-machine: Glulx:
+  !         6      6 elements in the default "qflag" word array
+  !     *   2  *   4 bytes per word
+  !     *   8  *   8 bits per byte
+  !     =  96  = 192
+  !     -   1  -   1 because it's 0-95 or 0-191
+  !     =  95  = 191 highest quip value for each NPC
+  !
+  ! If more quips are needed, override this property and add more zeroes
+  ! to the array.
+  with qflag 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0,
 
-   ! the number of our highest quip will be stored here, so that we only
-   ! have to calculate it once
-   maxquip 0,
+  ! the number of our highest quip will be stored here, so that we only
+  ! have to calculate it once
+  maxquip 0,
 
-   ! This method carries out a conversation with our character. Call it with
-   ! the first argument set to a quip which represents a main menu.
-   select
-   [ curquip times quipnum numoptions onoptions o selected spoken;
-
-      ! Check if we need to initialize. This process is, among other things,
-      ! responsible for calculating our maxquip value, so we can see if it
-      ! has been done by checking if maxquip is still set to zero.
-      if (self.maxquip == 0)
-         initquips(self);
-
-      ! do a big loop, because this quip could be only the first of many in
-      ! an extended conversation
-      for (times = 1 : : times++)
-      {
-         ! turn off quips with no options on, if desired
-         #ifdef AutoDeactivate;
-             AutoDeactivateQuips(self);
-         #endif;
-
-         ! Reset global variables. Note that we don't care about qqon, since
-         ! it's only used during the initquips() stage.
-         qtype = 0;
-         qtransfer = curquip;
-         killz = 0;
-         killq = 0;
-      
-         ! ask the current quip to set the five global variables (qtype,
-         ! qqon, qtransfer, killz and killq) to their intended values
-         self.quip(curquip * 10 + 3);
-
-         ! if this quip is not a menu of some kind, note that that player
-         ! has said something
-         if (qtype ~= MainMenu && qtype ~= SubMenu)
-            spoken = true;
-
-         ! print the reply for this quip
-         self.quip(curquip * 10 + 2);
-
-         ! The next step is to see if we have any options to display. Assume
-         ! that we don't.
-         onoptions = false;
-
-         ! Get the quip argument for the option list.  Note that qtransfer
-         ! will be set either to the current quip or to a different quip,
-         ! but always to SOME quip
-         quipnum = qtransfer * 10 + 4;
-
-         ! get the total number of options, whether on or off
-         numoptions = self.quip(quipnum, 0);
-
-         ! if we have any options at all, see if any of them are on
-         for (o = 1 : o <= numoptions : o++)
-         {
-            ! we don't care about how many options there are right now, so
-            ! leave this loop as soon as we find at least one option that
-            ! is on
-            if (self.qtest(self.quip(quipnum, o)))
-            {
-               onoptions = true;
-               break;
-            }
-         }
-
-         if (~~onoptions)
-         {
-            ! There were no options available, hence nothing for the player
-            ! to say, so this conversation is finished. If this was a main
-            ! menu, report that the player can't think of anything to say,
-            ! otherwise assume that something appropriate has already been
-            ! printed in our reply.
-!            if (qtype == MainMenu)           (c) Alpha
-               print (string) GT_NOQUIP;
-
-            return;
-         }
-
-         ! We have options. Display an extra prompt before printing them, if
-         ! desired
-         if (~~killq)
-         {
-            ! unless this is the first time through, print an extra line
-            ! feed so that we're separated from the previous reply
-            if (times > 1)
-               new_line;
-
-            print (string) GT_WOULDLIKE;
-         }
-
-         ! Go through the options again, now printing a list of those that
-         ! are on. Note that we can reuse the variables quipnum and
-         ! numoptions from the previous iteration.
-         for (onoptions = 0, o = 1 : o <= numoptions : o++)
-         {
-            ! get this quip
-            curquip = self.quip(quipnum, o);
-
-            ! see if it's on
-            if (self.qtest(curquip))
-            {
-               ! print the number of this option (not the internal number,
-               ! of course, but one that starts at 1 and increases for every
-               ! option that we display)
-               print (string) GT_OPTIONPREFIX;
-               glk($0086, 8); ! set input style
-               glk($100, ++onoptions + 48);
-               print onoptions;
-               glk($100, 0);
-               glk($0086, 0); ! set input style
-               print (string) GT_OPTIONSUFFIX;
- 
-               ! print the option text
-               self.quip(curquip * 10 + 1);
-            }
-         }
-
-         ! separate the options from the prompt with an empty line
-         new_line;
-
-         ! Now get the response from the player. Keep on asking until we get
-         ! an acceptable answer.
-         do
-         {
-            ! print the basic prompt
-            print (string) GT_SELECT;
-
-            ! if the player can exit the conversation by typing 0, mention
-            ! this as well
-            if (~~killz)
-               if (metaclass(GT_ZEROEXIT) == Routine) GT_ZEROEXIT(); ! (c) Alpha
-               else print (string) GT_ZEROEXIT;
-
-            print ">> ";
-
-            selected = KeyCharPrimitive();
-            selected = selected - 48;
-
-            glk($0086, 8); ! set input style
-            print selected, "^";
-            glk($0086, 0); ! set input style
-
-!            ! read a line of input
-!            KeyboardPrimitive(buffer, parse);
-!
-!            ! Check for empty input, otherwise for a number. In any case,
-!            ! invalid input will set selected to something < 0.
-!            if (parse->(WORDSIZE - 1) == 0)
-!               selected = -1;
-!            else
-!               selected = TryNumber(1);
-
-            ! disallow 0, if desired
-            if (killz && selected == 0)
-               selected = -1;
-
-         } until (selected >= 0 && selected <= onoptions);
-
-         ! check for 0, which means that we're leaving this conversation
-         if (selected == 0)
-         {
-            ! print a notice saying that the PC decided not to say anything
-            ! after all, but only if nothing has actually been said so far
-!            if (~~spoken)                    (c) Alpha
-               print (string) GT_NOSAY;
-
-            ! return from this method
-            return;
-         }
-        
-         ! go through the options once again, this time to retrieve the
-         ! option that the player selected, and thus the quip that we want
-         ! to process next
-         for (onoptions = 0, o = 1 : o <= numoptions : o++)
-         {
-            ! get this quip
-            curquip = self.quip(quipnum, o);
-
-            ! see if it's on
-            if (self.qtest(curquip))
-            {
-               ! it's on, but is it the one the player wants?
-               if (selected == ++onoptions)
-               {
-                  ! It's the right one. Just break out of this loop, since
-                  ! we'll then jump back to the beginning with curquip set
-                  ! to the quip that the player selected.
-                  break;
-               }
-            }
-         }
-      }
-   ],
-
-   ! The following three methods are a bit limited in their use, since the
-   ! Z-machine has a fixed limit on the number of arguments that can be
-   ! given to a method. If we are compiling for Glulx, these will be
-   ! replaced (at run-time) with better versions defined further on.
-
-   ! turn at most two quips either on or off
-   qset
-   [ a b c d;
-      qset_(self, a, b);
-      qset_(self, c, d);
-   ],
-
-   ! Turn on at most five quips. The funky syntax here just means that if an
-   ! argument is empty, then we don't bother checking those that follow
-   qon
-   [ a b c d e;
-      if (a) { qset_(self, a, 1);
-      if (b) { qset_(self, b, 1);
-      if (c) { qset_(self, c, 1);
-      if (d) { qset_(self, d, 1);
-      if (e) { qset_(self, e, 1); }}}}}
-   ],
-
-   ! turn off at most five quips
-   qoff
-   [ a b c d e;
-      if (a) { qset_(self, a, 0);
-      if (b) { qset_(self, b, 0);
-      if (c) { qset_(self, c, 0);
-      if (d) { qset_(self, d, 0);
-      if (e) { qset_(self, e, 0); }}}}}
-   ],
-
-   ! test a given quip to see if it is on or off
-   qtest
-   [ qp byte bits;
-      ! check for too high quips, but only if we're compiling for debugging
-      #ifdef DEBUG;
-         if (qp > self.maxquip)
-         {
-            print "Gtalk: tried to test quip ", qp, " of ", (name) self,
-                  ", but the highest available quip is ", self.maxquip,
-                  ". Refer to the documentation on how to enlarge the qflag
-                  array.^";
-            rfalse;
-         }
+  ! This method carries out a conversation with our character. Call it with
+  ! the first argument set to a quip which represents a main menu.
+  select [ curquip times quipnum numoptions onoptions o selected spoken;
+    ! Check if we need to initialize. This process is, among other things,
+    ! responsible for calculating our maxquip value, so we can see if it
+    ! has been done by checking if maxquip is still set to zero.
+    if (self.maxquip == 0) initquips(self);
+    ! do a big loop, because this quip could be only the first of many in
+    ! an extended conversation
+    for (times = 1 : : times++) {
+      ! turn off quips with no options on, if desired
+      #ifdef AutoDeactivate;
+        AutoDeactivateQuips(self);
       #endif;
 
-      ! Break down the quip number into bytes and bits. We can't optimize
-      ! away the division, since the Z-machine lacks a rotate operator, but
-      ! we can at least substitute the modulo for a bit-wise AND.
-      byte = qp / 8;
-      bits = GT_Powers->(qp & $$111);
+      ! Reset global variables. Note that we don't care about qqon, since
+      ! it's only used during the initquips() stage.
+      qtype = 0;
+      qtransfer = curquip;
+      killz = 0;
+      killq = 0;
+    
+      ! ask the current quip to set the five global variables (qtype,
+      ! qqon, qtransfer, killz and killq) to their intended values
+      self.quip(curquip * 10 + 3);
 
-      ! return true if the quip is on
-      return (self.&qflag->byte & bits == bits);
-   ]
+      ! if this quip is not a menu of some kind, note that that player
+      ! has said something
+      if (qtype ~= MainMenu && qtype ~= SubMenu) spoken = true;
+
+      ! print the reply for this quip
+      self.quip(curquip * 10 + 2);
+
+      ! The next step is to see if we have any options to display. Assume
+      ! that we don't.
+      onoptions = false;
+
+      ! Get the quip argument for the option list.  Note that qtransfer
+      ! will be set either to the current quip or to a different quip,
+      ! but always to SOME quip
+      quipnum = qtransfer * 10 + 4;
+
+      ! get the total number of options, whether on or off
+      numoptions = self.quip(quipnum, 0);
+
+      ! if we have any options at all, see if any of them are on
+      for (o = 1 : o <= numoptions : o++) {
+        ! we don't care about how many options there are right now, so
+        ! leave this loop as soon as we find at least one option that is on
+        if (self.qtest(self.quip(quipnum, o))) {
+          onoptions = true;
+          break;
+        }
+      }
+
+      if (~~onoptions) {
+        ! There were no options available, hence nothing for the player
+        ! to say, so this conversation is finished. If this was a main
+        ! menu, report that the player can't think of anything to say,
+        ! otherwise assume that something appropriate has already been
+        ! printed in our reply.
+!       if (qtype == MainMenu)           (c) Alpha
+          print (string) GT_NOQUIP;
+        return;
+      }
+
+      ! We have options. Display an extra prompt before printing them, if
+      ! desired
+      if (~~killq) {
+        ! unless this is the first time through, print an extra line
+        ! feed so that we're separated from the previous reply
+        if (times > 1) new_line;
+        print (string) GT_WOULDLIKE;
+      }
+
+      ! Go through the options again, now printing a list of those that
+      ! are on. Note that we can reuse the variables quipnum and
+      ! numoptions from the previous iteration.
+      for (onoptions = 0, o = 1 : o <= numoptions : o++) {
+        ! get this quip
+        curquip = self.quip(quipnum, o);
+
+        ! see if it's on
+        if (self.qtest(curquip)) {
+          ! print the number of this option (not the internal number,
+          ! of course, but one that starts at 1 and increases for every
+          ! option that we display)
+          print (string) GT_OPTIONPREFIX;
+          glk($0086, 8); ! set input style
+          glk($100, ++onoptions + 48);
+          print onoptions;
+          glk($100, 0);
+          glk($0086, 0); ! set input style
+          print (string) GT_OPTIONSUFFIX;
+
+          ! print the option text
+          self.quip(curquip * 10 + 1);
+        }
+      }
+
+      ! separate the options from the prompt with an empty line
+      new_line;
+
+      ! Now get the response from the player. Keep on asking until we get
+      ! an acceptable answer.
+      do {
+        ! print the basic prompt
+        print (string) GT_SELECT;
+
+        ! if the player can exit the conversation by typing 0, mention
+        ! this as well
+        if (~~killz)
+          if (GT_ZEROEXIT ofclass Routine) GT_ZEROEXIT(); ! (c) Alpha
+          else                             print (string) GT_ZEROEXIT;
+
+        print ">> ";
+
+        selected = KeyCharPrimitive();
+        selected = selected - 48;
+
+        glk($0086, 8); ! set input style
+        print selected, "^";
+        glk($0086, 0); ! set input style
+
+!       ! read a line of input
+!       KeyboardPrimitive(buffer, parse);
+!
+!       ! Check for empty input, otherwise for a number. In any case,
+!       ! invalid input will set selected to something < 0.
+!       if (parse->(WORDSIZE - 1) == 0)
+!         selected = -1;
+!       else
+!         selected = TryNumber(1);
+
+        ! disallow 0, if desired
+        if (killz && selected == 0) selected = -1;
+      } until (selected >= 0 && selected <= onoptions);
+
+      ! check for 0, which means that we're leaving this conversation
+      if (selected == 0) {
+        ! print a notice saying that the PC decided not to say anything
+        ! after all, but only if nothing has actually been said so far
+!       if (~~spoken)                    (c) Alpha
+          print (string) GT_NOSAY;
+
+        ! return from this method
+        return;
+      }
+
+      ! go through the options once again, this time to retrieve the
+      ! option that the player selected, and thus the quip that we want
+      ! to process next
+      for (onoptions = 0, o = 1 : o <= numoptions : o++) {
+        ! get this quip
+        curquip = self.quip(quipnum, o);
+
+        ! see if it's on
+        if (self.qtest(curquip)) {
+          ! it's on, but is it the one the player wants?
+          if (selected == ++onoptions) {
+            ! It's the right one. Just break out of this loop, since
+            ! we'll then jump back to the beginning with curquip set
+            ! to the quip that the player selected.
+            break;
+          }
+        }
+      }
+    }
+  ],
+  
+  ! The following three methods are a bit limited in their use, since the
+  ! Z-machine has a fixed limit on the number of arguments that can be
+  ! given to a method. If we are compiling for Glulx, these will be
+  ! replaced (at run-time) with better versions defined further on.
+  
+  ! turn at most two quips either on or off
+  qset [ a b c d;
+    qset_(self, a, b);
+    qset_(self, c, d);
+  ],
+  
+  ! Turn on at most five quips. The funky syntax here just means that if an
+  ! argument is empty, then we don't bother checking those that follow
+  qon [ a b c d e;
+    if (a) { qset_(self, a, 1);
+    if (b) { qset_(self, b, 1);
+    if (c) { qset_(self, c, 1);
+    if (d) { qset_(self, d, 1);
+    if (e) { qset_(self, e, 1); }}}}}
+  ],
+  
+  ! turn off at most five quips
+  qoff [ a b c d e;
+    if (a) { qset_(self, a, 0);
+    if (b) { qset_(self, b, 0);
+    if (c) { qset_(self, c, 0);
+    if (d) { qset_(self, d, 0);
+    if (e) { qset_(self, e, 0); }}}}}
+  ],
+  
+  ! test a given quip to see if it is on or off
+  qtest [ qp byte bits;
+    ! check for too high quips, but only if we're compiling for debugging
+    #ifdef DEBUG;
+    if (qp > self.maxquip) {
+      print "Gtalk: tried to test quip ", qp, " of ", (name) self,
+            ", but the highest available quip is ", self.maxquip,
+            ". Refer to the documentation on how to enlarge the qflag array.^";
+      rfalse;
+    }
+    #endif;
+  
+    ! Break down the quip number into bytes and bits. We can't optimize
+    ! away the division, since the Z-machine lacks a rotate operator, but
+    ! we can at least substitute the modulo for a bit-wise AND.
+    byte = qp / 8;
+    bits = GT_Powers->(qp & $$111);
+  
+    ! return true if the quip is on
+    return (self.&qflag->byte & bits == bits);
+  ]
 ;
 
 
 ! Internal function: set a character's quip to a given on/off state.
 [ qset_ char qp state byte bits;
-   ! In most cases the quips will already be initialized
-   ! at this point. But, just in case an author wants to
-   ! turn quips on/off before the conversation menu is
-   ! called up, initialize the quips here if necessary.
-   if (char.maxquip == 0)
-      initquips(char);
+  ! In most cases the quips will already be initialized
+  ! at this point. But, just in case an author wants to
+  ! turn quips on/off before the conversation menu is
+  ! called up, initialize the quips here if necessary.
+  if (char.maxquip == 0) initquips(char);
 
-   ! check for too high quips, but only if we're compiling for debugging
-   #ifdef DEBUG;
-      if (qp > char.maxquip)
-      {
-         print "Gtalk: tried to set quip ", qp, " of ", (name) char,
-               ", but the highest available quip is ", char.maxquip,
-               ". Refer to the documentation on how to enlarge the qflag
-               array.^";
-         return;
-      }
-   #endif;
+  ! check for too high quips, but only if we're compiling for debugging
+  #ifdef DEBUG;
+  if (qp > char.maxquip) {
+     print "Gtalk: tried to set quip ", qp, " of ", (name) char,
+           ", but the highest available quip is ", char.maxquip,
+           ". Refer to the documentation on how to enlarge the qflag array.^";
+     return;
+  }
+  #endif;
    
-   ! break down the quip number into bytes and bits
-   byte = qp / 8;
-   bits = GT_Powers->(qp & $$111);
+  ! break down the quip number into bytes and bits
+  byte = qp / 8;
+  bits = GT_Powers->(qp & $$111);
 
-   ! turn the bit in question on or off
-   if (state)
-      char.&qflag->byte = char.&qflag->byte | bits;
-   else
-      char.&qflag->byte = char.&qflag->byte & ~bits;
+  ! turn the bit in question on or off
+  if (state) char.&qflag->byte = char.&qflag->byte | bits;
+  else       char.&qflag->byte = char.&qflag->byte & ~bits;
 ];
 
 
 ! Internal function: do some initialization for a given character.
 [ initquips char qp;
-   ! use glulx versions of some methods if we can
-   #ifdef TARGET_GLULX;
-      char.qon  = CharacterGlulx.qon;
-      char.qoff = CharacterGlulx.qoff;
-      char.qset = CharacterGlulx.qset;
-   #endif;
+  ! use glulx versions of some methods if we can
+  #ifdef TARGET_GLULX;
+  char.qon  = CharacterGlulx.qon;
+  char.qoff = CharacterGlulx.qoff;
+  char.qset = CharacterGlulx.qset;
+  #endif;
 
-   ! initialize the maxquip value
-   char.maxquip = char.#qflag * 8 - 1;
+  ! initialize the maxquip value
+  char.maxquip = char.#qflag * 8 - 1;
 
-   ! go through all the quips
-   for (qp = 1 : qp <= char.maxquip : qp++)
-   {
-      ! see if we want quips to be on off by default
-      #ifdef QuipsOnByDefault;
-         qqon = 1;
-      #ifnot;
-         qqon = 0;
-      #endif;
+  ! go through all the quips
+  for (qp = 1 : qp <= char.maxquip : qp++) {
+    ! see if we want quips to be on off by default
+    #ifdef QuipsOnByDefault;
+    qqon = 1;
+    #ifnot;
+    qqon = 0;
+    #endif;
 
-      ! Obtain the desired qqon value for this quip. We'll use the default
-      ! unless the quip says otherwise.
-      char.quip(qp * 10 + 3);
-      if (qqon)
-         char.qon(qp);
-   }
+    ! Obtain the desired qqon value for this quip. We'll use the default
+    ! unless the quip says otherwise.
+    char.quip(qp * 10 + 3);
+    if (qqon) char.qon(qp);
+  }
 ];
 
 
 #ifdef TARGET_GLULX;
-
 ! Glulx versions of a couple of methods. 
 Object CharacterGlulx
-   with
-   qset
-   [ _vararg_count qp state;
-      while (_vararg_count > 0)
-      {
-         @copy sp qp;
-         @copy sp state;
-         qset_(self, qp, state);
-         _vararg_count = _vararg_count - 2;
-      }
-   ],
+  with
+  qset [ _vararg_count qp state;
+    while (_vararg_count > 0) {
+      @copy sp qp;
+      @copy sp state;
+      qset_(self, qp, state);
+      _vararg_count = _vararg_count - 2;
+    }
+  ],
 
-   qon
-   [ _vararg_count qp;
-      while (_vararg_count > 0)
-      {
-         @copy sp qp;
-         qset_(self, qp, 1);
-         _vararg_count--;
-      }
-   ],
+  qon [ _vararg_count qp;
+    while (_vararg_count > 0) {
+      @copy sp qp;
+      qset_(self, qp, 1);
+      _vararg_count--;
+    }
+  ],
 
-   qoff
-   [ _vararg_count qp;
-      while (_vararg_count > 0)
-      {
-         @copy sp qp;
-         qset_(self, qp, 0);
-         _vararg_count--;
-      }
-   ]
+  qoff [ _vararg_count qp;
+    while (_vararg_count > 0) {
+      @copy sp qp;
+      qset_(self, qp, 0);
+      _vararg_count--;
+    }
+  ]
 ;
-
 #endif;
 
 
 #ifdef AutoDeactivate;
-
 ! Internal function: turn off all quips that have options that are all off.
 ! We only compile and make use of this if requested to.
 [ AutoDeactivateQuips char keepgoing qp o quipnum numoptions;
-   do
-   {
-      ! assume that we won't have to repeat this
-      keepgoing = false;
+  do {
+    ! assume that we won't have to repeat this
+    keepgoing = false;
 
-      ! go through all quips
-      for (qp = 1 : qp <= char.maxquip : qp++)
-      {
-         ! we don't need to check quips that are already off
-         if (char.qtest(qp))
-         {
-            ! get the option list and the number of options for this quip
-            quipnum = qp * 10 + 4;
-            numoptions = char.quip(quipnum, 0);
+    ! go through all quips
+    for (qp = 1 : qp <= char.maxquip : qp++) {
+      ! we don't need to check quips that are already off
+      if (char.qtest(qp)) {
+        ! get the option list and the number of options for this quip
+        quipnum = qp * 10 + 4;
+        numoptions = char.quip(quipnum, 0);
 
-            ! see if we have any options at all
-            if (numoptions)
-            {
-               ! go through the options
-               for (o = 1 : o <= numoptions : o++)
-               {
-                  ! If the quip for this option is on, then we can skip the
-                  ! current quip and move on to the next one. (Sorry for the
-                  ! spaghetti.)
-                  if (char.qtest(char.quip(quipnum, o)))
-                     jump nextquip;
-               }
+        ! see if we have any options at all
+        if (numoptions) {
+          ! go through the options
+          for (o = 1 : o <= numoptions : o++) {
+            ! If the quip for this option is on, then we can skip the
+            ! current quip and move on to the next one. (Sorry for the
+            ! spaghetti.)
+            if (char.qtest(char.quip(quipnum, o))) jump nextquip;
+          }
 
-               ! We found no options that were on, so turn off this quip.
-               ! Since this could affect other quips that have this quips as
-               ! one of their options, also note that we have to go through
-               ! this loop at least once more.
-               qset_(char, qp, 0);
-               keepgoing = true;
-            }
-         }
-.nextquip;
+          ! We found no options that were on, so turn off this quip.
+          ! Since this could affect other quips that have this quips as
+          ! one of their options, also note that we have to go through
+          ! this loop at least once more.
+          qset_(char, qp, 0);
+          keepgoing = true;
+        }
       }
-   } until (~~keepgoing);
+.nextquip;
+    }
+  } until (~~keepgoing);
 ];
-
 #endif;
-
 

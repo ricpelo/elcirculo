@@ -1433,8 +1433,7 @@ static void construct_storyfile_g(void)
       mark += 4;
     }
 
-    array_names_offset = mark;
-    WriteInt32(p+mark, no_arrays);
+	WriteInt32(p+mark, no_arrays);
     mark += 4;
 
     array_names_offset = mark;
@@ -1520,7 +1519,7 @@ table format requested (producing number 2 format instead)");
 
     preactions_at = mark;
     adjectives_offset = mark;
-    dictionary_offset = mark;
+
 
     /*  ------------------------- Dictionary ------------------------------- */
 
@@ -1531,12 +1530,12 @@ table format requested (producing number 2 format instead)");
       p[mark+i] = dictionary[i];
 
     for (i=0; i<dict_entries; i++) {
-      k = 4 + i*DICT_ENTRY_BYTE_LENGTH;
-      j = mark + 4 + final_dict_order[i]*DICT_ENTRY_BYTE_LENGTH;
-      for (l=0; l<DICT_ENTRY_BYTE_LENGTH; l++)
+      k = 4 + i*(7+DICT_WORD_SIZE);
+      j = mark + 4 + final_dict_order[i]*(7+DICT_WORD_SIZE);
+      for (l=0; l<(7+DICT_WORD_SIZE); l++)
         p[j++] = dictionary[k++];
     }
-    mark += 4 + dict_entries * DICT_ENTRY_BYTE_LENGTH;
+    mark += 4 + dict_entries * (7+DICT_WORD_SIZE);
 
     /*  -------------------------- All Data -------------------------------- */
     
@@ -1575,10 +1574,7 @@ table format requested (producing number 2 format instead)");
 
         mark = actions_at + 4;
         for (i=0; i<no_actions; i++) {
-          j = action_byte_offset[i];
-          if (OMIT_UNUSED_ROUTINES)
-            j = df_stripped_address_for_address(j);
-          j += code_offset;
+          j = action_byte_offset[i] + code_offset;
           WriteInt32(p+mark, j);
           mark += 4;
         }
@@ -1598,7 +1594,7 @@ table format requested (producing number 2 format instead)");
               switch(topbits) {
               case 1:
                 value = dictionary_offset + 4
-                  + final_dict_order[value]*DICT_ENTRY_BYTE_LENGTH;
+                  + final_dict_order[value]*(7+DICT_WORD_SIZE);
                 break;
               case 2:
                 if (OMIT_UNUSED_ROUTINES)

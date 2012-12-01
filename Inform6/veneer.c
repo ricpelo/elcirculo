@@ -1469,14 +1469,13 @@ static VeneerRoutine VRs_g[VENEER_ROUTINES] =
     {   /*  Unsigned__Compare:  returns 1 if x>y, 0 if x=y, -1 if x<y        */
 
         "Unsigned__Compare",
-        "x y;\
-         @jleu x y ?lesseq;\
-         return 1;\
-         .lesseq;\
-         @jeq x y ?equal;\
+        "x y u v;\
+         if (x==y) return 0;\
+         if (x<0 && y>=0) return 1;\
+         if (x>=0 && y<0) return -1;\
+         u = x&$7fffffff; v= y&$7fffffff;\
+         if (u>v) return 1;\
          return -1;\
-         .equal;\
-         return 0;\
          ]", "", "", "", "", ""
     },
     {   /*  Meta__class:  returns the metaclass of an object                 */
@@ -2170,12 +2169,8 @@ static void compile_symbol_table_routine(void)
     assembly_operand AO, AO2, AO3; dbgl null_dbgl;
     null_dbgl.b1 = 0; null_dbgl.b2 = 0; null_dbgl.b3 = 0; null_dbgl.cc = 0;
 
-    /* Assign local var names for the benefit of the debugging information 
-       file. */
-    local_variable_texts[0] = "dummy1";
-    local_variable_texts[1] = "dummy2";
-
     veneer_mode = TRUE; j = symbol_index("Symb__Tab", -1);
+	local_variables.keywords[0] = "a"; /* ensure no _vararg_count header */
     assign_symbol(j,
         assemble_routine_header(2, FALSE, "Symb__Tab", &null_dbgl, FALSE, j),
         ROUTINE_T);

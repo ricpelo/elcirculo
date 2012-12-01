@@ -2498,18 +2498,91 @@ void assembleg_call_1(assembly_operand oaddr, assembly_operand o1,
   assembly_operand odest)
 {
   assembleg_3(callfi_gc, oaddr, o1, odest);
+  /* Copy argument to stack ptr, unless it's already there. 
+  if (!(o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0)) {
+    assembleg_2(copy_gc, o1, stack_pointer);
+  }
+  assembleg_3(call_gc, oaddr, one_operand, odest); */
 }
 
 void assembleg_call_2(assembly_operand oaddr, assembly_operand o1, 
   assembly_operand o2, assembly_operand odest)
 {
   assembleg_4(callfii_gc, oaddr, o1, o2, odest);
+  /* Copy arguments to stack ptr, unless they're already there. 
+  if (o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0) {
+    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
+    }
+    else {
+      assembleg_2(copy_gc, o2, stack_pointer);
+      assembleg_0(stkswap_gc);
+    }
+  }
+  else {
+    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
+      assembleg_2(copy_gc, o1, stack_pointer);
+    }
+    else {
+      assembleg_2(copy_gc, o2, stack_pointer);
+      assembleg_2(copy_gc, o1, stack_pointer);
+    }
+  }
+  assembleg_3(call_gc, oaddr, two_operand, odest); */
 }
 
 void assembleg_call_3(assembly_operand oaddr, assembly_operand o1, 
   assembly_operand o2, assembly_operand o3, assembly_operand odest)
 {
   assembleg_5(callfiii_gc, oaddr, o1, o2, o3, odest);
+  /* Copy arguments to stack ptr, unless they're already there. 
+  if (o1.type == LOCALVAR_OT && o1.value == 0 && o1.marker == 0) {
+    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
+      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
+    // all already there. 
+      }
+      else {
+    assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_2(stkroll_gc, three_operand, one_operand);
+      }
+    }
+    else {
+      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
+    assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_0(stkswap_gc);
+      }
+      else {
+    assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_0(stkswap_gc);
+    assembleg_2(copy_gc, o2, stack_pointer);
+        assembleg_0(stkswap_gc);
+      }
+    }
+  }
+  else {
+    if (o2.type == LOCALVAR_OT && o2.value == 0 && o2.marker == 0) {
+      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
+    assembleg_2(copy_gc, o1, stack_pointer);
+      }
+      else {
+    assembleg_2(copy_gc, o3, stack_pointer);
+        assembleg_0(stkswap_gc);
+    assembleg_2(copy_gc, o1, stack_pointer);
+      }
+    }
+    else {
+      if (o3.type == LOCALVAR_OT && o3.value == 0 && o3.marker == 0) {
+    assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_2(copy_gc, o1, stack_pointer);
+      }
+      else {
+    assembleg_2(copy_gc, o3, stack_pointer);
+    assembleg_2(copy_gc, o2, stack_pointer);
+    assembleg_2(copy_gc, o1, stack_pointer);
+      }
+    }
+  }
+
+  assembleg_3(call_gc, oaddr, three_operand, odest); */
 }
 
 void assembleg_inc(assembly_operand o1)

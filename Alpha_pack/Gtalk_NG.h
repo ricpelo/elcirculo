@@ -648,7 +648,7 @@ Class Character
         return;
       }
 
-      altura = onoptions + 1;
+      altura = onoptions; if (~~killq) altura++;
 
       if (gg_conversawin == 0) {
         gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
@@ -700,16 +700,16 @@ Class Character
           print (string) GT_OPTIONSUFFIX;
           ! print the option text
           self.quip(curquip * 10 + 1);
-          
           glk_window_get_cursor(gg_conversawin, gg_arguments,
                                 gg_arguments + WORDSIZE);
+          new_line;
           if (gg_arguments-->1 ~= y) {     ! El texto ha ocupado varias líneas
             oldy = y;
-            y = gg_arguments-->1 - y;     ! En y guardamos la diferencia
+            y = gg_arguments-->1 - y;      ! En "y" guardamos la diferencia
             glk_window_get_arrangement(glk_window_get_parent(gg_conversawin),
                                        gg_arguments, gg_arguments + WORDSIZE,
                                        gg_arguments + 2 * WORDSIZE);
-            altura = gg_arguments-->1 + y + 1; ! Sumamos diferencia a altura 
+            altura = gg_arguments-->1 + y; ! Sumamos diferencia a altura 
             glk_window_set_arrangement(glk_window_get_parent(gg_conversawin),
                                        gg_arguments-->0,
                                        altura,
@@ -725,12 +725,13 @@ Class Character
             print (string) GT_OPTIONSUFFIX;
             ! print the option text
             self.quip(curquip * 10 + 1);
+            new_line;
           }
         }
       }
       
       if (~~killz) {
-        new_line;
+!        new_line;
         print "   ", (string) GT_OPTIONPREFIX;
         glk($0086, 8); ! set input style
         glk($100, 48);
@@ -783,10 +784,12 @@ Class Character
 
           keycode_Down:
             if (y >= altura - 1) continue;
+            oldy = y;
             do {
               y++;
             } until (y == altura - 1 ||
                      glk_window_get_char(gg_conversawin, 3, y) == '[');
+            if (glk_window_get_char(gg_conversawin, 3, y) ~= '[') y = oldy;
             continue;
 
           keycode_Return:

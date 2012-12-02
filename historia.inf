@@ -309,22 +309,30 @@ Object amigos_katie "amigos de Katie"
         12: ! No se necesita respuesta
         13: qtype = MainMenu;
             qqon = true;
-        14: return Qlist(b, 2, 2, 3);
+        14: return Qlist(b, 3, 2, 3, 4);
             
         ! Quip 2
-        21: print "Hola, chicos... ¿Cómo estáis? skld jfskl jfskl jfskl jfklsd fkls jfkls jklfsd jflks jfkls jfskl jfskl jfkls jfskl jfsskld jfskl jfsklj fkls jflsk jfskl jfskljd fsklj fskl jflsk jfklsd jfklsd jflk jsdfkls jfskdl jflsk jfsfskl jfskl jfskl jfkls jflskd jfskdl jfskdl jfskdl jfskl jfskl jfskdl jfskl jfskl jfskl jfskl jfskl jfskl jfskdl";
-        22: self.qoff(2); self.qon(3);
+        21: print "Hola, chicos... ¿Cómo estáis? skld jfskl jfskl jfskl jfklsd fkls jfkls jklfsd jflks jfkls jfskl jfskl jfkls jfskl jfsskld jfskl jfsklj fkls jflsk jfskl jfskljd fsklj fskl jflsk jfklsd jfklsd jflk jsdfkls jfskdl jflsk jfsfskl jfskl jfskl jfkls jflskd jfskdl jfskdl jfskdl jfskl jfskl jfskdl jfskl jfskl jfskl jfskl jfskl jfskl jfskdl.";
+        22: self.qoff(2); self.qon(3); self.qon(4);
             amiga_morena.habla("Bien.");
         23: qqon = true;
             killq = true;
             qtransfer = 1;
         
         ! Quip 3
-        31: print "¿Sabéis algo de Katie?";
+        31: print "¿Sabéis algo de Katie lskjdfkls jdklsjdfskljfskl jfskl jfskl jflsk jfkls jflks jdklfskdl fskl jfskl jdklfs jdklfs jklf sdklf jsdklf jsdklf jsdklf jsdklfs dklf jskdlf jskdl jfskl jfskl jfskl jfskljd fskld jfskdl jfskdl jfskl jdfskl jdflsk jdfkl jsfkls jdflks jdfskl jdfdskl jfskl jfskdl jfskl jfskdlj fdskl jfskl jfkdls jfskdl js?";
         32: self.qoff(3);
             amiga_morena.habla("No.");
-        33: killq = true;
-            qtransfer = 1;        
+        33: ! qqon = true;
+            killq = true;
+            qtransfer = 1;
+
+        ! Quip 4
+        41: print "lksdjfkls fskl jfskl jfskl dfskl dfkls jfkls jfkls jklfsjklf jskld jfskl jdfsklj fklsj dklfjs fkls jklfs klf jskdl fjskldjf skld jfskld jfskl jdfskldjfskl jdfskdljfskljfskl fskl jfskl jfskld jfskdl jfskdlj fskl jdfskl jdfskljd fskljd fsklj fskld jfskld jfskl jfskl jdfskl jflskd jfskl.";
+        42: self.qoff(4);
+        43: qqon = true;
+            killq = true;
+            qtransfer = 1;
       }
     ],
     life [

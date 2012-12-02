@@ -88,21 +88,22 @@ Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
 ! Constantes de gtalk.h:
-Constant GT_SELECT       = "Selecciona una opción ";
-Constant GT_WOULDLIKE    = "^¿Qué vas a decir?^";
+!Constant GT_SELECT       = "Selecciona una opción ";
+!Constant GT_WOULDLIKE    = "^¿Qué vas a decir?^";
 Constant GT_NOQUIP       = "^No se te ocurre nada más que decir.^";
 Constant GT_NOSAY        = "^Prefieres no decir nada.^";
 Constant GT_OPTIONPREFIX = "[";
 Constant GT_OPTIONSUFFIX = "] ";
-[ GT_ZEROEXIT; ! La hacemos rutina en lugar de constante
-  print "(";
-  glk($0086, 8); ! set input style
-  glk($100, 48);
-  print "0";
-  glk($100, 0); 
-  glk($0086, 0); ! set input style
-  print " para salir) ";
-];
+Constant GT_ZEROEXIT     = "No decir nada.";
+![ GT_ZEROEXIT; ! La hacemos rutina en lugar de constante
+!  print "(";
+!  glk($0086, 8); ! set input style
+!  glk($100, 48);
+!  print "0";
+!  glk($100, 0); 
+!  glk($0086, 0); ! set input style
+!  print " para salir) ";
+!];
 
 ! Número máximo de cadenas DIFERENTES que se han impreso:
 Constant PS_TAB_SIZE = 1000;

@@ -575,10 +575,63 @@ Class Character
   ! have to calculate it once
   maxquip 0,
 
+  ! Mostrar una opción del menú:
+  mostrar_opcion [ curquip opc
+    y oldy;
+
+    while (true) {
+      glk_window_get_cursor(gg_conversawin, gg_arguments,
+                            gg_arguments + WORDSIZE);
+      y = gg_arguments-->1; ! Guardamos la fila actual
+      if (y >= self.altura()) self.cambiar_altura(y + 1);
+      glk_window_move_cursor(gg_conversawin, 0, y);
+      print "   ", (string) GT_OPTIONPREFIX;
+      glk_set_style(style_Input);
+      glk_set_hyperlink(opc + 48);
+      print opc;
+      glk_set_hyperlink(0);
+      glk_set_style(style_Normal);
+      print (string) GT_OPTIONSUFFIX;
+      ! print the option text
+      glk_set_hyperlink(opc + 48);
+      if (opc ~= 0) self.quip(curquip * 10 + 1);
+      else print (string) GT_ZEROEXIT;
+      glk_set_hyperlink(0);
+      oldy = y;    
+      glk_window_get_cursor(gg_conversawin, gg_arguments, 
+                            gg_arguments + WORDSIZE);
+      y = gg_arguments-->1;
+      new_line;
+      if (y >= self.altura()) {
+        self.cambiar_altura(gg_arguments-->1 + 1);
+        glk_window_move_cursor(gg_conversawin, 0, oldy);
+      } else {
+        break;
+      }
+    } 
+  ],
+
+  altura [;
+    glk_window_get_arrangement(glk_window_get_parent(gg_conversawin),
+                               gg_arguments, gg_arguments + WORDSIZE,
+                               gg_arguments + 2 * WORDSIZE);
+    return gg_arguments-->1;
+  ],
+  
+  cambiar_altura [ altura;
+    glk_window_get_arrangement(glk_window_get_parent(gg_conversawin),
+                               gg_arguments, gg_arguments + WORDSIZE,
+                               gg_arguments + 2 * WORDSIZE);
+    glk_window_set_arrangement(glk_window_get_parent(gg_conversawin),
+                               gg_arguments-->0,
+                               altura,
+                               gg_arguments-->2);
+  ],
+  
   ! This method carries out a conversation with our character. Call it with
   ! the first argument set to a quip which represents a main menu.
   select [ curquip
-    times quipnum numoptions onoptions o selected spoken y oldy altura;
+    times quipnum numoptions onoptions o selected spoken y oldy;
 
     ! Check if we need to initialize. This process is, among other things,
     ! responsible for calculating our maxquip value, so we can see if it
@@ -629,13 +682,10 @@ Class Character
       for (o = 1 : o <= numoptions : o++) {
         ! we don't care about how many options there are right now, so
         ! leave this loop as soon as we find at least one option that is on
-        if (self.qtest(self.quip(quipnum, o))) {
-          onoptions++;
-!         break;
-        }
+        if (self.qtest(self.quip(quipnum, o))) onoptions++;
       }
 
-      if (~~onoptions) {
+      if (onoptions == 0) {
         ! There were no options available, hence nothing for the player
         ! to say, so this conversation is finished. If this was a main
         ! menu, report that the player can't think of anything to say,
@@ -648,33 +698,17 @@ Class Character
         return;
       }
 
-      altura = onoptions; if (~~killq) altura++;
-
       if (gg_conversawin == 0) {
         gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
                                          winmethod_Below + winmethod_Fixed +
                                          winmethod_Border,
-                                         altura, wintype_TextGrid,
+                                         onoptions, wintype_TextGrid,
                                          GG_CONVERSAWIN_ROCK);
         glk_set_window(gg_conversawin);
         glk_request_hyperlink_event(gg_conversawin);
       } else {
-        glk_window_get_arrangement(glk_window_get_parent(gg_conversawin),
-                                   gg_arguments, gg_arguments + WORDSIZE,
-                                   gg_arguments + 2 * WORDSIZE);
-        glk_window_set_arrangement(glk_window_get_parent(gg_conversawin),
-                                   gg_arguments-->0,
-                                   altura,
-                                   gg_arguments-->2);
+        self.cambiar_altura(onoptions);
       }
-      ! We have options. Display an extra prompt before printing them, if
-      ! desired
-!     if (~~killq) {
-!       ! unless this is the first time through, print an extra line
-!       ! feed so that we're separated from the previous reply
-!       if (times > 1) new_line;
-!       print (string) GT_WOULDLIKE;
-!     }
 
       ! Go through the options again, now printing a list of those that
       ! are on. Note that we can reuse the variables quipnum and
@@ -688,84 +722,20 @@ Class Character
           ! print the number of this option (not the internal number,
           ! of course, but one that starts at 1 and increases for every
           ! option that we display)
-          glk_window_get_cursor(gg_conversawin, gg_arguments,
-                                gg_arguments + WORDSIZE);
-          y = gg_arguments-->1; ! Guardamos la fila actual
-          print "   ", (string) GT_OPTIONPREFIX;
-          glk($0086, 8); ! set input style
-          glk($100, ++onoptions + 48);
-          print onoptions;
-          glk($100, 0);
-          glk($0086, 0); ! set input style
-          print (string) GT_OPTIONSUFFIX;
-          ! print the option text
-          self.quip(curquip * 10 + 1);
-          glk_window_get_cursor(gg_conversawin, gg_arguments,
-                                gg_arguments + WORDSIZE);
-          new_line;
-          if (gg_arguments-->1 ~= y) {     ! El texto ha ocupado varias líneas
-            oldy = y;
-            y = gg_arguments-->1 - y;      ! En "y" guardamos la diferencia
-            glk_window_get_arrangement(glk_window_get_parent(gg_conversawin),
-                                       gg_arguments, gg_arguments + WORDSIZE,
-                                       gg_arguments + 2 * WORDSIZE);
-            altura = gg_arguments-->1 + y; ! Sumamos diferencia a altura 
-            glk_window_set_arrangement(glk_window_get_parent(gg_conversawin),
-                                       gg_arguments-->0,
-                                       altura,
-                                       gg_arguments-->2);
-            ! Repintamos la opción ahora que la ventana es más grande:
-            glk_window_move_cursor(gg_conversawin, 0, oldy);
-            print "   ", (string) GT_OPTIONPREFIX;
-            glk($0086, 8); ! set input style
-            glk($100, onoptions + 48);
-            print onoptions;
-            glk($100, 0);
-            glk($0086, 0); ! set input style
-            print (string) GT_OPTIONSUFFIX;
-            ! print the option text
-            self.quip(curquip * 10 + 1);
-            new_line;
-          }
+          self.mostrar_opcion(curquip, ++onoptions);
         }
       }
-      
-      if (~~killz) {
-!        new_line;
-        print "   ", (string) GT_OPTIONPREFIX;
-        glk($0086, 8); ! set input style
-        glk($100, 48);
-        print "0";
-        glk($100, 0);
-        glk($0086, 0); ! set input style
-        print (string) GT_OPTIONSUFFIX;
-        print "No decir nada";
-      }
 
-      ! separate the options from the prompt with an empty line
-      new_line;
+      if (~~killz) self.mostrar_opcion(curquip, 0);
 
       y = 0;
 
       ! Now get the response from the player. Keep on asking until we get
       ! an acceptable answer.
       do {
-        ! print the basic prompt
-!       print (string) GT_SELECT;
-
-        ! if the player can exit the conversation by typing 0, mention
-        ! this as well
-!       if (~~killz)
-!         if (GT_ZEROEXIT ofclass Routine) GT_ZEROEXIT(); ! (c) Alpha
-!         else                             print (string) GT_ZEROEXIT;
-
-!       print ">> ";
-
         glk_window_move_cursor(gg_conversawin, 1, y);
         print ">";
-
         selected = ZIPI_tecla(gg_conversawin);
-
         glk_window_move_cursor(gg_conversawin, 1, y);
         print " ";
 
@@ -780,21 +750,19 @@ Class Character
             } until (y == 0 ||
                      glk_window_get_char(gg_conversawin, 3, y) == '[');
             continue;
-              
 
           keycode_Down:
-            if (y >= altura - 1) continue;
+            if (y >= self.altura() - 1) continue;
             oldy = y;
             do {
               y++;
-            } until (y == altura - 1 ||
+            } until (y == self.altura() - 1 ||
                      glk_window_get_char(gg_conversawin, 3, y) == '[');
             if (glk_window_get_char(gg_conversawin, 3, y) ~= '[') y = oldy;
             continue;
 
           keycode_Return:
-            if (y == altura - 1 && ~~killz) selected = '0';
-            else                            selected = y + 1 + 48;
+            selected = glk_window_get_char(gg_conversawin, 4, y);
             break;
         }
           
@@ -812,7 +780,6 @@ Class Character
 !       if (~~spoken)                    (c) Alpha
           print (string) GT_NOSAY;
         glk_set_window(gg_conversawin);
-        ! return from this method
         return;
       }
 

@@ -316,7 +316,6 @@ Object amigos_katie "amigos de Katie"
         22: self.qoff(2); self.qon(3); self.qon(4);
             amiga_morena.habla("Bien.");
         23: qqon = true;
-            killq = true;
             qtransfer = 1;
         
         ! Quip 3
@@ -324,14 +323,13 @@ Object amigos_katie "amigos de Katie"
         32: self.qoff(3);
             amiga_morena.habla("No.");
         33: ! qqon = true;
-            killq = true;
             qtransfer = 1;
 
         ! Quip 4
         41: print "lksdjfkls fskl jfskl jfskl dfskl dfkls jfkls jfkls jklfsjklf jskld jfskl jdfsklj fklsj dklfjs fkls jklfs klf jskdl fjskldjf skld jfskld jfskl jdfskldjfskl jdfskdljfskljfskl fskl jfskl jfskld jfskdl jfskdlj fskl jdfskl jdfskljd fskljd fsklj fskld jfskld jfskl jfskl jdfskl jflskd jfskl.";
         42: self.qoff(4);
+            amiga_morena.habla("Jejeje...");
         43: qqon = true;
-            killq = true;
             qtransfer = 1;
       }
     ],

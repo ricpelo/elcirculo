@@ -578,16 +578,18 @@ Class Character
   ! This method carries out a conversation with our character. Call it with
   ! the first argument set to a quip which represents a main menu.
   select [ curquip times quipnum numoptions onoptions o selected spoken;
+
     ! Check if we need to initialize. This process is, among other things,
     ! responsible for calculating our maxquip value, so we can see if it
     ! has been done by checking if maxquip is still set to zero.
     if (self.maxquip == 0) initquips(self);
+
     ! do a big loop, because this quip could be only the first of many in
     ! an extended conversation
     for (times = 1 : : times++) {
       ! turn off quips with no options on, if desired
       #ifdef AutoDeactivate;
-        AutoDeactivateQuips(self);
+      AutoDeactivateQuips(self);
       #endif;
 
       ! Reset global variables. Note that we don't care about qqon, since
@@ -606,11 +608,13 @@ Class Character
       if (qtype ~= MainMenu && qtype ~= SubMenu) spoken = true;
 
       ! print the reply for this quip
+      glk_set_window(gg_mainwin);
       self.quip(curquip * 10 + 2);
+      glk_set_window(gg_conversawin);
 
       ! The next step is to see if we have any options to display. Assume
       ! that we don't.
-      onoptions = false;
+      onoptions = 0;
 
       ! Get the quip argument for the option list.  Note that qtransfer
       ! will be set either to the current quip or to a different quip,
@@ -625,8 +629,8 @@ Class Character
         ! we don't care about how many options there are right now, so
         ! leave this loop as soon as we find at least one option that is on
         if (self.qtest(self.quip(quipnum, o))) {
-          onoptions = true;
-          break;
+          onoptions++;
+!          break;
         }
       }
 
@@ -636,19 +640,38 @@ Class Character
         ! menu, report that the player can't think of anything to say,
         ! otherwise assume that something appropriate has already been
         ! printed in our reply.
+        glk_set_window(gg_mainwin);
 !       if (qtype == MainMenu)           (c) Alpha
           print (string) GT_NOQUIP;
+        glk_set_window(gg_conversawin);
         return;
       }
 
+      if (gg_conversawin == 0) {
+        gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+                                         winmethod_Below + winmethod_Fixed +
+                                         winmethod_Border,
+                                         onoptions + 1, wintype_TextGrid,
+                                         GG_CONVERSAWIN_ROCK);
+        glk_set_window(gg_conversawin);
+        glk_request_hyperlink_event(gg_conversawin);
+      } else {
+          glk_window_get_arrangement(glk_window_get_parent(gg_conversawin),
+                                     gg_arguments, gg_arguments + WORDSIZE,
+                                     gg_arguments + 2 * WORDSIZE);
+          glk_window_set_arrangement(glk_window_get_parent(gg_conversawin),
+                                     gg_arguments-->0,
+                                     onoptions + 1,
+                                     gg_arguments-->2);
+      }
       ! We have options. Display an extra prompt before printing them, if
       ! desired
-      if (~~killq) {
-        ! unless this is the first time through, print an extra line
-        ! feed so that we're separated from the previous reply
-        if (times > 1) new_line;
-        print (string) GT_WOULDLIKE;
-      }
+!      if (~~killq) {
+!        ! unless this is the first time through, print an extra line
+!        ! feed so that we're separated from the previous reply
+!        if (times > 1) new_line;
+!        print (string) GT_WOULDLIKE;
+!      }
 
       ! Go through the options again, now printing a list of those that
       ! are on. Note that we can reuse the variables quipnum and
@@ -661,7 +684,7 @@ Class Character
         if (self.qtest(curquip)) {
           ! print the number of this option (not the internal number,
           ! of course, but one that starts at 1 and increases for every
-          ! option that we display)
+          ! option that we display)          
           print (string) GT_OPTIONPREFIX;
           glk($0086, 8); ! set input style
           glk($100, ++onoptions + 48);
@@ -674,6 +697,16 @@ Class Character
           self.quip(curquip * 10 + 1);
         }
       }
+      
+      new_line;
+      print (string) GT_OPTIONPREFIX;
+      glk($0086, 8); ! set input style
+      glk($100, 48);
+      print "0";
+      glk($100, 0);
+      glk($0086, 0); ! set input style
+      print (string) GT_OPTIONSUFFIX;
+      print "No decir nada";
 
       ! separate the options from the prompt with an empty line
       new_line;
@@ -682,32 +715,18 @@ Class Character
       ! an acceptable answer.
       do {
         ! print the basic prompt
-        print (string) GT_SELECT;
+!        print (string) GT_SELECT;
 
         ! if the player can exit the conversation by typing 0, mention
         ! this as well
-        if (~~killz)
-          if (GT_ZEROEXIT ofclass Routine) GT_ZEROEXIT(); ! (c) Alpha
-          else                             print (string) GT_ZEROEXIT;
+!        if (~~killz)
+!          if (GT_ZEROEXIT ofclass Routine) GT_ZEROEXIT(); ! (c) Alpha
+!          else                             print (string) GT_ZEROEXIT;
 
-        print ">> ";
+!        print ">> ";
 
-        selected = KeyCharPrimitive();
+        selected = ZIPI_tecla(gg_conversawin);
         selected = selected - 48;
-
-        glk($0086, 8); ! set input style
-        print selected, "^";
-        glk($0086, 0); ! set input style
-
-!       ! read a line of input
-!       KeyboardPrimitive(buffer, parse);
-!
-!       ! Check for empty input, otherwise for a number. In any case,
-!       ! invalid input will set selected to something < 0.
-!       if (parse->(WORDSIZE - 1) == 0)
-!         selected = -1;
-!       else
-!         selected = TryNumber(1);
 
         ! disallow 0, if desired
         if (killz && selected == 0) selected = -1;
@@ -717,12 +736,15 @@ Class Character
       if (selected == 0) {
         ! print a notice saying that the PC decided not to say anything
         ! after all, but only if nothing has actually been said so far
+        glk_set_window(gg_mainwin);
 !       if (~~spoken)                    (c) Alpha
           print (string) GT_NOSAY;
-
+        glk_set_window(gg_conversawin);
         ! return from this method
         return;
       }
+
+      glk_window_clear(gg_conversawin);
 
       ! go through the options once again, this time to retrieve the
       ! option that the player selected, and thus the quip that we want
@@ -738,6 +760,12 @@ Class Character
             ! It's the right one. Just break out of this loop, since
             ! we'll then jump back to the beginning with curquip set
             ! to the quip that the player selected.
+            ! print the option text
+            glk_set_window(gg_mainwin);
+            player.habla_inicio();
+            self.quip(curquip * 10 + 1);
+            player.habla_fin();
+            glk_set_window(gg_conversawin);
             break;
           }
         }

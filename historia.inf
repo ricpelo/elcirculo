@@ -312,19 +312,17 @@ Object amigos_katie "amigos de Katie"
         14: return Qlist(b, 2, 2, 3);
             
         ! Quip 2
-        21: "Hola, chicos... ¿Cómo estáis?";
+        21: print "Hola, chicos... ¿Cómo estáis?";
         22: self.qoff(2); self.qon(3);
             amiga_morena.habla("Bien.");
-            new_line;
         23: qqon = true;
             killq = true;
             qtransfer = 1;
         
         ! Quip 3
-        31: "¿Sabéis algo de Katie?";
+        31: print "¿Sabéis algo de Katie?";
         32: self.qoff(3);
             amiga_morena.habla("No.");
-            new_line;
         33: killq = true;
             qtransfer = 1;        
       }

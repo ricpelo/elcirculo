@@ -29,7 +29,6 @@
 !
 ! Sistema automático de testeo para inform
 ! Añadir Replace KeyboardPrimitive;
-! Añadir Replace KeyCharPrimitive;
 ! 19 de Marzo de 2011
 ! Usar como herramienta para genera las secuencias de test: genera_test_vector.py
 Global parse_input_externo = 0;
@@ -445,120 +444,6 @@ Object test_machine
 !        PNJ_Ruta(actor, MOVIMIENTO_NINGUNO); 
 !      }
 !    ];
-
-! Modificamos KeyCharPrimitive para que tenga en cuenta la variable global
-! parse_input_externo y actúe en consecuencia:
-[ KeyCharPrimitive win nostat done res ix jx ch;
-    jx = ch; ! squash compiler warnings
-    if (win == 0) win = gg_mainwin;
-
-    ! Comienzo del hackeo (c) Alpha
-    if (parse_input_externo > 0) {
-      if (test_machine.get_input() ~= 0) {
-        if (parse_input_externo == 2) parse_input_externo = -1; ! Para gtalk
-        return buffer->WORDSIZE;
-      }
-    }
-    if (parse_input_externo == -1) parse_input_externo = 0;
-    ! Fin del hackeo (c) Alpha
-
-    if (gg_commandstr ~= 0 && gg_command_reading ~= false) {
-        ! get_line_stream
-        done = glk($0091, gg_commandstr, gg_arguments, 31);
-        if (done == 0) {
-            glk($0044, gg_commandstr, 0); ! stream_close
-            gg_commandstr = 0;
-            gg_command_reading = false;
-            ! fall through to normal user input.
-        }
-        else {
-            ! Trim the trailing newline
-            if (gg_arguments->(done-1) == 10) done = done-1;
-            res = gg_arguments->0;
-            if (res == '\') {
-                res = 0;
-                for (ix=1 : ix<done : ix++) {
-                    ch = gg_arguments->ix;
-                    if (ch >= '0' && ch <= '9') {
-                        @shiftl res 4 res;
-                        res = res + (ch-'0');
-                    }
-                    else if (ch >= 'a' && ch <= 'f') {
-                        @shiftl res 4 res;
-                        res = res + (ch+10-'a');
-                    }
-                    else if (ch >= 'A' && ch <= 'F') {
-                        @shiftl res 4 res;
-                        res = res + (ch+10-'A');
-                    }
-                }
-            }
-        jump KCPContinue;
-        }
-    }
-    done = false;
-    glk($00D2, win); ! request_char_event
-    while (~~done) {
-        glk($00C0, gg_event); ! select
-        switch (gg_event-->0) {
-          5: ! evtype_Arrange
-            if (nostat) {
-                glk($00D3, win); ! cancel_char_event
-                res = $80000000;
-                done = true;
-                break;
-            }
-            DrawStatusLine();
-          2: ! evtype_CharInput
-            if (gg_event-->1 == win) {
-                res = gg_event-->2;
-                done = true;
-                }
-          ! Comienzo del hackeo (c) Alpha
-          8: ! evtype_Hyperlink
-             if (gg_event-->1 == win) {
-               if (gg_event-->2 >= 0 && gg_event-->2 <= $ff) {
-                 glk($00D3, win); ! cancel_char_event
-                 res = gg_event-->2;
-                 done = true;
-               }
-             }
-          ! Fin del hackeo (c) Alpha 
-        }
-        ix = HandleGlkEvent(gg_event, 1, gg_arguments);
-        if (ix == 2) {
-            res = gg_arguments-->0;
-            done = true;
-        }
-        else if (ix == -1) {
-            done = false;
-        }
-    }
-    if (gg_commandstr ~= 0 && gg_command_reading == false) {
-        if (res < 32 || res >= 256 || (res == '\' or ' ')) {
-            glk($0081, gg_commandstr, '\'); ! put_buffer_char
-            done = 0;
-            jx = res;
-            for (ix=0 : ix<8 : ix++) {
-                @ushiftr jx 28 ch;
-                @shiftl jx 4 jx;
-                ch = ch & $0F;
-                if (ch ~= 0 || ix == 7) done = 1;
-                if (done) {
-                    if (ch >= 0 && ch <= 9) ch = ch + '0';
-                    else                    ch = (ch - 10) + 'A';
-                    glk($0081, gg_commandstr, ch); ! put_buffer_char
-                }
-            }
-        }
-        else {
-            glk($0081, gg_commandstr, res); ! put_buffer_char
-        }
-        glk($0081, gg_commandstr, 10); ! put_char_stream (newline)
-    }
-  .KCPContinue;
-    return res;
-];
 
 ! Modificamos KeyboardPrimitive para que tenga en cuenta la variable global
 ! parse_input_externo y actúe en consecuencia:

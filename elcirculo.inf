@@ -78,6 +78,9 @@ Constant GBOXQUOTE_NOFRAME;
 ! La roca de la ventana de menús de acciones:
 Constant GG_MENUWIN_ROCK = 213;
 
+! La roca de la ventana de conversaciones con personajes:
+Constant GG_CONVERSAWIN_ROCK = 214;
+
 ! Alturas de los gráficos:
 Constant GRAFICOS_MINUSCULOS = 200;
 Constant GRAFICOS_PEQUENOS   = 250;
@@ -87,7 +90,7 @@ Constant GRAFICOS_GRANDES    = 450;
 ! Constantes de gtalk.h:
 Constant GT_SELECT       = "Selecciona una opción ";
 Constant GT_WOULDLIKE    = "^¿Qué vas a decir?^";
-Constant GT_NOQUIP       = "No se te ocurre nada más que decir.^";
+Constant GT_NOQUIP       = "^No se te ocurre nada más que decir.^";
 Constant GT_NOSAY        = "^Prefieres no decir nada.^";
 Constant GT_OPTIONPREFIX = "[";
 Constant GT_OPTIONSUFFIX = "] ";
@@ -133,6 +136,9 @@ Global estoyEmpujando = false;
 
 ! La ventana de menús de acciones:
 Global gg_menuwin = 0;
+
+! La ventana de conversación con personajes:
+Global gg_conversawin = 0;
 
 ! Hay gráficos o no:
 Global hayGraficos = true;
@@ -207,7 +213,6 @@ Replace InitGlkWindow;
 
 ! Lo pide TestMachine_NG.h:
 Replace KeyboardPrimitive;
-Replace KeyCharPrimitive;
 
 ! Lo pide Timer.h:
 Replace KeyDelay;
@@ -228,6 +233,9 @@ Replace random;
 ! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
 ! REGISTRA...):
 Replace SearchSub;
+
+! La línea de estado se crea sin bordes:
+Replace StatusLineHeight;
 
 ! Nuestra versión mejora la de ExaminarFalso en que muestra un menú de
 ! acciones si el objeto lo tiene:
@@ -311,12 +319,13 @@ Include "Parser";
   Damusix.IdentificarSonidos(fase);
   Menu_IdentifyGlkObject(fase, tipo, ref, rock);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
+  Conversa_IdentifyGlkObject(fase, tipo, ref, rock);
 ];
 
 
 [ InitGlkWindow winrock;
   switch (winrock) {
-    GG_MAINWIN_ROCK:
+    GG_MAINWIN_ROCK, GG_STATUSWIN_ROCK, GG_MENUWIN_ROCK, GG_CONVERSAWIN_ROCK:
       glk_stylehint_set(wintype_TextBuffer, style_Normal,
                         stylehint_TextColor, $ffffff);
       glk_stylehint_set(wintype_TextBuffer, style_Normal,
@@ -545,6 +554,31 @@ Include "Parser";
   }
 
   rfalse; ! si te olvidas esta linea, el juego no funcionará bien
+];
+
+
+! El IdentifyGlkObject de la ventana de conversaciones con personajes:
+[ Conversa_IdentifyGlkObject fase tipo ref rock;
+  if (fase == 0) { ! Poner cero en todos nuestros objetos glk
+    gg_conversawin = 0;
+    return;
+  }       
+  if (fase == 1) { ! Reiniciar correctamente las variables glk
+    switch (tipo) {
+      0: ! es una ventana
+         switch (rock) {
+           GG_CONVERSAWIN_ROCK: gg_conversawin = ref;
+         }
+      1: ! es un flujo
+         ! pero no hay flujos en este ejemplo
+      2: ! es una referencia a fichero
+         ! pero no hay ficheros en este ejemplo
+    }
+    return;
+  }       
+  if (fase == 2) { ! Actualizar nuestras ventanas
+    rfalse;
+  }
 ];
 
 ! El IdentifyGlkObject de la ventana de menús de acciones:
@@ -855,7 +889,14 @@ Include "Timer";            ! Mi librería de eventos temporizados
   }
   openGraphicWindow(ALTURA_LOGO_MENU);
   clearGraphicWindow();
-  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
+  glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+                             gg_arguments, gg_arguments + WORDSIZE,
+                             gg_arguments + 2 * WORDSIZE);
+  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                             gg_arguments-->0 | winmethod_NoBorder,
+                             ALTURA_MENU_PRINCIPAL,
+                             gg_arguments-->2);
+!  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
   clearMainWindow();
   viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
@@ -874,7 +915,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
   ! glk_request_mouse_event(gg_bigwin);
   AbrirVentanaMenu();
   gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
-                                 winmethod_Above + winmethod_Fixed,
+                                 winmethod_Above + winmethod_Fixed +
+                                 winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
   if (hayGraficos) EncenderGraficos();
 ];
@@ -1072,6 +1114,15 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
+[ StatusLineHeight hgt parwin;
+    if (gg_statuswin == 0) return;
+    if (hgt == gg_statuswin_cursize) return;
+    parwin = glk($0029, gg_statuswin); ! window_get_parent
+    glk($0026, parwin, $112, hgt, 0); ! window_set_arrangement
+    gg_statuswin_cursize = hgt;
+];
+
+
 ! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
 ! asociado un menú de acciones:
 [ UnknownVerb x
@@ -1260,7 +1311,18 @@ Class Personaje
       old_pie;
       old_pie = parse_input_externo;
       if (parse_input_externo == -1) parse_input_externo = 1;
+!      gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+!                                       winmethod_Below +
+!                                       winmethod_Proportional +
+!                                       winmethod_Border,
+!                                       50, wintype_TextGrid,
+!                                       GG_CONVERSAWIN_ROCK);
+!      glk_set_window(gg_conversawin);
       self.select(q);
+      glk_set_window(gg_mainwin);
+      glk_cancel_line_event(gg_mainwin, gg_event);
+      glk_window_close(gg_conversawin, 0);
+      gg_conversawin = 0;
       parse_input_externo = old_pie;
     ],
   has
@@ -1510,7 +1572,21 @@ Array numero_opciones -> 30;
 
 
 [ ZIPI_tecla win sw
-  key done ix;
+  key done ix gi;
+
+  ! Comienzo del hackeo (c) Alpha
+  if (parse_input_externo > 0) {
+    glk_set_window(gg_mainwin);
+    gi = test_machine.get_input();
+    if (win) glk_set_window(win);
+    if (gi ~= 0) {
+      if (parse_input_externo == 2) parse_input_externo = -1; ! Para gtalk
+      return buffer->WORDSIZE;
+    }
+  }
+  if (parse_input_externo == -1) parse_input_externo = 0;
+  ! Fin del hackeo (c) Alpha
+
   if (win) {
     glk_request_hyperlink_event(win);
     if (~~sw) glk_request_mouse_event(win);

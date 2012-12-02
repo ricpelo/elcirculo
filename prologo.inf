@@ -1192,7 +1192,8 @@ Object tema_becca_tv "el televisor" TemasBecca
   if (hayGraficos) {
     glk_window_close(gg_bigwin, 0);
     gg_bigwin = glk_window_open(gg_mainwin,
-                                winmethod_Above + winmethod_Proportional, 100,
+                                winmethod_Above + winmethod_Proportional +
+                                winmethod_NoBorder, 100,
                                 wintype_Graphics, GG_BIGWIN_ROCK);
     MostrarImagenGradualmente(Prologo_png, 30, 50);
     KeyDelay(1500);

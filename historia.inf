@@ -312,7 +312,7 @@ Object amigos_katie "amigos de Katie"
         14: return Qlist(b, 2, 2, 3);
             
         ! Quip 2
-        21: print "Hola, chicos... ¿Cómo estáis?";
+        21: print "Hola, chicos... ¿Cómo estáis? skld jfskl jfskl jfskl jfklsd fkls jfkls jklfsd jflks jfkls jfskl jfskl jfkls jfskl jfsskld jfskl jfsklj fkls jflsk jfskl jfskljd fsklj fskl jflsk jfklsd jfklsd jflk jsdfkls jfskdl jflsk jfsfskl jfskl jfskl jfkls jflskd jfskdl jfskdl jfskdl jfskl jfskl jfskdl jfskl jfskl jfskl jfskl jfskl jfskl jfskdl";
         22: self.qoff(2); self.qon(3);
             amiga_morena.habla("Bien.");
         23: qqon = true;

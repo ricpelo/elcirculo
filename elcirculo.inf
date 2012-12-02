@@ -1311,13 +1311,6 @@ Class Personaje
       old_pie;
       old_pie = parse_input_externo;
       if (parse_input_externo == -1) parse_input_externo = 1;
-!      gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
-!                                       winmethod_Below +
-!                                       winmethod_Proportional +
-!                                       winmethod_Border,
-!                                       50, wintype_TextGrid,
-!                                       GG_CONVERSAWIN_ROCK);
-!      glk_set_window(gg_conversawin);
       self.select(q);
       glk_set_window(gg_mainwin);
       glk_cancel_line_event(gg_mainwin, gg_event);

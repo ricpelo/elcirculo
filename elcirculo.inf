@@ -259,7 +259,7 @@ Include "Parser";
 
 
 [ HandleGlkEvent ev context buffer
-  obj long;
+  obj long r;
   switch (ev-->0) {
 !    evtype_MouseInput:
 !      glk_request_mouse_event(ev-->1); ! ev-->1 es la ventana
@@ -272,6 +272,55 @@ Include "Parser";
       glk_request_hyperlink_event(ev-->1);  ! ev-->1 es la ventana
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
+
+      if (ev-->1 == gg_mainwin) {
+        if (obj > 0) {
+          r = MostrarMenuAcciones(obj);
+          if (r) { ! Si se ha escogido una opción en el menú:
+            glk_cancel_line_event(gg_mainwin, gg_event);
+            if (r hasnt general) {
+              glk_set_style(style_Input);
+              print (address) r.ZIPI_ejecutar(), " ", (string) obj.input_link,
+                    "^";
+              glk_set_style(style_Normal);
+            }
+            long = PrintAnyToArray(buffer + WORDSIZE,
+                                   INPUT_BUFFER_LEN - WORDSIZE,
+                                   r.ZIPI_ejecutar());
+            long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                          INPUT_BUFFER_LEN - WORDSIZE,
+                                          " ");
+            long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                          INPUT_BUFFER_LEN - WORDSIZE,
+                                          obj.input_link);
+            long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                          INPUT_BUFFER_LEN - WORDSIZE,
+                                          " ");
+            if (r provides ZIPI_secundario) {
+              long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                            INPUT_BUFFER_LEN - WORDSIZE,
+                                            r.ZIPI_secundario());
+              long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                            INPUT_BUFFER_LEN - WORDSIZE,
+                                            " ");                                          
+            }
+            buffer-->0 = long;
+            glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                   INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+            if (r has general) {
+              return 1;
+            } else {
+              return 2;
+            }
+          } else {
+            buffer-->0 = 0;
+            glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                   INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+            return 2;
+          }
+        }
+      }
+      
       ExaminarFalso.mostrarExaminar = 2; ! Mostramos "> ex objeto"
       if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
       else {                       ! En caso contrario, es un objeto
@@ -1127,31 +1176,51 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
 ! asociado un menú de acciones:
 [ UnknownVerb x
-  tmp obj r;
+  tmp obj r long;
   tmp = ExaminarFalso.EF_UnknownVerb(x);
   if (tmp) {
     obj = ExaminarFalso.objetoVerboDesconocido;
     if (obj provides ZIPI_item) {
-      ControlTimer.PausarTick();
-      glk_cancel_line_event(gg_mainwin, gg_event);
-      glk_set_window(gg_menuwin);
-      glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
-      glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
-      r = RunMenu(obj);
-      glk_window_clear(gg_menuwin);
-      glk_set_window(gg_mainwin);
-      glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
-      glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
-      ControlTimer.ReanudarTick();
+      r = MostrarMenuAcciones(obj);
       ! Si no se ha escogido nada en el menú de acciones (se ha seleccionado
       ! 'Q' de salir), devolvemos 'verbo.nulo' para no lanzar ninguna acción:
       if (~~r) {
-        ExaminarFalso.mostrarExaminar = false;     ! No mostramos "> ex objeto"
+        ExaminarFalso.mostrarExaminar = false;   ! No mostramos "> ex objeto"
         return 'verbo.nulo';
+      }
+      if (r has general) {
+        glk_cancel_line_event(gg_mainwin, gg_event);
+        ImprimirPrompt();
+        long = PrintAnyToArray(buffer + WORDSIZE,
+                               INPUT_BUFFER_LEN - WORDSIZE,
+                               r.ZIPI_ejecutar());
+        long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                      INPUT_BUFFER_LEN - WORDSIZE,
+                                      " ");
+        long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                      INPUT_BUFFER_LEN - WORDSIZE,
+                                      obj.input_link);
+        long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                      INPUT_BUFFER_LEN - WORDSIZE,
+                                      " ");
+        if (r provides ZIPI_secundario) {
+          long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                        INPUT_BUFFER_LEN - WORDSIZE,
+                                        r.ZIPI_secundario());
+          long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                        INPUT_BUFFER_LEN - WORDSIZE,
+                                        " ");                                          
+        }
+        Tokenise__(buffer, parse);
+        buffer-->0 = long;
+        glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                               INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+        return r.ZIPI_ejecutar();
       }
       ! Si se ha escogido una acción en el menú, guardamos en palabraMenu
       ! el verbo asociado a esa acción y devolvemos 'examinar.falso' para
       ! que el control vaya ahora a ExaminarFalsoSub():
+      r = r.ZIPI_ejecutar();
       ExaminarFalso.palabraMenu = r;
       if (~~(ExaminarFalso.mostrarExaminar)) {
         ExaminarFalso.mostrarExaminar = true;
@@ -1877,11 +1946,12 @@ Object ZIPI_Tiempo_Real
 
 
 ! Muestra el menú de acciones de un objeto:
-[ RunMenu _m top
+[ RunMenuAcciones _m top
   i j count cur key target redibujar k tec altura anchura delta oldcur;
 
   redibujar = 1;
   cur = 0;
+  
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
 
   for (::) {
@@ -1926,8 +1996,7 @@ Object ZIPI_Tiempo_Real
     if (j <= altura) {
       glk($002B, gg_menuwin, 4, j - 1);
       glk(256, 'Q');
-      if (top) print (s_head) "[Q] Salir";
-      else     print (s_head) "[Q] Volver";
+      print (s_head) "[Q] Ninguna acción";
       glk(256, 0);
     } else {
       glk($002B, gg_menuwin, anchura - 1, altura - 1);
@@ -1961,6 +2030,7 @@ Object ZIPI_Tiempo_Real
           }
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
         break;
+
       'j', 'n', '=', '+', 130, -5:
         do {
           oldcur = cur;
@@ -1973,6 +2043,7 @@ Object ZIPI_Tiempo_Real
           }
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
         break;
+
       'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
         rfalse;
  
@@ -1981,14 +2052,16 @@ Object ZIPI_Tiempo_Real
         if (cur == count - 1) rfalse;
         if (cur == count - 2) break;
         target = _m.&ZIPI_item-->cur;
-        if (target ofclass ZIPI_Menu)          return RunMenu(target);
+!        if (top && target has general) { redibujar = 1; break; }
+        if (target ofclass ZIPI_Menu)          return RunMenuAcciones(target, top);
         else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
         else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
-        else                                   return target.ZIPI_ejecutar();
+        else                                   return target;
         redibujar = 1;
         break;
     }
-    ! Busca la tecla entre el vector
+
+    ! Busca la tecla en el vector
     for (k = 0 : k < 31 : k++) {
       if (key == (teclas_opciones-->k) && k < tec) { 
         cur = numero_opciones->k;
@@ -2001,11 +2074,31 @@ Object ZIPI_Tiempo_Real
 ];
 
 
+Object Menu_AbrirCon
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Abrir con...",
+    ZIPI_secundario [; return 'con'; ],
+    ZIPI_ejecutar [; return 'abre'; ],
+  has
+    general; ! Esto indica que el jugador puede seguir escribiendo el input
+
+
 Object Menu_Apagar
   class ZIPI_Otro
   with
     ZIPI_titulo "Apagar",
     ZIPI_ejecutar [; return 'apaga'; ];
+
+
+Object Menu_CerrarCon
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Cerrar con...",
+    ZIPI_secundario [; return 'con'; ],
+    ZIPI_ejecutar [; return 'cierra'; ],
+  has
+    general; ! Esto indica que el jugador puede seguir escribiendo el input
 
 
 Object Menu_Coger
@@ -2281,6 +2374,25 @@ Object Menu_Examinar
   else                     return location;
 ];
 #endif;
+
+
+[ MostrarMenuAcciones obj
+  r;
+  if (obj provides ZIPI_item) {
+    ControlTimer.PausarTick();
+    glk_cancel_line_event(gg_mainwin, gg_event);
+    glk_set_window(gg_menuwin);
+    glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
+    glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
+    r = RunMenuAcciones(obj, true);
+    glk_window_clear(gg_menuwin);
+    glk_set_window(gg_mainwin);
+    glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
+    glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+    ControlTimer.ReanudarTick();
+  }
+  return r;
+];
 
 
 [ MostrarImagenAuxiliar img;

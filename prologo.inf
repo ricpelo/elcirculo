@@ -585,6 +585,8 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     input_link "televisor",
     ZIPI_item
       Menu_Examinar
+      Menu_AbrirCon
+      Menu_CerrarCon
       Menu_Coger
       Menu_Dejar
       Menu_Encender

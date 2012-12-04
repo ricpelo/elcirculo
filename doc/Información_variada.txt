@@ -1,0 +1,555 @@
+xlista : Lista los objetos en todas las localidades
+traza 10
+
+scope: Comando que muestras los objetos al alcance del jugador.
+showverb <verbo>
+actions/acciones on off: Muestras los pasos que se ejecutan al realizar una acción.
+timers si,no,on,off
+changestrace 
+goto localidad: Transporta al jugador
+gonear objeto: Transporta al jugador a la localidad del objeto.
+tree
+xir
+xverbo
+showobj/xobjeto: Da una descripción detallada del objeto, incluyendo variables internas y atributos.
+replay: Carga un fichero de comandos
+recording: Guarda un fichero de comandos.
+changes on: Monitoriza cambios en el estado de los objetos. Realmente útil
+
+
+! TODO: ¿Añadimos formas infinitivas para los comandos de depuración?
+acentos: Activar Acentos
+trace/traza number, on, si, off, no: Activar traza
+
+  Verb meta 'routines' 'messages' 'rutinas' 'mensajes'
+    *                                 -> ActivarRutinas
+    * 'on'/'si'                       -> ActivarRutinas
+    * 'off'/'no'                      -> DesactivarRutinas;
+
+
+  Verb meta 'recording' 'grabacion'
+    *                                 -> ActivarComandos
+    * 'on'/'si'                       -> ActivarComandos
+    * 'off'/'no'                      -> DesactivarComandos;
+
+  Verb meta 'changes' 'cambios'
+    *                                 -> CambiosOn
+    * 'on'/'si'                       -> CambiosOn
+    * 'off'/'no'                      -> CambiosOff;
+
+! TODO: ¿Alguna forma en español para este comando?
+
+  Verb meta 'replay'
+    *                                 -> LeerComandos;
+
+  Verb meta 'random' 'aleatorio' 'predecible'
+    *                                 -> Predecible;
+
+  Verb meta 'xroba'
+    * multi                           -> XRobar;
+
+  Verb meta 'xmueve'
+    * noun 'a//' noun                 -> XMover;
+
+  Verb meta 'tree' 'arboljuego' 'xarbol'
+    *                                 -> XArbol
+    * noun                            -> XArbol;
+
+  Verb meta 'xir' 'irdonde'
+    * number                          -> XIrA
+    * noun                            -> IrDonde;
+
+  Verb meta 'scope' 'alcance'
+    *                                 -> Alcance
+    * noun                            -> Alcance;
+
+  Verb meta 'xverbo'
+    * special                         -> MostrarVerbo;
+
+  Verb meta 'xobjeto'
+    *                                 -> MostrarObjeto
+    * multi                           -> MostrarObjeto;
+
+  #Ifdef TARGET_GLULX;
+
+! TODO: ¿Alguna forma española para este comando? ¿Tal vez 'listaglk'?
+
+    Verb meta 'glklist'
+      *                               -> Glklist;
+  #Endif;  ! TARGET_GLULX
+#Endif;  ! DEBUG
+
+Usando INFIX el DEBUGGER ONLINE...
+
+;<expresion>
+;score
+;brass_lantern has light
+;lamp.power_remaining = 300
+;child(cage)
+;StopDaemon(pirate)
+;InformLibrary.begin_action(##Take, black_rod)
+
+Lanzar acciones:
+;< <action> <noun> <second>
+;< take black_rod
+;< Coger vasos_sucios : El objeto tiene que estar al alcance.
+;give <expression> <atribute>
+;move <expression> "to" <expression"
+
+;move vasos_sucios to l_biblioteca : El objeto se mueve a la localidad indicada
+;move vasos_fregadero to localizacion 
+
+;remove
+;watch <named_routine> 
+;watch <named_routine>  off
+;watch <object> 
+;watch <object>  off
+;x
+;i
+
+;r ayuda online de infix
+
+Errores típicos
+------------------------
+
+1. Sobre antes, react_antes, despues, react_despues
+
+   
+
+
+2. Error: Tried to test in or notin of...
+    i. Comprueba que no hay ninguna conexión con una subrutina si estás utilizando las librerías PNJMOVIL, PNJPUERTAS
+    ii. Comprueba que no se ha escrito 0 en la propiedad esta_en de ningún objeto. Este error puede ocurrir con CUALQUIER
+    OBJETO, independientemente del alcance del jugador.
+    
+
+3. Sobre Ir, Entrar, meter, meterse, dejarentrar, adentro, recibir y salir, sacar, dejarsalir, afuera.
+
+Acciones para contenedores exclusivamente: meter, dejarentrar, sacar, dejarsalir
+
+Entrar como acción no existe, la librería genera la acción 'Ir adentro'. Se utiliza como conexión entre localidades, lo cual
+es distinto a entrar/salir de un objeto en una localidad.
+
+Meterse: Cuando el jugador intenta moverse a otro objeto recipiente, soporte o entrable. 
+
+adentro y afuera: Son propiedades de conexión entre localidades exclusivamente. Para interrumpir la acción hay que capturar la acción 'Ir'
+y después comprobar el contenido del objeto 'uno': obj_adentro o bien obj_afuera.
+
+Contenedores
+recibir: Cuando se mete un objeto en otro. El comando acciones muestra la acción 'Meter con', pero la que hay que capturar es esta en el contenedor. Luego
+el objeto referido entra como 'uno' y no como 'otro' como cabría pensar.
+
+dejarsalir: 
+
+4. Como capturar acciones de movimiento correctamente.
+
+Para un personaje jugador en las rutinas de antes/después nunca en la propiedad. 
+
+La lista de propiedades son: al_n, al_s, al_e, al_o, subir, bajar, adentro, afuera.
+La lista de objetos son:  obj_n, obj_s, obj_e, obj_o, obj_arriba, obj_abajo, obj_adentro, obj_afuera
+
+
+obj_n, obj_s, obj_e,
+obj_o, obj_ne, obj_no, obj_se, obj_so, obj_arriba, obj_abajo obj_adentro y
+obj_afuera
+
+Para capturar las acciones de movimiento en una localidad dada, por ejemplo para impedir que en un momento dado
+el jugador pueda salir.
+
+antes [;
+Ir,Meterse: 
+    
+    if (state_machine.capitulo==5)
+    {
+    print (string) random ("-No queda sitio donde ir.","-Este es el final del camino","-El único camino es a través
+    del cuadro","-Todo se ha perdido...","-No queda nada más allá.","","-Vamos...");
+    rtrue;
+    }
+
+Si se trata de una puerta:
+
+
+
+5. Cada_turno y los daemon.
+
+Un daemon se ejecuta cada turno independientemente de la loclaización del jugador. Una rutina de cada_turno
+dentro un objeto sólo se ejecutará si el objeto está al alcance del jugador.
+
+
+6. Examinar cielo, paredes y suelo.
+
+    
+7. Sobre found_in, esta_en
+I want to have an object that can be found in one of four places, where
+the four places are decided at run time.
+
+Object book "mint condition IF compiler manual"
+   with name "mint" "condition" "if" "compiler" "manual" "book",
+        found_in 0 0 0 0;
+
+[ ARoutine ;
+  (book.&found_in)->0 = Here;
+  (book.&found_in)->1 = There;
+      ... etc ...
+];
+
+Now, I realize that if I am There and I call ARoutine, the book won't
+magicaly appear, but if I move the book to There, call ARoutine, and
+then go to Here... shouldn't the book be there (Here).  ????
+
+Because it isn't. In fact, if I go Here (where the book isn't) and
+purloin the book, drop it, and then go back to There... it isn't there
+(There) either.   :( :( :(
+
+Kathleen (who wasted several hours on this last night and got no where -
+but that's neither Here nor There)
+
+-- 
+*******************************************************************
+*  Kathleen M. Fischer
+*  kfischer@x_greenhouse.llnl.gov    (Remove the 'x_' before replying)
+** "Don't stop to stomp ants while the elephants are stampeding" **
+	
+		
+Andrew Plotkin   	
+Ver perfil   Traducir al Español Traducido (ver original)
+	 Más opciones 11 mar 1997, 10:00
+Grupos de noticias: rec.arts.int-fiction
+De: erkyr...@netcom.com (Andrew Plotkin)
+Fecha: 1997/03/11
+Asunto: Re: [Inform] found_in
+Reenviar | Imprimir | Mensaje individual | Mostrar mensaje original | Informar de este mensaje | Buscar mensajes de este autor
+
+Kathleen Fischer (kfischer@x_greenhouse.llnl.gov) wrote:
+> I want to have an object that can be found in one of four places, where
+> the four places are decided at run time.
+> Object book "mint condition IF compiler manual"
+>    with name "mint" "condition" "if" "compiler" "manual" "book",
+>         found_in 0 0 0 0;
+> [ ARoutine ;
+>   (book.&found_in)->0 = Here;
+>   (book.&found_in)->1 = There;
+>       ... etc ...
+> ];
+> Now, I realize that if I am There and I call ARoutine, the book won't
+> magicaly appear, but if I move the book to There, call ARoutine, and
+> then go to Here... shouldn't the book be there (Here).  ????
+
+Try --> instead of ->. Unless you're writing a V3 game, object numbers
+are words, not bytes. The machine now thinks the found_in array contains
+ [ (Here*256+There) 0 0 0 ]
+
+--Z
+
+-- 
+
+"And Aholibamah bare Jeush, and Jaalam, and Korah: these were the
+borogoves..." 
+
+ Al actualizar la propiedad esta_en hay que volver a entrar y salir de la localidad para que se copien todos los objetos y se
+actualice el árbol. Una versión cómoda es lanzar un JugadorA (localidad) para que se actualice automáticamente.
+
+8. Diferencias entre 'word' 'word//' y 'word'/
+
+'word' : Suelen ser artículos
+'word1' / 'word2': Se lee como word1 ó word2
+'word//': Se consider a word ocmo opcional
+
+9. Como mover objetos llevados por el jugador
+Como NO hacerlo:
+ 
+ objectloop(x in Meadow) move x to Sandy_Beach;
+
+ Forma correcta:
+  while (child(Meadow)) move child(Meadow) to Sandy_Beach;
+ 
+ objectloop(x in Meadow) move x to Sandy_Beach;
+looks plausible but is not a safe way to move everything in the Meadow, and
+will instead cause the interpreter to print up
+[** Programming error: objectloop broken because the object mailbox was
+moved while the loop passed through it **]
+Here is a safer way to move the meadow's contents to the beach:
+while (child(Meadow)) move child(Meadow) to Sandy_Beach;
+This works because when the Meadow has no more children, its child is then
+nothing, which is the same as false.
+
+child devuelve el primer hijo del objeto. El problema es que si queremos mover
+unos objetos sí y otros no, cuando llegue al primer objeto que no queremos mover
+no seguirá avanzando pues child seguirá devolviendo su referencia.
+
+Para mover algunos objetos sí y otros no. Para conseguirlo hay que utilizar
+una localidad intermedia. 
+
+            ! El jugador deja todo atrás...
+              while (child(Jugador)) 
+             {
+             if (child(Jugador)==queso_negro || 
+                  child(Jugador)==pnj_coco || 
+                  child(Jugador)==pnj_coco_pelo || 
+                  child(Jugador)==pnj_aigor_brain) 
+                  move child(Jugador) to basurero_onirico;
+                  else
+                  move child(Jugador) to l_banios; ! Lo tira todo            
+             }
+         
+         while (child(basurero_onirico)) move child(basurero_onirico) to Jugador;
+ 
+ 
+ 
+9. Diferencias entre abierta y abierto.
+
+Para las puertas: Abierta
+Para los recipientes/soportes: Abierto
+
+Si una puerta está bloqueada los PNJ no podrán atravesarla si usamos CAMINO_SIN_CERROJOS. El jugador
+tampoco podrá atravesarla.
+Si una puerta no tiene el atributo de abrible el Jugador no podrá atravesarla, pero SÍ los PNJ al usar CAMINO_SIN_CERROJOS.
+
+10. Como recorrer todos los objetos de una localidad sin morir en el intento.
+
+11. Acciones
+
+<<Meter uno  horno>>;
+
+12. PNJ, PJ y puertas.
+
+
+
+Los atributos de las puertas son: 
+    * Abrible
+    * Abierta   
+La propiedad:
+    * bloqueada TRUE|FALSE
+
+    Un PNJ no realiza una conexión entre localidades a menos que esté declarada en las propiedades
+de la localidad. Por ejemplo una puerta que no esté conectada con una dirección no será
+utilizada por un PNJ.
+
+ Una puerta sin el atributo de abrible devolverá el mensaje "No es algo que pueda abrirse.". Este 
+ atributo impedirá que la atraviesen PJ y PNJ.
+ 
+ El PJ no puede atravesar puertas que no estén abiertas. La librería intentará abrir la puerta
+ con la acción de 'abrir'. Si fracasa el jugador no podrá atravesarla. Si la puerta está abierta 
+ es condición suficiente, no importa que esté bloqueada o que no sea abrible
+  
+ Un PNJ no puede atravesar puertas que no estén abiertas. La librería comprobará si la puerta
+ es abrible, si fracasa el PNJ no puede pasar. La librería comprobará si la puerta está abierta,
+ si no lo está comprobará que no está bloqueada. Si no está bloqueada imprimirá le mensaje
+ de que abre la puerta, cambiará el atributo de la puerta a abierta. Es importante notar
+ que no lanza la acción abrir, por lo que las rutinas que capturen esta acción sólo afectan
+ con el jugador.
+ 
+ Casos
+ 
+ 1.
+ has ~abrible
+ has ~abierta
+ bloqueada = TRUE
+ 
+ No puede ser atravesada de ninguna forma por PJs y PNJs. Las acciones de abrir fracasan siempre. Si el
+ Jugador intenta abrir se imprime el mensaje "No es algo que pueda abrirse.";
+ 
+ 2.
+ has abrible
+ has ~abierta
+ bloqueada = TRUE
+ 
+ No puede ser atravesada de ninguna forma por PJs y PNJs. Las acciones de abrir fracasan siempre. Si el
+ Jugador intenta abrir se imprime el mensaje "Algo bloquea la puerta.";
+  
+ 3.
+ has ~abrible
+ has abierta
+ bloqueada = TRUE
+ 
+ La puerta está abierta y puede ser atravesada por PJ y PNJs. No puede cerrarse. Si el Jugador intenta
+ cerrarla se imprime le mensaje "No es algo que pueda cerrarse.";
+ 
+ 4.
+ has abrible
+ has abierta
+ bloqueada = TRUE
+ 
+ La puerta está abierta y puede ser atravesada por PJ y PNJs. No puede cerrarse. Si el Jugador intenta
+ cerrarla se imprime le mensaje "Algo bloquea la puerta".
+  
+ 5.
+ has ~abrible
+ has ~abierta
+ bloqueada = FALSE
+ 
+ La puerta no puede ser atravesada de ninguna forma por PJs y PNJs. Las acciones de abrir fracasan 
+ siempre. Si el Jugador intenta abrir se imprime el mensaje "No es algo que pueda abrirse.";
+ 
+ 6.
+ has abrible
+ has ~abierta
+ bloqueada = FALSE
+ 
+ La puerta puede ser abierta y cerrada por el PJ. El PJ y los PNJ atravesarán esta puerta sin problemas.
+ Los PNJ dejar abierta o cerrada la puerta al pasar por ella.  Si se captura la acción de abrir/cerrar
+ en la rutina de antes se puede impedir el PJ atravesar la puerta sin afectar a los PNJ. Por ejemplo
+ una puerta realmente pesada que solo un gigante puede abrir.
+ 
+ 7.
+ has ~abrible
+ has abierta
+ bloqueada = FALSE
+ 
+ La puerta puede ser atravesada por PJ y PNJs. No puede cerrarse. Si el Jugador intenta
+ cerrarla se imprime el mensaje "Algo bloquea la puerta".
+ 
+ 8.
+ has abrible
+ has abierta
+ bloqueada = FALSE
+ 
+ La puerta puede ser atravesada por PJ y PNJs y es completamente manipulable.
+
+ 13. Contenedores en el inventario del personaje.
+ 
+ 
+Object traje "traje" fresquera
+    with nombre 'traje',
+    with listarse[; ! Es un contenedor pero no queremos que muestre 'está vacio'
+        ! When listing objects in the player's inventory
+        if (estilo_ac&INFOTOTAL_BIT) rfalse;
+         ! When listing objects at the end of a room description
+        if (etapa_inventario == 1) rtrue;
+    ],
+    with descripcion [;
+     print "Un elegante traje aunque algo anticuado. Tiene un gran bolsillo en la solapa."; 
+     move traje_bolsillo to self;
+    ],
+    antes[;
+    dejarsalir: if (uno==traje_bolsillo) "El bolsillo está unido al traje.";
+    ],
+    has masculino recipiente abierto ~abrible prenda;
+
+ 
+ 14. Atributo visitado.
+ 
+ Simplemente no funciona, hay que utilizarlo a mano.
+ 
+ 15. Puertas que no se mueven y los tejemanejes de la librería.
+ 
+ Las puertas en pnjpuertas no pueden ser eliminadas de una localidad. Un sencillo move puerta
+ to basurero en algún punto del juego no funcionará. Debemos introducir en la rutina de inicial
+ de las localida de implicadas una condición que la mueva fuera del alcance dle jugador pues el punto
+ donde la librería decide poner la puerta en la localidad además de eliminarla cada turno (un rollo vamos).
+ 
+ La rutina de inicializar una puerta ignora por completo si las conexiones con la  puerta están incluida en la localidad.
+ La conexión con la localidad se utiliza para no tener que especificar la puerta en el comando de
+ movimiento. Pero la puerta estará presente si se ha incluido su conexión en la definición de la puerta, tanto si se ha declarado
+ en la localidad como si no.
+ 
+ 
+ 
+ 
+ 
+ Cómo eliminar una puerta de las dos localidades que conecta.
+ 
+  i) Capturando cada_turno y inicial y moviendo la puerta fuera del alcance del jugador. 
+ ii) La ubicación de una puerta está contenida en la propiedad esta_en. Esta propiedad es escrita
+ al llamar a la rutina IniciarPuertas al comienzo del juego. Cambios en las propiedades de conexión en las localidades
+ o en la puerta no afectan a su ubicación una vez actualizado el array. 
+ 
+  
+ Cómo redirigir una de las conexiones.
+ 
+ Nunca muevas una puerta con un comando 'move'.
+ 
+ 16. Objetos de tipo brújula
+ 
+    objectloop (o in brujula)
+         { 
+          i=o.direcc_puerta; ! Propiedad
+          if (j provides i) ! Comprueba la dirección de la puerta
+            { 
+              j.ladoa=j.i; ! Localidad de destino direccionada como puerta.objeto_dirección, 
+                           ! el objeto de dirección será obj_o, obj_s, etc...
+              j.dirb=i;    ! Almacena la dirección en sí: al_n, al_s, etc...
+            };
+          };
+ 
+ De la referencia de Informate:
+ 
+Pg 79, Cap Objetos,
+ Brújula: [...] Estos objetos son obj_n, obj_s, obj_e,
+obj_o, obj_ne, obj_no, obj_se, obj_so, obj_arriba, obj_abajo obj_adentro y
+obj_afuera.[...] Cada uno de estos objetos, además de su nombre, tendrán la propiedad direcc_puerta y
+esta propiedad ha de tomar uno de los valores al_n, al_s, al_e, al_o, al_ne, al_no,
+al_se, al_so, arriba, abajo, adentro y afuera indicando en qué dirección se moverá
+el jugador si teclea el nombre de ese objeto.
+
+ Las direcciones se dividen en objeto y propiedad. 
+ Dentro
+ de cada objeto la propiedad direcc_puerta (sí, se llama así) indica la dirección al_n, al_s, etc hacia la que se moverá 
+ el jugador cuando lance el comando de movimiento. 
+ 
+ A objetos y localidades se les puede preguntar por la conexión con un 'objeto provides propiedad' para averiguar si ha sido definida. Hay que
+ tener en cuenta siempre que las localidades tienen las propiedades al_n,al_s, etc y que no trabajan con los objetos de dirección. El contenido
+ de la propiedad es la localidad de destino para un comando 'Ir a'.
+ 
+ El funcionamiento de una puerta cuando eljugador intenta penetrar en ella es el siguiente:
+ 
+ 1. Se genera la acción: Meterse en.
+ 2. La librería de pnjpuertas realiza las comprobaciones pertinentes en cuanto a bloqueada, cerrojo, abierta, cerrada y abrible.
+ 3. Si todo es satisfactorio se genera una acción 'Ir a' en la dirección adecuada.
+ 
+ Pej: 
+ > Entrar en armario
+ Se genera la acción 'Meterse en' contra el armario.
+ Si el armario no está bloqueado, no tiene el cerrojoechado, ni está cerrado pasa al siguiente punto.
+ En las conexiones de la localidad actual el armario figura como 'adentro'.
+ Se genera la acción 'Ir a' con uno 'adentro' en la LOCALIDAD.
+ Como adentro apunta a un objeto PUERTA (que es la superclase de PNJPuerta) la librería toma el control consultando las propiedades
+ direcc_puerta y puerta_a.
+ 
+  Este es el motivo de que no podamos tener un objeto/portal/puerta al que se entre y conecte con otra localidad si ya tenemos declarada
+ la misma dirección en la localidad para otra conexión.
+ 
+
+
+ 16. Acceso a arrays dentro de un objeto.
+  
+  (objeto.&array)-->0 
+ 
+ Varios:
+ 
+ 1. Cuidado con condiciones ~(o ofclass xxyy) en un objetloop que se las pasa por el arco del triunfo.
+ 
+ 2. La modificación del array esta_en  no tiene efecto en el alcance del jugador a menos que se entre y salga de nuevo de la localidad.
+  Extraído de la referencia de informate:
+  Página 23
+  Esta_en [...]
+  Nota: En realidad el objeto no está en todos esos lugares a la vez, sino que cada vez
+que el jugador se mueve de un lugar a otro, la librería mueve este tipo de objetos,
+para que siempre estén en la misma habitación que el jugador (suponiendo que
+dicha habitación pase el test de esta_en).
+
+ 3. La programación orientada en inform es muy costosa en términos de memoria y procesador para la máquina Z. En general lo más recomendable
+ es no meter métodos dentro de las clases pues al ir generado objetos nuevos se ocupa más memoria debido a la duplicación que el compilador
+ lleva a cabo. Métodos en clases de las cuales se van a derivar muchos objetos (o métodos con mucho código) son adecuados para dejarlos
+ fuera de cualquier clase, utilizando como uno de los parámetros un objeto de la clase en cuestión.
+ 
+ 
+ 17. Listados de PNJs
+ 
+         give capitan_nemo general;
+            capitan_nemo.nombre_corto="Capitán Nemo";
+            capitan_nemo.articulo="a el"; 
+			
+18. Conexiones
+
+La lista de objetos son:  obj_n, obj_s, obj_e, obj_o, obj_arriba, obj_abajo, obj_adentro, obj_afuera
+
+Para imprimir el nombre de una conexión print (el) obj_n; Para extraer el texto de la conexión:
+
+
+
+
+
+
+			
+ 

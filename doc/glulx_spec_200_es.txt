@@ -1,0 +1,1941 @@
+[Note from the translator: Mr. Plotkin has given his kind permission for the publishing of this translation, and has asked that it be stated that he hasn't verified it since he can't read Spanish. Stated :), and thanks, Mr. Plotkin ]
+[Nota del traductor: el señor Plotkin ha dado su generoso permiso para al publicación de esta traducción, queriendo hacer constar que no ha podido revisarla por no saber español. Consta :), y gracias, señor Plotkin ]
+
+Glulx
+
+Una máquina virtual de 32 bits para Ficción Interactiva
+
+Especificación de la máquina virtual versión 2.0.0
+
+Andrew Plotkin <erkyrath@eblong.com>
+Traducción Julio Sangrador Patón <yokiyoki@mixmail.com>
+
+Copyright 1999-2000 por Andrew Plotkin. Tiene permiso para mostrar,
+descargar e imprimir este documento, sentado que lo hace únicamente
+para uso personal, no comercial. No puede modificar ni distribuir
+este documento sin el permiso por escrito del autor.
+
+Sin embargo, la máquina virtual *descrita* en este documento es un aidea,
+no la expresión de una idea, y por lo tanto no se puede someter a copyright.
+Cualquiera es libre de escribir programas que se ejecuten en la máquina
+virtual Glulx o hagan uso de ella, incluyendo compiladores, intérpretes,
+depuradores y demás.
+
+Este documento y más información sobre Glulx se puede encontrar en:
+<http://www.eblong.com/zarf/glulx/>
+
+0         Introducción
+0.1       ¿Por qué tomarse la molestia?
+0.2       Glulx y otros sistemas de IF
+0.3       Créditos
+1         La máquina
+1.1       Entrada y salida
+1.2       El mapa de memoria
+1.3       La pila
+1.3.1     El marco de llamada
+1.3.2     Matrices de llamada
+1.3.3     Llamadas y retornos
+1.3.4     Llamadas y retornos desde dentro de cadenas
+1.3.5     Llamadas y retornos durante el filtrado de la salida
+1.4       La cabecera
+1.5       Formato de las instrucciones
+1.6       Objetos susceptibles de tener tipo
+1.6.1     Cadenas
+1.6.1.1   Cadenas de texto en claro
+1.6.1.2   Cadenas comprimidas
+1.6.1.3   La tabla de decodificación de cadenas
+1.6.2     Funciones
+1.6.3     Otros objetos de Glulx
+1.6.4     Objetos definidos por el usuario
+1.7       Formato de las partidas guardadas
+1.7.1     Contenido de la memoria dinámica
+1.7.2     Contenido de la pila
+1.7.3     Juego asociado
+1.7.4     Estado que no se almacena
+2         Diccionario de códigos de operación
+2.1       Matemáticas
+2.2       Saltos
+2.3       Movimiento de datos
+2.4       Datos en vectores
+2.5       La pila
+2.6       Funciones
+2.7       Continuaciones
+2.8       Mapa de memoria
+2.9       Estado del juego
+2.10      Salida
+2.11      Generador de números aleatorios
+2.12      Búsqueda
+2.13      Miscelánea
+2.14      Lenguaje ensamblador
+
+
+0: Introducción
+
+Glulx es una solución sencilla a un problema bastante trivial. Queremos una
+máquina virtual para la que el compilador de Inform pueda compilar, sin las
+restricciones cada vez más molestas de la máquina Z.
+
+Glulx lo hace sin montar mucho escándalo. Toda la aritmética es de 32 bits
+(aunque existen códigos de operación para tratar accesos a memoria de 8 y
+16 bits). La entrada y salida se trata a través del API Glk (lo cual elimina
+la mitad de los códigos de operación de la máquina Z, y la mayoría de las
+complejidades de los intérpretes de máquina Z). Se ha tenido un poco de cuidado
+para que el código de bytes sea pequeño, pero se han considerado más importantes
+la simplicidad y el espacio de maniobra -- el código de bytes no conforma
+el grueso del espacio en los programas actuales hechos en Inform.
+
+0.1: ¿Por qué tomarse la molestia?
+
+Hoy en día ya estamos sepultados entre máquinas virtuales para IF, por no
+mencionar las máquinas virtuales genéricas como Java, y por no mencionar
+otros intérpretes o sistemas de código de bytes como Perl. ¿Necesitamos una
+nueva?
+
+Bueno, puede que no, pero Glulx es lo bastante simple como para que fuese más
+sencillo diseñarla e implementarla que usar alguna otra cosa. De verdad.
+
+El compilador de Inform ya hace la mayoría del trabajo de traducir un lenguaje
+de alto nivel a código de bytes. Hace mucho que ha superado y sustituído
+muchas de las características orientadas a la IF de la máquina Z (como la
+estructura de los objetos). Por lo tanto, tiene sentido eliminar esas
+características, quedándose con una máquina virtual genérica. Además, hay
+bastantes otras limitaciones (la asunción de Inform de un modelo de memoria
+plano, el deseo de contar con una máquina virtual ligera para ordenadores de
+bolsillo) que hacen que ninguno de los sistemas existentes en la actualidad
+sea ideal. Así que parece merecer la pena diseñar uno nuevo.
+
+En realidad, la mayoría del esfuerzo volcado en este sistema ha sido para la
+modificación de Inform. El propio Glulx es prácticamente un corolario.
+
+0.2: Glulx y otros sistemas de IF
+
+Glulx creció del deseo de ampliar Inform. Sin embargo, bien puede ser apto como
+máquina virtual para otros sistemas de IF.
+
+O puede que no. Como Glulx *es* tan ligero, los compiladores tienen que ser
+medianamente complejos para compilar para él. Muchos sistemas de IF usan el
+enfoque de un compilador simple y un intérprete complejo, de alto nivel,
+específico para IF. Glulx no se presta a esto.
+
+Sin embargo, si un sistema quiere usar un entorno de ejecución simple con datos
+de 32 bits, Glulx puede ser una buena elección.
+
+[[Adviértase que este es un pensamiento completamente aparte de la cuestión de
+la capa de entrada/salida. Glulx usa la API Glk, en aras de la simplicidad y
+la portabilidad. Cualquier sistema de IF puede hacer lo mismo. Se puede usar
+la entrada/salida de Glk sin usar el formato de juego de Glulx. Asimismo se puede
+extender la máquina virtual de Glulx para que use otro mecanismo de E/S que no
+sea Glk.]]
+
+0.3: Créditos
+
+Graham Nelson se lleva una buena cantidad de créditos. Sin Inform, no habría
+razón para nada de esto. Todo Glulx surge de mi deseo de destripar Inform y
+reconstruir su generador de código a mi manero, con el apoyo de Graham.
+
+1: La máquina
+
+La máquina Glulx se compone de memoria principal, la pila, y unos cuantos
+registros (el contador de programa, el puntero de pila y el puntero de marcos
+de llamada).
+
+La memoria principal es un simple vector de bytes, numerados de cero en adelante.
+Al acceder a valores de más de un byte, el byte más significativo se almacena
+primero (big-endian). Los valores de más de un byte no tienen por qué estar
+alineados de ninguna forma especial en la memoria.
+
+La pila es un vector de valores. No forma parte de la memoria principal, sino
+que los intérpretes las tienen por separado. El formato de la pila se deja
+técnicamente al libre albedrío de la implementación. Sin embargo, las necesidades
+de la máquina (en particular el formato de las partidas guardadas) sólo dejan
+en la práctica una opción (véase la sección 1.7, "Formato de las partidas
+guardadas"). Un punto importante: la pila se puede tener en cualquier orden de
+bytes. Los programas no tienen que dar por sentado ningún ordenamiento
+específico de los bytes en la pila (de hecho, los programas nunca tendrían que
+preocuparse de esto). Los valores que hay en la pila siempre tienen su
+alineación natural (valores de 16 bits en direcciones pares, valores de 32 bits
+en direcciones múltiplos de cuatro).
+
+La pila consta de un conjunto de marcos de llamada, uno por cada función de la
+cadena [de llamadas] actual. Cuando se hace una llamada a una función, se apila
+un nuevo marco de pila, que contiene las variables locales de la función. A
+partir de ahí la función puede apilar o desapilar sobre ese marco valores de 32
+bits para almacenar cómputos intermedios.
+
+Todos los valores se tratan como enteros sin signo, excepto en los casos que se
+señalan explícitamente. Los enteros con signo se manejan en la habitual notación
+en complemento a dos. Los desbordamientos aritméticos se truncan, también como
+es habitual.
+
+1.2: Entrada y salida
+
+La propia máquina Glulx no incorpora ningún tratamiento de entrada/salida. En su
+lugar, la máquina tiene uno o más códigos de operación que despachan llamadas
+a una librería de entrada/salida.
+
+Por el momento, esto significa Glk. Todos los intérpretes de Glulx incorporan el
+acceso a Glk (por medio del código de operación glk), y no existen otros medios
+de entrada/salida. Sin embargo, en el futuro se podrían adaptar otras librerías de
+entrada/salida a Glk. Para alcanzar el comportamiento óptimo, los programas deberían
+comprobar la presencia de las características de entrada/salida antes de usarlas,
+usando el selector de sistemas de entrada/salida gestalt (véase la sección 2.13,
+"Miscelánea").
+
+En un momento dado un solo sistema de entrada/salida se considera el activo. Esto
+no significa que los otros no estén disponibles (si el intérprete admite Glk, por
+ejemplo, el código de operación glk siempre funciona). Sin embargo, los códigos de operación básicos de salida de Glulx, streamchar, streamnum y streamstr, siempre
+imprimen utilizando el sistema de entrada/salida activo.
+
+Todos los intérpretes de Glulx incorporan al menos un sistema de entrada/salida
+normal (como es Glk), y además dos sistemas especiales.
+
+El sistema de entrada/salida "nulo" no hace nada. Si es el activo, toda la salida de
+Glulx simplemente se desecha. [[Puede que sea algo tonto, pero me gustan los casos
+base sencillos.]] Cuando arranca la máquina Glulx, el sistema nulo es el activo.
+Hay que seleccionar otro antes de usar los códigos de operación streamchar, streamnum
+y streamstr.
+
+El sistema de entrada/salida de "filtrado" permite que el propio programa Glulx trate
+con la salida. Al seleccionar este sistema de entrada/salida, el programa debe
+especificar una función, que se llama con cada uno de los caracteres de salida
+que genera la máquina (por medio de streamchar, streamnum o streamstr). La función
+puede imprimir su caracter directamente por medio del código de operación glk
+(o uno de los otros códigos de operación de salida).
+
+[[Puede que todo esto parezca más bien barroco, pero en la práctica la mayoría de
+los autores pueden prescindir de ello. Casi todos los programas lo que harán será
+comprobar el acceso a Glk, hacerlo activo inmediatamente y olvidarse del sistema de
+entrada/salida durante el resto del juego. Así toda la salida la tratará Glk.]]
+
+1.2: El mapa de memoria
+
+La memoria se divide en varios segmentos. Los tamaños de los mismos se determinan
+por valores constantes de la cabecera del juego.
+
+     Segmento    Dirección (hex)
+
+    +---------+  00000000
+    |Cabecera |
+    | - - - - |  00000024
+    |         |
+    |   ROM   |
+    |         |
+    +---------+  RAMSTART
+    |         |
+    |   RAM   |
+    |         |
+    | - - - - |  EXTSTART
+    |         |
+    |         |
+    +---------+  ENDMEM
+
+Como se puede suponer, la sección marcada como ROM no cambia nunca durante la
+ejecución; es ilegal escribir en ella. Habitualmente (pero no necesariamente)
+se almacenan en ROM el código ejecutable y los datos constantes. Adviértase que,
+al contrario que en la máquina Z, la ROM de la máquina Glulx va antes que la RAM;
+la cabecera de 36 bytes está en la ROM.
+
+La división marcada EXTSTART es un truco trivial para que los juegos sean más
+pequeños. Los juegos de Glulx sólo almacenan sus datos desde 0 hasta EXTSTART.
+Cuando los intérpretes los cargan, reservan memoria hasta ENDMEM; todo lo que esté
+por encima de EXTSTART se inicializa con ceros. Una vez que comienza la ejecución,
+no hay diferencia entre la memoria de encima y de debajo de EXTSTART.
+
+Para la conveniencia de los intérpretes que usen paginación las tres divisiones,
+RAMSTART, EXTSTART y ENDMEM tienen que estar alineadas en múltiplos de 256 bytes.
+
+Cualquier segmento de la memoria puede tener longitud cero, excepto la ROM que
+tiene que tener al menos 256 bytes para que le quepa la cabecera.
+
+1.3: La pila
+
+El puntero de pila empieza en cero, y la pila crece hacia arriba. El tamaño máximo
+de la pila lo determina un valor constante de la cabecera del juego. Por
+conveniencia debe ser un múltiplo de 256.
+
+El puntero de pila cuenta en bytes. Si se apila un valor de 32 bits, el puntero de
+pila se incrementa en cuatro.
+
+1.3.1: El marco de llamada
+
+Los marcos de llamada tienen este aspecto:
+
+    +------------+  PunteroDeMarco
+    | LongMarco  |    (4 bytes)
+    | PosLocales |    (4 bytes)
+    |            |
+    | Formato de |    (2*n bytes)
+    |    Locales |
+    |            |
+    | Relleno    |    (0 o 2 bytes)
+    +------------+  PunteroDeMarco+PosLocales
+    | Locales    |    (1, 2, o 4 bytes cada uno)
+    |            |
+    | Relleno    |    (0 a 3 bytes)
+    +------------+  PunteroDeMarco+LongMarco
+    | Valores    |    (4 bytes cada uno)
+    |      ....  |
+    +------------+  PunteroDePila
+
+[[TRABAJO: estaría bien añadir un campo de final de marcoal principio del marco.
+Este siempre valdría cero en el primer marco, pero en cualquier otro marco
+apuntaría al comienzo del siguiente marco. Esto haría la grabación de partidas
+muchísimo más eficiente.]]
+
+Cuando se empieza a ejecutar una función, el último segmento está vacío
+(PunteroDePila vale PunteroDeMarco+LongMarco). Los cómputos pueden apilar y
+desapilar valores de 32 bits en la pila. Es ilegal desapilar más allá del punto
+original PunteroDeMarco+LongMarco.
+
+Los "locales" son una lista de valores que la función utiliza de variables locales.
+También se incluyen los argumentos de la función (los N primeros locales se pueden
+usar como los argumentos de una función de N argumentos). Los locales pueden ser
+valores de 8, 16 o 32 bits. No son necesariamente contíguos; se inserta relleno
+donde sea necesario para llevar los valores a su alineación natural (los valores
+de 16 bits a direcciones pares, los de 32 bits a múltiplos de cuatro).
+
+El "formato de locales" es una serie de bytes que describen la distribución de la
+sección de "locales" del marco (desde PosLocales hasta LongMarco). Esta información
+se copia directamente de la cabecera de la función que se está llamando (véase la
+sección 1.6.2, "Funciones").
+
+Cada campo de esta sección consta de dos bytes:
+
+    * TipoLocal: 1, 2 o 4, indicando un conjunto de locales que son de esa longitud
+    en bytes.
+    * CuentaLocal: de 1 a 255, indicando cuántos locales de TipoLocal se están
+    declarando.
+
+La sección termina con un par de bytes cero. Se añade otro par de ceros si es necesario
+para alcanzar una alineación de múltiplo de cuatro.
+
+(Por ejemplo: si una función tiene 3 locales de 8 bits seguidos de seis locales de
+16 bits, el segmento de formato contendría 8 bytes: (1, 3, 2, 6, 0, 0, 0, 0). Entonces
+el segmento de locales sería de 16 bytes, con un byte de relleno después del tercer
+local)
+
+El intérprete necesita la información del "formato de locales" en dos sitios: al
+llamar a una función (para escribir los argumentos de la función), y al guardar la
+partida (para colocar el order de bytes de los locales). El intérprete *no* fuerza
+el formato de los locales mientras se ejecuta una función. Al programa no se le impide
+acceder a posiciones cuyo tamaño y posición no cuadren con el formato, o a posiciones
+que se superpongan, ni siquiera a posiciones correspondientes al relleno entre locales.
+Sin embargo, si un programa hace esto, el resultado queda sin definir, porque el orden
+de los bytes de los locales queda a elección del intérprete. Como mínimo, fallará
+el algoritmo de almacenamiento de la partida.
+
+1.3.2: Matrices de llamada
+
+Varias operaciones diferentes de Glulx requieren de la posibilidad de dar un salto
+de vuelta a un estado de ejecución previamente almacenado (por ejemplo, llamada/retorno
+de función, almacenamiento/recuperación de partidas, y lanzamiento/recogida de
+excepciones).
+
+Por simplicidad, todas estas operaciones almacenan el estado de ejecución de la misma
+forma, como "matriz de llamada" en la pila. Es un bloque de cuatro valores de 32 bits.
+Contiene el PC y el PunteroDeMarco, y también una posición donde almacenar un valor
+de 32 bits en el momento del retorno (por ejemplo, el valor devuelto por una función
+o la bandera de éxito de la grabación de partidas).
+
+Los valores se apilan en la pila en el siguiente orden (PunteroDeMarco el último):
+
+    +----------------+
+    | TipoDest       |  (4 bytes)
+    | DirecDest      |  (4 bytes)
+    | PC             |  (4 bytes)
+    | PunteroDeMarco |  (4 bytes)
+    +----------------+
+
+PunteroDeMarco es el valor actual de PunteroDeMarco, la posición en la pila del marco de
+llamada de la función durante la que se generó la matriz de llamada.
+
+PC es el valor actual del contador de programa. Es la dirección de la instrucción
+*posterior* a la que causó la generación de la matriz de llamada (por ejemplo, para
+una llamada a función, la matriz de llamada contiene la dirección de la primera
+instrucción a ejecutar cuando se retorne de la función).
+
+TipoDest y DirecDest describen una posición donde almacenar un resultado. Esto
+ocurrirá después de que se haya completado la operación (se haya retornado de la función,
+se haya recuperado una partida, etc.). Sucede después de que se recarguen en PC y el
+PunteroDeMarco de la matriz de llamada, y esta misma se elimina de la pila.
+
+TipoDest es uno de los siguientes valores:
+
+    * 0: No almacenar. El resultado se desecha. DirecDest tiene que valer cero.
+    * 1: Almacenar en la memoria principal. El resultado se almacena en la dirección
+    de la memoria principal indicada por DirecDest.
+    * 2: Almacenar en variable local. El resultado se almacena en el marco de llamada
+    en la posición ((PunteroDeMarco+PosLocales) + DirecDest). Véase la sección 1.5,
+    "Formato de las instrucciones".
+    * 3: Apilar. El resultado se apila en la pila. DirecDest tiene que ser cero.
+
+El mecanismo de decodificación de cadenas complica un poco la cuestión, porque se puede
+llamar a una función desde dentro de una cadena, en vez de desde otra función (véase la
+sección 1.3.4, "Llamadas y retornos desde dentro de cadenas"). Los siguientes valores
+de TipoDest lo permiten:
+
+    * 10: Continuar la impresión de una cadena comprimida (E1). El valor de PC
+    corresponde a la dirección del byte (dentro de la cadena) por el que continuar
+    imprimiendo. La DirecDest contiene el número de bit (0 a 7) dentro de ese byte.
+    * 11: Continuar la ejecución del código de la función después de completar la
+    impresión de la cadena. El PC corresponde al contador de programa como casi
+    siempre, pero el campo PunteroDeMarco se ignora, ya que la cadena se imprime en
+    el mismo marco de llamada de la función que provocó la impresión. DirecDest debe
+    valer cero.
+    * 12: Continuar la impresión de un entero decimal con signo. El valor de PC
+    corresponde al propio entero. El valor de DirecDest corresponde a la posición
+    del dígito a imprimir a continuación (0 indica el primer dígito o el menos para
+    números negativos, y así sucesivamente).
+    * 13: COntinuar la impresión de una cadena del estilo de C (E0). El PC contiene
+    la dirección del siguiente carácter a imprimir. DirecDest tiene que ser cero.
+
+1.3.3: Llamadas y retornos
+
+Cuando se llama a una función, el intéprete apila una matriz de llamada de cuatro
+valores (que incluyen el destino del valor retornado, el PC y el PunteroDeMarco;
+véase la sección 1.3.2, "Matrices de llamada"). A continuación, el intérprete iguala
+el PunteroDeMarco al PunteroDePila, y construye un nuevo marco de llamada (véase la
+sección 1.3.1, "El marco de llamada"). Y continúa la ejecución.
+
+Los argumentos de la función se pueden almacenar en los locales del nuevo marco de
+llamada, o apilados en la pila por encima del marco de llamada. Esto lo determina
+el tipo de función (véase la sección 1.6.2, "Funciones").
+
+Al retorno de la función, el proceso se invierte. Lo primero, el PunteroDePila se
+iguala al PunteroDeMarco, deshaciéndose así del marco de llamada actual (y de los
+posibles valores que se hubieran apilado). El PunteroDeMarco y el PC se desapilan,
+y a continuación el valor de la dirección de devolución. El valor retornado se
+almacena donde indique el destino indique que debe hacerse. La ejecución continúa en
+el recién restaurado PC.
+
+(Pero nótese que las funciones también pueden retornar a cadenas suspendidas, así como
+a funciones llamantes suspendidas. Véase la sección 1.3.4, "Llamadas y retornos desde
+dentro de cadenas", y la sección 1.3.5, "Llamadas y retornos durante el filtrado de la
+salida").
+
+1.3.4: Llamadas y retornos desde dentro de cadenas
+
+Glulx usa un esquema de compresión de cadenas de Huffman. Esto permite que las secuencias
+de bits dentro de las cadenas se decodifiquen como cadenas largas, o incluso como
+invocaciones de funciones que generen salida. Esto significa que el código de operación
+streamstr puede invocar llamadas a funciones, y por tanto tenemos que poder representar
+esta situación en la pila.
+
+Cuando el intérprete empieza a imprimir una cadena, apila una matriz de llamada del tipo
+11 (que sólo incluye el PC actual; se incluye también el PunteroDeMarco, por consistencia,
+pero será ignorado cuando se vuelva a leer la matriz de llamada). A continuación el
+intérprete comienza a decodificar los datos de la cadena. En ese momento el PC indica la
+posición dentro de los datos de la cadena.
+
+Sí, durante la decodificación de la cadena, el intérprete se topa con una referencia
+indirecta a otra cadena o función, apila una matriz de llamada de tipo 10, que incluye
+el PC de decodificación de la cadena, y el número de bit dentro de esa dirección.
+También incluye el PunteroDeMarco actual, que no ha cambiado desde que comenzó la
+impresión de la cadena.
+
+Si la referencia indirecta es a otra cadena, la decodificación continúa en la nueva
+posición después de que se apile la matriz de tipo 10. Sin embargo, si la referencia
+a una función, se apila el habitual marco de llamada por encima de la matriz de tipo 10,
+y el intérprete vuelve a la ejecución normal de funciones.
+
+Cuando se completa la impresión de una cadena, el intérprete desapila una matriz de
+llamada, que necesariamente será de tipo 10 o de tipo 11. En el primer caso, el
+intérprete continúa la decodificación de la cadena en la dirección de PC/número de bit
+que ponga en la matriz. En el segundo caso, la cadena inicial ha terminado, y el
+intérprete continúa la ejecución de la función del PC de la matriz.
+
+Cuando una función retorna, debe comprobar si se llamó desde dentro de una cadena en vez
+de desde otra función. Ese es el caso si la matriz de llamada que desapila es de tipo
+10 (la matriz de llamada no puede ser de tipo 11). Si es así, se toma el PunteroDeMarco de
+la matriz como siempre, pero el PC de la matriz se interpreta como referente a una
+dirección de datos de cadena, con el valor de DirecDest siendo el número de bit dentro de
+esa dirección (el valor de retorno de la función se descarta). Desde ahí se continúa la
+decodificación de la cadena.
+
+[[Puede parecer derrochador que el intérprete apile y desapile una matriz de llamada
+cada vez que imprime una cadena. Afortunadamente en el caso más común, imprimir una cadena
+sin referencias indirectas, se puede optimizar fácilmente (no se ejecuta código de la
+máquina virtual entre el apilado y el desapilado, con lo que se pueden eliminar ambos con
+seguridad). De igual forma, al imprimir una cadena sin codificar (E0), no puede haber
+referencias indirectas, así que igualmente se pueden eliminar el apilado y el desapilado
+con seguridad.]]
+
+1.3.5: Llamadas y retornos durante el filtrado de la salida
+
+El sistema de entrada/salida de "filtrado" permite al intérprete llamar a una función
+de Glulx para cada carácter que se imprime via streamchar, streamnum o streamstr.
+También nos hace falta poder representar esta situación en la pila.
+
+Si el filtrado es el sistema de entrada/salida activo, cuando el intérprete ejecuta
+streamchar apila una matriz de llamada a función normal y comienza la ejecución de la
+función de salida. No se requiere nada más; cuando la función retorna, la ejecución
+continúa después del código de operación streamchar (se usa una matriz de llamada de
+tipo 0 para descartar el valor devuelto por la función).
+
+Los otros códigos de operación de salida son más complicados. Cuando el intérprete
+ejecuta streamnum, apila una matriz de llamada de tipo 11. Como antes, así se registra
+el PC actual. A continuación el intérprete apila una matriz de llamada de tipo 12,
+que contiene el entero que se está imprimiendo y la posición del siguiente carácter que
+se va a imprimir (que es 1). Después ejecuta la función de salida.
+
+Cuando retorna la función de salida, el intérprete desapila la matriz de tipo 12 y se
+da cuenta de que tiene que seguir imprimiendo el entero que contiene. Apila una nueva
+matriz de tipo 12, indicando que la siguiente posición a imprimir es el dígito 2, y
+vuelve a llamar a la función de salida.
+
+Este proceso continúa hasta que no quedan más caracteres en la representación decimal del
+entero. Entonces el intérprete desapila la matriz de tipo 11, restablece el PC, y
+continúa la ejecución después del código de operación streamnum.
+
+El código de operación streamstr funciona siguiendo el mismo principio, excepto que
+en vez de matrices de tipo 12, el intérprete usa matrices de tipo 10 (al interrumpir una
+cadena codificada) y matrices de tipo 13 (al interrumpir una cadena de tipo de C, terminada
+en carácter nulo). Las matrices de tipo 13 tienen el mismo aspecto que las demás,
+excepto que contienen sólo la dirección del siguiente carácter a imprimir, no le hace
+falta ninguna otra posición ni número de bit.
+
+La interacción entre el sistema de entrada/salida de filtrado y las llamadas indirectas a
+funciones/cadenas desde dentro de cadenas codificadas se deja a la imaginación del lector.
+[[Porque no podría explicarlo aunque lo intentara. Siga las reglas. Funcionan.]]
+
+1.4: La cabecera
+
+La cabecera la componen los primeros 36 bytes de la memoria. Siempre está en ROM, así
+que sus componentes no pueden cambiar durante la ejecución. La cabecera se organiza en
+forma de 9 valores de 32 bits (recuerde que los valores de la memoria son siempre
+big-endian).
+
+
+    +-----------------------+  dirección 0
+    | Número mágico         |  (4 bytes)
+    | Versión de Glulx      |  (4 bytes)
+    | RAMSTART              |  (4 bytes)
+    | EXTSTART              |  (4 bytes)
+    | ENDMEM                |  (4 bytes)
+    | Tamaño de la Pila     |  (4 bytes)
+    | Función Inicial       |  (4 bytes)
+    | Tabla Descodificación |  (4 bytes)
+    | Suma de comprobación  |  (4 bytes)
+    +-----------------------+
+
+
+    * Número mágico: 47 6C 75 6C, o lo que es lo mismo, 'Glul' en ASCII.
+    * Número de versión de Glulx: los 16 bits superiores almacenan el número principal de
+    versión; los siguientes 8 bits almacenan el número secundario de versión; los 8 bits
+    inferiores almacenan un número de versión más secundario todavía, si existe. Esta
+    especificación es para la versión 2.0, así que un juego generado para esta
+    especificación tendría en este campo 00020000. Trataré de mantener la convención
+    de que los cambios de versión secundaria sean compatibles hacia atrás y hacia
+    adelante.
+    * RAMSTART: la primera dirección en la que el programa puede escribir.
+    * EXTSTART: el final de la memoria inicial almacenada en el fichero del juego
+    (y por tanto la longitud del fichero del juego).
+    * ENDMEM: el final del mapa de memoria del juego.
+    * Tamaño de la pila: El tamaño de pila que necesita el juego.
+    * Función inicial: dirección de la función en la que se iniciará la ejecución.
+    * Dirección de la tabla de decodificación de cadenas: esta tabla se usa para
+    decodificar cadenas comprimidas. Vea la sección 1.6.1.2, "Cadenas comprimidas".
+    Puede valer cero, indicando que no va a haber que descomprimir cadenas.
+    [[Advierta que el juego puede cambiar la tabla que tiene que usar el intérprete
+    por medio del código de operación setstringtbl. Vea la sección 2.10, "Salida".]]
+    * Suma de comprobación: una simple suma del contenido completo inicial de la memoria,
+    considerada un vector de enteros de 32 bits big-endian. La suma de comprobación
+    ha de calcularse con este campo puesto a cero.
+
+[[A la cabecera le sigue convencionalmente una palabra de 32 bits que describe la
+distribución de los datos del resto del fichero. Este valor *no* es parte de la
+especificación de Glulx; es la primera palabra en ROM después de la cabecera, no parte
+de la misma. Es una opción que los compiladores pueden insertar, al generar ficheros
+Glulx, para ayudar a los depuradores y a los descompiladores.
+
+Para ficheros Glulx generados con Inform, este valor descriptivo vale 49 6E 66 6F, o lo
+que es lo mismo, 'Info' en ASCII. A continuación siguen varios bytes de datos más
+relevantes al compilador de Inform. Vea el capítulo de Glulx del Manual Técnico de
+Inform.]]
+
+1.5: Formato de las instrucciones
+
+Existen 2^28 códigos de operación de Glulx, numerados del 0 al 0FFFFFFF. Si llegan a
+quedarse cortos, se podrían añadir más en el futuro.
+
+Las instrucciones se codifican como sigue:
+
+
+    +-------------------------------+
+    | Número de Código de Operación |  (1 a 4 bytes)
+    |                               |
+    | Modos de Direccionamiento de  |  (2 por byte)
+    |   los Operandos               |
+    |                               |
+    | Operandos                     |  (como se hayan definido
+    |        ....                   |      en los modos de direccionamiento)
+    +-------------------------------+
+
+
+El número de código de operación OP, que puede ser cualquiera hasta 0FFFFFFF, se puede
+empaquetar en menos de cuatro bytes:
+
+    * 00..7F: un byte, OP
+    * 0000..3FFF: dos bytes, OP+8000
+    * 00000000..0FFFFFFF: cuatro bytes, OP+C0000000
+
+Advierta que la longitud de este campo se puede decodificar mirando los dos bits
+superiores del primer byte. También advierta que, por ejemplo, 01, 8001 y C0000001
+representan todos el mismo código de operación.
+
+Los modos de direccionamiento de los operandos son una lista de campos que indican de o
+a dónde se leen o escriben los argumentos del código de operación. Cada uno mide cuatro
+bits, y se empaquetan dos en un byte (aparecen en el mismo orden que los argumentos,
+empezando por los bits inferiores. Si son un número impar de argumentos, los bits
+altos del último byte se dejan a cero).
+
+Como cada modo de direccionamiento es un número de 4 bits, hay 16 modos de
+direccionamiento. Cada uno se asocia con un número fijo de bytes del segmento
+"Operandos" de la instrucción. Estos bytes aparecen después de los modos de
+direccionamiento, en el mismo orden (no hay relleno para alinear nada).
+
+    * 0: Constante cero. (Cero bytes)
+    * 1: Constante, de -80 a 7F. (Un byte)
+    * 2: Constante, de -8000 a 7FFF. (Dos bytes)
+    * 3: Constante, cualquier valor. (Cuatro bytes)
+    * 4: (No se usa)
+    * 5: Contenido de la dirección 00 a FF. (Un byte)
+    * 6: Contenido de la dirección 0000 a FFFF. (Dos bytes)
+    * 7: Contenido de cualquier dirección. (Cuatro bytes)
+    * 8: Valor desapilado de la pila. (Cero bytes)
+    * 9: Local del marco de llamada en la dirección 00 a FF. (Un byte)
+    * A: Local del marco de llamada en la dirección 0000 a FFFF. (Dos bytes)
+    * B: Local del marco de llamada en cualquier dirección. (Cuatro bytes)
+    * C: (No se usa)
+    * D: Contenido de la dirección de la RAM 00 a FF. (Un byte)
+    * E: COntenido de la dirección de la RAM 0000 a FFFF. (Dos bytes)
+    * F: Contenido de cualquier dirección de la RAM. (Cuatro bytes)
+
+Cosas a tener en cuenta:
+
+Los modos "constantes" extienden por signo sus datos a valores de 32 bits; los demás modos
+no. Esto es así simplemente porque aparecen más frecuentemente constantes negativas que
+direcciones negativas de memoria.
+
+Los modos indirectos (todos excepto los "constantes") acceden a campos de 32 bits, bien
+en la pila o bien en la memoria. Esto significa cuatro bytes comenzando en la dirección
+dada. Hay unos cuantos códigos de operación que suponen una excepción: copyb y copys
+(copiar byte y copiar short) acceden a campos de 8 y 16 bits (uno o dos bytes comenzando
+en la dirección dada).
+
+Los modos de "local del marco de llamada" acceden a un campo de la pila, empezando en
+el byte ((PunteroDeMarco+PosLocales) + dirección). Como se describe en la sección 1.3.1,
+"El marco de llamada", tiene que estar alineado con (y tener el mismo tamaño que) uno de
+los campos descritos en los formatos de locales de la función. No debe apuntar fuera del
+rango del segmento de locales de la función actual.
+
+Los modos de "contenido de la dirección" acceden a un campo de la memoria principal,
+comenzando en el byte (dirección). Los modos de "contenido de la RAM" acceden a un campo
+de la memoria principal, comenzando en el byte (RAMSTART + dirección). Como la ordenación de bytes de la memoria principal está bien definido, estos no tienen por qué tener ninguna
+alineación ni posición en particular.
+
+Toda suma de direcciones se trunca a 32 bits, y las direcciones no tienen signo. Así
+que, por ejemplo, la dirección de "contenido de la RAM" FFFFFFFC (RAMSTART + FFFFFFFC)
+accede al último valor de 32 bits de la ROM, porque el resultado efectivo es la
+sustracción de 4 de RAMSTART. la dirección de "contenido de la dirección" FFFFFFFC
+accedería al ultimísimo valor de 32 bits de la memoria principal, suponiendo que
+se pueda encontrar un intérprete que maneje juegos de cuatro gigabytes. La dirección
+de "local de marco de llamada" FFFFFFFC es ilegal, tanto si se interpreta como número
+negativo como si se interpreta como número positivo grande, queda fuera del segmento
+de locales del marco de llamada actual.
+
+Algunos códigos de operación almacenan valores además de leer otros. Los operandos
+de almacenamiento utilizan los mismos modos de direccionamiento, con algunas excepciones:
+
+    * 8: El valor se apila en vez de desapilarse.
+    * 3, 2, 1: Estos modos no se pueden usar, porque no tiene sentido almacenar en una
+    constante. [[Obviamos delicadamente la cuestión del Fortran.]]
+    * 0: Este modo significa "deshazte del valor". No se almacena en absoluto.
+
+Los operandos se evalúan de izquierda a derecha (lo que es importante si hay varios
+operandos de apilar/desapilar).
+
+1.6: Objetos susceptibles de tener tipo
+
+Es conveniente que los programas puedan almacenar referencias a objetos como punteros
+de 32 bits, sin perder la posibilidad de determinar el tipo de las referencias en tiempo
+de ejecución.
+
+Para facilitar esto, los objetos estructurados de la memoria principal de Glulx siguen
+una sencilla convención: el primer byte indica el tipo del objeto.
+
+Por el momento sólo hay dos tipos de objetos en Glulx: funciones y cadenas. Los programas
+(o los compiladores, o las librerías) pueden declarar más, pero la máquina virtual de
+Glulx no tiene por qué saber nada de ellos.
+
+Por supuesto, no todos los bytes de la memoria forman el comienzo de un objeto legítimo.
+Es responsabilidad del programa llevar la cuenta de qué valores hacen referencia a objetos
+con tipo.
+
+1.6.1: Cadenas
+
+Las cadenas tienen el byte de tipo en E0 (si son cadenas del tipo de C, sin codificar) o
+E1 (si son cadenas comprimidas). Los tipos del E2 al FF se reservan para la futura
+expansión de los tipos de cadenas.
+
+1.6.1.1: Cadenas de texto en claro
+
+Las cadenas de texto en claro (sin comprimir) consisten en un byte E0, seguido de los
+bytes de la cadena, seguidos de un byte cero.
+
+1.6.1.2: Cadenas comprimidas
+
+Una cadena comprimida consiste en un byte E1, seguido de un bloque de datos codificados
+con el algoritmo de Huffman. Se leen como un flujo de bits, empezando por el bit inferior
+(el del 1) del byte siguiente al E1, continuando hasta el bit superior (el del 128), y
+así sucesivamente con los bytes siguientes.
+
+La decodificación de las cadenas comprimidas requiere búsquedas de datos en una tabla de
+Huffman. La dirección de esta tabla normalmente se encuentra en la cabecera. Sin embargo,
+los programas pueden seleccionar distintas tablas de descompresión en tiempo de ejecución;
+véase la sección 2.10, "Salida".
+
+La tabla de Huffman tiene la estructura lógica de árbol binario. Los nodos internos son
+puntos de ramificación; los nodos terminales representan entidades imprimibles. Para
+descomprimir una cadena, se empieza en el nodo raíz. Se lee un bit del flujo de bits,
+y se va a la izquierda o a la derecha según su valor. Se siguen leyendo bits y yendo a
+la derecha o a la izquierda hasta que se alcanza un nodo terminal. Se imprime esa entidad.
+Entonces se vuelve a saltar a la raíz y se repite el proceso. Hay un nodo terminal en
+concreto que marca el final de la cadena (en vez de una entidad imprimible), y cuando el flujo de bits lleva a ese nodo, se para.
+
+[[Este es un proceso más bien lento, con lecturas de la máquina virtual y una
+comprobación condicional para cada *bit* de la cadena. Los intérpretes pueden acelerarlo
+considerablemente leyendo la tabla de Huffman de una vez y cacheándola en estructuras
+de datos nativas. El árbol binario es la elección obvia, pero se puede hacer incluso
+mejor (a costa de espacio) haciendo búsquedas de trozos de cuatro bits de una vez en
+un árbol 16-ario.]]
+
+[[Adviértase que las tablas de descompresión no se encuentran necesariamente en la ROM.
+Esto es de particular importancia para las tablas que se generan y seleccionan en tiempo
+de ejecución. Aún más, estécnicamente legal la modificación en tiempo de ejecución de una
+tabla que esté en RAM, incluso con la posibilidad de que sea la que está actualmente
+seleccionada. Por tanto, los intérpretes que cacheen o precarguen los datos de la RAM
+tienen que tener cuidado. Si cachean datos de la RAM, tienen que vigilar las escrituras
+a ese espacio de memoria, e invalidar la caché en cuanto detecten tal escritura.]]
+
+1.6.1.3: La tabla de decodificación de cadenas
+
+La tabla de decodificación tiene el siguiente formato:
+
+
+    +-------------------------+
+    | Longitud de la Tabla    |  (4 bytes)
+    | Número de Nodos         |  (4 bytes)
+    | Dirección del Nodo Raíz |  (4 bytes)
+    | Datos de los Nodos .... |  (longitud de la tabla - 12 bytes)
+    +-------------------------+
+
+
+La longitud de la tabla se mide en bytes, desde el comienzo de la tabla hasta el final del
+último nodo. El número de nodos incluye tanto los nodos de ramificación como los
+terminales. [[Por supuesto habrá un número impar de nodos, y (N+1)/2 de ellos serán
+terminales.]] La dirección de la raíz indica qué nodo es la raíz del árbol; no tiene
+por qué ser el primer nodo. Es una dirección absoluta, no un desplazamiento desde el
+comienzo de la tabla.
+
+Después van todos los nodos, sin datos extra antes, entre ni después de ellos. No tienen
+por qué estar en ningún orden en particular. Hay varios tipos posibles de nodos, que se
+distinguen por su primer byte.
+
+
+    Ramificación (nodo no terminal)
+    +--------------------+
+    | Tipo: 00           | (1 byte)
+    | Nodo Izquierdo (0) | (4 bytes)
+    | Nodo Derecho   (1) | (4 bytes)
+    +--------------------+
+
+Los campos de nodo izquierdo y derecho son direcciones (de nuevo, direcciones absolutas)
+de los nodos a los que hay que ir dado un bit 0 o 1 del flujo de bits.
+
+
+    Terminador de cadena
+    +-------------------+
+    | Tipo: 01          | (1 byte)
+    +-------------------+
+
+
+Termina el proceso de decodificación de la cadena.
+
+
+    Carácter único
+    +-------------+
+    | Tipo: 02    | (1 byte)
+    | Carácter    | (1 byte)
+    +-------------+
+
+Imprime un único carácter. [[El esquema de codificación es asunto del sistema de
+entrada/salida; en Glk, es el conjunto de caracteres Latin-1.]]
+
+
+    Cadena tipo C
+    +----------------+
+    | Tipo: 03       | (1 byte)
+    | Caracteres.... | (cualquier longitud)
+    | NULO: 00       | (1 byte)
+    +----------------+
+
+Imprime un vector de caracteres. Advierta que el vector no puede contener el carácter
+nulo, porque está reservado para indicar el final de la cadena. [[Se puede imprimir
+un byte cero usando el tipo de nodo de carácter único.]]
+
+
+    Referencia indirecta
+    +-------------------+
+    | Tipo: 08          | (1 byte)
+    | Dirección         | (4 bytes)
+    +-------------------+
+
+
+Imprime una cadena o llama a una función, que no forma parte de la tabla de
+decodificación. La dirección puede hacer referencia a cualquier localización de la memoria
+(incluso en RAM). Tiene que ser una cadena Glulx (véase la sección 1.6.1, "Cadenas")
+válida o una función (véase la sección 1.6.2, "Funciones"). Si es una cadena, se imprime.
+Si esuna función, se llama (sin argumentos) y se deshecha el resultado.
+
+El manejo de la pila durante una llamada a cadena/función indirecta es un poco lioso.
+Véase la sección 1.3.4, "Llamadas y retornos desde dentro de cadenas".
+
+
+    Referencia con indirección doble
+    +---------------+
+    | Tipo: 09      | (1 byte)
+    | Dirección     | (4 bytes)
+    +---------------+
+
+
+Es similar al nodo de referencia indirecta, pero la dirección en este caso hace referencia
+a un campo de cuatro bytes de la memoria, que es *el que* contiene la dirección de una
+cadena o función. La capa extra de indirección puede ser ser útil. Por ejemplo, si el
+campod e cuatro bytes está en RAM, su contenido puede cambiar durante la ejecución y
+apuntar a otro objeto con tipo, sin modificar la propia tabla de decodificación.
+
+    Referencia indirecta con argumentos
+    +----------------------+
+    | Tipo: 0A             | (1 byte)
+    | Dirección            | (4 bytes)
+    | Número de Argumentos | (4 bytes)
+    | Argumentos....       | (4*N bytes)
+    +----------------------+
+
+
+    Referencia con indirección doble con argumentos
+    +----------------------+
+    | Tipo: 0B             | (1 byte)
+    | Dirección            | (4 bytes)
+    | Número de Argumentos | (4 bytes)
+    | Argumentos....       | (4*N bytes)
+    +----------------------+
+
+
+Funcionan igual que los nodos indirecto y de doble indirección, pero si el objeto que se
+encuentra es una función, se llamará con la lista de argumentos dada. Si el objeto es una
+cadena, los argumentos se ignoran.
+
+Futuras versiones de Glulx incluirán tipos de nodos para caracteres y cadenas de 16 bits
+(Unicode).
+
+1.6.2: Funciones
+
+Las funciones tienen el byte de tipo a C0 (las que reciben los argumentos en la pila) o
+a C1 (las que reciben los argumentos en los locales). Los tipos del C2 al DF quedan
+reservados para futuras expansiones de los tipos de función.
+
+Las funciones en Glulx siempre toman una lista de argumentos de 32 bits, y devuelven
+exactamente un valor de 32 bits (si una función que no devuelva valores, descártelo o
+ignórelo. El modo de almacenamiento cero resulta conveniente).
+
+Si es de tipo C0, los argumentos se pasan en la pila, y quedan accesibles en la pila.
+Después de la construcción del marco de llamada se apilan todos los argumentos, el
+último argumento se apila el primero, el primer argumento se apila el último. A
+continuación se apila el número de argumentos. Los locales del propio marco de llamada
+se inicializan a cero.
+
+Si es de tipo C1, los argumentos se pasan en la pila, y se escriben en los locales de
+acuerdo a la lista de "formato de locales" de la función. Los argumentos que se pasan a
+locales de 8 o 16 bits se truncan. Es legítimo que haya demasiados o demasiado pocos
+argumentos. Los argumentos extra se descartan silenciosamente, los locales que queden sin
+rellenar se inicializan a cero.
+
+Las funciones tienen la siguiente estructura:
+
+
+    +---------------+
+    |  C0 o C1      | Tipo (1 byte)
+    +---------------+
+    | Formato de    |   (2*n bytes)
+    |     locales   |
+    +---------------+
+    | Códigos de    |
+    | operación.... |
+    +---------------+
+
+
+La lista de formato de locales está codificada de la misma forma que en la pila, véase la
+sección 1.3.1, "El marco de llamada". Es una lista de parejas de bytes
+TipoDeLocal/NúmeroDeLocales, terminada por un par cero/cero (sin embargo aquí no hay
+relleno extra extra para obtener alineación a los cuatro bytes).
+
+Adviértase que aunque una pareja TipoDeLocal/NúmeroDeLocales sólo puede describir hasta
+255 locales, no hay restricción sobre cuántos locales puede tener una función. Es
+legítimo codificar varias parejas seguidas con el mismo TipoDeLocal.
+
+Inmediatamente después de los dos bytes cero empiezan las instrucciones. No hay terminador
+explícito de funciones.
+
+1.6.3: Otros objetos de Glulx
+
+En este momento no hay más objetos en Glulx, pero los tipos del 80 al BF quedan reservados
+para futuras expansiones. El tipo 00 también está reservado: indica que "no es un objeto"
+y no puede usarlo ningún objeto susceptible de tener tipo. El tipo de una referencia nula
+se consideraría 00 (aunque en realidad en la dirección 00000000 de la memoria no hay un
+cero).
+
+1.6.4: Objetos definidos por el usuario
+
+Los tipos del 01 al 7F quedan disponibles para su uso por parte del compilador, la
+librería o los programas. Glulx no los usará.
+
+[[Inform usa el 60 para las palabras del diccionario, y el 70 para los objetos y las
+clases. Se reserva los tipos del 40 al 7F. Siguen quedando disponibles los tipos del 01
+al 3F para su uso por parte de los programadores en Inform.]]
+
+1.7: Formato de las partidas guardadas
+
+(O, si lo prefiere, "serialización del estado de la máquina")
+
+Es una variante de Quetzal, el formato estándar de las partidas guardadas de la máquina Z
+(véase <ftp://ftp.gmd.de/if-archive/infocom/interpreters/specification/savefile_14.txt>)
+
+Se aplica toda la especificación de Quetzal, con las siguientes excepciones:
+
+1.7.1: Contenido de la memoria dinámica
+
+Tanto en su forma comprimida como en la descomprimida, el trozo de memoria ('CMem' o
+'UMem') empieza por un valor de cuatro bytes que es el tamaño actual de la memoria. A
+continuación siguen los datos de la memoria. Durante la recuperación de la memoria,
+el tamaño de la memoria se cambia a lo que haya en esta posición.
+
+El area de la memoria a almacenar no empieza en la dirección cero, sino en RAMSTART.
+Continúa hasta el fin de memoria actual (que puede no ser el valor ENDMEM de la cabecera).
+Al generar o leer datos comprimidos (trozo 'CMem'), los datos por encima de EXTSTART se
+tratam como si el fichero del juego se extendiera con tantos ceros como fuese necesario.
+
+1.7.2: Contenido de la Pila
+
+Antes de escribir la pila, se apila una matriz de llamada de cuatro bytes, destino del
+resultado, PC y PunteroDeMarco (véase la sección 1.3.2, "Matrices de llamada"). A
+continuación se puede escribir toda la pila, con todos sus valores (del tamaño que sean)
+transformados en big-endian (el relleno no se omite, se escribe como el número adecuado
+de bytes cero).
+
+Cuando se vuelve a recuperar la partida guardada (o, ya puestos, al continuar después de
+guardar una partida) los cuatro valores se vuelven a desapilar, se almacena un resultado
+en el destino indicado, y continúa la ejecución.
+
+[[Recuérde que en las matrices de llamada el PC contiene la dirección de la *siguiente*
+instrucción que se debe ejecutar.]]
+
+1.7.3: Juego asociado
+
+El contenido del identificador del juego (trozo 'IFhd') son simplemente los 128 primeros
+bytes de la memoria. Forman parte de la ROM (dado que RAMSTART vale al menos 256), así
+que no varían durante el juego. Incluyen la longitud del fichero del juego y la suma de
+comprobación, y la información específica del compilador que pudiera haber almacenada
+inmediatamente después de la cabecera.
+
+1.7.4: Estado que no se almacena
+
+Algunos aspectos de la ejecución de Glulx no forman parte del proceso de almacenamiento,
+y por tanto no cambian durante las operaciones de reiniciar, recuperar ni deshacer la
+recuperación. Los programas tienen la responsabilidad de comprobar estos valores después
+de las recuperaciones para ver si han cambiado de forma inesperada (desde el punto de
+vista del juego).
+
+Ejemplos de información que no se almacena:
+
+    * El estado de la librería Glk. Incluyendo objetos opacos de Glk (windows, filerefs,
+    streams). Tampoco se almacena el estado de la entrada/salida como el flujo de salida
+    actual, contenido de las ventanas, y posiciones del cursor. Recomponer los objetos
+    Glk después de recuperar o deshacer una recuperación tiene truco, pero es
+    absolutamente necesario.
+    * El rango de memoria protegida (posición, longitud y si realmente la hay). Advierta
+    que el *contenido* del rango (si existe) no se tratan de forma especial durante el
+    almacenamiento, y por tanto se graban normalmente.
+    * El estado interno del generador de números aleatorios.
+    * El modo del sistema de entrada/salida y la dirección actual de la tabla de
+    decodificación de cadenas.
+
+2: Diccionario de códigos de operación
+
+Escribimos los códigos de operación con el siguiente formato:
+
+    nombrecódigo L1 L2 S1
+
+...donde "L1" y "L2" son operandos que usan los modos de direccionamiento de carga, y "S1"
+es un operando que usa los modos de direccionamiento de almacenamiento (véase la sección
+1.5, "Formato de las instrucciones").
+
+La tabla de códigos de operación:
+
+    * 0x00: nop
+    * 0x10: add
+    * 0x11: sub
+    * 0x12: mul
+    * 0x13: div
+    * 0x14: mod
+    * 0x15: neg
+    * 0x18: bitand
+    * 0x19: bitor
+    * 0x1A: bitxor
+    * 0x1B: bitnot
+    * 0x1C: shiftl
+    * 0x1D: sshiftr
+    * 0x1E: ushiftr
+    * 0x20: jump
+    * 0x22: jz
+    * 0x23: jnz
+    * 0x24: jeq
+    * 0x25: jne
+    * 0x26: jlt
+    * 0x27: jge
+    * 0x28: jgt
+    * 0x29: jle
+    * 0x2A: jltu
+    * 0x2B: jgeu
+    * 0x2C: jgtu
+    * 0x2D: jleu
+    * 0x30: call
+    * 0x31: return
+    * 0x32: catch
+    * 0x33: throw
+    * 0x34: tailcall
+    * 0x40: copy
+    * 0x41: copys
+    * 0x42: copyb
+    * 0x44: sexs
+    * 0x45: sexb
+    * 0x48: aload
+    * 0x49: aloads
+    * 0x4A: aloadb
+    * 0x4B: aloadbit
+    * 0x4C: astore
+    * 0x4D: astores
+    * 0x4E: astoreb
+    * 0x4F: astorebit
+    * 0x50: stkcount
+    * 0x51: stkpeek
+    * 0x52: stkswap
+    * 0x53: stkroll
+    * 0x54: stkcopy
+    * 0x70: streamchar
+    * 0x71: streamnum
+    * 0x72: streamstr
+    * 0x100: gestalt
+    * 0x101: debugtrap
+    * 0x102: getmemsize
+    * 0x103: setmemsize
+    * 0x104: jumpabs
+    * 0x110: random
+    * 0x111: setrandom
+    * 0x120: quit
+    * 0x121: verify
+    * 0x122: restart
+    * 0x123: save
+    * 0x124: restore
+    * 0x125: saveundo
+    * 0x126: restoreundo
+    * 0x127: protect
+    * 0x130: glk
+    * 0x140: getstringtbl
+    * 0x141: setstringtbl
+    * 0x148: getiosys
+    * 0x149: setiosys
+    * 0x150: linearsearch
+    * 0x151: binarysearch
+    * 0x152: linkedsearch
+    * 0x160: callf
+    * 0x161: callfi
+    * 0x162: callfii
+    * 0x163: callfiii
+
+2.1: Matemáticas
+
+    add L1 L2 S1
+
+Sumar L1 y L2, utilizando la suma de 32 bits estándar. Truncar el resultado a 32 bits si
+es necesario. Almacenar el resultado en S1.
+
+    sub L1 L2 S1
+
+Calcular (L1 - L2), y almacenar el resultado en S1.
+
+    mul L1 L2 S1
+
+Calcular (L1 * L2) y almacenar el resultado en S1. Truncar el resultado a 32 bits si es
+necesario.
+
+    div L1 L2 S1
+
+Calcular (L1 / L2) y almacenar el resultado en S1. La división es entera con signo.
+
+    mod L1 L2 S1
+
+Calcular (L1 % L2) y almacenar el resultado en S1. Es el resto de la división entera con
+signo.
+
+En la división y el resto los signos son molestos. El redondeo se hace hacia el cero.
+El signo del resto es igual al signo del dividendo. Siempre se cumple que
+(A / B) * B + (A % B) == A. Algunos ejemplos (en decimal):
+
+
+    -11 /  2 = -5
+    -11 / -2 =  5
+     11 / -2 = -5
+    -13 %  5 = -3
+     13 % -5 =  3
+    -13 % -5 = -3
+
+
+    neg L1 S1
+
+Calcular el negativo de L1.
+
+    bitand L1 L2 S1
+
+Calcular el Y a nivel de bits de L1 y L2.
+
+    bitor L1 L2 S1
+
+Calcular el O a nivel de bits de L1 y L2.
+
+    bitxor L1 L2 S1
+
+Calcular el O EXCLUSIVO a nivel de bits de L1 y L2.
+
+    bitnot L1 S1
+
+Calcular la negación a nivel de bits de L1.
+
+    shiftl L1 L2 S1
+
+Desplazar los bits de L1 a la izquierda (hacia los bits más significativos) L2 veces. Los
+L2 bits inferiores se rellenan con ceros. Si L2 vale 32 o más, el resultado es siempre
+cero.
+
+    ushiftr L1 L2 S1
+
+Desplazar los bits de L1 a la derecha L2 veces. Los L2 bits superiores se rellenan con
+ceros. Si L2 vale 32 o más, el resultado es siempre cero.
+
+    sshiftr L1 L2 S1
+
+Desplazar los bits de L1 a la derecha L2 veces. Los L2 bits superiores se rellenan con
+copias del bit superior de L1. Si L2 vale 32 o más, el resultado es siempre cero o
+FFFFFFFF, dependiendo del bit superior de L1.
+
+Notas acerca de los operadores de desplazamiento: si L2 vale cero, el resultado siempre
+es igual a L1. L2 se considera que no tiene signo, con lo cual 80000000 o más es "más de
+32".
+
+2.2: Saltos
+
+Todos los saltos excepto jumpabs especifican su destino como un valor de desplazamiento.
+La dirección de destino real del salto se calcula como (Direccion + Desplazamiento - 2),
+siendo Dirección la dirección de la *siguiente* instrucción al código de operación de
+salto, y Desplazamiento el operando del salto. Los valores especiales de desplazamiento
+0 y 1 se interpretan como "devolver 0" y "devolver 1" respectivamente. [[Este extraño giro
+viene heredado de la máquina Z. Inform lo usa muchísimo para optimizar el código.]]
+
+Es ilegal saltar de una función a otra.
+
+    jump L1
+
+Saltar incondicionalmente al desplazamiento L1.
+
+    jz L1 L2
+
+Si L1 es igual a cero, saltar a L2.
+
+    jnz L1 L2
+
+Si L1 no es igual a cero, saltar a L2.
+
+    jeq L1 L2 L3
+
+Si L1 es igual a L2, saltar a L3.
+
+    jne L1 L2 L3
+
+Si L1 no es igual a L2, saltar a L3.
+
+    jlt L1 L2 L3
+    jle L1 L2 L3
+    jgt L1 L2 L3
+    jge L1 L2 L3
+
+Saltar a L3 si L1 es menor que, menor o igual que, mayor que o mayor o igual que L2. Los
+valores se comparan tomados como valores de 32 bits con signo.
+
+    jltu L1 L2 L3
+    jleu L1 L2 L3
+    jgtu L1 L2 L3
+    jgeu L1 L2 L3
+
+Igual, sólo que los valores se comparan tomados como valores de 32 bits sin signo.
+
+[[Como el espacio de direcciones puede abarcar todo el rango de 32 bits, es más sensato
+comparar direcciones con los operadores de comparación sin signo.]]
+
+    jumpabs L1
+
+Saltar incondicionalmente a la dirección L1. Al contrario que los otros códigos de
+operación de salto, este recibe como operando una dirección absoluta y no un
+desplazamiento. Los casos especiales 0 y 1 (para devoluciones) no se aplican:
+jumpabs 0 saltaría a la dirección de memoria 0 si es que fuese una buena idea (que no lo
+es).
+
+Adviértase que sigue siendo ilegal saltar de una función a otra, incluso con jumpabs.
+
+2.3: Movimiento de datos
+
+    copy L1 S1
+
+Leer L1 y almacenar su valor en S1 sin modificación.
+
+    copys L1 S1
+
+Leer un valor de 16 bits de L1 y almacenarlo en S1.
+
+    copyb L1 S1
+
+Leer un valor de 8 bits de L1 y almacenarlo en S1.
+
+Como copys y copyb pueden acceder a trozos menores que los usuales 4 bytes, resulta
+preciso aclararlos un poco. Al leer de la memoria principal o de los locales del marco de
+llamada, acceden a uno o dos bytes, en vez de a cuatro. Sin embargo, al apilar o desapilar
+valores de la pila, estos códigos de operación apilan o despilan todo un valor de 32 bits.
+
+Por tanto, si copyb (por ejejmplo) copia un byte de la memoria principal a la pila, se
+apila un valor de 32 bits, cuyo valor irá de 0 a 255. *No* se produce extensión del signo.
+Del mismo modo, si copyb copia un byte de la pila a la memoria, se despila un valor de
+32 bits, y los 8 bits inferiores del mismo se almacenan en la dirección indicada. Los 24
+bits superiores se pierden. Los valores constantes también se truncan.
+
+Si se usa copy, copys o copyb en modo de pila tanto para lectura como para escritura, el
+valor de 32 bits se desapila, se trunca y después se apila.
+
+    sexs L1 S1
+
+Extender el signo de un valor, considerado como un valor de 16 bits. Si el bit 8000 del
+valor está a uno, se ponen a uno los 16 bits superiores; en caso contrario, se ponen a
+cero los 16 bits superiores.
+
+    sexb L1 S1
+
+Extender el signo de un valor, considerado como un valor de 8 bits. Si el bit 80 del
+valor está a uno, se ponen a uno los 24 bits superiores; en caso contrario, se ponen a
+cero los 24 bits superiores.
+
+Adviértase que estos códigos de operación, como casi todos, operan sobre valores de 32
+bits. Aunque (por ejemplo) sexb se suele utilizar en conjunción con copyb, no comparte
+con copyb elcomportamiento de leer un solo byte de la memoria o de los locales.
+
+Adviértase también que los bits superiores, 16 o 24, se ignoran completamente y se
+sobreescriben de unos o ceros.
+
+2.4: Datos en vectores
+
+    astore L1 L2 L3
+
+Almacenar L3 en el campo de 32 bits de la dirección de memoria (L1+4*L2).
+
+    aload L1 L2 S1
+
+Recuperar un valor de 32 bits de la dirección de memoria (L1+4*L2) y almacenarlo en S1.
+
+    astores L1 L2 L3
+
+Almacenar L3 en el campo de 16 bits de la dirección de memoria (L1+2*L2).
+
+    aloads L1 L2 S1
+
+Recuperar un valor de 16 bits de la dirección de memoria (L1+2*L2) y almacenarlo en S1.
+
+    astoreb L1 L2 L3
+
+Almacenar L3 en el campo de 8 bits de la dirección de memoria (L1+L2).
+
+    aloadb L1 L2 S1
+
+Recuperar un valor de 8 bits de la dirección de memoria (L1+L2) y almacenarlo en S1.
+
+Adviértase que estos códigos de operación no pueden acceder a los locales del marco de
+llamada ni a la pila (con los operandos L1 y L2, se entiende). L1 y L2 proporcionan una
+dirección de la memoria principal. No debe confundirse con el hecho de que L1 y L2 pueden
+tener cualquier modo de direccionamiento, incluso modos de marco de llamada o de pila.
+Estos controlan de dónde vienen los valores que se usan para *calcular* la dirección de la
+memoria principal.
+
+El otro lado de la transferencia (S1 o L3) siempre es un valor de 32 bits. Los códigos de
+operación de "almacenamiento" truncan L3 a 8 o 16 bits si es necesario. Los códigos de
+operación de "recuperación" expanden los valores de 8 o 16 bits *sin* extensión del signo
+(si se necesitan valores con extensión de signo, siempre se puede escribir aloads/aloadb
+seguido de sexs/sexb).
+
+L2 se considera que tiene signo, con lo cual se puede acceder a posiciones de memoria
+anteriores a L1 además de posteriores.
+
+    astorebit L1 L2 L3
+
+Poner a uno o a cero un solo bit, que es el bit número (L2 mod 8) de la dirección de
+memoria (L1+L2/8). Se pone a cero si L3 vale cero, a uno en caso contrario.
+
+    aloadbit L1 L2 S1
+
+Comprobar un solo bit, de forma similar. Si está a uno, se almacena un 1 en S1; si está a
+cero, se almacena un 0.
+
+Para estos dos códigos de operación, los bits están efectivamente numerados
+secuencialmente, empezando por el bit menos significativo de la dirección L1. L2 se
+considera que tiene signo, por lo que esta numeración se extiende tanto positivamente
+como negativamente. Por ejemplo:
+
+
+    astorebit  1002  0  1:  Poner a uno el bit 0 de la dirección 1002. (El sitio del 1)
+    astorebit  1002  7  1:  Poner a uno el bit 7 de la dirección 1002. (El sitio del 128)
+    astorebit  1002  8  1:  Poner a uno el bit 0 de la dirección 1003.
+    astorebit  1002  9  1:  Poner a uno el bit 1 de la dirección 1003.
+    astorebit  1002 -1  1:  Poner a uno el bit 7 de la dirección 1001.
+    astorebit  1002 -3  1:  Poner a uno el bit 5 de la dirección 1001.
+    astorebit  1002 -8  1:  Poner a uno el bit 0 de la dirección 1001.
+    astorebit  1002 -9  1:  Poner a uno el bit 7 de la dirección 1000.
+
+
+Como los otros códigos de operación aload y astore, estos códigos de operación no pueden
+acceder a los locales del marco de llamada ni a la pila.
+
+2.5: La pila
+
+    stkcount S1
+
+Almacenar el número de valores que hay en la pila. Se empieza a contar desde el marco de
+llamada actual. En otras palabras, siempre vale cero al comienzo de la ejecución de una
+función de tipo C1, y (NumeroDeArgumentos+1) al comienzo de la ejecución de una función de
+tipo C0. Después se incrementa y decrementa según se apilan y desapilan valores de la
+pila. Siempre indica el número de valores que se pueden desapilar legalmente. Si S1
+utiliza un modo de direccionamiento de pila, la cuenta se hace antes de apilar el
+resultado.
+
+    stkpeek L1 S1
+
+Mirar el L1-ésimo valor de la pila, sin llegar a despilar nada. Si L1 vale cero, se refiere
+al elemento de la cima de la pila; si vale uno, se refiere al elemento de debajo de la
+cima, y así sucesivamente. L1 tiene que ser menor que el número de elementos apilados. Si
+L1 o S1 utilizan un modo de direccionamiento de pila, la recuperación del valor se realiza
+después de desapilar L1, pero antes de apilar el resultado.
+
+    stkswap
+
+Intercambia los dos valores superiores de la pila. El número de elementos apilados tiene
+que ser al menos dos.
+
+    stkcopy L1
+
+Mirar los L1 valores superiores de la pila, y apilar duplicados de ellos en el mismo orden.
+Si L1 vale cero no pasa nada. L1 no puede ser mayor que el número de elementos de la pila.
+Si L1 utiliza un modo de direccionamiento de pila, la copia se cuenta después de desapilar
+L1.
+
+Ejemplo de stkcopy, comenzando con seis elementos en la pila:
+
+
+    5 4 3 2 1 0 <cima>
+    stkcopy 3
+    5 4 3 2 1 0 2 1 0 <cima>
+
+
+    stkroll L1 L2
+
+Rotar los L1 valores superiores de la pila. Se rotan hacia arriba o hacia abajo L2
+posiciones, donde valores positivos significan hacia arriba y negativos hacia abajo. El
+número de elementos de la pila tiene que ser por lo menos L1. Si L1 o L2 vale alguno cero
+no pasa nada. Si L1 y/o L2 utilizan un modo de direccionamiento de pila, la rotación se
+produce después de despilarlos.
+
+Ejemplo de dos stkroll, comenzando con 9 valores en la pila:
+
+
+    8 7 6 5 4 3 2 1 0 <cima>
+    stkroll 5 1
+    8 7 6 5 0 4 3 2 1 <cima>
+    stkroll 9 -3
+    5 0 4 3 2 1 8 7 6 <cima>
+
+
+Adviértase que stkswap es equivalente a stkroll 2 1, o ya que estamos, stkroll 2 -1.
+Además, stkcopy 1 equivale a stkpeek 0.
+
+Estos códigos de operación sólo pueden acceder a los valores apilados por encima del marco
+de llamada actual. Es ilegal ejecutar stkswap, stkpeek, stkcopy o stkroll con valores por
+debajo de esos, es decir, el segmento de locales o cualquier marco de llamada  de
+funciones anteriores.
+
+2.6: Funciones
+
+    call L1 L2 S1
+
+Hacer una llamada a la función cuya dirección es L1, pasando L2 argumentos, y almacenando
+el resultado en S1.
+
+Los argumentos se toman de la pila. Antes de ejecutar el código de operación call hay que
+apilar los argumentos en orden inverso (apilar primero el último argumento, quedando el
+primer argumento en la cima de la pila). Los L2 argumentos se quitan antes de construirse
+el marco de llamada de la nueva función (si L1, L2 o S1 utilizan un modo de
+direccionamiento de pila, los argumentos se toman después de desapilar L1 o L2, pero antes
+de apilar el resultado).
+
+Recordemos que todas las funciones de Glulx devuelven un valor de 32 bits y sólo uno. Si
+el resultado devuelto no interesa, se puede utilizar el modo de direccionamiento 0
+("descartar valor") con el operando S1.
+
+    callf L1 S1
+    callfi L1 L2 S1
+    callfii L1 L2 L3 S1
+    callfiii L1 L2 L3 L4 S1
+
+Hacer una llamada a la función cuya dirección es L1, pasando cero, uno, dos o tres
+argumentos. Almacenar el resultado en S1.
+
+Estos códigos de operación se comportan como call, excepto en que los argumentos se dan
+como operandos del código de operación en vez de encontrarse en la pila (si L2, L3, etc.
+utilizan modo de direccionamiento de pila, el comportamiento es exactamente el mismo de
+call).
+
+    return L1
+
+Salir de la función actual devolviendo el valor dado. Si se trata de la función de nivel
+superior, se termina la ejecución de Glulx.
+
+Adviértase que todos los códigos de operación de salto (jump, jz, jeq y así sucesivamente)
+tienen la opción de devolver 0 o 1 en vez de saltar. Se comportan exactamente como si se
+ejecutara el código de operación return.
+
+    tailcall L1 L2
+
+Hacer una llamada a la función cuya dirección es L1, pasando L2 argumentos, y pasar el
+valor devuelto a la función que llamó a la actual.
+
+Se destruye el marco de llamada actual, como si se hubiera ejecutado un return, pero no se
+toca la matriz de llamada que hay debajo. Inmediatamente se llama a L1, creando un nuevo
+marco de llamada. El efecto es el mismo que el de una llamada seguida inmediatamente de
+una devolución, pero utiliza menos espacio de la pila.
+
+Es legal usar tailcall desde la función de nivel superior. L1 pasa a ser la nueva función
+de nivel superior.
+
+[[Este código de operación se puede utilizar para implementar recursividad de cola sin
+forzar a la pila a crecer con cada llamada.]]
+
+2.7: Continuaciones
+
+    catch S1 L1
+
+Genera un "símbolo de recuperación", que se puede utilizar para saltar de vuelta a este
+punto de la ejecución desde un código de operación throw. El símbolo se almacena en S1, y
+a continuación la ejecución salta al desplazamiento L1. Si la ejecución está continuando
+desde este punto a causa de un throw, en vez de esto se almacena el valor lanzado, y se
+ignora el salto.
+
+Recordemos que el valor de los saltos puede ser 0 para devolver 0, o 1 para devolver 1
+(así, se produce el retorno de la función que contiene el código de operación catch). Si
+no es ninguno de estos, se salta a (Direcc + L1 - 2), donde Direcc es la dirección de la
+instrucción *siguiente* al catch.
+
+Si S1 o L1 utilizan un modo de direccionamiento de pila, adviértase que el orden exacto de
+ejecución es: evaluar L1 (despilando si procede); generar una matriz de llamada y calcular
+el símbolo; almacenar S1 (apilando si procede).
+
+    throw L1 L2
+
+Saltar de vuelta a un código de operación catch previamente ejecutado, y almacenar el
+valor L1. L2 tiene que ser un símbolo de recuperación válido.
+
+El procedimiento exacto de recuperación/lanzamiento es el siguiente:
+
+Cuando se ejecuta catch, se apila una matriz de llamada de cuatro valores, destino del
+resultado, PC y PunteroDeMarco (véase la sección 1.3.2, "Matrices de llamada". El PC es
+la dirección de la siguiente instrucción al catch). El símbolo de recuperación es el valor
+del puntero de pila después de apilar estos. El valor del símbolo se almacena en el
+destino del resultado y continúa la ejecución, saltando a L1.
+
+Cuando se ejecuta throw, la pila se desapila hasta que el puntero de pila coincide con el
+símbolo dado. Entonces se vuelven a leer los cuatro valores de la pila, el valor lanzado
+se almacena en el destino, y la ejecución continúa por la siguiente instrucción al catch.
+
+Si la matriz de llamada (o cualquiera de sus partes) se retira de la pila, el símbolo de
+recuperación se invalida y no se debe usar. Esto ocurrirá seguro al volver de la función
+que contiene el código de operación catch. También ocurre si se desapilan demasiados
+valores después de ejecutar el catch (se podría querer hacer esto para "cancelar" la
+recuperación; si se desapilan esos cuatro valores el símbolo se invalida, y es como si
+nunca se hubiera ejecutado el catch).
+
+[[¿Por qué se produce el salto del catch cuando se ejecuta el catch, y no después de un
+throw? Porque así es más fácil escribir los intérpretes, esa es la razón. Si tuviera que
+saltar después del throw, o bien la matriz de llamada tendría que contener el
+desplazamiento del salto, o bien el intérprete tendría que reanalizar la instrucción
+catch. Las dos opciones son feas.]]
+
+2.8: Mapa de memoria
+
+    getmemsize S1
+
+Almacenar el tamaño actual del mapa de memoria. Inicialmente es el valor ENDMEM de la
+cabecera, pero se puede cambiar con el código de operación setmemsize. Siempre será
+mayor o igual que ENDMEM.
+
+    setmemsize
+
+Ajustar el tamaño actual del mapa de memoria. El nuevo valor debe ser múltiplo de 256,
+como todos los límites de memoria de Glulx. Debe ser mayor o igual que ENDMEM (el valor
+inicial del tamaño de la memoria que se almacena en la cabecera). No tiene por qué ser
+mayor que el tamaño anterior de la memoria. El tamaño de la memoria puede crecer o
+decrecer con el tiempo, siempre que nunca se haga más pequeño que el tamaño inicial.
+
+Cuando el tamaño de la memoria crece, el espacio nuevo se rellena con ceros. Cuando
+decrece, se pierde el contenido del espacio anterior.
+
+Como nunca se garantiza la reserva de la memoria, hay que estar preparado para la
+posibilidad de que setmemsize falle. El código de operación almacena el valor cero si
+la reserva tiene éxito y el valor 1 si no. Si no tiene éxito, el tamaño de la memoria no
+varía.
+
+Algunos intérpretes no tienen la capacidad de modificar el tamaño de la memoria. En esos
+intérpretes setmemsize *siempre* falla. Esta circunstancia se puede comprobar previamente
+con el selector de configuración (gestalt) ResizeMem.
+
+Adviértase que el tamaño de la memoria se considera parte del estado del juego. Si se
+recupera una partida guardada, el tamaño de la memoria pasa a ser el que había en el
+momento que se guardó la partida. Al reiniciar las partidas, el tamaño de la memoria pasa
+a ser el inicial.
+
+2.9: Estado del juego
+
+    quit
+
+Cerrar el intérprete y salir. Es equivalente a volver de la función de nivel principal, o
+también a llamar a glk_exit().
+
+Adviértase que (con el sistema de entrada/salida Glk) Glk tiene la responsabilidad de
+hacer la petición "pulse cualquier tecla para salir". Es seguro imprimir un bloque de
+texto final y después salir inmediatamente.
+
+    restart
+
+Restaurar la máquina virtual a su estado inicial (memoria, pila y registros). Adviértase
+que se restablece el tamaño de la memoria, así como el contenido de la misma.
+
+    save L1 S1
+
+Almacenar el estado de la máquina virtual en el flujo de salida L1. Es responsabilidad del
+programa preguntar al jugador el nombre del archivo, abrir el flujo, y después destruir
+estos objetos. S1 se pone a cero si la operación tiene éxito, a 1 si falla, y a -1 si la
+máquina virtual está continuando en esta instrucción después de recuperar una partida.
+
+(Con el sistema de entrada/salida Glk, L1 tiene que ser el ID de un flujo escribible de
+Glk. Con otros sistemas de entrada/salida, puede significar otra cosa. Con los sistemas
+de entrada/salida "filtrado" y "nulo", el código de operación save es ilegal, porque los
+intérpretes no tienen donde escribir el estado)
+
+    restore L1 S1
+
+Recuperar el estado de la máquina virtual desde el flujo de entrada L1. S1 se pone a 1 si
+esta operación falla. Si tiene éxito, por supuesto, esta instrucción nunca llega a
+devolver ningún valor.
+
+    saveundo S1
+
+Almacenar el estado de la máquina virtual en una localización temporal. El intrérprete
+elegirá una localización adecuada para su rápudo acceso, para que pueda llamarse a esta
+instrucción en cada turno. S1 se pone a cero si la operación tiene éxito, a 1 si falla, y
+a -1 si se acaba de recuperar el estado de la máquina virtual.
+
+    restoreundo S1
+
+Recuperar el estado de la máquina virtual desde el almacenamiento temporal. S1 se pone a
+1 si la operación falla.
+
+    protect L1 L2
+
+Proteger un rango de memoria frente a restart, restore y restoreundo. El rango protegido
+empieza en la dirección L1 y tiene una longitud de L2 bytes. Esta parte de la memoria
+se omite discretamente en las operaciones de recuperación del estado (sin embargo, si el
+operando de almacenamiento de estas instrucciones S1 se dirige al rango protegido, no se
+le bloquea).
+
+Al arrancar la máquina virtual no hay rango protegido. Sólo puede haber un rango protegido
+en cada momento. La ejecución de protect cancela cualquier rango previo. Para inhabilitar
+la protección hay que llamar a protect con L1 y L2 a cero.
+
+Es importante darse cuenta de que el rango protegido en sí (su existencia, localización
+y tamaño) ¡*no* forma parte del estado grabado de la partida! Si se guarda una partida,
+se mueve el rango protegido a otra parte y se recupera la partida grabada, el nuevo
+rango seguirá siendo el protegido, y seguirá ahí.
+
+    verify S1
+
+Realizar comprobaciones de corrección sobre el fichero del juego, utilizando su longitud
+y su suma de comprobación. S1 se pone a cero si todo parece correcto y a 1 si parece
+haber algún problema (muchos intérpretes harán esto automáticamente, antes de que empiece
+a ejecutarse el juego; este código de operación se ofrece sobre todo para los intérpretes
+más lentos, en los que la autoverificación causaría un retraso inaceptable).
+
+Notas:
+
+Todos los códigos de operación de almacenamiento y recuperación pueden generar información
+de diagnóstico en el flujo de salida activo.
+
+Los intérpretes pueden contemplar distintos niveles de almacenamiento temporal. No hay que
+hacer asunciones de las veces que se puede llamar a restoreundo. Si el jugador lo solicita
+hay que seguir llamándolo hasta que falle.
+
+Los objetos opacos de Glk (windows, streams, filespecs) no forman parte del estado del
+juego que se almacena. Por tanto, al recuperar una partida todos los ID de objeto que haya
+en la memoria de Glulx deben considerarse inválidos (lo que incluye tanto a los ID que
+haya en la memoria como los que estén en la pila). Hay que usar las llamadas iterativas de
+Glk para recorrer todos los objetos opacos que existan y reconocerlos por sus "rocas".
+
+Se aplica lo mismo después de restoreundo, aunque en menor grado. Como saveundo y
+restoreundo sólo operan durante una única sesión de juego, se puede confiar en los ID
+de los objetos creados antes del primer saveundo. Sin embargo, si se han creado objetos
+después, hay que iterar y reconocerlos.
+
+El código de operación restart es un caso similar. Hay que hacer una iteración en cuanto
+empiece el programa, para encontrar los objetos creados en una encarnación anterior. De
+forma alternativa se puede tener la precaución de cerrar todos los objetos opacos antes
+de invocar a restart.
+
+[[Otra aproximación es utilizar el código de operación protect para preservar las
+variables globales que contengan los ID de los objetos. Esto funciona dentro de una misma
+sesión de juego, es decir, con saveundo, restoreundo y restart. Aún hay que ocuparse de
+save y restore.]]
+
+2.10: Salida
+
+    getiosys S1 S2
+
+Devolver el sistema de entrada/salida actual y su "roca".
+
+    setiosys L1 L2
+
+Elegir el sistema de entrada/salida y su roca. Si el intérprete no admite el sistema L1,
+se pondrá de forma predeterminada el sistema "nulo" (0).
+
+Actualmente están definidos estos sistemas:
+
+    * 0: el sistema nulo. Toda salida se descarta (es el sistema predeterminado al
+    arrancar la máquina Glulx.
+    * 1: el sistema de filtrado. El valor de la "roca" (L2) tiene que ser la dirección
+    de una función Glulx. Esta función se llamará con cada salida de un carácter (con el
+    código del caracter, de 00 a FF, como único argumento). Se ignora el valor devuelto
+    por la función.
+    * 2: el sistema Glk. Toda la salida se trata a través de llamadas a funciones Glk,
+    que se envían al flujo actual de Glk.
+
+Es importante recordar que cuando arranca Glulx el sistema de entrada/salida Glk *no*
+es el activo. Y cuando arranca Glk no hay ventanas ni flujo de salida activo. Para que le
+salga lo que sea al usuario hay que hacer antes tres cosas: elegir el sistema de
+entrada/salida Glk, abrir una ventana de Glk, y hacer de su flujo el activo (es ilegal en
+Glk enviar salida a donde no hay flujo activo. Enviar salida al sistema de entrada/salida
+"nulo" de Glulx es legal, pero no tiene sentido).
+
+    streamchar L1
+
+Enviar L1 al flujo activo. Se envía un solo carácter; el valor L1 se trunca a 8 bits.
+
+    streamnum L1
+
+Enviar L1 al flujo activo, representado como un número decimal con signo en ASCII.
+
+    streamstr
+
+Enviar un objeto cadena al flujo activo. L1 tiene que ser la dirección de un objeto cadena
+de Glulx (de tipo E0 o E1). La cadena se decodifica y se envía como una secuencia de
+caracteres.
+
+Cuando el sistema de entrada/salida activo es Glk, estos códigos de operación se
+implementan utilizando la API de Glk. Se puede prescindir de ellos y llamar directamente
+a glk_put_char(), glk_put_buffer() y así sucesivamente. Debe recordarse, sin embargo, que
+los objetos cadena de Glulx no son cadenas del tipo de las de C, así que no se los puede
+pasar a glk_put_string().
+
+Adviértase que es ilegal decodificar una cadena comprimida si no hay establecida ninguna
+tabla de decodificación de cadenas.
+
+    getstringtbl S1
+
+Devolver la dirección que el intérprete está usando en este momento como tabla de
+decodificación de cadenas. Si no está usando ninguna, devuelve cero.
+
+    setstringtbl L1
+
+Cambiar la dirección que el intérprete está utilizando como tabla de decodificación de
+cadenas. Puede ser cero para indicar que no haya tabla (en cuyo caso es ilegal tratar de
+imprimir cadenas comprimidas). En caso contrario, tiene que ser la dirección de una tabla
+de decodificación de cadenas *válida*.
+
+[[No se modifica el valor del campo de la cabecera de la dirección 001C. La cabecera está
+en ROM, y no cambia nunca.Para obtener la dirección de la tabla actual se usa el código de
+operación getstringtbl.]]
+
+Las tablas de decodificación de cadenas pueden estar en RAM o en ROM, pero puede haber
+penalizaciones en la velocidad si es que está en RAM. Véase la sección 1.6.1.3, "La tabla
+de decodificación de cadenas".
+
+2.11: Generador de números aleatorios
+
+    random L1 S1
+
+Devolver un número aleatorio del rango entre 0 y (L1 - 1); o bien, si L1 es negativo,
+entre (L1 + 1) y 0. Si L1 vale cero, devolver un número aleatorio del rango completo de
+enteros de 32 bits (recuerdese que puede ser positivo o negativo).
+
+    setrandom L1
+
+Darle la semilla al generador de números aleatorios con el valor L1. Si L1 vale cero,
+los números aleatorios subsiguientes serán tan genuinamente impredecibles como pueda
+generarlos el intérprete; pueden incluir datos de temporalidad u otras fuentes de
+aleatoriedad para generarlos. Si L1 no vale cero, los números aleatorios subsiguientes
+seguirán una secuencia determinista, siempre la misma para el mismo número dado distinto
+de cero.
+
+El intérprete arranca en modo "no determinista" (como si se hubiera invocado setrandom 0).
+
+El generador de números aleatorios no forma parte del estado que se almacena de las
+partidas.
+
+2.12: Búsqueda
+
+Realizar una búsqueda genérica, ya sea lineal, binaria o en lista enlazada.
+
+[[Estas operaciones son tremendamente CISC para una CPU por hardware, pero suficientemente
+fáciles de añadir a un intérprete software; y aprovecharlas puede acelerar los programas
+considerablemente. El juego Advent, con la librería de Inform, se ejecuta entre un 15% y
+un 20% más rápido si la búsqueda en tablas de propiedades se realiza con el código de
+operación de búsqueda binaria en vez de con código Inform. Un cambio similar en las
+búsquedas del diccionario recorta otro 1% o por ahí.]]
+
+Estos tres códigos de operación actúan sobre una colección de estructuras de datos de
+tamaño fijo de la memoria. La clave, un vector de bytes de tamaño fijo, se encuentra en
+una posición conocida dentro de cada estructura de datos. Los códigos de operación buscan
+en la colección de estructuras y encuentran una cuya clave coincide con una dada.
+
+Las siguientes banderas se pueden ajustar en el argumento Opciones. Adviértase que no se
+pueden usar todas las banderas con todos los tipos de búsqueda.
+
+    * ClaveIndirecta (0x01): esta bandera indica que el argumento Clave que se pasa al
+    código de operación es la dirección de la clave real (si el TamañoDeClave es mayor que
+    4, *hay* que usar la bandera ClaveIndirecta, dado que los valores en Glulx se limitan
+    a 4 bytes). Si no es usa esta bandera, el argumento Clave es la propia clave (en este
+    caso, si el TamañoDeClave es menor que 4, se usan los bits inferiores de la clave y
+    se ignoran los superiores).
+    * ClaveCeroTermina (0x02): esta bandera que la búsqueda debe terminar (y devolver
+    fallo) si se encuentra una estructura cuya clave se componga de ceros. Si resulta
+    que la clave a buscar también son todo ceros, el éxito tiene prioridad.
+    * DevolverIndice (0x04): esta bandera indica que la búsqueda debe devolver el indice
+    en el vector de la estructura encontrada, o -1 (0xFFFFFFFF) si no la encuentra. Si no
+    se usa esta bandera, la búsqueda devuelve la dirección de la estructura encontrada, o
+    cero si no la encuentra.
+
+    linearsearch L1 L2 L3 L4 L5 L6 L7 S1
+
+    * L1: Clave
+    * L2: TamañoDeClave
+    * L3: Comienzo
+    * L4: TamañoEstructura
+    * L5: NumeroEstructuras
+    * L6: DesplazamientoDeLaClave
+    * L7: Opciones
+    * S1: Resultado
+
+En la memoria hay almacenado un vector de estructuras, empezando en Comienzo, siendo cada
+estructura de TamañoEstructura bytes. Dentro de cada estructura, hay un valor clave de
+tamaño TamañoDeClave bytes, que comienza en la posición DesplazamientoDeLaClave (empezando
+por el principio de la estructura). Buscar en este vector en orden. Si se encuentra una
+estructura cuya clave coincida, devolverla. Si se buscan NumeroEstructuras sin resultado,
+la búsqueda falla.
+
+NumeroEstructuras puede valer -1 (0xFFFFFFFF) para indicar que no hay límite en el número
+de estructuras a buscar. La búsqueda continuará hasta que se encuentre una coincidencia,
+o (si se usa ClaveCeroTermina) una estructura cuya clave sea cero.
+
+Se pueden usar las opciones ClaveIndirecta, ClaveCeroTermina y DevolverIndice.
+
+    binarysearch L1 L2 L3 L4 L5 L6 L7 S1
+
+    * L1: Clave
+    * L2: TamañoDeClave
+    * L3: Comienzo
+    * L4: TamañoEstructura
+    * L5: NumeroEstructuras
+    * L6: DesplazamientoDeLaClave
+    * L7: Opciones
+    * S1: Resultado
+
+En la memoria hay un vector de estructuras de datos, como en el caso anterior. Sin
+embargo, las estructuras tienen que estar ordenadas en orden ascendente de sus claves
+(interpretando las claves como enteros sin signo y big-endian). No puede haber claves
+duplicadas. NumeroEstructuras debe indicar la longitud exacta del vector; no puede valer
+-1.
+
+Se pueden usar las opciones ClaveIndirecta y DevolverIndice.
+
+    linkedsearch L1 L2 L3 L4 L5 L6 S1
+
+    * L1: Clave
+    * L2: TamañoDeClave
+    * L3: Comienzo
+    * L4: DesplazamientoDeLaClave
+    * L5: DesplazamientoDeSiguiente
+    * L6: Opciones
+    * S1: Resultado
+
+Las estructuras no tienen por qué ser consecutivas. Pueden estar en cualquier parte de la
+memoria, en cualquier orden. Se encuentran enlazadas por un campo de dirección de cuatro
+bytes, que se encuentra en cada estructura en la posición DesplazamientoDeSiguiente. Si
+este campo contiene un cero, indica que se ha llegado al final de la lista enlazada.
+
+Se pueden usar las opciones ClaveIndirecta y ClaveCeroTermina.
+
+2.13: Miscelánea
+
+    nop
+
+No hacer nada.
+
+    gestalt L1 L2 S1
+
+Comprobar el selector de configuración número L1, con el argumento extra opcional L2, y
+almacenar el resultado en S1. Si el selector es desconocido, almacenar cero.
+
+El razonamiento que lleva a diseñar un sistema de configuraciones es, espero, demasiado
+obvio para que haya que explicarlo.
+
+[[Esta lista de selectores de Configuración no tiene nada que ver con la lista de la
+librería Glk.]]
+
+La lista de selectores L1 es como sigue. Adviértase que si un selector determinado no
+menciona a L2, siempre hay que poner ese argumento a cero. [[Así se asegura compatibilidad
+futura, en el caso de que se extienda el selector.]]
+
+    * VersionDeGlulx (0): devuelve la versión de la especificación Glulx que implementa
+    el intérprete. Los 16 bits superiores del valor indican el número principal de
+    versión; los siguientes 8 bits indican un número secundario de versión; y los 8 bits
+    inferiores indican un número de versión aún más secundario, si existe. Esta
+    especificación es la versión 2.0, así que los intérpretes que la implementen deben
+    devolver 0x00020000. Trataré de mantener la convención de que los cambios en versiones
+    secundarias sean compatibles hacia atrás y hacia adelante.
+    * VersionDelInterprete (1): devuelve la versión del intérprete. El formato es el mismo
+    que el de la VersionDeGlulx. [[Cada intérprete tiene su propio sistema de numeración
+    de versiones, definido por su autor, así que esta información no es terriblemente
+    útil. Pero conviene que los juegos puedan mostrarla, para el caso en el que el jugador
+    esté capturando información de la versión para informar de errores.]]
+    * RedimensionarMemoria (2): devolver 1 si el intérprete ofrece la posibilidad de
+    modificar el tamaño del mapa de memoria con el código de operación setmemsize. Si
+    devuelve cero, setmemfail siempre fallará. [[Pero se debe recordar que setmemsize
+    siempre puede fallar de todas formas.]]
+    * Deshacer (3): devuelve 1 si el intérprete ofrece la posibilidad de deshacer. Si
+    devuelve 0, saveundo y restoreundo siempre fallarán.
+    * SistemaEntradaSalida (4): devuelve 1 si el intérprete maneja el sistema de
+    entrada/salida dado en L2 (las constantes son las mismas que en el código de operación
+    setiosys: 0 para "nulo", 1 para "filtrado", 2 para Glk. 0 y 1 siempre tienen éxito,
+    y también 2 en cualquier intérprete Glulx que haya planeado hoy en día).
+
+    debugtrap L1
+
+Interrumpir la ejecución para hacer algo específico del intérprete con L1. Si el
+intérprete no tiene nada en mente, debe detenerse con un mensaje de error visible.
+
+[[La intención es su uso con intérpretes depuradores. El programa puede estar salpicado
+de comprobaciones de consistencia, preparadas para llamar a debugtrap si falla alguna
+condición. En ese caso el intérprete podría detenerse, mostrar una advertencia, o no
+hacer caso al debugtrap.]]
+
+Esto *no* debe usarse como trampilla arbitraria del intérprete con programas terminados
+(fuera del proceso de depuración). Si realmente se desea añadir funcionalidad de
+interpretación al programa, y se tiene la intención de mantener un intérprete alternativo
+para ejecutarlo, se debería añadir un nuevo código de operación. Quedan disponibles 2^28,
+para dar y tomar.
+
+    glk L1 L2 S1
+
+Llamar a la función de la API Glk cuyo identificador es L1, pasando L2 argumentos. El
+valor devuelto se almacena en S1 (si la función Glk no devuelve ningún valor, se guarda un
+cero en S1).
+
+Los argumentos se pasan en la pila, el último argumento apilado el primero, igual que con
+el código de operación call.
+
+Los argumentos se representan de la forma obvia. Los enteros y los caracteres se pasan
+como enteros. Los objetos opacos de Glk se pasan como identificadores enteros, con el cero
+como representante de NULL. Las cadenas se pasan como direcciones de objetos cadena de
+Glulx (véase la sección 1.6.1, "Cadenas"). Las referncias a valores se pasan como sus
+direcciones; adviértase que los vectores como argumento, al contrario que las cadenas,
+siempre van seguidos de un argumento de tamaño del vector.
+
+Los argumentos que son referencias merecen una explicación más profunda. Una referencia
+a un entero o a un objeto opaco es la dirección de un valor de 32 bits (que, al estar
+en la memoria, no tiene por qué estar alineado, pero debe ser big-endian). De forma
+alternativa se puede pasar el valor -1 (FFFFFFFF); este es un caso especial, lo que
+significa que el valor se lee o se escribe en la pila. Los argumentos siempre se evalúan de izquierda a derecha, lo que significa que los argumentos de entrada se desapilan
+primero el superior, pero los argumentos de salida se apilan el último el superior.
+
+Una referencia a una estructura de Glk es la dirección de un vector de valores de 32 bits
+de la memoria principal. De nuevo, -1 significa que los valores se escriben en la pila.
+Y también de nuevo, las estructuras de entrada se desapilan primero el superior, y las de
+salida se apilan el último el superior.
+
+Todas las referencias de entrada en la pila (direcciones -1) se desapilan después de
+desapilar la lista de argumentos de Glk. [[Esto debería ser obvio, puesto que el -1 se
+sitúa *dentro* de la lista de argumentos Glk.]] Las referencias de salida en la pila se
+apilan después de la llamada a Glk, pero antes de almacenar el resultado S1.
+
+[[La diferencia entre cadenas y vectores de caracteres es un poco confusa. Son el mismo
+tipo en la API C de Glk, pero diferentes en Glulx. Llamadas como glk_put_buffer() y
+glk_request_line_event() toman vectores de caracteres, esto es, la dirección de un vector
+de bytes que contiene valores de carácter, seguida de un entero que indica la longitud
+del vector. El propio vector de bytes no tiene ni indicador de longitud ni terminador.
+Por otra parte, llamadas como glk_put_string() y glk_fileref_create_by_name() toman
+cadenas como argumentos, que deben ser objetos cadena de Glulx (bien codificadas o bien
+descodificadas). Los objetos cadena descodificada de Glulx son casi vectores de
+caracteres, pero no del todo, porque tienen un byte E0 al principio y un byte cero al
+final.]]
+
+[[La convención de que la "dirección" -1 se refiera a la pila es una característica del
+mecanismo de invocación de Glk; sólo se aplica a los argumentos para Glk. *No* forma parte
+de la definición general de Glulx. Al evaluar los operandos de las instrucciones, -1 no
+tiene ningún significado especial. También es así para los argumentos L1, L2 y S1 del
+código de operación glk.]]
+
+2.14: Lenguaje ensamblador
+
+El formato utilizado por Inform es aceptable por ahora:
+
+
+    @codop [ op op op ... ] ;
+
+
+Donde cada "op" es una constante, el nombre de una variable local, el nombre de una
+variable global, o "sp" (para los modos de direccionamiento de pila).
+
+Sería conveniente tener un formato de una línea para los códigos de operación que pasan
+argumentos en la pila (call y glk).
+
+Sería conveniente que Inform admitiera alguna sintaxis para construir un código de
+operación completamente nuevo (lo hace para código Z).
+

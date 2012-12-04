@@ -1,0 +1,92 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Remitente:    Zak <spinf_2000@yahoo.com>
+Destinatario: informate@yahoogroups.com <informate@yahoogroups.com>
+Fecha:        jueves, 28 de agosto de 2003, 11:45:09
+Asunto:       [InformatE] Caja de cerillas y parse_name
+Archivos:     <ninguno>
+--====----====----====----====----====----====----====----====----====----===--
+Bueno, aqui va una solucion que casi funciona para el problema de la caja
+de cerillas. La idea es que la caja de cerillas debe reconocer que el
+jugador se está refiriendo a ella ante las frases "caja", "caja de
+cerillas" o "cerillas", pero no otras combinaciones que aceptaría el
+parser por defecto, como "cerillas de caja".
+
+Asi pues, si la primera palabra es "cerillas", ya no miramos mas, y
+aceptamos solo esa palabra. Si es "caja", entonces aceptamos las que
+siguen, siempre que sean "de" o "cerillas". Y si no es "cerillas" ni
+"caja", rechazamos la frase. Esto se implementa así:
+
+Object -> cajacerillas "caja de cerillas"
+ with   descripcion "Una vulgar caja de cerillas",
+        parse_nombre [primera i;
+            primera=SiguientePalabra(); !Averiguar la primera palabra
+            if (primera=='cerillas') return 1;
+            if (primera=='caja') {
+              i=1; ! La primera palabra es 'caja', tenemos ya una válida
+              ! Contamos cuántas más válidas le siguen
+              while (SiguientePalabra()=='de' or 'cerillas') i++;
+              return i; ! Y retornamos el contador
+            }
+            return 0; ! Ninguna palabra válida
+        ],
+ has    recipiente abrible femenino;
+
+El lector astuto observará que este código también admite como válida
+la frase "caja cerillas de", e incluso otras aberraciones como "caja
+de de de cerillas de cerillas cerillas", pero esto no supone problema,
+ya que lo que nunca admitirá será "cerillas de caja".
+
+Si juntamos esta caja un la cerilla que hay en su interior:
+
+Object -> -> cerilla "cerilla"
+ with   description "Un fósofro (o cerilla).",
+        nombre 'cerilla' 'cerillas' 'fosforo',
+ has    femenino;
+
+La cosa funciona casi bien, pues responde correctamente ante:
+
+1> COGE CAJA
+2> COGE CAJA DE CERILLAS
+3> COGE CERILLAS (cuando no hay mas cerillas a la vista)
+4> ABRE CAJA
+5> COGE CERILLAS (y ahora coge la cerilla de dentro, no la caja)
+6> METE CERILLAS EN CAJA (e incluso METE CERILLAS EN CERILLAS)
+7> SACA CERILLAS DE CAJA
+etc..
+
+Parece magia! Especialmente los acsos 5 y 6. ¿Cómo es que el parser a
+veces interpreta CERILLAS como referido al fósforo y otras como
+referido a la caja? Parece que tiene que ver con el método de
+desambiguación, así, en METE CERILLAS EN CERILLAS, espera como segundo
+objeto para METER un recipiente, y por eso deduce automáticamente que
+el segundo CERILLAS se refiere a la caja y el primero al fósforo.
+
+De todas formas, cabe esperar que alguna vez falle, y en efecto, si el
+jugador tiene la caja de cerillas, con cerillas dentro y la caja está
+abierta, si pone DEJA CERILLAS (con la intención de dejar la caja), el
+parser entiende dejar el fósforo, pero como el fósforo está dentro de
+la caja y no en el jugador, responde con "No la tienes". No obstante,
+si la caja estuviera cerrada, ya que el fosforo no está al alcance,
+este error no se producirá y DEJA CERILLAS dejará correctamente la
+caja.
+
+Yo creo que esta solución, para lo simple que es, es válida en el 99%
+de los casos,
+
+Saludos,
+
+  |Zak|
+
+
+-------------------------------------------------
+ InformatE!  Glulxificate!
+------------------------------------------------- 
+
+La utilización de Yahoo! Grupos está sujeta a su aceptación de las 
+Condiciones del servicio (http://es.docs.yahoo.com/info/utos.html) así 
+como de la Política de privacidad (http://privacy.yahoo.com/es/).
+ 
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+

@@ -1,0 +1,650 @@
+Cursillo sobre Arrays, cadenas y otras yerbas en Inform
+=======================================================
+
+1. Conceptos
+------------
+
+Un array no es más que una zona de la memoria donde se almacenan
+datos, uno detrás de otro. Cada dato es identificado por el lugar que
+ocupa dentro de esta lista. Por ejemplo:
+
+  Lugar que ocupa   Dato
+      0             18
+      1             2354
+      2             127
+      3             4535
+      4             16000
+
+El "lugar que ocupa" se denomina "índice" del array. Así diremos que
+para el índice 3 el dato es 4535 en el ejemplo anterior. Observar que
+en el ejemplo anterior el primer índice es 0. Algunos lenguajes usan
+como primer índice el 1. Inform usa 1 ó 0 según el caso, como veremos
+más adelante.
+
+Por desgracia, para comprender cómo maneja Inform los arrays es
+necesario saber un poquillo de cómo los ordenadores almacenan sus
+datos en memoria.
+
+Como ya sabrás, la medida de información más habitual en el ordenador
+es el byte. Un byte son 8 bits y ya que cada bit puede tomar dos
+valores (0 ó 1) existen 256 combinaciones diferentes de bits dentro
+del byte (256=2^8). Esto significa que si queremos guardar números
+dentro de un byte, solo podremos almacenar cantidades entre 0 y
+255. Si lo que queremos es guardar una letra, sólo podremos codificar
+256 letras diferentes (bueno, esto es más que suficiente para un
+alfabeto europeo). En realidad a la hora de guardar letras, cada letra
+es codificada mediante un número (su código ASCII si la letra es del
+alfabeto americano, o su código ISO-Latin-1 si es del alfabeto
+español, como por ejemplo la eñe), por lo que en el fondo lo que
+almacena el byte es siempre un número.
+
+A menudo los ordenadores juntan dos bytes para almacenar un dato. De
+este modo en lugar de 8 bits se tienen 16, y por tanto 2^16
+combinaciones (65536). Esto sirve para codificar letras de alfabetos
+exóticos que tengan muchos símbolos diferentes (más de 256, como en el
+estándar Unicode), o para guardar números más grandes (entre
+0 y 65535).
+
+Inform utiliza muchisimo este tamaño "word", hasta el punto de que en
+realidad todos los tipos de datos que maneja se almacenan en un "word"
+(es decir, en dos bytes). Los números, los objetos, algunas cadenas de
+texto, las palabras del diccionario, todo esto se codifica mediante un
+número de 16 bits y se almacena en un "word" (para los que sepan lo
+que es un puntero, diré que en Inform todo son punteros a diferentes
+direcciones de la máquina Z y que estos punteros son de 16
+bits). Solamente se usa el byte para almacenar caracteres (letras).
+
+
+Cuando deseemos guardar en memoria un array, habrá que especificarle a
+Inform si sus elementos serán bytes o bien words (doble-byte). Para
+almacenar letras es suficiente el byte, pero para números o cualquier
+otro uso es mucho mejor el tamaño word.
+
+
+2. Declaración y uso de Arrays en Inform
+----------------------------------------
+
+Las variables de tipo Array se declaran mediante la palabra Array,
+seguida del nombre que queramos darle, seguida del símbolo -> (para
+arrays de bytes) ó --> (para arrays de words) y finalmente seguida del
+número de elementos que tendrá el Array.
+
+2.1 Arrays de bytes
+-------------------
+
+Por ejemplo:
+
+  Array cuatro_bytes -> 4;
+
+Declararía un Array de 4 elementos, cada uno de los cuales será un
+byte (ya que se ha usado el símbolo "->").
+
+Esto crea una zona de memoria de 4 bytes de tamaño, lista para
+almacenar cuatro datos. Los índices se empiezan a numerar desde 0 
+**ES MUY IMPORTANTE RECORDAR QUE LOS ARRAYS NUMERAN SU INDICE DESDE 0**
+
+Supongamos que queremos almacenar los siguientes datos en el interior
+de este array:
+
+  Indice    Dato
+  ------    ----
+    0         25
+    1         130
+    2         240
+    3         1000
+
+El último dato no cabe en un byte (pues es mayor de 255), por tanto al
+intentar guardarlo habrá problemas. Enseguida veremos qué ocurre. Los
+elementos pueden asignarse de la siguiente forma:
+
+  cuatro_bytes->0 = 25;
+  cuatro_bytes->1 = 130;
+  cuatro_bytes->2 = 240;
+  cuatro_bytes->3 = 1000;
+
+La última asignación no es posible. Inform almacenará en lugar de
+1000, el resto de la división 1000/256 (es decir, 232). La razón de
+esto es que 1000 necesitaría dos bytes para ser almacenado, ya que en
+uno no cabe. Si se usaran dos bytes, el primero valdría 3 (cociente de
+1000/256) y el segundo valdría 232 (resto de 1000/256), de modo que
+3*256+232=1000. Ya que sólo se dispone de 1 byte, se almacenará sólo
+el correspondiente al resto. Naturalmente esto puede causar que
+nuestro programa no funcione como habiamos pensado, ya que un elemento
+que creíamos igual a 1000 vale en realidad 232.
+
+Para evitar este tipo de problemas es mejor usar Arrays de tipo word
+siempre que se vaya a almacenar números en ellos, y reservar los de
+tipo byte para almacenar letras.
+
+
+Así pues, probemos otro ejemplo:
+
+  Indice    Dato
+  ------    ----
+    0       'H'
+    1       'o'
+    2       'l'
+    3       'a'
+
+En este caso las cuatro letras que queremos almacenar son las
+correspondientes a la palabra "Hola". Para lograr esto las
+asignaciones serían:
+
+  cuatro_bytes->0 = 'H';
+  cuatro_bytes->1 = 'o';
+  cuatro_bytes->2 = 'l';
+  cuatro_bytes->3 = 'a';
+
+Observa las comillas simples. Al igual que en C, una letra rodeada por
+comillas simples es interpretada como "el código ASCII de esta
+letra". (NOTA: Si entre comillas simples pones más de una letra,
+entonces el compilador entiende que estás definiendo una palabra de
+diccionario. El uso de las comillas simples y dobles es otra de las
+rarezas sintácticas de Inform que tal vez requiera otro cursillo :-)
+
+Podríamos intentar imprimir estas letras en pantalla, por ejemplo con
+el bucle siguiente:
+
+  for (i=0:i<4:i++) print cuatro_bytes->i;
+
+Esperaríamos que en pantalla apareciese "Hola", pero en vez de eso
+aparece 7211110897. ¿Qué ha pasado? Lo que ocurre es que cada una de
+las letras ha sido codificada en el array mediante un número (su
+código ASCII), siendo 72 el de la 'H', 111 el de 'o', 108 el de 'l' y
+97 el de 'a', por lo que print ha sacado esos números (pegados unos a
+otros, ya que print no pone espacios a menos que se lo indiquemos).
+
+¿Cómo sacar las letras correspondientes a esos códigos? Basta
+indicarle a print que el dato que tiene que mostrar es en realidad un
+caracter (print no sabe esto, puesto que en el array igualmente
+podríamos haber almacenado números, y print siempre dará por supuesto
+que lo que queremos imprimir en pantalla es un número).
+
+El bucle correcto sería:
+
+  for (i=0:i<4:i++) print (char) cuatro_bytes->i;
+
+Ahora sí, en pantalla saldrá Hola.
+
+La inicialización "a mano" de los elementos del array es un poco
+pesada. Inform permite inicializar los elementos del array en la misma
+línea que se crea el array, mediante la siguiente sintaxis:
+
+  Array cuatro_bytes -> 'H' 'o' 'l' 'a';
+
+Observa que en este caso no pones el 4. Inform contará cuantas letras
+pretendes guardar en el Array y reservará el espacio requerido
+automáticamente.
+
+La sintaxis anterior todavía ofrece una versión más cómoda:
+
+  Array cuatro_bytes -> "Hola";
+
+Es decir, en lugar de especificar cada letra por separado y entre
+comillas simples, se ponen todas juntas y entre comillas dobles. De
+nuevo Inform cuenta cuatro letras y reserva espacio para ellas. No
+obstante, el programador debe contar a mano que hay cuatro letras,
+para poder hacer un bucle como el anterior (pues en el bucle hay que
+especificar que los índices van de 0 a 3). Esto es poco conveniente y
+por eso existen los arrays de tipo string que veremos ahora.
+
+
+2.2 Arrays de bytes tipo "string"
+--------------------------------
+
+Si en lugar del símbolo -> ponemos la palabra string, crearemos un
+Array con una estructura especial mucho más útil. Por ejemplo:
+
+  Array unos_bytes string 4;
+
+Observa que esta declaración es como la del primer ejemplo, sólo que
+pone string donde antes ponía ->. En este caso Inform creará una zona
+de memoria de *5* bytes (a pesar de que le estamos pidiendo que sean
+4). El byte extra se utiliza para almacenar cuántos bytes más tiene el
+array. En nuestro ejemplo, este byte extra almacenaría el número 4
+para indicar que el array tiene 4 elementos.
+
+Este byte extra tiene siempre el índice 0, y los restantes bytes del
+array ocuparán los índices entre 1 y 4. ***ES MUY IMPORTANTE RECORDAR
+QUE EN LOS ARRAYS DE TIPO STRING LOS INDICES EMPIEZAN A NUMERARSE
+DESDE 1** (a diferencia de los arrays tipo byte "normales" que
+empezaban en cero).
+
+Así, que si queremos guardar las letras "Hola" como en los ejemplos
+anteriores, el método de asignación "a mano" sería así:
+
+  unos_bytes->1= 'H';
+  unos_bytes->2= 'o';
+  unos_bytes->3= 'l';
+  unos_bytes->4= 'a';
+
+Y por supuesto pueden usarse las versiones de asignación a la vez que
+se declara, ya sea letra a letra:
+
+  Array unos_bytes string 'H' 'o' 'l' 'a';
+
+o bien "todas las letras de una vez":
+
+  Array unos_bytes string "Hola";
+
+En cualquiera de los dos casos anteriores, Inform cuenta cuatro letras
+y por tanto guarda un 4 en el índice 0 de este array. De esta forma el
+programador no necesita saber cuántas letras hay en el array, ya que
+siempre puede consultarlo en el  índice cero del mismo. Así, el bucle
+para mostrar las letras almacenadas sería ahora:
+
+  for (i=1:i<= unos_bytes->0: i´++)
+	print (char) unos_bytes->i;
+
+Observa que la i empieza en 1 (y no en 0 como antes) y sigue mientras
+sea menor o igual que unos_bytes->0, que es el índice que contiene la
+longitud del string. El 4 ha desaparecido del bucle, por lo que es
+ahora mucho más genérico y sirve para imprimir strings de cualquier
+longitud y no sólo de 4 bytes.
+
+
+2.3 Arrays de words
+-------------------
+
+Si lo que queremos guardar en el array no son letras, sino números (o
+bien punteros a funciones, punteros a objetos, punteros a mensajes o
+palabras de diccionario, todo esto es en el fondo lo mismo para Inform
+ya que todo es codificado usando números de 16 bits), necesitaremos
+usar un Array de words en lugar de un array de bytes.
+
+El array de words se declara igual que el de bytes, pero usando el
+simbolo --> en lugar de ->. Así por ejemplo:
+
+  Array cuatro_words --> 4;
+
+En este caso Inform reserva un trozo de memoria de 8 bytes (pues
+solicitamos cuatro elementos y cada uno requiere 2 bytes). Para
+asignar estos números la sintaxis es bastante intuitiva (una vez
+conocida la de los arrays de bytes):
+
+  cuatro_words-->0 = 25;
+  cuatro_words-->1 = 130;
+  cuatro_words-->2 = 240;
+  cuatro_words-->3 = 1000;
+
+Observa que se usa --> en lugar de ->, ya que los elementos del array
+son words en lugar de bytes. En esta ocasión no habrá problema para
+almacenar el número 1000 ya que este cabe en 2 bytes. Cada número se
+almacena en 2 bytes siendo el primero igual al cociente numero/256 y
+el segundo igual al resto de numero/256. 
+
+
+El array también puede inicializarse en la misma línea en que se crea
+mediante la siguiente sintaxis:
+
+  Array cuatro_words --> 25 140 240 1000;
+
+La memoria donde se almacena este array tendría la siguiente
+estructura:
+
+    Indice   DATO
+            +------+
+      0     |  0   |
+            +------+
+            |  25  |
+            +------+
+      1     |  0   |
+            +------+
+            |  130 |
+            +------+
+      2     |  0   |
+            +------+
+            |  240 |
+            +------+
+      3     |  3   |
+            +------+
+            |  232 |
+            +------+
+
+Observa como el 1000 se almacena como la cantidad 3*256+232, mientras
+que las demas tienen el primer byte igual a cero porque son menores de
+256.
+
+Podemos mostrar los datos del array en pantalla con un bucle como el
+siguiente:
+  
+   for (i=0:i<4:i++) print cuatro_words-->i, " ";
+
+En pantalla saldría: 25 130 240 1000
+
+Como ves, Inform se ocupa de volver a ensamblar los dos bytes para
+crear la cantidad de 16 bytes. Esto lo hará siempre que accedas a un
+elemento del array usando -->. Por ejemplo:
+
+   cuatro_words-->0=cuatro_words-->2+cuatro_words-->3;
+   print cuatro_words-->0;
+
+Mostraría en pantalla 1240. Es decir, las operaciones se realizan
+siempre usando los 16 bits de las cantidades involucradas.
+
+En realidad nunca verás los dos bytes por separado, a menos que
+accedas a los elementos de este array usando el símbolo -> en lugar de
+-->. Esto no deberías hacerlo (en la mayoría de los casos si lo haces
+será por un error tipográfico), pero si lo hicieras, accederías a los
+bytes individuales. Por ejemplo: 
+
+**AVISO, CURVA PELIGROSA**
+
+  for (i=0:i<8:i++) print cuatro_words->i, " ";
+
+Mostraría: 0 25 0 130 0 240 3 232 (observa como en esta ocasión el
+índice va de 0 a 7).
+
+En todos estos ejemplos, el programador debe "recordar" que el array
+contiene 4 datos, para poder especificar en el bucle for hasta dónde
+debe llegar i. Para evitar este engorro, Inform proporciona el
+equivalente al string pero para arrays de tipo word. En este caso los
+denomina "tablas"
+
+
+2.4 Arrays de words tipo "table"
+--------------------------------
+
+Si en la declaración del array en lugar del símbolo --> ponemos la
+palabra table, creamos un array de words con una estructura mucho más
+útil. Por ejemplo:
+
+  Array unos_words table 4;
+
+En este caso, análogo al del caso string, Inform reserva un elemento
+más en el array (por lo que este array ocupará 10 bytes=(4+1)*2), y en
+el elemento de índice 0 almacenará el número de elementos del resto
+del array (es decir, almacenaría un 4 en este ejemplo).
+
+***ES MUY IMPORTANTE RECORDAR QUE EN LOS ARRAYS DE TIPO TABLE LOS
+INDICES SE EMPIEZAN A NUMERAR DESDE 1*** ya que el índice 0 está
+reservado para contener la longitud del array.
+
+Por ejemplo:
+
+  Array unos_words table 25 130 240 1000;
+
+Crearía un array de 5 elementos. El de índice 0 valdría 4 (indicando
+que hay 4 elementos más) y los restantes elementos valdrían 25, 130,
+240 y 1000. Cada uno de estos cinco elementos se codifica usando dos
+bytes como ya se ha explicado anteriormente.
+
+Para mostrar los elementos de un array de este tipo el bucle sería:
+
+  for (i=1:i<=unos_words-->0:i++)
+      print unos_words-->i, " ";
+
+3. RESUMEN
+----------
+
+La siguiente tabla resume los tipos de array, como se accede a ellos y
+el rango permitido para su índice (nota, si el programador no respeta
+ese rango, es decir, si por ejemplo se intenta acceder al elemento
+a->5 de un array de tipo byte de tamaño 4, Inform no dirá nada pero el
+juego no funcionará bien, y pasarán "cosas raras").
+
+	       Tamaño de       Acceso a un   Rango del
+Declaracion    cada elemento   elemento      índice
+
+Array a -> 4       byte          a->i         0 ... 3
+Array a--> 4       word          a-->i        0 ... 3
+Array a string 4   byte          a->i         1 ... a->0
+Array a table 4    word          a-->i        1 ... a-->0
+
+
+4. CONCEPTOS AVANZADOS
+======================
+
+4.1 No es lo mismo un array de bytes tipo "string" que una cadena
+-----------------------------------------------------------------
+
+Esto es otro asunto que confunde tanto al novato como al experto
+programador.
+
+Un array de bytes tipo string como los que se han explicado antes son
+una secuencia de letras almacenada una a una en la memoria (cada letra
+ocupa 1 byte). Se puede acceder individualmente a cada letra a través
+de su índice. Por ejemplo:
+
+  Array Mensaje string "Esto es una prueba";
+
+Si miramos el valor de Mensaje->2 obtendremos la segunda letra del
+mensaje (bueno, en realidad su código ASCII). En el ejemplo anterior
+sería la letra s, cuyo código ASCII es 122. Para conocer la longitud
+del texto basta mirar Mensaje->0.
+
+Hasta aqui todo coincide con lo que se ha explicado y con lo que
+esperaría un programador de C.
+
+Sin embargo, almacenar los textos mediante arrays de letras tiene dos
+desventajas: 
+
+ 1) Ocupan bastante memoria. Un texto de 1000 letras ocuparía
+    1000bytes. Ya que los juegos conversaciones se componen
+    fundamentalmente de texto sería deseable almacenar los textos de
+    otra forma que ocupara menos espacio.
+
+ 2) Los textos almacenados en arrays de letras son visibles para
+    cualquiera que examine el ejecutable del juego. En efecto, si
+    alguien mira el fichero .z5 mediante cualquier herramienta
+    (incluso un vulgar TYPE del DOS) aparecerá entre todos los
+    demás caracteres incomprensibles el texto "Esto es una prueba"
+    perfectamente legible. De este modo el jugador impaciente podría
+    obtener mensajes del juego que le darían pistas. Sería deseable
+    almacenar los textos en forma "encriptada" de modo que una mirada
+    al fichero .z5 no revelase nada.
+
+Por estas dos razones, Inform codifica la mayoría de sus textos, en
+una forma que reduce el tamaño ocupado aproximadamente a 2/3 del
+original (tampoco es que sea muy buena la compresión, pero algo es
+algo) y además los hace ilegibles sin el intérprete Z adecuado.
+
+Esta forma de almacenar los textos es lo que Inform,
+desafortunadamente, llama "strings" (la misma palabra que para los
+arrays de bytes tipo string, pero con un significado radicalmente
+diferente). Yo las llamaré "cadenas encriptadas" para distinguirlas de
+cadenas convencionales (es decir, los arrays de bytes tipo
+string). 
+
+Cualquier texto entre comillas dobles "Por ejemplo este", es
+codificado por Inform como una cadena encriptada, a menos que sea
+parte de una declaración de un Array de bytes tipo string, en cuyo
+caso sería codificada como una cadena convencional. Por ejemplo:
+
+  Array Mensaje1 string "Esto es una prueba";
+  Global Mensaje2="Esto es otra prueba";
+
+  Object Escritorio "escritorio de caoba"
+   with description "Parece muy pesado y sólido";
+
+En el primer caso la cadena "Esto es una prueba" se codifica como una
+cadena convencional, es decir, letra por letra, sin comprimir y sin
+encriptar. Se puede acceder a cada letra de Mensaje1 por separado
+mediante los índices adecuados (Mensaje1->1, Mensaje1->2, etc.)
+
+En los demas casos, las cadenas se codifican como cadenas
+encriptadas. Ocupan menos memoria y no pueden ser leidas por ojos
+indiscretos. A cambio es imposible acceder a cada letra por separado o
+conocer la longitud de la cadena encriptada, ya que no son un
+array. Una vez que Inform las ha encriptado, el valor que se guarda en
+la variable Mensaje2 es un número de 16 bits (aparentemente sin
+sentido).
+
+Si se intenta:
+
+  print Mensaje2;
+
+Saldría ese número sin sentido (por ejemplo, el 32523). Para
+"descodificar" la cadena encriptada y obtener el texto impreso hay que
+usar esta otra sintaxis:
+
+  print (string) Mensaje2;
+
+De este modo en pantalla aparecerá "Esto es otra prueba".
+En cambio esa sintaxis no funcionaría para Mensaje1, ya que Mensaje1
+no es una cadena encriptada. Si intentaramos:
+
+  print (string) Mensaje1;
+
+El resultado será imprevisible, ya que print intentará interpretar el
+contenido de Mensaje1 como si fuera una cadena encriptada. La forma
+correcta de mostrar ese mensaje es hacerlo letra a letra mediante un
+bucle:
+
+  for (i=1:i<=Mensaje1->0:i++) print Mensaje1->i;
+
+Los nombres y descripciones de los objetos son también cadenas
+encriptadas, pero es la librería la que se ocupa de imprimirlas cuando
+sea necesario (usando, naturalmente print(string) para ello).
+
+
+4.2 Las palabras de diccionario no son cadenas
+----------------------------------------------
+
+Inform construye un diccionario con las palabras que el juego
+"comprenderá" cuando el jugador las use. Por ejemplo, los nombres de
+los objetos y los verbos. En este diccionario meterá todas las
+palabras que aparezcan entre comillas simples a lo largo del programa.
+
+Por ejemplo:
+
+  Object Silla "silla"
+   with name 'silla';
+
+¿Por qué se repite tantas veces la palabra silla?
+
+La primera Silla (sin comillas) es el nombre de la variable. Sólo será
+visto por el programador. La segunda "silla" (entre comillas dobles)
+es la palabra que saldrá en pantalla cuando el juego mencione este
+objeto (es una cadena encriptada). La tercera 'silla' (entre comillas
+simples) es la palabra que el jugador podrá usar para referirse a este
+objeto. Esta palabra se almacenará en el diccionario del juego.
+
+Una palabra de diccionario puede almacenarse en cualquier variable
+global, como por ejemplo:
+
+Global palabra='silla';
+
+En este caso la palabra no es una cadena normal ni tampoco una cadena
+encriptada. Inform la convierte en un número (que es el lugar que
+ocupa esta palabra en su diccionario). Si intentaramos imprimir esa
+palabra mediante:
+
+  print palabra;
+
+sólo obtendríamos un número (sin significado para nosotros). Si lo
+intentáramos mediante print (string) palabra, el resultado sería un
+caos, ya que print intentaría descifrar ese número como si
+correspondiera a una cadena encriptada (y no lo es). Tampoco podemos
+acceder a las letras individuales de esa palabra porque no es un array
+de bytes. La única forma de mostrar en pantalla la palabra 'silla'
+allí almacenada es mediante la siguiente orden:
+
+  print (address) palabra;
+
+En este caso el modificador (address) le dice a print que debe
+imprimir la palabra del diccionario cuyo número le estamos dando.
+
+
+4.3 Arrays como propiedades de los objetos
+------------------------------------------
+
+La mayoría de los objetos tienen un array como alguna de sus
+propiedades. Sin ir más lejos, la propiedad "nombre" (o "name") de un
+objeto no es más que un array cuyos elementos son las palabras de
+diccionario que el jugador podrá usar para referirse a ese objeto.
+
+Cuando un array es parte de un objeto en lugar de ser una variable
+global (como era el caso de todo lo explicado en el punto 2), la
+sintaxis es diferente ya que no se utiliza la palabra "Array" ni
+ninguno de los símbolos "->" "-->" "string" o "table". Por ejemplo:
+
+  Object ejemplo
+  with  unos_words 25 130 240 1000;
+
+Declaramos un objeto llamado ejemplo. Este no es un objeto "normal" de
+un juego conversacional, ya que no tiene nombre ni descripción ni nada
+parecido, pero desde el punto de vista de la programación es un objeto
+perfectamente válido (de hecho Inform lo acepta sin problemas).
+
+Este objeto tiene tan solo una propiedad, llamada unos_words (es
+lícito inventarse propiedades nuevas además de las que vengan en la
+librería, sin necesidad de declararlas previamente). Esta propiedad
+podría servir para almacenar un número o una lista de ellos. La
+diferencia radica en lo que se escriba justo detrás de la
+propiedad. 
+
+Ya que en el ejemplo anterior aparecen cuatro números (observa que van
+separados por espacios, y no por comas u otro signo de puntuación),
+Inform entenderá que la propiedad unos_words es en realidad una lista
+de cuatro elementos, cuyos valores son 25 130 240 y 1000. Estas listas
+serán siempre arrays de words. No es posible hacer que una propiedad
+de un objeto sea un array de bytes. Esto no es una limitación
+importante ya que en casi todos los casos querremos que la propiedad
+guarde cantidades de 16 bits, pero, ¿cómo acceder a los elementos de
+este array?
+
+Si intentamos acceder a la propiedad mediante:
+
+  print ejemplo.unos_words;
+
+El resultado será tan sólo el primer elemento de la propiedad (en
+nuestro ejemplo, el número 25). Esto es conveniente si la lista en
+cuestión tuviera un solo elemento, pero cuando tiene más de uno ¿cómo
+saber cuántos son? y ¿cómo acceder a cada uno de ellos?
+
+La respuesta es sencilla, pero la sintaxis es un poco "fea". La
+variable ejemplo.#unos_words nos dice cuantos *bytes* ocupa esa
+propiedad. Dividiendo por dos sabremos cuántos elementos tiene, ya que
+cada elemento es un word y ocupa 2 bytes. La variable
+ejemplo.&unos_words es un array de words cuyos elementos (empezando
+por el índice 0) serán los números 25, 140, 240 y 1000. Así pues para
+escribir un bucle que imprima estos números en pantalla habría que
+poner:
+
+  for (i=0:i<(ejemplo.#unos_words/2): i++)
+	print ejemplo.&unos_words-->i, " ";
+
+
+Naturalmente, si las propiedades en cuestion son cadenas encriptadas o
+palabras de diccionario habría que usar el modificador (string) o
+(address). Por ejemplo:
+
+  Object piedra "piedra"
+  with name 'piedra' 'roca' 'pedrusco' 'canto' 'rodado',
+       description "Un vulgar canto rodado";
+
+
+la forma de mostrar por pantalla la lista de palabras que el jugador
+puede usar para referirse a este objeto sería usar un bucle como el
+siguiente:
+
+  for(i=0:i<piedra.#name/2:i++)
+    print (address) piedra.&name-->i, " ";
+
+Si solo queremos mostrar la primera de estas palabras, basta la
+sintaxis:
+
+   print (address) piedra.name;
+
+Y la forma de mostrar la descripción sería:
+
+  print (string) piedra.description;
+
+ya que en la propiedad description solo hay un elemento, aunque
+teóricamente podría haber más de uno, en cuyo caso la forma de acceder
+a ellos sería:
+
+   for (i=0:i<piedra.#description/2:i++)
+     print (string) piedra.&description-->i, " ";
+
+
+Esto es todo de momento. Y recuerda que una buena forma de aprender es
+tomar programas escritos por otras personas y modificarlos para ver si
+todo ocurre como esperabamos.
+
+Consultas a: spinf@geocities.com
+
+--Zak
+
+

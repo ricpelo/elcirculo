@@ -1017,13 +1017,10 @@ Include "Timer";            ! Mi librería de eventos temporizados
   timer_becca.AsignarGestor(2);
   ControlTimer.ActivarTick(TIMER_TICK);
 
-  ! Esto hay que ponerlo para que no aparezca tu otro yo moviéndose solo:
-  PNJ_Ruta(katie, MOVIMIENTO_NINGUNO);
+  PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
+
   ChangePlayer(katie);
 !  move uniforme_katie to katie;
-
-  PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
-  PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
 
   IniciarMoviles();
   IniciarPuertas();

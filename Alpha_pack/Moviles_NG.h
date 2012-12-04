@@ -50,16 +50,16 @@ Global max_longitud_camino = 10;
 !
 ! TIPOS DE MOVIMIENTOS VALIDOS EN MOVILES
 !
+!  NINGUNO     - El PNJ permanece detenido
+!
+!  POR_META    - El PNJ se encamina hacia una localización
+!                determinada, usando una ruta y una zona válida
+!  
 !  ALEATORIO   - Camino en cualquier dirección cada turno, 
 !                puede proporcionarse un % de que se mueva
 !                por defecto este % es del 20%. Se puede 
 !                indicar un tipo de ruta válida y una zona
 !                de movimiento válidos.
-!
-!  POR_META    - El PNJ se encamina hacia una localización
-!                determinada, usando una ruta y una zona válida
-!  
-!  NINGUNO     - El PNJ permanece detenido
 !
 !  PREFIJADO   - Se proporciona un camino FIJO por el que el 
 !                PNJ debe caminar
@@ -77,9 +77,9 @@ Global max_longitud_camino = 10;
 !  HUIR        - El PNJ sale corriendo en una dirección al azar
 !                cuando está presente el motivo de su huída
 !
-Constant MOVIMIENTO_ALEATORIO  = 0; ! Los tipos de movimiento
+Constant MOVIMIENTO_NINGUNO    = 0; ! No moverse
 Constant MOVIMIENTO_POR_META   = 1; ! Llegar a un lugar
-Constant MOVIMIENTO_NINGUNO    = 2; ! No moverse
+Constant MOVIMIENTO_ALEATORIO  = 2; ! Movimiento aleatorio
 Constant MOVIMIENTO_PREFIJADO  = 3; ! Una ruta dada
 Constant MOVIMIENTO_NO_CAMBIAR = 4; ! No cambiar el estado de movimiento
 Constant MOVIMIENTO_PERSEGUIR  = 5; ! Intenta llegar hasta un objeto
@@ -107,8 +107,8 @@ Class Lugar with number;
 
 Class Movil
   with
-    ! Por defecto, se mueve aleatoriamente:
-    tipo_de_movimiento MOVIMIENTO_ALEATORIO, 
+    ! Por defecto, no se mueve:
+    tipo_de_movimiento MOVIMIENTO_NINGUNO, 
     capricho 20,                  ! Probabilidad de moverse en un turno
     ! Las direcciones (calculadas) que el pnj tomará:
     pnj_dirs 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0,

@@ -139,6 +139,8 @@ Global dibujarEstado = false;
 ! MensajesLibreria:
 Global estoyEmpujando = false;
 
+Global ExaminarFalso_mostrarInput = false;
+
 ! La ventana de menús de acciones:
 Global gg_menuwin = 0;
 
@@ -217,7 +219,7 @@ Replace EncenderGraficos;
 
 ! Para que el verbo se convierta en Entrar o Examinar dependiendo de si
 ! es una localidad o no:
-Replace ExaminarFalsoSub;
+!Replace ExaminarFalsoSub;
 
 ! Reemplazo de los puntos de entrada de Glulx:
 Replace HandleGlkEvent;
@@ -248,6 +250,8 @@ Replace SearchSub;
 
 ! La línea de estado se crea sin bordes:
 Replace StatusLineHeight;
+
+Replace UnknownVerb;
 
 ! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
 ! para el menú principal y las pistas:
@@ -353,7 +357,7 @@ Include "Parser";
                                  INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
           return 1;  ! Retornamos 1 para que el jugador pueda seguir tecleando 
         } else {
-          ExaminarFalso.mostrarInput = true;
+          ExaminarFalso_mostrarInput = true;
           return 2;  ! Retornamos 2 para que simule la pulsación de Intro
         }
       } ! if (ev-->1 == gg_mainwin)
@@ -922,7 +926,7 @@ Include "Diary";
 Include "EscenarioAbrible"; ! Escenario que se puede abrir y cerrar
 Include "Etemas";           ! Los temas de conversación
 !Include "EventList_NG";     ! Listas de mensajes
-Include "ExaminarFalso";    ! Poder examinar objetos sólo con su nombre
+!Include "ExaminarFalso";    ! Poder examinar objetos sólo con su nombre
 Include "GlulxBox";         ! Usar el comando box con Glulx - gracias a Eliuk
 Include "Gtalk_NG";         ! Conversaciones
 Include "IntNombre_NG";     ! Poder usar adjetivos como en InformATE
@@ -1177,6 +1181,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
     gg_statuswin_cursize = hgt;
 ];
 
+
+[ UnknownVerb;
+  verb_wordnum = 0;
+  return 'no.verb';
+];
+
+Verb 'no.verb' * noun -> ExaminarFalso;
 
 !===============================================================================
 ! (6) Incluir SpanishG.h; Otros Includes
@@ -2171,17 +2182,17 @@ Object Menu_Examinar
 ! dispara la que corresponda:
 [ ExaminarFalsoSub;
   ! Esta propiedad se establece en ExaminarFalso.EF_UnknownVerb(x):
-  noun = ExaminarFalso.objetoVerboDesconocido;
-  PronounNotice(noun);
+!  noun = ExaminarFalso.objetoVerboDesconocido;
+!  PronounNotice(noun);
   ! Si es el nombre de la localidad actual, hacemos un MIRAR:
-  if (noun == location) {
-    glk_cancel_line_event(gg_mainwin, gg_event);
-    print (s_input) "mira^";
-    <<Look>>;
-  }
+!  if (noun == location) {
+!    glk_cancel_line_event(gg_mainwin, gg_event);
+!    print (s_input) "mira^";
+!    <<Look>>;
+!  }
 
-  if (ExaminarFalso.mostrarInput) {
-    ExaminarFalso.mostrarInput = false;
+  if (ExaminarFalso_mostrarInput) {
+    ExaminarFalso_mostrarInput = false;
     glk_cancel_line_event(gg_mainwin, gg_event);
     glk_set_style(style_Input);
     if (noun ofclass Lugar) print "ve ";

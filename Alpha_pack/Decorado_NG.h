@@ -290,6 +290,7 @@ class Decorado
     ],
     before [;
       Examine: rfalse;
+      ExaminarFalso: rfalse;
       Take:    "No puedes hacerlo, ya que está", (n) self, " fij", (o) self,
                " en su sitio.";
       Push:    print_ret (The) self, " no parece que pueda", (n) self,

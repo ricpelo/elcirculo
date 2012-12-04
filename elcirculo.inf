@@ -105,6 +105,10 @@ Constant GT_ZEROEXIT     = "No decir nada.";
 !  print " para salir) ";
 !];
 
+! Las posibles distribuciones de ventanas en la aventura:
+Constant LAYOUT_MENU_PRINCIPAL = 0; ! Distribución en el menú principal
+Constant LAYOUT_JUEGO = 1;          ! Distribución durante el juego
+
 ! Número máximo de cadenas DIFERENTES que se han impreso:
 Constant PS_TAB_SIZE = 1000;
 
@@ -156,6 +160,13 @@ Global hayTiempoReal = true;
 
 ! Hay efecto de teletipo:
 !Global hayTeletipo = false;
+
+! La distribución de ventanas actual. Empezamos con la distribución
+! del menú principal, y cuando empezamos el juego (en IniciarAventura())
+! cambiamos a la distribución LAYOUT_JUEGO. Es necesario saber en qué
+! layout estamos para poder restaurar correctamente las ventanas ante
+! un UNDO/RESTART/RESTORE:
+Global layoutPantalla = LAYOUT_MENU_PRINCIPAL;
 
 ! Si se ha activado el listado automático de salidas:
 Global mostrarSalidas = true;
@@ -355,9 +366,9 @@ Include "Parser";
 
 
 [ IdentifyGlkObject fase tipo ref rock;
+  Menu_IdentifyGlkObject(fase, tipo, ref, rock);
   SGW_IdentifyGlk(fase, tipo, ref, rock);
   Damusix.IdentificarSonidos(fase);
-  Menu_IdentifyGlkObject(fase, tipo, ref, rock);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
   Conversa_IdentifyGlkObject(fase, tipo, ref, rock);
 ];
@@ -617,9 +628,10 @@ Include "Parser";
     return;
   }       
   if (fase == 2) { ! Actualizar nuestras ventanas
-    rfalse;
+    return;
   }
 ];
+
 
 ! El IdentifyGlkObject de la ventana de menús de acciones:
 [ Menu_IdentifyGlkObject fase tipo ref rock;
@@ -641,7 +653,15 @@ Include "Parser";
     return;
   }       
   if (fase == 2) { ! Actualizar nuestras ventanas
-    rfalse;
+    if (layoutPantalla == LAYOUT_MENU_PRINCIPAL) {
+      if (gg_menuwin) {
+        glk_window_close(gg_menuwin, 0);
+        gg_menuwin = 0;
+      }
+    } else { ! layoutPantalla == LAYOUT_JUEGO
+      AbrirVentanaMenu();
+    }
+    return;
   }
 ];
 
@@ -923,10 +943,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ Initialise r v;
   IniciarGraficosSonidos();
-  if (gg_menuwin) {
-    glk_window_close(gg_menuwin, 0);
-    gg_menuwin = 0;
-  }
   openGraphicWindow(ALTURA_LOGO_MENU);
   clearGraphicWindow();
   glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
@@ -964,9 +980,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ IniciarAventura logo;
 
-  location = thedark;
+  ! Cambiamos el layout de la pantalla de LAYOUT_MENU_PRINCIPAL a LAYOUT_JUEGO:
+  layoutPantalla = LAYOUT_JUEGO;
 
-  dibujarEstado = false;
+!  location = thedark;
+!  dibujarEstado = false;
 
   ! Esto es para que el juego dé siempre la descripción de la habitación, aunque
   ! ya la hayamos visitado
@@ -2058,6 +2076,7 @@ Object Menu_Examinar
 
 
 [ AbrirVentanaMenu;
+  if (gg_menuwin) glk_window_close(gg_menuwin, 0);
   gg_menuwin = glk_window_open(gg_mainwin,
                                winmethod_Right + winmethod_Fixed,
                                ANCHO_ACCIONES, wintype_TextGrid,

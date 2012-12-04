@@ -51,8 +51,6 @@ Message "|___________________________________________________________|";
 Object ExaminarFalso
   with
     objetoVerboDesconocido 0,   ! El objeto sobre el que actuar
-    palabraMenu 0,              ! Se usa para los menús de acciones
-    mostrarExaminar false,      ! ¿Hay que mostrar "> ex objeto"?
     EF_UnknownVerb [x
       obj;
       ! Se busca en todos los objetos que están al alcance, incluyendo la

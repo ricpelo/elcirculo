@@ -238,10 +238,6 @@ Replace SearchSub;
 ! La línea de estado se crea sin bordes:
 Replace StatusLineHeight;
 
-! Nuestra versión mejora la de ExaminarFalso en que muestra un menú de
-! acciones si el objeto lo tiene:
-Replace UnknownVerb;
-
 ! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
 ! para el menú principal y las pistas:
 Replace ZIPI_RunMenu;
@@ -273,89 +269,82 @@ Include "Parser";
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
 
-      if (ev-->1 == gg_mainwin) {
-        if (obj > 0) {
-          r = MostrarMenuAcciones(obj);
-          if (r) { ! Si se ha escogido una opción en el menú:
-            glk_cancel_line_event(gg_mainwin, gg_event);
-            if (r hasnt general) {
-              glk_set_style(style_Input);
-              print (address) r.ZIPI_ejecutar(), " ", (string) obj.input_link,
-                    "^";
-              glk_set_style(style_Normal);
-            }
-            long = PrintAnyToArray(buffer + WORDSIZE,
-                                   INPUT_BUFFER_LEN - WORDSIZE,
-                                   r.ZIPI_ejecutar());
-            long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                          INPUT_BUFFER_LEN - WORDSIZE,
-                                          " ");
-            long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                          INPUT_BUFFER_LEN - WORDSIZE,
-                                          obj.input_link);
-            long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                          INPUT_BUFFER_LEN - WORDSIZE,
-                                          " ");
-            if (r provides ZIPI_secundario) {
-              long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                            INPUT_BUFFER_LEN - WORDSIZE,
-                                            r.ZIPI_secundario());
-              long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                            INPUT_BUFFER_LEN - WORDSIZE,
-                                            " ");                                          
-            }
-            buffer-->0 = long;
-            glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                   INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-            if (r has general) {
-              return 1;
-            } else {
-              return 2;
-            }
-          } else {
-            buffer-->0 = 0;
-            glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                   INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-            return 2;
-          }
+      if (ev-->1 == gg_mainwin) {  ! Si estamos en la ventana principal
+        glk_cancel_line_event(gg_mainwin, gg_event);
+        if (gg_event-->2 == 0) {
+          if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
+            if (obj provides ZIPI_item) { ! Si el objeto tiene menú
+              r = MostrarMenuAcciones(obj);
+              if (r) { ! Si se ha escogido una opción en el menú:
+                glk_cancel_line_event(gg_mainwin, gg_event);
+                if (r hasnt general) {    ! Si no hay que continuar escribiendo
+                  glk_set_style(style_Input);
+                  print (address) r.ZIPI_ejecutar(), " ",
+                        (string) obj.input_link, "^";
+                  glk_set_style(style_Normal);
+                }
+                long = PrintAnyToArray(buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE,
+                                       r.ZIPI_ejecutar());       ! El verbo
+                long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                              INPUT_BUFFER_LEN - WORDSIZE,
+                                              " ");              ! Un espacio
+                long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                              INPUT_BUFFER_LEN - WORDSIZE,
+                                              obj.input_link);   ! El objeto
+                long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                              INPUT_BUFFER_LEN - WORDSIZE,
+                                              " ");              ! Un espacio
+                if (r provides ZIPI_secundario) {   ! Si hay que completar...
+                  long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                                INPUT_BUFFER_LEN - WORDSIZE,
+                                                r.ZIPI_secundario());
+                  long = long + PrintAnyToArray(buffer + WORDSIZE + long,
+                                                INPUT_BUFFER_LEN - WORDSIZE,
+                                                " ");                                          
+                }
+                buffer-->0 = long;
+                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+                if (r hasnt general) return 2; ! No seguimos escribiendo: Intro
+                else                 return 1; ! Seguimos escribiendo
+              } else { ! Si no se ha escogido ninguna opción del menú
+                buffer-->0 = 0;
+                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+                return 2; ! Se simula la pulsación de Intro con input vacío
+              }
+            } else { ! El objeto no tiene un menú asociado
+              if (obj in Compass) { ! ¿Es un punto cardinal? Mostrar la orden 
+                print (s_input) "ve ", (s_input) obj.input_link, "^";
+              }
+            } ! Llegados hasta aquí, no tiene menú ni es un punto cardinal
+          } ! if (obj ofclass Object)
+        } ! if (gg_event-->2 == 0)
+        ! Si llegamos hasta aquí, puede ser por una de estas causas (o varias):
+        ! - El jugador ya había tecleado algo (el input no era vacío)
+        ! - El hyperlink pulsado no era un objeto, sino una cadena
+        ! - El hyperlink era un objeto, pero no tenía menú asociado
+        if (obj provides input_link) obj = obj.input_link;
+        long = gg_event-->2;
+        long = PrintAnyToArray(buffer + WORDSIZE + long,
+                               INPUT_BUFFER_LEN - WORDSIZE, obj);
+        buffer-->0 = long + gg_event-->2;
+        ! Si ya había algo escrito, se entiende que el jugador quiere completar
+        ! la entrada que estaba escribiendo, por lo que retornamos 1. Si no
+        ! había nada escrito, retornamos 2 para simular la pulsación de Intro:
+        if (gg_event-->2 > 0) {
+          ! Añadimos un espacio en blanco al final:
+          long = PrintAnyToArray(buffer + WORDSIZE + buffer-->0,
+                               INPUT_BUFFER_LEN - WORDSIZE, " ");
+          buffer-->0 = buffer-->0 + long;
+          glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                 INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+          return 1;  ! Retornamos 1 para que el jugador pueda seguir tecleando 
+        } else {
+          return 2;  ! Retornamos 2 para que simule la pulsación de Intro
         }
-      }
-      
-      ExaminarFalso.mostrarExaminar = 2; ! Mostramos "> ex objeto"
-      if (obj < 0) obj = -obj;     ! Si es negativo, es un texto, no un objeto
-      else {                       ! En caso contrario, es un objeto
-        if (obj in Compass) {      ! Se ha pulsado sobre un punto cardinal
-          glk_cancel_line_event(gg_mainwin, gg_event);
-          print (s_input) "ve ", (s_input) obj.input_link, "^";
-          ExaminarFalso.mostrarExaminar = false; ! No mostramos "> ex objeto"
-        }
-        obj = obj.input_link;
-      }
-      ! Cuando se ha pulsado sobre un texto que no es un objeto,
-      ! guardamos la cadena pulsada, con signo negativo para distinguir este
-      ! caso en ExaminarFalsoSub():
-      ExaminarFalso.palabraMenu = -obj;
-      ! Rellenamos el búffer con el nombre del objeto (o con la cadena), como si
-      ! el jugador lo hubiese tecleado: 
-      glk_cancel_line_event(gg_mainwin, gg_event);
-      long = gg_event-->2;
-      long = PrintAnyToArray(buffer + WORDSIZE + long,
-                             INPUT_BUFFER_LEN - WORDSIZE, obj);
-      buffer-->0 = long + gg_event-->2;
-      ! Si ya había algo escrito, se entiende que el jugador quiere completar la
-      ! entrada que estaba escribiendo, por lo que retornamos 1. Si no había
-      ! nada escrito, retornamos 2 para simular la pulsación de Intro:
-      if (gg_event-->2 > 0) {
-        ! Añadimos un espacio en blanco al final:
-        long = PrintAnyToArray(buffer + WORDSIZE + buffer-->0,
-                             INPUT_BUFFER_LEN - WORDSIZE, " ");
-        buffer-->0 = buffer-->0 + long;
-        glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                               INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-        return 1;  ! Retornamos 1 para que el jugador pueda seguir tecleando 
-      } else {
-        return 2;  ! Retornamos 2 para que acepte como si hubiese pulsado Intro
-      }
+      } ! if (ev-->1 == gg_mainwin)
   }
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
@@ -1170,73 +1159,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
     parwin = glk($0029, gg_statuswin); ! window_get_parent
     glk($0026, parwin, $112, hgt, 0); ! window_set_arrangement
     gg_statuswin_cursize = hgt;
-];
-
-
-! Modificado de la versión de ExaminarFalso. Ahora, cada objeto puede llevar
-! asociado un menú de acciones:
-[ UnknownVerb x
-  tmp obj r long;
-  tmp = ExaminarFalso.EF_UnknownVerb(x);
-  if (tmp) {
-    obj = ExaminarFalso.objetoVerboDesconocido;
-    if (obj provides ZIPI_item) {
-      r = MostrarMenuAcciones(obj);
-      ! Si no se ha escogido nada en el menú de acciones (se ha seleccionado
-      ! 'Q' de salir), devolvemos 'verbo.nulo' para no lanzar ninguna acción:
-      if (~~r) {
-        ExaminarFalso.mostrarExaminar = false;   ! No mostramos "> ex objeto"
-        return 'verbo.nulo';
-      }
-      if (r has general) {
-        glk_cancel_line_event(gg_mainwin, gg_event);
-        ImprimirPrompt();
-        long = PrintAnyToArray(buffer + WORDSIZE,
-                               INPUT_BUFFER_LEN - WORDSIZE,
-                               r.ZIPI_ejecutar());
-        long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                      INPUT_BUFFER_LEN - WORDSIZE,
-                                      " ");
-        long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                      INPUT_BUFFER_LEN - WORDSIZE,
-                                      obj.input_link);
-        long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                      INPUT_BUFFER_LEN - WORDSIZE,
-                                      " ");
-        if (r provides ZIPI_secundario) {
-          long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                        INPUT_BUFFER_LEN - WORDSIZE,
-                                        r.ZIPI_secundario());
-          long = long + PrintAnyToArray(buffer + WORDSIZE + long,
-                                        INPUT_BUFFER_LEN - WORDSIZE,
-                                        " ");                                          
-        }
-        Tokenise__(buffer, parse);
-        buffer-->0 = long;
-        glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                               INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-        return r.ZIPI_ejecutar();
-      }
-      ! Si se ha escogido una acción en el menú, guardamos en palabraMenu
-      ! el verbo asociado a esa acción y devolvemos 'examinar.falso' para
-      ! que el control vaya ahora a ExaminarFalsoSub():
-      r = r.ZIPI_ejecutar();
-      ExaminarFalso.palabraMenu = r;
-      if (~~(ExaminarFalso.mostrarExaminar)) {
-        ExaminarFalso.mostrarExaminar = true;
-      }
-      return tmp; ! 'examinar.falso'
-    } else {
-      ! El jugador ha tecleado el nombre de un objeto que no tiene menú, por
-      ! lo que sólo pueden haber dos posibilidades: o se examina el objeto, o
-      ! se mueve al jugador a una nueva localidad. Ambas cosas se harán en
-      ! la rutina ExaminarFalsoSub():
-      return tmp; ! 'examinar.falso'
-    }
-  } else {
-    ! Error de palabra no reconocida:
-    return tmp;   ! false
-  }
 ];
 
 
@@ -2230,60 +2152,25 @@ Object Menu_Examinar
 ! Examinar dependiendo de si el objeto de destino es una localidad o no.
 ! Además tiene en cuenta si el objeto lleva asociado un menú de acciones y
 ! dispara la que corresponda:
-[ ExaminarFalsoSub
-  pm pl;
+[ ExaminarFalsoSub;
   ! Esta propiedad se establece en ExaminarFalso.EF_UnknownVerb(x):
   noun = ExaminarFalso.objetoVerboDesconocido;
+  PronounNotice(noun);
   ! Si es el nombre de la localidad actual, hacemos un MIRAR:
   if (noun == location) {
     glk_cancel_line_event(gg_mainwin, gg_event);
     print (s_input) "mira^";
     <<Look>>;
   }
-  PronounNotice(noun);
-  ! ExaminarFalso.palabraMenu puede ser:
-  ! > 0, el jugador ha escogido una opción en el menú de acciones del objeto
-  ! = 0, el jugador ha tecleado el nombre del objeto
-  ! < 0, el jugador ha pulsado un hyperlink que no es un objeto, sino simple
-  !      texto; se usa sobre todo para los decorados
-  pm = ExaminarFalso.palabraMenu;
-  ExaminarFalso.palabraMenu = 0;
-  if (pm > 0) {      ! Si se ha escogido una opción en el menú de acciones...
-    pl = noun.input_link;
-    ! ExaminarFalso.mostrarExaminar puede ser:
-    ! false: no mostrar prompt ni input
-    ! true:  mostrar input y, en el caso de haber escogido una opción de menú,
-    !        también el prompt
-    ! 2:     mostrar input pero no el prompt
-    if (ExaminarFalso.mostrarExaminar == 1) ImprimirPrompt();
-    ExaminarFalso.mostrarExaminar = false;
-    glk_set_style(style_Input);
-    print (address) pm, " ", (string) pl, "^";
-    glk_set_style(style_Normal);
-    switch (pm) {
-          'coge': <<Take noun>>;
-          'deja': <<Drop noun>>;
-      'enciende': <<SwitchOn noun>>;
-         'apaga': <<SwitchOff noun>>;
-            'ex': <<Examine noun>>;
-    }
-    print "*** Aquí no se debería llegar ***";
-    rfalse;
-  }
-  ! El jugador ha tecleado el nombre del objeto y éste no tiene asociado un menú
-  ! de acciones, o bien ha pulsado sobre un hyperlink que no es un objeto:
-  
-  if (noun provides input_link || pm < 0) {
-    if (ExaminarFalso.mostrarExaminar) {
-      ExaminarFalso.mostrarExaminar = false;
-      glk_cancel_line_event(gg_mainwin, gg_event);
-      if (noun ofclass Lugar) print (s_input) "ve ";
-      else                    print (s_input) "ex ";
-      if (noun provides input_link) pl = noun.input_link;
-      else                          pl = -pm;
-      print (s_input) pl, "^";
-    }
-  }  
+
+  glk_cancel_line_event(gg_mainwin, gg_event);
+  glk_set_style(style_Input);
+  if (noun ofclass Lugar) print "ve ";
+  else                    print "ex ";
+  if (noun provides input_link) print (string) noun.input_link;
+  else                          print (name) noun;
+  glk_set_style(style_Normal);
+  new_line;
   
   if (noun ofclass Lugar) <<Enter noun>>;
   else                    <<Examine noun>>;  
@@ -2353,18 +2240,12 @@ Object Menu_Examinar
 
 
 [ link obj msg;
-  if (obj ofclass String) {
-    glk_set_hyperlink(-obj);  ! Hyperlinks negativos son cadenas
-    if (msg ~= 0) print (string) msg;
-    else          print (string) obj;
-    glk_set_hyperlink(0);
-  } else {
-    glk_set_hyperlink(obj);   ! Hyperlinks positivos son objetos
-    if (msg ~= 0)                      print (string) msg;    
-    else if (obj provides nombre_link) print (string) obj.nombre_link;
-    else                               print (string) obj.input_link;
-    glk_set_hyperlink(0);
-  }
+  glk_set_hyperlink(obj);
+  if (msg ~= 0) print (string) msg;
+  else if (obj provides nombre_link) print (string) obj.nombre_link;
+  else if (obj provides input_link)  print (string) obj.input_link;
+  else                               print (string) obj;
+  glk_set_hyperlink(0);
 ];
 
 

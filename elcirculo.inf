@@ -342,6 +342,7 @@ Include "Parser";
                                  INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
           return 1;  ! Retornamos 1 para que el jugador pueda seguir tecleando 
         } else {
+          ExaminarFalso.mostrarInput = true;
           return 2;  ! Retornamos 2 para que simule la pulsación de Intro
         }
       } ! if (ev-->1 == gg_mainwin)
@@ -2163,14 +2164,17 @@ Object Menu_Examinar
     <<Look>>;
   }
 
-  glk_cancel_line_event(gg_mainwin, gg_event);
-  glk_set_style(style_Input);
-  if (noun ofclass Lugar) print "ve ";
-  else                    print "ex ";
-  if (noun provides input_link) print (string) noun.input_link;
-  else                          print (name) noun;
-  glk_set_style(style_Normal);
-  new_line;
+  if (ExaminarFalso.mostrarInput) {
+    ExaminarFalso.mostrarInput = false;
+    glk_cancel_line_event(gg_mainwin, gg_event);
+    glk_set_style(style_Input);
+    if (noun ofclass Lugar) print "ve ";
+    else                    print "ex ";
+    if (noun provides input_link) print (string) noun.input_link;
+    else                          print (name) noun;
+    glk_set_style(style_Normal);
+    new_line;
+  }
   
   if (noun ofclass Lugar) <<Enter noun>>;
   else                    <<Examine noun>>;  

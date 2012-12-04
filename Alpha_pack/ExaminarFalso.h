@@ -51,6 +51,7 @@ Message "|___________________________________________________________|";
 Object ExaminarFalso
   with
     objetoVerboDesconocido 0,   ! El objeto sobre el que actuar
+    mostrarInput false,         ! ¿Se debe mostrar el input?
     EF_UnknownVerb [x
       obj;
       ! Se busca en todos los objetos que están al alcance, incluyendo la

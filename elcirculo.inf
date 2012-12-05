@@ -2004,7 +2004,11 @@ Object ZIPI_Tiempo_Real
 
     if (redibujar) {
       glk_window_clear(gg_menuwin);
-      if (_m provides input_link) {
+      if (_m provides ZIPI_titulo) {
+        glk_set_style(style_Input);
+        print " ", (string) _m.ZIPI_titulo, "^";
+        glk_set_style(style_Normal);
+      } else if (_m provides input_link) {
         glk_set_style(style_Input);
         print " ", (string) _m.input_link, ":^";
         glk_set_style(style_Normal);
@@ -2182,6 +2186,7 @@ Object Menu_Examinar
 Object Menu_YesOrNo
   class ZIPI_Menu
   with
+    ZIPI_titulo "¿Sí o no?",
     ZIPI_item
       Menu_Yes
       Menu_No;
@@ -2204,6 +2209,7 @@ Object Menu_No
 Object Menu_AfterGameOver
   class ZIPI_Menu
   with
+    ZIPI_titulo "Opciones:",
     ZIPI_item
       Menu_Restart
       Menu_Restore

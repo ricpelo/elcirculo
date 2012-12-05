@@ -398,6 +398,7 @@ Include "Parser";
   Damusix.IdentificarSonidos(fase);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
   Conversa_IdentifyGlkObject(fase, tipo, ref, rock);
+  if (fase == 2) ControlTimer.ReactivarTick();
 ];
 
 
@@ -809,7 +810,7 @@ Object LibraryMessages
               rtrue;
           10: rtrue;
           13: ! Reactivamos timer en caso de UNDO:
-              ControlTimer.ReactivarTick();
+!              ControlTimer.ReactivarTick();
               "[Retrocediendo al turno anterior.]";
           17: switch (random(4)) {
                 1: "Está muy oscuro y no puedes ver nada.";

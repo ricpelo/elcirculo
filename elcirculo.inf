@@ -301,6 +301,23 @@ Include "Parser";
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
 
+      if (ev-->1 == gg_menuwin) {
+        glk_cancel_line_event(gg_mainwin, gg_event);
+        if (obj hasnt general) {    ! Si no hay que continuar escribiendo
+          glk_set_style(style_Input);
+          print (string) obj.ZIPI_ejecutar(), "^";
+          glk_set_style(style_Normal);
+        }
+        long = PrintAnyToArray(buffer + WORDSIZE,
+                               INPUT_BUFFER_LEN - WORDSIZE,
+                               obj.ZIPI_ejecutar());
+        buffer-->0 = long;
+        glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                               INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+        if (obj hasnt general) return 2; ! No seguimos escribiendo: Intro
+        else                   return 1; ! Seguimos escribiendo
+      }
+
       if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Principal o de estado
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
@@ -383,7 +400,7 @@ Include "Parser";
           ExaminarFalso_mostrarInput = true;
           return 2;  ! Retornamos 2 para que simule la pulsación de Intro
         }
-      } ! if (ev-->1 == gg_mainwin)
+      } ! if (ev-->1 == gg_mainwin or gg_statuswin)
   }
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
@@ -997,6 +1014,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   ! glk_request_mouse_event(gg_bigwin);
   glk_request_hyperlink_event(gg_mainwin);
   glk_request_hyperlink_event(gg_statuswin);
+  glk_request_hyperlink_event(gg_menuwin);
 ];
 
 
@@ -1298,6 +1316,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 [ YesOrNo
   r;
   r = MostrarMenuAcciones(Menu_YesOrNo, true);
+  MostrarMenuComunes();
   r = r.ZIPI_ejecutar() == 1;
   if (~~r) new_line;
   return r;
@@ -2264,6 +2283,37 @@ Object Menu_Quit
     ZIPI_ejecutar [; return QUIT1__WD; ];
 
 
+Object Menu_Comunes
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "",
+    ZIPI_item
+      Menu_Inventario
+      Menu_Mapa
+      Menu_Configuracion;
+
+
+Object Menu_Inventario
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Inventario",
+    ZIPI_ejecutar [; return "i"; ];
+
+
+Object Menu_Mapa
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Mapa",
+    ZIPI_ejecutar [; return "mapa"; ];
+
+
+Object Menu_Configuracion
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Configuración",
+    ZIPI_ejecutar [; return "configuracion"; ];
+
+
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
@@ -2275,6 +2325,7 @@ Object Menu_Quit
                                winmethod_Right + winmethod_Fixed,
                                ANCHO_ACCIONES, wintype_TextGrid,
                                GG_MENUWIN_ROCK);
+  MostrarMenuComunes();
 ];
 
 
@@ -2488,14 +2539,34 @@ Object Menu_Quit
     glk_set_window(gg_menuwin);
     glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
     glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
+    glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
     r = RunMenuAcciones(obj, top);
-    glk_window_clear(gg_menuwin);
+    MostrarMenuComunes();
     glk_set_window(gg_mainwin);
     glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
     glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+    glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
     ControlTimer.ReanudarTick();
   }
   return r;
+];
+
+
+[ MostrarMenuComunes
+  i o;
+  glk_set_window(gg_menuwin);
+  glk_window_clear(gg_menuwin);
+  glk_request_hyperlink_event(gg_menuwin);
+  new_line;
+  for (i = 0 : i < Menu_Comunes.#ZIPI_item / WORDSIZE : i++) {
+    o = Menu_Comunes.&ZIPI_item-->i;
+    print " - ";
+    glk_set_hyperlink(o);
+    print (s_input) o.ZIPI_titulo;
+    glk_set_hyperlink(0);
+    new_line;
+  }
+  glk_set_window(gg_mainwin);
 ];
 
 
@@ -2749,6 +2820,7 @@ Verb meta 'tt'
     }
   }
   StatusLineHeight(1);
+  MostrarMenuComunes();
   glk_set_window(gg_mainwin);
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();

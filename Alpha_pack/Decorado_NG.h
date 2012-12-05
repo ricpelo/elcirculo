@@ -124,10 +124,11 @@ Message "Incluyendo Decorado_NG, por Zak y Sothoth";
 !
 ! CLASE DECORADO
 !
-! El algoritmo es el siguiente: se permiten varias palabras seguidas (o separadas por las
-! partículas el, la, los, las, de o del), siempre que dichas palabras sean sinónimas. Se
-! permite que una misma palabra sea sinónima de dos o más palabras distintas, lo cual se
-! usaría sobre todo para crear adjetivos. Ejemplo:
+! El algoritmo es el siguiente: se permiten varias palabras seguidas (o
+! separadas por las partículas el, la, los, las, de o del), siempre que dichas
+! palabras sean sinónimas. Se permite que una misma palabra sea sinónima de dos
+! o más palabras distintas, lo cual se usaría sobre todo para crear adjetivos.
+! Ejemplo:
 !
 ! sinonimos
 !   'grande' 'mesa'    -1
@@ -136,15 +137,16 @@ Message "Incluyendo Decorado_NG, por Zak y Sothoth";
 !   'mesa'    "Una mesa muy bonita."          G_FEMENINO
 !   'ventana' "Una ventana abierta al mundo." G_FEMENINO
 !
-! Este ejemplo crea dos elementos en el decorado: la mesa y la ventana. Ambas tienen como
-! sinónimo la palabra 'grande' (que en realidad aquí actuaría como adjetivo de ambas).
-! Se puede usar EX MESA, EX MESA GRANDE, EX VENTANA, EX VENTANA GRANDE... pero NO puede
-! usarse EX MESA VENTANA o EX VENTANA MESA, ya que 'mesa' y 'ventana' no son sinónimos
-! (si A es sinónimo de B y de C, eso no significa que B y C también lo sean). Aunque
-! parece que no tiene demasiado sentido, sí es práctico para el caso de que el sinónimo
-! sea un adjetivo (como el 'mesa' de este caso).
-! Si el jugador escribe EX GRANDE, el algoritmo se decidirá por el primero que encuentre
-! en la lista de sinónimos (en este caso, la mesa).
+! Este ejemplo crea dos elementos en el decorado: la mesa y la ventana. Ambas
+! tienen como sinónimo la palabra 'grande' (que en realidad aquí actuaría como
+! adjetivo de ambas). Se puede usar EX MESA, EX MESA GRANDE, EX VENTANA,
+! EX VENTANA GRANDE... pero NO puede usarse EX MESA VENTANA o EX VENTANA MESA,
+! ya que 'mesa' y 'ventana' no son sinónimos (si A es sinónimo de B y de C, eso
+! no significa que B y C también lo sean). Aunque parece que no tiene demasiado
+! sentido, sí es práctico para el caso de que el sinónimo sea un adjetivo (como
+! el 'mesa' de este caso). Si el jugador escribe EX GRANDE, el algoritmo se
+! decidirá por el primero que encuentre en la lista de sinónimos (en este caso,
+! la mesa).
 !
 class Decorado
   with
@@ -153,43 +155,44 @@ class Decorado
     gender 0,        ! El género del objeto
     describe 0,      ! El array de descripciones
     sinonimos 0,     ! El array de sinónimos
-    palabra 0,       ! Si es un sinónimo, la palabra correspondiente en 'describir'.
+    palabra 0,       ! Si es sinónimo, la palabra correspondiente en 'describir'
                      ! Si no lo es, vale lo mismo que 'palabra_usada'
     short_name [;
       print (address) self.palabra;
       rtrue;
     ],
-    buscar_nombre [ x i j;   ! Se usa en ExaminarFalso
-      for (i = 0: i < (self.#describe) / (3 * WORDSIZE): i++) {
-        if ((self.&describe)-->(i * 3) == x) {
-          self.description   = VR((self.&describe)-->(i * 3 + 1));
-          self.actualizar_genero((self.&describe)-->(i * 3 + 2));
-          self.palabra       = x;
-          self.palabra_usada = x;
-          PronounNotice(self);
-          rtrue;
-        }
-      }
-      if (self.sinonimos == 0) return false;
-      for (j = 0: j < (self.#sinonimos) / (3 * WORDSIZE): j++) {
-        if ((self.&sinonimos)-->(j * 3) == x) {
-          for (i = 0: i < n: i++) {
-            if ((self.&describe)-->(i * 3) == (self.&sinonimos)-->(j * 3 + 1)) {
-              self.description   = VR((self.&describe)-->(i * 3 + 1));
-              self.palabra       = (self.&describe)-->(i * 3);
-              self.palabra_usada = (self.&sinonimos)-->(j * 3);
-              self.gender = (self.&sinonimos)-->(j * 3 + 2);
-              if (self.gender == -1) {
-                self.gender = (self.&describe)-->(i * 3 + 2);
-              }
-              self.actualizar_genero(self.gender);
-              PronounNotice(self);
-              rtrue;
-            }
-          }
-        }
-      }
-    ],
+!    buscar_nombre [ x i j;   ! Se usa en ExaminarFalso
+!      for (i = 0: i < (self.#describe) / (3 * WORDSIZE): i++) {
+!        if ((self.&describe)-->(i * 3) == x) {
+!          self.description   = VR((self.&describe)-->(i * 3 + 1));
+!          self.actualizar_genero((self.&describe)-->(i * 3 + 2));
+!          self.palabra       = x;
+!          self.palabra_usada = x;
+!          PronounNotice(self);
+!          rtrue;
+!        }
+!      }
+!      if (self.sinonimos == 0) return false;
+!      for (j = 0: j < (self.#sinonimos) / (3 * WORDSIZE): j++) {
+!        if ((self.&sinonimos)-->(j * 3) == x) {
+!          for (i = 0: i < n: i++) {
+!            if ((self.&describe)-->(i * 3) ==
+!                (self.&sinonimos)-->(j * 3 + 1)) {
+!              self.description   = VR((self.&describe)-->(i * 3 + 1));
+!              self.palabra       = (self.&describe)-->(i * 3);
+!              self.palabra_usada = (self.&sinonimos)-->(j * 3);
+!              self.gender = (self.&sinonimos)-->(j * 3 + 2);
+!              if (self.gender == -1) {
+!                self.gender = (self.&describe)-->(i * 3 + 2);
+!              }
+!              self.actualizar_genero(self.gender);
+!              PronounNotice(self);
+!              rtrue;
+!            }
+!          }
+!        }
+!      }
+!    ],
     parse_name [ i n w c r f j p;
       self.description = 0;
       n = (self.#describe) / (3 * WORDSIZE);
@@ -244,7 +247,8 @@ class Decorado
             if ((self.&sinonimos)-->(j * 3) == w) {
               f = false;
               for (i = 0: i < n: i++) {
-                if ((self.&describe)-->(i * 3) == (self.&sinonimos)-->(j * 3 + 1)) {
+                if ((self.&describe)-->(i * 3) ==
+                    (self.&sinonimos)-->(j * 3 + 1)) {
                   if (p == NULL) {
                     p = (self.&describe)-->(i * 3);
                   } else {

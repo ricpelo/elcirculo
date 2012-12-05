@@ -284,9 +284,9 @@ Include "Parser";
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
 
-      if (ev-->1 == gg_mainwin) {  ! Si estamos en la ventana principal
+      if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Si estamos en la ventana principal
         glk_cancel_line_event(gg_mainwin, gg_event);
-        if (gg_event-->2 == 0) {
+        if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
             if (obj provides ZIPI_item) { ! Si el objeto tiene menú
               r = MostrarMenuAcciones(obj);
@@ -332,6 +332,12 @@ Include "Parser";
             } else { ! El objeto no tiene un menú asociado
               if (obj in Compass) { ! ¿Es un punto cardinal? Mostrar la orden 
                 print (s_input) "ve ", (s_input) obj.input_link, "^";
+              } else if (obj == location) { ! Si es el nombre de la localidad
+                print (s_input) "mira ", "^";
+                long = PrintAnyToArray(buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE, "m");
+                buffer-->0 = long;
+                return 2;
               }
             } ! Llegados hasta aquí, no tiene menú ni es un punto cardinal
           } ! if (obj ofclass Object)
@@ -979,6 +985,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
                                  winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
   if (hayGraficos) EncenderGraficos();
+  glk_request_hyperlink_event(gg_mainwin);
+  glk_request_hyperlink_event(gg_statuswin);
 ];
 
 
@@ -1036,8 +1044,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   sonido_telefono_katie.sonar();
   KeyDelay();
   openGraphicWindow(altoVentanaGrafica);
-  glk_request_hyperlink_event(gg_mainwin);
-  glk_request_hyperlink_event(gg_statuswin);
 ];
 
 
@@ -1086,10 +1092,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ InScope actor
   l;
-  
+
+  l = LugarReal();
+
+  if (action_to_be == ##ExaminarFalso) PlaceInScope(l);
+
   ! Así podemos usar "VE AL SALON" y "EXAMINA EL SALON" en lugar de
   ! "VE AL SUR" y "EXAMINA EL SUR" (ver también la clase Lugar): 
-  l = LugarReal();
   if (l provides n_to)   PlaceInScope(l.n_to);
   if (l provides s_to)   PlaceInScope(l.s_to);
   if (l provides e_to)   PlaceInScope(l.e_to);
@@ -1108,7 +1117,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (actor == becca && LugarReal() ~= cocina_katie) {
     PlaceInScope(telefono_katie);
   }
-
+  
   rfalse;
 ];
 
@@ -1187,7 +1196,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   return 'no.verb';
 ];
 
-Verb 'no.verb' * noun -> ExaminarFalso;
 
 !===============================================================================
 ! (6) Incluir SpanishG.h; Otros Includes
@@ -2181,15 +2189,11 @@ Object Menu_Examinar
 ! Además tiene en cuenta si el objeto lleva asociado un menú de acciones y
 ! dispara la que corresponda:
 [ ExaminarFalsoSub;
-  ! Esta propiedad se establece en ExaminarFalso.EF_UnknownVerb(x):
-!  noun = ExaminarFalso.objetoVerboDesconocido;
-!  PronounNotice(noun);
-  ! Si es el nombre de la localidad actual, hacemos un MIRAR:
-!  if (noun == location) {
-!    glk_cancel_line_event(gg_mainwin, gg_event);
-!    print (s_input) "mira^";
-!    <<Look>>;
-!  }
+  ! Si es el nombre de la localidad actual, la describimos:
+  if (noun == location) {
+    PrintOrRun(noun, description);
+    rtrue;
+  }
 
   if (ExaminarFalso_mostrarInput) {
     ExaminarFalso_mostrarInput = false;
@@ -2429,6 +2433,8 @@ Verb meta 'musica'
   * 'fondo' 'off'/'apagada'/'no'/'nx' -> ApagarMusica
   * 'on'/'encendida'/'si'             -> EncenderMusica
   * 'off'/'apagada'/'no'/ 'nx'        -> ApagarMusica;
+
+Verb 'no.verb' * noun -> ExaminarFalso;
 
 Verb meta 'pistas'
   *                 -> Pistas

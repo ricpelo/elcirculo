@@ -19,76 +19,25 @@
 
 !
 ! Permite usar simplemente el nombre de un objeto como sinónimo de
-! 'EXAMINAR OBJETO' (copiado de Transilvania Corruption, de Alien Soft,
-! y mejorado por mí para dar soporte a objetos decorado).
+! 'EXAMINAR OBJETO'. Copiado de
+! http://rec.arts.int-fiction.narkive.com/Cz9j184N/inform-6-parser-question
 !
-! USO: Incluir detrás de Decorado_NG para soportar objetos decorado.
-!
-
 
 System_file;
 
-
-#ifdef UnknownVerb;
-Message " ___________________________________________________________ ";
-Message "|                                                           |";
-Message "|           * ExaminarFalso: I M P O R T A N T E *          |";
-Message "|           ======================================          |";
-Message "|  Usando rutina UnknownVerb() proporcionada por el juego.  |";
-Message "|      NO OLVIDES USAR EN ESA RUTINA EL RESULTADO DE:       |";
-Message "|      ExaminarFalso: ExaminarFalso.EF_UnknownVerb(x)       |";
-Message "|___________________________________________________________|";
-#endif; ! UnknownVerb
-
-
 #ifndef UnknownVerb;
 [ UnknownVerb x;
-  return ExaminarFalso.EF_UnknownVerb(x);
+  verb_wordnum = 0;
+  return 'no.verb';
 ];
 #endif; ! UnknownVerb
 
-
-Object ExaminarFalso
-  with
-    objetoVerboDesconocido 0,   ! El objeto sobre el que actuar
-    mostrarInput false,         ! ¿Se debe mostrar el input?
-    EF_UnknownVerb [x
-      obj;
-      ! Se busca en todos los objetos que están al alcance, incluyendo la
-      ! localidad actual y exceptuando el propio jugador:
-      objectloop (obj ofclass Object && (TestScope(obj) || obj == location)) {
-        #ifdef Decorado;
-        if (obj ofclass Decorado && obj.buscar_nombre(x)) {
-          jump PalabraEncontrada;
-        } else {
-        #endif;
-          if (obj ~= player) {
-            if (WordInProperty(x, obj, name) ||
-                WordInProperty(x, obj, name_m) ||
-                WordInProperty(x, obj, name_f) ||
-                WordInProperty(x, obj, name_mp) ||
-                WordInProperty(x, obj, name_fp)) {
-              jump PalabraEncontrada;
-            }
-          }
-        #ifdef Decorado;
-        }
-        #endif;
-      }
-      rfalse;
-    .PalabraEncontrada;
-      self.objetoVerboDesconocido = obj;
-      return 'examinar.falso';
-    ];
-
-
-Verb 'examinar.falso'
-   *                   -> ExaminarFalso;
-
-
-[ ExaminarFalsoSub;
-  noun = ExaminarFalso.objetoVerboDesconocido;
-  PronounNotice(noun);
-  <<Examine noun>>;
+#ifndef PrintVerb;
+[ PrintVerb v;
+  if (v == 'no.verb') "examinar";
+  rfalse;
 ];
+#endif; ! PrintVerb
+
+Verb 'no.verb' * noun -> Examine;
 

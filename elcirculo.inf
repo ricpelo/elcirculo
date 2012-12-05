@@ -121,7 +121,7 @@ Constant SONIDO_REPETIR = -1;
 Constant TIMER_TICK = 1000;
 Constant TIMER_DURACION_BECCA = 5;
 Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
-Constant TIMER_DURACION_TLF_KATIE = 6;   
+Constant TIMER_DURACION_TLF_KATIE = 6;
 
 
 ! ====================================================================
@@ -151,6 +151,7 @@ Global dibujarEstado = false;
 ! MensajesLibreria:
 Global estoyEmpujando = false;
 
+! ¿Se debe mostrar la orden de input del jugador al hacer un examinar falso?
 Global ExaminarFalso_mostrarInput = false;
 
 ! La ventana de menús de acciones:
@@ -804,7 +805,7 @@ Object LibraryMessages
 
       Miscellany:
         switch (lm_n) {
-           4: TextoLlamativo(" ¡Enhorabuena! Has acabado la aventura ");
+           4: print " ¡Enhorabuena! Has acabado la aventura ";
               rtrue;
           10: rtrue;
           13: ! Reactivamos timer en caso de UNDO:
@@ -1078,17 +1079,17 @@ Include "Timer";            ! Mi librería de eventos temporizados
     #ifdef DEATH_MENTION_UNDO;
     Menu_AfterGameOver.&ZIPI_item-->2 = Menu_Undo;
     #ifnot;
-    Menu_AfterGameOver.&ZIPI_item-->2 = ZIPI_Separador;
+    Menu_AfterGameOver.&ZIPI_item-->2 = 0;
     #endif;
     if (TASKS_PROVIDED == 0) {
       Menu_AfterGameOver.&ZIPI_item-->3 = Menu_Score;
     } else {
-      Menu_AfterGameOver.&ZIPI_item-->3 = ZIPI_Separador;
+      Menu_AfterGameOver.&ZIPI_item-->3 = 0;
     }
     if (deadflag == 2 && AMUSING_PROVIDED == 0) {
       Menu_AfterGameOver.&ZIPI_item-->4 = Menu_Amusing;
     } else {
-      Menu_AfterGameOver.&ZIPI_item-->4 = ZIPI_Separador;
+      Menu_AfterGameOver.&ZIPI_item-->4 = 0;
     }
     i = MostrarMenuAcciones(Menu_AfterGameOver, true);
     i = i.ZIPI_ejecutar();
@@ -2000,7 +2001,7 @@ Object ZIPI_Tiempo_Real
       count++;
     #ifdef DEBUG;
     } else {
-      print "*** ERROR: Superado número máximo de opciones ***";
+      print "*** ERROR: Superado número máximo de opciones del menú ***";
     #endif;
     }
   }
@@ -2229,14 +2230,14 @@ Object Menu_Restart
 Object Menu_Restore
   class ZIPI_Otro
   with
-    ZIPI_titulo "Restaurar",
+    ZIPI_titulo "Recuperar",
     ZIPI_ejecutar [; return RESTORE__WD; ];
 
 
 Object Menu_Undo
   class ZIPI_Otro
   with
-    ZIPI_titulo "Deshacer",
+    ZIPI_titulo "Anular",
     ZIPI_ejecutar [; return UNDO1__WD; ];
 
 
@@ -2258,7 +2259,7 @@ Object Menu_Amusing
 Object Menu_Quit
   class ZIPI_Otro
   with
-    ZIPI_titulo "Finalizar",
+    ZIPI_titulo "Terminar",
     ZIPI_ejecutar [; return QUIT1__WD; ];
 
 

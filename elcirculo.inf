@@ -106,6 +106,10 @@ Constant GT_ZEROEXIT     = "No decir nada.";
 Constant LAYOUT_MENU_PRINCIPAL = 0; ! Distribución en el menú principal
 Constant LAYOUT_JUEGO = 1;          ! Distribución durante el juego
 
+! Tamaños para arrays relacionados con el menú de acciones:
+Constant MAXIMO_OPCIONES = 100;         ! Número máximo de opciones en el array
+Constant MAXIMO_TECLAS_OPCIONES = 30;   ! Número de teclas de acceso directo
+
 ! Número máximo de cadenas DIFERENTES que se han impreso:
 Constant PS_TAB_SIZE = 1000;
 
@@ -117,13 +121,24 @@ Constant SONIDO_REPETIR = -1;
 Constant TIMER_TICK = 1000;
 Constant TIMER_DURACION_BECCA = 5;
 Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
-Constant TIMER_DURACION_TLF_KATIE = 6;
+Constant TIMER_DURACION_TLF_KATIE = 6;   
 
 
 ! ====================================================================
 ! VARIABLES GLOBALES
 ! ====================================================================
 
+
+! El array de opciones en el menú de acciones:
+Array opciones --> MAXIMO_OPCIONES;
+
+! Números de opción asociados con una tecla de acceso rápido:
+Array numero_opciones -> MAXIMO_TECLAS_OPCIONES;
+
+! Teclas de acceso rápido en el menú de acciones:
+Array teclas_opciones --> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
+                          'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
+                          'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
 
 ! Alto de la ventana gráfica:
 Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
@@ -1555,28 +1570,18 @@ Object timer_imagen_personaje
 ! ====================================================================
 
 
-Array teclas_opciones --> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
-                          'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
-                          'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
-Array numero_opciones -> 30;
-    
-
 [ ZIPI_RunMenu _m top
-  i j count cur key target redibujar r k tec;
+  i j count cur key dest r tec;
 
-  redibujar = 1;
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
 
   for (::) {
-    if (redibujar) {
-      ZIPI_PintaTitulo(_m.ZIPI_titulo);
-      redibujar = 0;
-    }
+    ZIPI_PintaTitulo(_m.ZIPI_titulo);
 
-    for (i = 0, tec = 0: i < count - 2: i++) {
+    for (i = 0, tec = 0 : i < count - 2 : i++) {
       j = i + 3;
-      ZIPI_setcursor(5,j);
+      ZIPI_setcursor(5, j);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
         glk_set_hyperlink(teclas_opciones-->tec);
         print "[";
@@ -1601,14 +1606,10 @@ Array numero_opciones -> 30;
     ZIPI_setcursor(2, j);
     print (s_emph) ">";
     ZIPI_setcursor(2, j);
-    key = ZIPI_tecla(gg_statuswin);
-    print " ";
 
-    if (key > ZIPI_EVENTO_HYPER) {
-      cur = key - ZIPI_EVENTO_HYPER - 2;
-      if (cur == -1) key = 27;
-      else           key = 13;
-    }
+    key = ZIPI_tecla(gg_statuswin);
+
+    print " ";
 
     switch (key) {
       'k', 'p', '-', '_', 129, -4:
@@ -1617,14 +1618,14 @@ Array numero_opciones -> 30;
           if (cur == count - 2) cur--;
           if (cur < 0) cur = count - 1;
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
-        break;
-      'j', 'n', '=', '+', 130, -5:
+
+        'j', 'n', '=', '+', 130, -5:
         do {
           cur++;
           if (cur == count - 2) cur++;
           if (cur >= count) cur = 0;
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
-        break;
+
       'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
         rfalse;
  
@@ -1632,24 +1633,23 @@ Array numero_opciones -> 30;
     .Aceptar;
         if (cur == count - 1) rfalse;
         if (cur == count - 2) break;
-        target = _m.&ZIPI_item-->cur;
-        if (target ofclass ZIPI_Menu)          ZIPI_RunMenu(target);
-        else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
-        else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
+        dest = _m.&ZIPI_item-->cur;
+        if (dest ofclass ZIPI_Menu)          ZIPI_RunMenu(dest);
+        else if (dest ofclass ZIPI_Pista)    ZIPI_RunPista(dest);
+        else if (dest provides ZIPI_cambiar) dest.ZIPI_cambiar();
         else {
           glk_request_mouse_event(gg_statuswin);
-          r = ZIPI_RunOtro(target);
+          r = ZIPI_RunOtro(dest);
           glk_cancel_mouse_event(gg_statuswin);
-          if (target == ZIPI_Restaurar) return 3;
+          if (dest == ZIPI_Restaurar) return 3;
           if (r == 2) return r;
         }
-        redibujar = 1;
-        break;
     }
+
     ! Busca la tecla entre el vector
-    for (k = 0 : k < 31 : k++) {
-      if (key == (teclas_opciones-->k) && k < tec) { 
-        cur = numero_opciones->k;
+    for (i = 0 : i < MAXIMO_TECLAS_OPCIONES : i++) {
+      if (key == (teclas_opciones-->i) && i < tec) { 
+        cur = numero_opciones->i;
         key = 132;
         jump Aceptar;
       }
@@ -1987,30 +1987,45 @@ Object ZIPI_Tiempo_Real
 
 ! Muestra el menú de acciones de un objeto:
 [ RunMenuAcciones _m top
-  i j count cur key target redibujar k tec altura anchura delta oldcur lim;
+  i j count opc cur key dest tec altura anchura delta oldcur;
 
-  redibujar = 1;
+  for (i = count = 0 : i < _m.#ZIPI_item / WORDSIZE : i++) {
+    opc = _m.&ZIPI_item-->i;
+    if (opc == 0) continue;
+    if (opc provides ZIPI_condicion && ~~(ValueOrRun(opc, ZIPI_condicion))) {
+      continue;
+    }
+    if (count < MAXIMO_OPCIONES) {
+      opciones-->count = opc;
+      count++;
+    #ifdef DEBUG;
+    } else {
+      print "*** ERROR: Superado número máximo de opciones ***";
+    #endif;
+    }
+  }
+  
+  if (~~top) {
+    opciones-->count++ = ZIPI_Separador;
+    opciones-->count++ = ZIPI_Ninguna;
+  }
+
   cur = 0;
   
-  count = _m.#ZIPI_item / WORDSIZE; if (~~top) count = count + 2;
-
   for (::) {
     glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
     anchura = gg_arguments-->0;
     altura  = gg_arguments-->1;
 
-    if (redibujar) {
-      glk_window_clear(gg_menuwin);
-      if (_m provides ZIPI_titulo) {
-        glk_set_style(style_Input);
-        print " ", (string) _m.ZIPI_titulo, "^";
-        glk_set_style(style_Normal);
-      } else if (_m provides input_link) {
-        glk_set_style(style_Input);
-        print " ", (string) _m.input_link, ":^";
-        glk_set_style(style_Normal);
-      }
-      redibujar = 0;
+    glk_window_clear(gg_menuwin);
+    if (_m provides ZIPI_titulo) {
+      glk_set_style(style_Input);
+      print " ", (string) _m.ZIPI_titulo, "^";
+      glk_set_style(style_Normal);
+    } else if (_m provides input_link) {
+      glk_set_style(style_Input);
+      print " ", (string) _m.input_link, ":^";
+      glk_set_style(style_Normal);
     }
 
     if (delta > 0) {
@@ -2018,107 +2033,91 @@ Object ZIPI_Tiempo_Real
       print "@@94";
     }
 
-    if (~~top) lim = 2; else lim = 0;
-    
-    for (i = 0 + delta, tec = 0 + delta : i < count - lim : i++) {
+    for (i = 0 + delta, tec = 0 + delta : i < count : i++) {
       j = i + 3 - delta;
       if (j >= altura) break;
       glk($002B, gg_menuwin, 4, j - 1);
-      if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-        glk_set_hyperlink(teclas_opciones-->tec);
-        print "[";
-        glk_set_style(style_Header);
-        print (char) teclas_opciones-->tec;
-        glk_set_style(style_Normal);
-        print "] ";
-        numero_opciones->tec = i;
-        tec++;
-        PrintOrRun(_m.&ZIPI_item-->i, ZIPI_titulo);
+      opc = opciones-->i; 
+      if (opc ~= ZIPI_Separador) {
+        if (opc == ZIPI_Ninguna) {
+          glk_set_hyperlink('Q');
+          print "[", (s_head) "Q", "] ";
+        } else {
+          glk_set_hyperlink(teclas_opciones-->tec);
+          print "[";
+          glk_set_style(style_Header);
+          if (tec < MAXIMO_TECLAS_OPCIONES) print (char) teclas_opciones-->tec;
+          else                              print " ";
+          glk_set_style(style_Normal);
+          print "] ";
+          if (tec < MAXIMO_TECLAS_OPCIONES) {
+            numero_opciones->tec = i;
+            tec++;
+          }
+        }
+        PrintOrRun(opc, ZIPI_titulo);
         glk_set_hyperlink(0);
       }
     }
 
     j = i + 4 - delta;
-    if (j <= altura) {
-      if (~~top) {
-        glk($002B, gg_menuwin, 4, j - 1);
-        glk_set_hyperlink('Q');
-        print (s_head) "[Q] Ninguna acción";
-        glk_set_hyperlink(0);
-      }
-    } else {
+
+    if (j > altura) {
       glk($002B, gg_menuwin, anchura - 1, altura - 1);
       print "v";
     }
+
     j = cur + 3 - delta;
     glk($002B, gg_menuwin, 1, j - 1);
     print (s_emph) ">";
     glk($002B, gg_menuwin, 1, j - 1);
     
     key = ZIPI_tecla(gg_menuwin, true);
-    if (key == 0) redibujar = 1;
-    print " ";
 
-    if (key > ZIPI_EVENTO_HYPER) {
-      cur = key - ZIPI_EVENTO_HYPER - 2;
-      if (cur == -1) key = 27;
-      else           key = 13;
-    }
+    if (key >= 'a' && key <= 'z') key = key - 32;  ! Pasamos a mayúsculas
+
+    print " ";
 
     switch (key) {
       'k', 'p', '-', '_', 129, -4:
         do {
           oldcur = cur;
           cur--;
-          if (~~top) if (cur == count - 2) cur--;
-          if (cur < 0) cur = 0; ! cur = count - 1;
-          if (j <= 3) {
-            delta = delta - (oldcur - cur);
-            redibujar = 1;
-          }
-        } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
-        break;
+          if (cur < 0) cur = 0;
+          if (j <= 3) delta = delta - (oldcur - cur);
+        } until (opciones-->cur ~= ZIPI_Separador);
 
       'j', 'n', '=', '+', 130, -5:
         do {
           oldcur = cur;
           cur++;
-          if (~~top) if (cur == count - 2) cur++;
-          if (cur > count - 1) cur = count - 1; ! cur = 0;
-          if (j >= altura - 1) {
-            delta = delta + (cur - oldcur);
-            redibujar = 1;
-          }
-        } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
-        break;
+          if (cur > count - 1) cur = count - 1;
+          if (j >= altura - 1) delta = delta + (cur - oldcur);
+        } until (opciones-->cur ~= ZIPI_Separador);
 
       'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
         if (~~top) rfalse;
  
       132, 13, 'n', ' ', -3, -6:
     .Aceptar;
-        if (~~top) {
-          if (cur == count - 1) rfalse;
-          if (cur == count - 2) break;
-        }
-        target = _m.&ZIPI_item-->cur;
-        if (target ofclass ZIPI_Menu) return RunMenuAcciones(target, top);
-        else if (target ofclass ZIPI_Pista) ZIPI_RunPista(target);
-        else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
-        else return target;
-        redibujar = 1;
-        break;
+        dest = opciones-->cur;
+        if (dest ofclass ZIPI_Menu)          return RunMenuAcciones(dest, top);
+        else if (dest == ZIPI_Ninguna)       rfalse;
+        else if (dest ofclass ZIPI_Pista)    ZIPI_RunPista(dest);
+        else if (dest provides ZIPI_cambiar) dest.ZIPI_cambiar();
+        else return dest;
     }
 
-    ! Busca la tecla en el vector
-    for (k = 0 : k < 31 : k++) {
-      if (key == (teclas_opciones-->k) && k < tec) { 
-        cur = numero_opciones->k;
+    ! Busca la tecla en el vector:
+    for (i = 0 : i < MAXIMO_TECLAS_OPCIONES : i++) {
+      if (key == (teclas_opciones-->i) && i < tec) { 
+        cur = numero_opciones->i;
         key = 132;
         jump Aceptar;
       }
     }
   }
+
   rfalse;
 ];
 
@@ -2176,6 +2175,12 @@ Object Menu_Examinar
   with
     ZIPI_titulo "Examinar",
     ZIPI_ejecutar [; return 'ex'; ];
+
+
+Object ZIPI_Ninguna
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Ninguna acción";
 
 
 Object Menu_YesOrNo
@@ -2239,6 +2244,7 @@ Object Menu_Score
   class ZIPI_Otro
   with
     ZIPI_titulo "Puntuación",
+    ZIPI_condicion [; return TASKS_PROVIDED == 0; ],
     ZIPI_ejecutar [; return FULLSCORE1__WD; ];
 
 

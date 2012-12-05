@@ -56,10 +56,7 @@ Constant AMUSING_PROVIDED;
 
 ! Altura (en px.) de la ventana de logo en el menú principal:
 Constant ALTURA_LOGO_MENU      = 450;
-! Altura (en caracteres) de la ventana grid al mostrar información larga:
-Constant ALTURA_MENU_COMPLETA  = 24;
-! Altura (en caracteres) de la ventana grid en el menú principal:
-Constant ALTURA_MENU_PRINCIPAL = 15;
+
 ! Ancho de la ventana de acciones:
 Constant ANCHO_ACCIONES  = 25;
 
@@ -285,7 +282,7 @@ Include "Parser";
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
 
-      if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Si estamos en la ventana principal
+      if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Principal o de estado
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
@@ -956,20 +953,12 @@ Include "Timer";            ! Mi librería de eventos temporizados
   IniciarGraficosSonidos();
   openGraphicWindow(ALTURA_LOGO_MENU);
   clearGraphicWindow();
-  glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
-                             gg_arguments, gg_arguments + WORDSIZE,
-                             gg_arguments + 2 * WORDSIZE);
-  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                             gg_arguments-->0 | winmethod_NoBorder,
-                             ALTURA_MENU_PRINCIPAL,
-                             gg_arguments-->2);
-!  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
+  ExtenderVentanaEstado();
   clearMainWindow();
   viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
   Damusix.Tocar(Darkwalk_ogg);
-  ZIPI_Intro();
   do {
     r = ZIPI_RunMenu(ZIPI_Menu_Principal, true);
   } until (r ~= 3);
@@ -977,15 +966,15 @@ Include "Timer";            ! Mi librería de eventos temporizados
   clearTextWindow();
   closeAllWindows();
   glk_window_close(gg_statuswin, 0);
-  ! Los mouse events hay que iniciarlos aquí, y no en IniciarAventura
-  ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
-  ! glk_request_mouse_event(gg_bigwin);
   AbrirVentanaMenu();
   gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
   if (hayGraficos) EncenderGraficos();
+  ! Los eventos hay que iniciarlos aquí, y no en IniciarAventura
+  ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
+  ! glk_request_mouse_event(gg_bigwin);
   glk_request_hyperlink_event(gg_mainwin);
   glk_request_hyperlink_event(gg_statuswin);
 ];
@@ -1185,11 +1174,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 ! Modificado para que no ponga un borde debajo de la línea de estado:
 [ StatusLineHeight hgt parwin;
-    if (gg_statuswin == 0) return;
-    if (hgt == gg_statuswin_cursize) return;
-    parwin = glk($0029, gg_statuswin); ! window_get_parent
-    glk($0026, parwin, $112, hgt, 0); ! window_set_arrangement
-    gg_statuswin_cursize = hgt;
+  if (gg_statuswin == 0) return;
+!  if (hgt == gg_statuswin_cursize) return;
+  parwin = glk($0029, gg_statuswin); ! window_get_parent
+  glk($0026, parwin, $112, hgt, 0); ! window_set_arrangement
+  gg_statuswin_cursize = hgt;
 ];
 
 
@@ -1591,12 +1580,10 @@ Array numero_opciones -> 30;
   r gr;
   gr = gg_bigwin ~= 0;
   if (gr) closeGraphicWindow();
-  StatusLineHeight(ALTURA_MENU_COMPLETA);
   ZIPI_PintaTitulo(_o.ZIPI_titulo);
   print "^";
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
-  StatusLineHeight(ALTURA_MENU_PRINCIPAL);
   if (gr) {
     openGraphicWindow(ALTURA_LOGO_MENU);
     clearGraphicWindow();
@@ -1741,11 +1728,11 @@ Object ZIPI_Jugar_Con_Intro
     ZIPI_titulo "Comenzar la aventura con introducción",
     ZIPI_ejecutar [;
       StatusLineHeight(1);
-      glk($002A, gg_statuswin);  ! window_clear
-      glk($002F, gg_mainwin);    ! set_window
+      glk_window_clear(gg_statuswin);
+      glk_set_window(gg_mainwin);
+      clearTextWindow();
       if (hayGraficos) EncenderGraficos();
       else             ApagarGraficos();
-      clearTextWindow();
       Introduccion();
       IniciarAventura();
       dibujarEstado = true;
@@ -1759,11 +1746,11 @@ Object ZIPI_Jugar_Sin_Intro
     ZIPI_titulo "Comenzar la aventura saltando la introducción",
     ZIPI_ejecutar [;
       StatusLineHeight(1);
-      glk($002A, gg_statuswin);  ! window_clear
-      glk($002F, gg_mainwin);    ! set_window
+      glk_window_clear(gg_statuswin);
+      glk_set_window(gg_mainwin);
+      clearTextWindow();
       if (hayGraficos) EncenderGraficos();
       else             ApagarGraficos();
-      clearTextWindow();
       IniciarAventura(true);
       dibujarEstado = true;
       return 2;
@@ -1813,8 +1800,7 @@ Object ZIPI_Restaurar
     ZIPI_ejecutar [ res fref;
       StatusLineHeight(1);
       clearTextWindow();
-      glk($002F, gg_mainwin);    ! set_window
-!      ImprimirPrompt();
+      glk_set_window(gg_mainwin);
       fref = glk($0062, $01, $02, 0); ! fileref_create_by_prompt
       if (fref == 0) jump RFailed;
       gg_savestr = glk($0042, fref, $02, GG_SAVESTR_ROCK); ! stream_open_file
@@ -1827,9 +1813,8 @@ Object ZIPI_Restaurar
       gg_savestr = 0;
 
     .RFailed;
-      ZIPI_Intro();
-      glk($002F, gg_statuswin);
-      StatusLineHeight(ALTURA_MENU_PRINCIPAL);
+      glk_set_window(gg_statuswin);
+      ExtenderVentanaEstado();
       print "^Error: no se ha podido cargar la partida.";
       rfalse;
     ];
@@ -2258,6 +2243,13 @@ Object Menu_No
 ];
 
 
+[ ExtenderVentanaEstado por;
+  if (por == 0) por = 100;
+  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                             winmethod_Above + winmethod_Proportional +
+                             winmethod_NoBorder, por, 0);
+];
+
 [ IniciarGraficosSonidos;
   if (glk_gestalt(gestalt_AlphaAventuras, 0) == 0) {
     print "^Lo sentimos, pero este juego necesita un intérprete
@@ -2594,9 +2586,7 @@ Verb meta 'tt'
   fondo v m;
   ControlTimer.PausarTick();
   fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
-  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                             winmethod_Above + winmethod_Proportional,
-                             100, 0);
+  ExtenderVentanaEstado();
   
   ZIPI_RunMenu(ZIPI_Configuracion, true);
   
@@ -2608,9 +2598,7 @@ Verb meta 'tt'
       Damusix.TocarCanal(CANAL_FONDO);
     }
   }
-  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                             winmethod_Above + winmethod_Fixed,
-                             1, 0);
+  StatusLineHeight(1);
   glk_set_window(gg_mainwin);
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
@@ -2814,7 +2802,8 @@ Verb meta 'tt'
          hayGraficos = true;
        }
        glk_window_close(gg_menuwin, 0);
-       StatusLineHeight(ALTURA_MENU_COMPLETA); ! 26);
+       gg_menuwin = 0;
+       ExtenderVentanaEstado();
        tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
        Damusix.PararCanal(CANAL_TELEFONO);
        tv = Damusix.SonandoDeFondoCanal(CANAL_TV_SALON);

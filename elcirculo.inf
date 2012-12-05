@@ -251,7 +251,8 @@ Replace SearchSub;
 ! La línea de estado se crea sin bordes:
 Replace StatusLineHeight;
 
-Replace UnknownVerb;
+! Para usar el menú de acciones:
+Replace YesOrNo;
 
 ! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
 ! para el menú principal y las pistas:
@@ -1182,6 +1183,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
+! Modificado para que no ponga un borde debajo de la línea de estado:
 [ StatusLineHeight hgt parwin;
     if (gg_statuswin == 0) return;
     if (hgt == gg_statuswin_cursize) return;
@@ -1191,9 +1193,22 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
+! Para el Examinar Falso:
 [ UnknownVerb;
   verb_wordnum = 0;
   return 'no.verb';
+];
+
+
+! La pregunta de "sí o no" usa ahora el menú de acciones:
+[ YesOrNo
+  r;
+  glk_set_window(gg_menuwin);
+  r = RunMenuAcciones(Menu_YesOrNo, true);
+  glk_set_window(gg_mainwin);
+  r = r.ZIPI_ejecutar() == 1;
+  if (~~r) new_line;
+  return r;
 ];
 
 
@@ -1904,12 +1919,12 @@ Object ZIPI_Tiempo_Real
 
 ! Muestra el menú de acciones de un objeto:
 [ RunMenuAcciones _m top
-  i j count cur key target redibujar k tec altura anchura delta oldcur;
+  i j count cur key target redibujar k tec altura anchura delta oldcur lim;
 
   redibujar = 1;
   cur = 0;
   
-  count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
+  count = _m.#ZIPI_item / WORDSIZE; if (~~top) count = count + 2;
 
   for (::) {
     glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
@@ -1918,9 +1933,11 @@ Object ZIPI_Tiempo_Real
 
     if (redibujar) {
       glk_window_clear(gg_menuwin);
-      glk_set_style(style_Input);
-      print " ", (string) _m.input_link, ":^";
-      glk_set_style(style_Normal);
+      if (_m provides input_link) {
+        glk_set_style(style_Input);
+        print " ", (string) _m.input_link, ":^";
+        glk_set_style(style_Normal);
+      }
       redibujar = 0;
     }
 
@@ -1929,7 +1946,9 @@ Object ZIPI_Tiempo_Real
       print "@@94";
     }
 
-    for (i = 0 + delta, tec = 0 + delta: i < count - 2: i++) {
+    if (~~top) lim = 2; else lim = 0;
+    
+    for (i = 0 + delta, tec = 0 + delta : i < count - lim : i++) {
       j = i + 3 - delta;
       if (j >= altura) break;
       glk($002B, gg_menuwin, 4, j - 1);
@@ -1951,10 +1970,14 @@ Object ZIPI_Tiempo_Real
 
     j = i + 4 - delta;
     if (j <= altura) {
-      glk($002B, gg_menuwin, 4, j - 1);
-      glk(256, 'Q');
-      print (s_head) "[Q] Ninguna acción";
-      glk(256, 0);
+      if (~~top) {
+        glk($002B, gg_menuwin, 4, j - 1);
+        glk(256, 'Q');
+        print (s_head) "[Q] Ninguna acción";
+        glk(256, 0);
+      } else {
+!        count = count - 2;
+      }
     } else {
       glk($002B, gg_menuwin, anchura - 1, altura - 1);
       print "v";
@@ -2002,18 +2025,19 @@ Object ZIPI_Tiempo_Real
         break;
 
       'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
-        rfalse;
+        if (~~top) rfalse;
  
       132, 13, 'n', ' ', -3, -6:
     .Aceptar;
-        if (cur == count - 1) rfalse;
-        if (cur == count - 2) break;
+        if (~~top) {
+          if (cur == count - 1) rfalse;
+          if (cur == count - 2) break;
+        }
         target = _m.&ZIPI_item-->cur;
-!        if (top && target has general) { redibujar = 1; break; }
-        if (target ofclass ZIPI_Menu)          return RunMenuAcciones(target, top);
-        else if (target ofclass ZIPI_Pista)    ZIPI_RunPista(target);
+        if (target ofclass ZIPI_Menu) return RunMenuAcciones(target, top);
+        else if (target ofclass ZIPI_Pista) ZIPI_RunPista(target);
         else if (target provides ZIPI_cambiar) target.ZIPI_cambiar();
-        else                                   return target;
+        else return target;
         redibujar = 1;
         break;
     }
@@ -2084,6 +2108,28 @@ Object Menu_Examinar
   with
     ZIPI_titulo "Examinar",
     ZIPI_ejecutar [; return 'ex'; ];
+
+
+Object Menu_YesOrNo
+  class ZIPI_Menu
+  with
+    ZIPI_item
+      Menu_Yes
+      Menu_No;
+
+
+Object Menu_Yes
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Sí",
+    ZIPI_ejecutar [; return 1; ];
+
+
+Object Menu_No
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "No",
+    ZIPI_ejecutar [; return 0; ];
 
 
 !===============================================================================
@@ -2300,7 +2346,7 @@ Object Menu_Examinar
     glk_set_window(gg_menuwin);
     glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
     glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
-    r = RunMenuAcciones(obj, true);
+    r = RunMenuAcciones(obj);
     glk_window_clear(gg_menuwin);
     glk_set_window(gg_mainwin);
     glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los

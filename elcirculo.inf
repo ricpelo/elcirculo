@@ -1578,7 +1578,7 @@ Array numero_opciones -> 30;
       j = i + 3;
       ZIPI_setcursor(5,j);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-        glk(256, teclas_opciones-->tec);
+        glk_set_hyperlink(teclas_opciones-->tec);
         print "[";
         glk_set_style(style_Header);
         print (char) teclas_opciones-->tec;
@@ -1586,20 +1586,17 @@ Array numero_opciones -> 30;
         print "] ";
         numero_opciones->tec = i;
         tec++;
+        PrintOrRun(_m.&ZIPI_item-->i, ZIPI_titulo);
+        glk_set_hyperlink(0);
       }
-      if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
-        (_m.&ZIPI_item-->i).ZIPI_titulo();
-      else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
-      glk_set_style(style_Normal);
-      glk(256, 0);
     }
 
     j = i + 4;
     ZIPI_setcursor(5, j);
-    glk(256, 'Q');
+    glk_set_hyperlink('Q');
     if (top) print (s_head) "[Q] Salir";
     else     print (s_head) "[Q] Volver";
-    glk(256, 0);
+    glk_set_hyperlink(0);
     j = cur + 3;
     ZIPI_setcursor(2, j);
     print (s_emph) ">";
@@ -2028,7 +2025,7 @@ Object ZIPI_Tiempo_Real
       if (j >= altura) break;
       glk($002B, gg_menuwin, 4, j - 1);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-        glk(256, teclas_opciones-->tec);
+        glk_set_hyperlink(teclas_opciones-->tec);
         print "[";
         glk_set_style(style_Header);
         print (char) teclas_opciones-->tec;
@@ -2036,20 +2033,18 @@ Object ZIPI_Tiempo_Real
         print "] ";
         numero_opciones->tec = i;
         tec++;
+        PrintOrRun(_m.&ZIPI_item-->i, ZIPI_titulo);
+        glk_set_hyperlink(0);
       }
-      if ((_m.&ZIPI_item-->i).ZIPI_titulo ofclass Routine)
-        (_m.&ZIPI_item-->i).ZIPI_titulo();
-      else print (string) (_m.&ZIPI_item-->i).ZIPI_titulo;
-      glk(256, 0);
     }
 
     j = i + 4 - delta;
     if (j <= altura) {
       if (~~top) {
         glk($002B, gg_menuwin, 4, j - 1);
-        glk(256, 'Q');
+        glk_set_hyperlink('Q');
         print (s_head) "[Q] Ninguna acción";
-        glk(256, 0);
+        glk_set_hyperlink(0);
       }
     } else {
       glk($002B, gg_menuwin, anchura - 1, altura - 1);

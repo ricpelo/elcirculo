@@ -305,7 +305,8 @@ Include "Parser";
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (obj hasnt general) {    ! Si no hay que continuar escribiendo
           glk_set_style(style_Input);
-          print (string) obj.ZIPI_ejecutar(), "^";
+          PrintAnything(obj.ZIPI_ejecutar);
+          new_line;
           glk_set_style(style_Normal);
         }
         long = PrintAnyToArray(buffer + WORDSIZE,
@@ -2290,7 +2291,10 @@ Object Menu_Comunes
     ZIPI_item
       Menu_Inventario
       Menu_Mapa
-      Menu_Configuracion;
+      Menu_Configuracion
+      Menu_Restart
+      Menu_Restore
+      Menu_Quit;
 
 
 Object Menu_Inventario
@@ -2562,7 +2566,7 @@ Object Menu_Configuracion
     o = Menu_Comunes.&ZIPI_item-->i;
     print " - ";
     glk_set_hyperlink(o);
-    print (s_input) o.ZIPI_titulo;
+    print (string) o.ZIPI_titulo;
     glk_set_hyperlink(0);
     new_line;
   }

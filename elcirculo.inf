@@ -159,9 +159,6 @@ Global dibujarEstado = false;
 ! MensajesLibreria:
 Global estoyEmpujando = false;
 
-! ¿Se debe mostrar la orden de input del jugador al hacer un examinar falso?
-Global ExaminarFalso_mostrarInput = false;
-
 ! La ventana de menús de acciones:
 Global gg_menuwin = 0;
 
@@ -240,10 +237,6 @@ Replace DrawStatusLine;
 
 ! Sustituimos la rutina EncenderGraficos que aparece en Mapeador:
 Replace EncenderGraficos;
-
-! Para que el verbo se convierta en Entrar o Examinar dependiendo de si
-! es una localidad o no:
-!Replace ExaminarFalsoSub;
 
 ! Reemplazo de los puntos de entrada de Glulx:
 Replace HandleGlkEvent;
@@ -404,11 +397,9 @@ Include "Parser";
         ! - El jugador ya había tecleado algo (el input no era vacío)
         ! - El hyperlink pulsado no era un objeto, sino una cadena
         ! - El hyperlink era un objeto, pero no tenía menú asociado
-        obj = InputLink(obj);
-!        if (obj provides input_link) obj = obj.input_link;
         long = gg_event-->2;
         long = PrintAnyToArray(buffer + WORDSIZE + long,
-                               INPUT_BUFFER_LEN - WORDSIZE, obj);
+                               INPUT_BUFFER_LEN - WORDSIZE, InputLink(obj));
         buffer-->0 = long + gg_event-->2;
         ! Si ya había algo escrito, se entiende que el jugador quiere completar
         ! la entrada que estaba escribiendo, por lo que retornamos 1. Si no
@@ -422,7 +413,22 @@ Include "Parser";
                                  INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
           return 1;  ! Retornamos 1 para que el jugador pueda seguir tecleando 
         } else {
-          ExaminarFalso_mostrarInput = true;
+          glk_set_style(style_Input);
+          Tokenise__(buffer, parse);
+          ! Si en alguna parte hay una coma, se entiende que se está hablando
+          ! con un personaje o dándole una orden, por lo que no mostramos ve
+          ! ni ex:
+          for (r = WORDSIZE : r < parse-->0 + WORDSIZE : r++) {
+            if (parse-->r == ',//') jump Imprimir;
+          }
+          ! Si la primera palabra del buffer es un verbo, no mostramos ve ni ex:
+          if (LanguageIsVerb(buffer, parse, 1)) jump Imprimir;  
+          if (obj ofclass Lugar) print "ve ";
+          else                   print "ex ";
+        .Imprimir;
+          ImprimeTodoElBuffer(buffer);
+          glk_set_style(style_Normal);
+          new_line;
           return 2;  ! Retornamos 2 para que simule la pulsación de Intro
         }
       } ! if (ev-->1 == gg_mainwin or gg_statuswin)
@@ -2428,7 +2434,6 @@ Object Menu_Configuracion
 
 
 [ ApagarGraficos t;
-  ImprimirInput();
   hayGraficos = false;
   closeGraphicWindow();
   if (t) print (s_emph) "[Gráficos desactivados.]^";
@@ -2511,31 +2516,12 @@ Object Menu_Configuracion
 
 
 ! Esta versión de ExaminarFalsoSub convierte la acción en Entrar o
-! Examinar dependiendo de si el objeto de destino es una localidad o no.
-! Además tiene en cuenta si el objeto lleva asociado un menú de acciones y
-! dispara la que corresponda:
+! Examinar dependiendo de si el objeto de destino es una localidad o no:
 [ ExaminarFalsoSub;
   ! Si es el nombre de la localidad actual, la describimos:
-  if (noun == location) {
-    PrintOrRun(noun, description);
-    rtrue;
-  }
-
-  if (ExaminarFalso_mostrarInput) {
-    ExaminarFalso_mostrarInput = false;
-    glk_cancel_line_event(gg_mainwin, gg_event);
-    glk_set_style(style_Input);
-    if (noun ofclass Lugar) print "ve ";
-    else                    print "ex ";
-    PrintInputLink(noun);
-!    if (noun provides input_link) print (string) noun.input_link;
-!    else                          print (name) noun;
-    glk_set_style(style_Normal);
-    new_line;
-  }
-  
+  if (noun == location) { PrintOrRun(noun, description); rtrue; }
   if (noun ofclass Lugar) <<Enter noun>>;
-  else                    <<Examine noun>>;  
+  else                    <<Examine noun>>;
 ];
 
 
@@ -2593,19 +2579,7 @@ Object Menu_Configuracion
 [ Introduccion;
   clearMainWindow();
   viewImageCenter(Oscuridad_jpg);
-  
   InicioPrologo();
-];
-
-
-[ ImprimirInput;
-  if (ExaminarFalso_mostrarInput) {
-    ExaminarFalso_mostrarInput = false;
-    glk_set_style(style_Input);
-    ImprimeTodoElBuffer(buffer);
-    glk_set_style(style_Normal);
-    new_line;
-  }
 ];
 
 
@@ -2928,7 +2902,7 @@ Verb meta 'tt'
 [ AyudaSub;
   print "Prueba a pedir ayuda a alguien. Si necesitas pistas más elaboradas,
          puedes usar el sistema de pistas interactivas tecleando el comando ",
-         (link) "PISTAS", ".^";
+         (link_i) "PISTAS", ".^";
 ];
 
 
@@ -3057,7 +3031,6 @@ Verb meta 'tt'
 
 
 [ EncenderGraficosSub;
-  ImprimirInput();
   EncenderGraficos(true);
 ];
 
@@ -3092,28 +3065,24 @@ Verb meta 'tt'
 
 
 [ GraficosGrandesSub;
-  ImprimirInput();
   altoVentanaGrafica = GRAFICOS_GRANDES;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosMedianosSub;
-  ImprimirInput();
   altoVentanaGrafica = GRAFICOS_MEDIANOS;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosPequenosSub;
-  ImprimirInput();
   altoVentanaGrafica = GRAFICOS_PEQUENOS;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosSub;
-  ImprimirInput();
   print (s_emph) "[Por favor, usa la forma ~", (link_i) "GRAFICOS SI",
         (s_emph) "~ o ~", (link_i) "GRAFICOS NO", (s_emph) "~ para activar o
         desactivar, respectivamente, el uso de gráficos. También puedes
@@ -3145,7 +3114,6 @@ Verb meta 'tt'
 
 
 [ MusicaSub;
-  ImprimirInput();
   print (s_emph) "[Por favor, usa la forma ~", (link_i) "SONIDO FONDO SI",
         (s_emph) "~ o ~", (link_i) "SONIDO FONDO NO", (s_emph) "~ para activar
         o desactivar, respectivamente, el sonido de fondo.]^";
@@ -3153,7 +3121,6 @@ Verb meta 'tt'
 
 
 [ PistasNoSub;
-  ImprimirInput();
   switch (hayPistas) {
     2:       print (s_emph) "[Las pistas ya han sido desactivadas.]^";
     default: hayPistas = 2;
@@ -3164,7 +3131,6 @@ Verb meta 'tt'
 
 [ PistasSub
   v tlf tv fondo;
-  ImprimirInput();
   switch (hayPistas) {
     0: hayPistas = 1;
        print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es

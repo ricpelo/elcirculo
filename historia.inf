@@ -105,6 +105,7 @@ Object cocina_ruth "Cocina"
     name 'cocina',
     nombre_direccion "la cocina",
     description "La cocina de la casa.",
+    input_link "cocina",
     s_to salon_ruth,
     u_to pasillo_ruth;
 
@@ -116,6 +117,7 @@ Object cuarto_katie_ruth "Habitación de Katie"
     name_f 'habitacion',
     nombre_direccion "la habitación de Katie",
     description "La habitación de Katie.",
+    input_link "cuarto",
     out_to pasillo_ruth;
 
 
@@ -127,6 +129,7 @@ Object fuera_casa_ruth "Exteriores de la casa de Ruth"
     nombre_direccion "el exterior de la casa",
     nombre_destino "La casa de Ruth",
     description "Estas fuera de la casa de Ruth y Katie.",
+    input_link "exterior",
     in_to salon_ruth,
     s_to coche_rachel;
 
@@ -138,6 +141,7 @@ Object jardin_ruth "Jardín de la casa"
     name_f 'terraza',
     nombre_direccion "el jardín",
     description "El jardín de la casa.",
+    input_link "jardin",
     in_to salon_ruth;
     
 
@@ -147,6 +151,7 @@ Object pasillo_ruth "Pasillo superior"
     name 'pasillo',
     nombre_direccion "el pasillo superior",
     description "El pasillo superior.",
+    input_link "pasillo",
     d_to cocina_ruth,
     in_to cuarto_katie_ruth;
 
@@ -161,6 +166,7 @@ Object salon_ruth "Salón de la casa"
     out_to fuera_casa_ruth,
     e_to jardin_ruth,
     n_to cocina_ruth,
+    input_link "salon",
     each_turn [;
       if (aidan hasnt general && aidan in self) {
         give aidan general;

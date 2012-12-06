@@ -278,8 +278,8 @@ Replace StatusLineHeight;
 ! Para usar el menú de acciones:
 Replace YesOrNo;
 
-! Ponemos nuestra propia versión de ZIPI_RunMenu y ZIPI_RunOtro,
-! para el menú principal y las pistas:
+! Ponemos nuestra propias versiones de estas rutinas para nuestros menús:
+Replace ZIPI_PintaTitulo;
 Replace ZIPI_RunMenu;
 Replace ZIPI_RunOtro;
 Replace ZIPI_tecla;
@@ -1614,18 +1614,39 @@ Object timer_imagen_personaje
 ! ====================================================================
 
 
+[ ZIPI_PintaTitulo titulo anchura
+  j;
+  ZIPI_clrscr();
+  #ifdef TARGET_ZCODE;
+  @split_window 1;
+  #endif;
+  ZIPI_setwindow();
+  ZIPI_setcursor(1 + anchura, 1);
+  ZIPI_bold();
+  j = ZIPI_getwidth();
+  if (j == 0) j = 80;
+  ZIPI_spaces(j);
+  ZIPI_setcursor(2 + anchura, 1);
+  PrintOrRunVar(titulo, 1);
+!  if (titulo ofclass Routine) titulo();
+!  else print (string) titulo;
+  ZIPI_roman();
+];
+
+
 [ ZIPI_RunMenu _m top
-  i j count cur key dest r tec;
+  i j count cur key dest r tec anchura;
 
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
 
   for (::) {
-    ZIPI_PintaTitulo(_m.ZIPI_titulo);
+    anchura = ZIPI_getwidth() / 4;
+    ZIPI_PintaTitulo(_m.ZIPI_titulo, anchura);
 
     for (i = 0, tec = 0 : i < count - 2 : i++) {
       j = i + 3;
-      ZIPI_setcursor(5, j);
+      ZIPI_setcursor(5 + anchura, j);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
         glk_set_hyperlink(teclas_opciones-->tec);
         print "[";
@@ -1641,15 +1662,15 @@ Object timer_imagen_personaje
     }
 
     j = i + 4;
-    ZIPI_setcursor(5, j);
+    ZIPI_setcursor(5 + anchura, j);
     glk_set_hyperlink('Q');
     if (top) print (s_head) "[Q] Salir";
     else     print (s_head) "[Q] Volver";
     glk_set_hyperlink(0);
     j = cur + 3;
-    ZIPI_setcursor(2, j);
+    ZIPI_setcursor(2 + anchura, j);
     print (s_emph) ">";
-    ZIPI_setcursor(2, j);
+    ZIPI_setcursor(2 + anchura, j);
 
     key = ZIPI_tecla(gg_statuswin);
 

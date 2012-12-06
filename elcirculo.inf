@@ -323,18 +323,19 @@ Include "Parser";
           if (obj == Menu_Save) SaveSub();
           else                  RestoreSub();
           buffer-->0 = 0;
-          glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                 INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
           return 2; ! Se simula la pulsación de Intro con input vacío
         }
         long = PrintAnyToArray(buffer + WORDSIZE,
                                INPUT_BUFFER_LEN - WORDSIZE,
                                obj.ZIPI_ejecutar());
         buffer-->0 = long;
-        glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                               INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-        if (obj hasnt general) return 2; ! No seguimos escribiendo: Intro
-        else                   return 1; ! Seguimos escribiendo
+        if (obj has general) {
+          glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                 INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+          return 1; ! Seguimos escribiendo
+        } else {
+          return 2; ! No seguimos escribiendo: Intro
+        }
       }
 
       if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Principal o de estado
@@ -372,14 +373,16 @@ Include "Parser";
                                                 " ");                                          
                 }
                 buffer-->0 = long;
-                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                       INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-                if (r hasnt general) return 2; ! No seguimos escribiendo: Intro
-                else                 return 1; ! Seguimos escribiendo
+                if (r has general) {
+                  glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                         INPUT_BUFFER_LEN - WORDSIZE,
+                                         buffer-->0);
+                  return 1; ! Seguimos escribiendo
+                } else {
+                  return 2; ! No seguimos escribiendo: Intro
+                }
               } else { ! Si no se ha escogido ninguna opción del menú
                 buffer-->0 = 0;
-                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                       INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
                 return 2; ! Se simula la pulsación de Intro con input vacío
               }
             } else { ! El objeto no tiene un menú asociado
@@ -2895,8 +2898,6 @@ Verb meta 'tt'
   ControlTimer.PausarTick();
   fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
   ExtenderVentanaEstado();
-  ! Esto hace falta por si acaso entramos en el menú pulsando un hyperlink:
-  glk_cancel_line_event(gg_mainwin, gg_event);
   
   ZIPI_RunMenu(ZIPI_Configuracion, true);
   

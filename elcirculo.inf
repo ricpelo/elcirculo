@@ -2372,6 +2372,7 @@ Object Menu_Comunes
   with
     ZIPI_titulo "Principal",
     ZIPI_item
+      Menu_Ayuda
       Menu_Inventario
       Menu_Mapa
       Menu_Configuracion
@@ -2383,6 +2384,13 @@ Object Menu_Comunes
       Menu_Quit;
 
 
+Object Menu_Ayuda
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Ayuda",
+    ZIPI_ejecutar [; return "ayuda"; ];
+
+    
 Object Menu_Inventario
   class ZIPI_Otro
   with
@@ -2420,6 +2428,7 @@ Object Menu_Configuracion
 
 
 [ ApagarGraficos t;
+  ImprimirInput();
   hayGraficos = false;
   closeGraphicWindow();
   if (t) print (s_emph) "[Gráficos desactivados.]^";
@@ -2589,6 +2598,17 @@ Object Menu_Configuracion
 ];
 
 
+[ ImprimirInput;
+  if (ExaminarFalso_mostrarInput) {
+    ExaminarFalso_mostrarInput = false;
+    glk_set_style(style_Input);
+    ImprimeTodoElBuffer(buffer);
+    glk_set_style(style_Normal);
+    new_line;
+  }
+];
+
+
 [ ImprimirPrompt;
   if (player ~= selfobj) {
     glk_set_style(style_User1);
@@ -2619,6 +2639,13 @@ Object Menu_Configuracion
   else if (obj provides nombre_link) print (string) obj.nombre_link;
   else                               PrintInputLink(obj);
   glk_set_hyperlink(0);
+];
+
+
+[ link_i obj msg;
+  glk_set_style(style_Input);
+  link(obj, msg);
+  glk_set_style(style_Normal);
 ];
 
 
@@ -2901,7 +2928,7 @@ Verb meta 'tt'
 [ AyudaSub;
   print "Prueba a pedir ayuda a alguien. Si necesitas pistas más elaboradas,
          puedes usar el sistema de pistas interactivas tecleando el comando ",
-         (s_input) "PISTAS", ".^";
+         (link) "PISTAS", ".^";
 ];
 
 
@@ -3030,6 +3057,7 @@ Verb meta 'tt'
 
 
 [ EncenderGraficosSub;
+  ImprimirInput();
   EncenderGraficos(true);
 ];
 
@@ -3064,31 +3092,35 @@ Verb meta 'tt'
 
 
 [ GraficosGrandesSub;
+  ImprimirInput();
   altoVentanaGrafica = GRAFICOS_GRANDES;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosMedianosSub;
+  ImprimirInput();
   altoVentanaGrafica = GRAFICOS_MEDIANOS;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosPequenosSub;
+  ImprimirInput();
   altoVentanaGrafica = GRAFICOS_PEQUENOS;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosSub;
-  print (s_emph) "[Por favor, usa la forma ~", (s_input) "GRAFICOS SI",
-        (s_emph) "~ o ~", (s_input) "GRAFICOS NO", (s_emph) "~ para activar o
+  ImprimirInput();
+  print (s_emph) "[Por favor, usa la forma ~", (link_i) "GRAFICOS SI",
+        (s_emph) "~ o ~", (link_i) "GRAFICOS NO", (s_emph) "~ para activar o
         desactivar, respectivamente, el uso de gráficos. También puedes
         cambiar el tamaño de la ventana gráfica usando ~",
-        (s_input) "GRAFICOS PEQUEÑOS", (s_emph) "~, ~",
-        (s_input) "GRAFICOS MEDIANOS", (s_emph) "~ o ~",
-        (s_input) "GRAFICOS GRANDES", (s_emph) "~.]^";
+        (link_i) "GRAFICOS PEQUEÑOS", (s_emph) "~, ~",
+        (link_i) "GRAFICOS MEDIANOS", (s_emph) "~ o ~",
+        (link_i) "GRAFICOS GRANDES", (s_emph) "~.]^";
 ];
 
 
@@ -3113,13 +3145,15 @@ Verb meta 'tt'
 
 
 [ MusicaSub;
-  print (s_emph) "[Por favor, usa la forma ~", (s_input) "SONIDO FONDO SI",
-        (s_emph) "~ o ~", (s_input) "SONIDO FONDO NO", (s_emph) "~ para activar
+  ImprimirInput();
+  print (s_emph) "[Por favor, usa la forma ~", (link_i) "SONIDO FONDO SI",
+        (s_emph) "~ o ~", (link_i) "SONIDO FONDO NO", (s_emph) "~ para activar
         o desactivar, respectivamente, el sonido de fondo.]^";
 ];
 
 
 [ PistasNoSub;
+  ImprimirInput();
   switch (hayPistas) {
     2:       print (s_emph) "[Las pistas ya han sido desactivadas.]^";
     default: hayPistas = 2;
@@ -3130,14 +3164,15 @@ Verb meta 'tt'
 
 [ PistasSub
   v tlf tv fondo;
+  ImprimirInput();
   switch (hayPistas) {
     0: hayPistas = 1;
        print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
              a veces tan fuerte que se suelen obtener pistas prematuramente.
              Por tanto, en cualquier momento durante el juego puedes poner ",
-             (s_input) "PISTAS NO", (s_emph) ", y eso te impedirá obtener ayuda
+             (link_i) "PISTAS NO", (s_emph) ", y eso te impedirá obtener ayuda
              en la sesión de juego actual. Si sigues queriendo una pista, pon ",
-             (s_input) "PISTAS", (s_emph) " otra vez.]^";
+             (link_i) "PISTAS", (s_emph) " otra vez.]^";
     1: ControlTimer.PausarTick();
        if (hayGraficos) {
          ApagarGraficos();
@@ -3170,11 +3205,12 @@ Verb meta 'tt'
        }
        AbrirVentanaMenu();
        StatusLineHeight(1);
+       MostrarMenuComunes();
        glk_set_window(gg_mainwin);
        if (hayGraficos) EncenderGraficos();
-       clearTextWindow();
+!       clearTextWindow();
        ControlTimer.ReanudarTick();
-       <<Look>>;
+!       <<Look>>;
     2: print (s_emph) "[Las pistas han sido desactivadas.]^";
   }
 ];

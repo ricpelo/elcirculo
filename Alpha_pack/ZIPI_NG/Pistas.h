@@ -324,15 +324,15 @@ with
   ];
 
 
-[ ZIPI_Intro;
-  print "Desplázate con las flechas del cursor. Pulsa ", (s_input) "Enter", " para seleccionar, ", (s_input) "P", " para continuar, o ", (s_input) "Q", " para salir.";
-];
+![ ZIPI_Intro;
+!  print "Desplázate con las flechas del cursor. Pulsa ", (s_input) "Enter", " para seleccionar, ", (s_input) "P", " para continuar, o ", (s_input) "Q", " para salir.";
+!];
 
 
 [ ZIPI_Empezar ;
 !  ZIPI_InitGlk();
-  clearMainWindow();
-  ZIPI_Intro();
+!  clearMainWindow();
+!  ZIPI_Intro();
 !  barra_estado.numero_lineas = 26;
 !  barra_estado.dibujar();
   ZIPI_RunMenu(ZIPI_Menu0, true);

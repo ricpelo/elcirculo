@@ -383,6 +383,10 @@ Include "Parser";
                 glk_set_style(style_Input);
                 print "ve "; PrintInputLink(obj); new_line;
                 glk_set_style(style_Normal);
+                long = PrintAnyToArray(buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE, obj);
+                buffer-->0 = long;
+                return 2;
               } else if (obj == location) { ! Si es el nombre de la localidad
                 print (s_input) "mira ", "^";
                 long = PrintAnyToArray(buffer + WORDSIZE,

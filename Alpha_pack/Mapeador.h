@@ -241,7 +241,7 @@ Verb meta 'mapa'
 
 [ RefrescarMapa sitio cenx ceny
   o;
-  clearMainWindow();
+!  clearMainWindow();
   if (sitio provides sgw_img) drawImageSGW(gg_bigwin, sitio.sgw_img, POS_CENTRADO,
                                            BORDEWIN, BORDEWIN);
   glk_window_get_size(gg_mapawin, gg_arguments, gg_arguments + WORDSIZE);
@@ -323,10 +323,13 @@ Verb meta 'mapa'
   gg_menuwin = 0;
   if (gg_bigwin ~= 0) glk_window_close(gg_bigwin, 0);
   gg_bigwin = glk_window_open(gg_mainwin,
-                              winmethod_Above + winmethod_Proportional,
+                              winmethod_Above + winmethod_Proportional +
+                              winmethod_NoBorder,
                               35, wintype_Graphics, GG_BIGWIN_ROCK);
   if (gg_mapawin ~= 0) glk_window_close(gg_mapawin, 0);
-  gg_mapawin = glk_window_open(gg_mainwin, winmethod_Above + winmethod_Proportional,
+  gg_mapawin = glk_window_open(gg_mainwin,
+                               winmethod_Above + winmethod_Proportional +
+                               winmethod_NoBorder,
                                100, wintype_Graphics, GG_MAPAWIN_ROCK);
   if (gg_mapawin == 0) return;
   glk_window_set_background_color(gg_mapawin, SCBACK);

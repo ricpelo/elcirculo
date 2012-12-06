@@ -2874,6 +2874,8 @@ Verb meta 'tt'
   ControlTimer.PausarTick();
   fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
   ExtenderVentanaEstado();
+  ! Esto hace falta por si acaso entramos en el menú pulsando un hyperlink:
+  glk_cancel_line_event(gg_mainwin, gg_event);
   
   ZIPI_RunMenu(ZIPI_Configuracion, true);
   

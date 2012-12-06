@@ -42,7 +42,7 @@ Object cuarto_katie "Tu habitación"
   with
     name_m 'cuarto',
     name_f 'habitacion',
-    input_link "habitacion",
+!    input_link "habitacion",
     nombre_direccion "tu habitación",
     adjectives 'tu',
     description [;
@@ -100,7 +100,7 @@ Object cocina_katie "Cocina"
   class LugarCasaKatie
   with
     name 'cocina',
-    input_link "cocina",
+!    input_link "cocina",
     nombre_direccion "la cocina",
     description "La cocina, sobria y funcional, es el núcleo central del
                  piso inferior, el distribuidor por el que llegar a los
@@ -180,7 +180,7 @@ Object pasillo_katie "Pasillo del piso superior"
   class LugarCasaKatie
   with
     name 'pasillo',
-    input_link "pasillo",
+!    input_link "pasillo",
     nombre_direccion "el pasillo",
     description [;
       print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
@@ -235,7 +235,7 @@ Object salon_katie "Salón"
   class LugarCasaKatie
   with
     name 'salon' 'salita' 'sala',
-    input_link "salon",
+!    input_link "salon",
     nombre_direccion "el salón",
     description "El salón de tu casa está claramente dominado por un televisor
                  de gran tamaño situado sobre una mesa en la pared frontal.
@@ -582,7 +582,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     name_f 'tv' 'television' 'tele' 'pantalla',
     name_m 'televisor',
     nombre_link "televisor",  ! No hace falta, porque vale igual que input_link
-    input_link "televisor",
+!    input_link "televisor",
     ZIPI_item
       Menu_Examinar
       Menu_AbrirCon
@@ -821,7 +821,8 @@ Object becca "Becca" cuarto_katie
                  verdes, y de carácter un tanto rebelde. Compañeras de
                  Instituto que sois, lleva puesto el mismo uniforme que tú.",
     initial "^Junto a ti está Becca.",
-    input_link "Becca",
+    nombre_link "Becca",
+!    input_link "Becca",
     imagen Becca_jpg,
     describe [;
       switch (random(3)) {

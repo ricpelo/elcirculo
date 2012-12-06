@@ -348,8 +348,8 @@ Include "Parser";
                 glk_cancel_line_event(gg_mainwin, gg_event);
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
                   glk_set_style(style_Input);
-                  print (address) r.ZIPI_ejecutar(), " ",
-                        (string) obj.input_link, "^";
+                  print (address) r.ZIPI_ejecutar(), " "; PrintInputLink(obj);
+                  new_line;
                   glk_set_style(style_Normal);
                 }
                 long = PrintAnyToArray(buffer + WORDSIZE,
@@ -360,7 +360,7 @@ Include "Parser";
                                               " ");              ! Un espacio
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
-                                              obj.input_link);   ! El objeto
+                                              InputLink(obj));   ! El objeto
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
                                               " ");              ! Un espacio
@@ -386,8 +386,10 @@ Include "Parser";
                 return 2; ! Se simula la pulsación de Intro con input vacío
               }
             } else { ! El objeto no tiene un menú asociado
-              if (obj in Compass) { ! ¿Es un punto cardinal? Mostrar la orden 
-                print (s_input) "ve ", (s_input) obj.input_link, "^";
+              if (obj in Compass) { ! ¿Es un punto cardinal? Mostrar la orden
+                glk_set_style(style_Input);
+                print "ve "; PrintInputLink(obj); new_line;
+                glk_set_style(style_Normal);
               } else if (obj == location) { ! Si es el nombre de la localidad
                 print (s_input) "mira ", "^";
                 long = PrintAnyToArray(buffer + WORDSIZE,
@@ -402,7 +404,8 @@ Include "Parser";
         ! - El jugador ya había tecleado algo (el input no era vacío)
         ! - El hyperlink pulsado no era un objeto, sino una cadena
         ! - El hyperlink era un objeto, pero no tenía menú asociado
-        if (obj provides input_link) obj = obj.input_link;
+        obj = InputLink(obj);
+!        if (obj provides input_link) obj = obj.input_link;
         long = gg_event-->2;
         long = PrintAnyToArray(buffer + WORDSIZE + long,
                                INPUT_BUFFER_LEN - WORDSIZE, obj);
@@ -2117,9 +2120,9 @@ Object ZIPI_Tiempo_Real
       glk_set_style(style_Input);
       print " ", (string) _m.ZIPI_titulo, "^";
       glk_set_style(style_Normal);
-    } else if (_m provides input_link) {
+    } else { ! if (_m provides input_link) {
       glk_set_style(style_Input);
-      print " ", (string) _m.input_link, ":^";
+      print " "; PrintInputLink(_m); print ":^";
       glk_set_style(style_Normal);
     }
 
@@ -2515,8 +2518,9 @@ Object Menu_Configuracion
     glk_set_style(style_Input);
     if (noun ofclass Lugar) print "ve ";
     else                    print "ex ";
-    if (noun provides input_link) print (string) noun.input_link;
-    else                          print (name) noun;
+    PrintInputLink(noun);
+!    if (noun provides input_link) print (string) noun.input_link;
+!    else                          print (name) noun;
     glk_set_style(style_Normal);
     new_line;
   }
@@ -2532,6 +2536,7 @@ Object Menu_Configuracion
                              winmethod_Above + winmethod_Proportional +
                              winmethod_NoBorder, por, 0);
 ];
+
 
 [ IniciarGraficosSonidos;
   if (glk_gestalt(gestalt_AlphaAventuras, 0) == 0) {
@@ -2595,12 +2600,24 @@ Object Menu_Configuracion
 ];
 
 
+[ InputLink obj;
+  if (obj ofclass String)      return obj;
+  if (obj ofclass Routine)     return obj();
+  if (obj provides input_link) return obj.input_link;
+  if (obj provides name)       return obj.&name-->0;
+  if (obj provides name_m)     return obj.&name_m-->0;
+  if (obj provides name_f)     return obj.&name_f-->0;
+  if (obj provides name_mp)    return obj.&name_mp-->0;
+  if (obj provides name_fp)    return obj.&name_fp-->0;
+];
+
+
 [ link obj msg;
   glk_set_hyperlink(obj);
   if (msg ~= 0) print (string) msg;
+  else if (~~(obj ofclass Object))   print (string) obj;
   else if (obj provides nombre_link) print (string) obj.nombre_link;
-  else if (obj provides input_link)  print (string) obj.input_link;
-  else                               print (string) obj;
+  else                               PrintInputLink(obj);
   glk_set_hyperlink(0);
 ];
 
@@ -2687,6 +2704,21 @@ Object Menu_Configuracion
 !  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
 !  gg_objwin = 0;
   MostrarImagenLocalidad();
+];
+
+
+[ PrintInputLink obj
+  il;
+  if (obj ofclass String)             print (string) obj;
+  else if (obj ofclass Routine)       print (string) obj();
+  else if (obj provides input_link) { il = obj.input_link;
+                                      PrintAnything(il); }
+  else if (obj provides name)         print (address) obj.&name-->0;
+  else if (obj provides name_m)       print (address) obj.&name_m-->0;
+  else if (obj provides name_f)       print (address) obj.&name_f-->0;
+  else if (obj provides name_mp)      print (address) obj.&name_mp-->0;
+  else if (obj provides name_fp)      print (address) obj.&name_fp-->0;
+  else                                PrintAnything(obj);
 ];
 
 

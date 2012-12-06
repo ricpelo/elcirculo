@@ -303,11 +303,15 @@ Include "Parser";
 
       if (ev-->1 == gg_menuwin) {
         glk_cancel_line_event(gg_mainwin, gg_event);
-        if (obj hasnt general) {    ! Si no hay que continuar escribiendo
-          glk_set_style(style_Input);
-          PrintAnything(obj.ZIPI_ejecutar);
-          new_line;
-          glk_set_style(style_Normal);
+        ! Guardar y restaurar son dos acciones que, no sé por qué, muestran
+        ! ellas solas el comando, así que no lo mostramos nosotros:
+        if (~~(obj == Menu_Save or Menu_Restore)) {
+          if (obj hasnt general) {    ! Si no hay que continuar escribiendo
+            glk_set_style(style_Input);
+            PrintAnything(obj.ZIPI_ejecutar());
+            new_line;
+            glk_set_style(style_Normal);
+          }
         }
         long = PrintAnyToArray(buffer + WORDSIZE,
                                INPUT_BUFFER_LEN - WORDSIZE,
@@ -416,7 +420,10 @@ Include "Parser";
   Damusix.IdentificarSonidos(fase);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
   Conversa_IdentifyGlkObject(fase, tipo, ref, rock);
-  if (fase == 2) ControlTimer.ReactivarTick();
+  if (fase == 2) {
+    ControlTimer.ReactivarTick();
+    ZIPI_Mostrar_Hyperlinks.ZIPI_restaurar();
+  }
 ];
 
 
@@ -1869,7 +1876,7 @@ Object ZIPI_Menu_Principal
     ZIPI_item
       ZIPI_Jugar_Con_Intro
       ZIPI_Jugar_Sin_Intro
-      ZIPI_Restaurar
+      ZIPI_Restaurar_Partida
       ZIPI_Configuracion
       ZIPI_Separador
       ZIPI_Menu1;
@@ -1879,26 +1886,29 @@ Object ZIPI_Mostrar_Hyperlinks
   class ZIPI_Otro
   with
     mostrarLink true,
-    colorLink 0,
+    colorLink $a1d0fc,
     ZIPI_titulo [;
       if (self.mostrarLink) "Mostrar hipervínculos: SÍ (recomendado)";
       else                  "Mostrar hipervínculos: NO";
     ],
-    ZIPI_cambiar [ c;
+    ZIPI_restaurar [
+      c;
       if (self.mostrarLink) {
-        self.mostrarLink = false;
+        glk_set_config(config_LinkColor, self.colorLink);
+      } else {
         self.colorLink = glk_get_config(config_LinkColor);
-        c = glk_window_stylehint_get(gg_statuswin, style_Normal,
+        c = glk_window_stylehint_get(gg_mainwin, style_Normal,
                                      stylehint_TextColor);
         glk_set_config(config_LinkColor, c);
-      } else {
-        self.mostrarLink = true;
-        glk_set_config(config_LinkColor, self.colorLink);
       }
+    ],
+    ZIPI_cambiar [;
+      self.mostrarLink = ~~(self.mostrarLink);
+      self.ZIPI_restaurar();
     ];
 
 
-Object ZIPI_Restaurar
+Object ZIPI_Restaurar_Partida
   class ZIPI_Otro
   with
     ZIPI_titulo "Restaurar una partida guardada",
@@ -1929,9 +1939,7 @@ Object ZIPI_Salir
   class ZIPI_Otro
   with
     ZIPI_titulo "Salir",
-    ZIPI_ejecutar [;
-      quit;
-    ];
+    ZIPI_ejecutar [; quit; ];
 
 
 Object ZIPI_Sonido
@@ -1957,11 +1965,8 @@ Object ZIPI_Sonido_Fondo
     ],
     ZIPI_cambiar [;
       haySonidoFondo = ~~haySonidoFondo;
-      if (haySonidoFondo) {
-        Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
-      } else {
-        Damusix.VolumenCanal(CANAL_FONDO, 0);
-      } 
+      if (haySonidoFondo) Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
+      else                Damusix.VolumenCanal(CANAL_FONDO, 0);
     ];
 
 
@@ -1997,8 +2002,13 @@ Object ZIPI_Tiempo_Real
       if (hayTiempoReal) "Tiempo real: SÍ (recomendado)";
       else               "Tiempo real: NO";
     ],
+    ZIPI_restaurar [;
+      if (hayTiempoReal) ControlTimer.ActivarTick(TIMER_TICK);
+      else               ControlTimer.DesactivarTick();
+    ],
     ZIPI_cambiar [;
       hayTiempoReal = ~~hayTiempoReal;
+!      self.ZIPI_restaurar();
     ];
 
 
@@ -2255,6 +2265,13 @@ Object Menu_Restore
     ZIPI_ejecutar [; return RESTORE__WD; ];
 
 
+Object Menu_Save
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Guardar",
+    ZIPI_ejecutar [; return "guardar"; ];
+
+
 Object Menu_Undo
   class ZIPI_Otro
   with
@@ -2292,8 +2309,10 @@ Object Menu_Comunes
       Menu_Inventario
       Menu_Mapa
       Menu_Configuracion
-      Menu_Restart
+      ZIPI_Separador
+      Menu_Save
       Menu_Restore
+      Menu_Restart
       Menu_Quit;
 
 
@@ -2556,18 +2575,21 @@ Object Menu_Configuracion
 ];
 
 
-[ MostrarMenuComunes
+[ MostrarMenuComunes menu
   i o;
   glk_set_window(gg_menuwin);
   glk_window_clear(gg_menuwin);
   glk_request_hyperlink_event(gg_menuwin);
   new_line;
-  for (i = 0 : i < Menu_Comunes.#ZIPI_item / WORDSIZE : i++) {
-    o = Menu_Comunes.&ZIPI_item-->i;
-    print " - ";
-    glk_set_hyperlink(o);
-    print (string) o.ZIPI_titulo;
-    glk_set_hyperlink(0);
+  if (menu == 0) menu = Menu_Comunes;
+  for (i = 0 : i < menu.#ZIPI_item / WORDSIZE : i++) {
+    o = menu.&ZIPI_item-->i;
+    if (o ~= ZIPI_Separador) {
+      print " - ";
+      glk_set_hyperlink(o);
+      print (string) o.ZIPI_titulo;
+      glk_set_hyperlink(0);
+    }
     new_line;
   }
   glk_set_window(gg_mainwin);

@@ -303,15 +303,21 @@ Include "Parser";
 
       if (ev-->1 == gg_menuwin) {
         glk_cancel_line_event(gg_mainwin, gg_event);
-        ! Guardar y restaurar son dos acciones que, no sé por qué, muestran
-        ! ellas solas el comando, así que no lo mostramos nosotros:
-        if (~~(obj == Menu_Save or Menu_Restore)) {
-          if (obj hasnt general) {    ! Si no hay que continuar escribiendo
-            glk_set_style(style_Input);
-            PrintAnything(obj.ZIPI_ejecutar());
-            new_line;
-            glk_set_style(style_Normal);
-          }
+        if (obj hasnt general) {    ! Si no hay que continuar escribiendo
+          glk_set_style(style_Input);
+          PrintAnything(obj.ZIPI_ejecutar());
+          new_line;
+          glk_set_style(style_Normal);
+        }
+        ! Los casos de save y restore hay que tratarlos aparte, porque tienden
+        ! a repetir el input del jugador en pantalla, no sé por qué:
+        if (obj == Menu_Save or Menu_Restore) {
+          if (obj == Menu_Save) SaveSub();
+          else                  RestoreSub();
+          buffer-->0 = 0;
+          glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                 INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+          return 2; ! Se simula la pulsación de Intro con input vacío
         }
         long = PrintAnyToArray(buffer + WORDSIZE,
                                INPUT_BUFFER_LEN - WORDSIZE,
@@ -2304,7 +2310,7 @@ Object Menu_Quit
 Object Menu_Comunes
   class ZIPI_Menu
   with
-    ZIPI_titulo "",
+    ZIPI_titulo "Principal",
     ZIPI_item
       Menu_Inventario
       Menu_Mapa
@@ -2312,6 +2318,7 @@ Object Menu_Comunes
       ZIPI_Separador
       Menu_Save
       Menu_Restore
+      ZIPI_Separador
       Menu_Restart
       Menu_Quit;
 

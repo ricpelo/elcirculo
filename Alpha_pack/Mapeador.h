@@ -237,7 +237,7 @@ Verb meta 'mapa'
         glk_window_fill_rect(gg_mapawin, MAPA_COLOR_DENTRO_FUERA, posx - mitad / 2 + x,
                              posy - x, 1, 1);
       }
-    }    
+    }
   }
 ];
 

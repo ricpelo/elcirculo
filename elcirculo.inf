@@ -1829,12 +1829,7 @@ Object ZIPI_Aumentar_Texto
     ZIPI_cambiar [;
       glk_incr_fontsize();
       ZIPI_Configuracion.guardar_valores();
-      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments, gg_arguments + WORDSIZE,
-                                 gg_arguments + 2 * WORDSIZE);
-      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments-->0, gg_arguments-->1,
-                                 gg_arguments-->2);
+      RefrescarVentanasTexto();
       ! Esto sólo se ve en el menú principal, porque durante el juego
       ! el menú de configuración ocupa toda la pantalla, y luego
       ! restauramos el gráfico de la localidad actual:
@@ -1861,12 +1856,7 @@ Object ZIPI_Configuracion
       glk_set_config(config_PropSize, self.propsize);
       glk_set_config(config_Leading,  self.leading);
       glk_set_config(config_Baseline, self.baseline);
-      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments, gg_arguments + WORDSIZE,
-                                 gg_arguments + 2 * WORDSIZE);
-      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments-->0, gg_arguments-->1,
-                                 gg_arguments-->2);
+      RefrescarVentanasTexto();
     ],
     ZIPI_item
       ZIPI_Graficos
@@ -1887,12 +1877,7 @@ Object ZIPI_Disminuir_Texto
     ZIPI_cambiar [;
       glk_decr_fontsize();
       ZIPI_Configuracion.guardar_valores();
-      glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments, gg_arguments + WORDSIZE,
-                                 gg_arguments + 2 * WORDSIZE);
-      glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
-                                 gg_arguments-->0, gg_arguments-->1,
-                                 gg_arguments-->2);
+      RefrescarVentanasTexto();
       ! Esto sólo se ve en el menú principal, porque durante el juego
       ! el menú de configuración ocupa toda la pantalla, y luego
       ! restauramos el gráfico de la localidad actual:
@@ -2736,6 +2721,16 @@ Object Menu_Configuracion
          (s_pref) "http://code.google.com/p/garglk/downloads^";
   KeyDelay();
   quit;
+];
+
+
+[ RefrescarVentanasTexto;
+  glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+                             gg_arguments, gg_arguments + WORDSIZE,
+                             gg_arguments + 2 * WORDSIZE);
+  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+                             gg_arguments-->0, gg_arguments-->1,
+                             gg_arguments-->2);
 ];
 
 

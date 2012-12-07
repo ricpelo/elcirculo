@@ -1967,7 +1967,7 @@ Object ZIPI_Mostrar_Hyperlinks
     ],
     ZIPI_cambiar [;
       self.mostrarLink = ~~(self.mostrarLink);
-      self.ZIPI_restaurar();
+      self.restaurar_valores();
     ];
 
 

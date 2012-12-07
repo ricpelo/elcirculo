@@ -114,6 +114,8 @@ Constant INICIAL_BASELINE = 17;
 Constant LAYOUT_MENU_PRINCIPAL = 0; ! Distribución en el menú principal
 Constant LAYOUT_JUEGO = 1;          ! Distribución durante el juego
 
+Constant MAPA_COLOR_BORDE = COLOR_HYPERLINK;
+
 ! Tamaños para arrays relacionados con el menú de acciones:
 Constant MAXIMO_OPCIONES = 100;         ! Número máximo de opciones en el array
 Constant MAXIMO_TECLAS_OPCIONES = 30;   ! Número de teclas de acceso directo
@@ -3200,12 +3202,29 @@ Verb meta 'tt'
 
 
 [ SaludarSub;
-!  glk_window_stylehint_set(gg_mainwin, style_Normal,
-!                           stylehint_TextColor, $ff0000);
-!  x = glk_get_config(config_LinkColor);
-!  glk_set_config(config_Linkcolor, $ffffff);
-!  KeyDelay();
-!  glk_set_config(config_LinkColor, x);
+!  i c;
+!  glk_set_config(config_LinkColor,
+!                 glk_window_stylehint_get(gg_mainwin, style_Normal,
+!                                          stylehint_TextColor));
+!  glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+!                             gg_arguments, gg_arguments + WORDSIZE,
+!                             gg_arguments + 2 * WORDSIZE);
+!  glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+!                             gg_arguments-->0, gg_arguments-->1,
+!                             gg_arguments-->2);
+!  for (i = 255 : i >= 0 : i = i - 15) {
+!    c = i * 65536 + i * 256 + i;
+!    glk_window_stylehint_set(gg_mainwin, style_Normal,
+!                                         stylehint_TextColor, c);
+!    glk_set_config(config_LinkColor, c);
+!    glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
+!                               gg_arguments, gg_arguments + WORDSIZE,
+!                               gg_arguments + 2 * WORDSIZE);
+!    glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
+!                               gg_arguments-->0, gg_arguments-->1,
+!                               gg_arguments-->2);
+!    WaitDelay(1);
+!  }
   "Saludas cordialmente.";
 ];
 

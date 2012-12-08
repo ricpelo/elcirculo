@@ -2203,15 +2203,13 @@ Object MenuAcciones
               glk_set_style(style_Header);
               if (tec < MAXIMO_TECLAS_OPCIONES) {
                 print (char) teclasOpciones-->tec;
+                numeroOpciones->tec = i;
+                tec++;
               } else {
                 print " ";
               }
               glk_set_style(style_Normal);
               print "] ";
-              if (tec < MAXIMO_TECLAS_OPCIONES) {
-                numeroOpciones->tec = i;
-                tec++;
-              }
             }
             PrintOrRun(opc, ZIPI_titulo);
             glk_set_hyperlink(0);

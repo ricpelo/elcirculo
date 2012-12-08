@@ -1075,6 +1075,15 @@ Constant config_Leading     10;
   return ret;
 ];
 
+! Obliga a saltarse todo el scroll de la ventana de texto:
+[ glk_window_noscroll _vararg_count ret;
+  ! glk_window_get_char (win)
+  ! And now the @glk call
+  @glk $FFF6 _vararg_count ret;
+  return ret;
+];
+
+
 ! ====================================================================
 ! FIN DE LAS EXTENSIONES DE ALPHA AVENTURAS
 ! ====================================================================

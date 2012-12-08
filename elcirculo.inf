@@ -1474,7 +1474,8 @@ Class Personaje
       if (parse_input_externo == -1) parse_input_externo = 1;
       self.select(q);
       glk_set_window(gg_mainwin);
-      glk_cancel_line_event(gg_mainwin, gg_event);
+      glk_window_noscroll(gg_mainwin);
+!      glk_cancel_line_event(gg_mainwin, gg_event);
       glk_window_close(gg_conversawin, 0);
       gg_conversawin = 0;
 !      glk_set_config(config_WPaddingY, 0);
@@ -2958,7 +2959,7 @@ Verb meta 'tt'
   }
   StatusLineHeight(1);
   MenuAcciones.MostrarComunes();
-  glk_set_window(gg_mainwin);
+  glk_window_noscroll(gg_mainwin);
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
   ControlTimer.ReanudarTick();
@@ -3160,7 +3161,6 @@ Verb meta 'tt'
          ApagarGraficos();
          hayGraficos = true;
        }
-       MenuAcciones.CerrarVentana();
        ExtenderVentanaEstado();
        tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
        Damusix.PararCanal(CANAL_TELEFONO);
@@ -3185,10 +3185,10 @@ Verb meta 'tt'
          Damusix.PararCanal(CANAL_FONDO);
        }
        StatusLineHeight(1);
-       MenuAcciones.AbrirVentana();
-       glk_set_window(gg_mainwin);
+       MenuAcciones.MostrarComunes();
        if (hayGraficos) EncenderGraficos();
        ControlTimer.ReanudarTick();
+       glk_window_noscroll(gg_mainwin);
     2: print (s_emph) "[Las pistas han sido desactivadas.]^";
   }
 ];

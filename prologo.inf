@@ -547,7 +547,6 @@ Object telefono_katie "teléfono" cocina_katie
       katie.habla("¿BECCA?", true);
       print " ---gritas esta vez, sacando fuerzas del miedo.^^";
       print_ret (s_emph) "No hay respuesta.";
-!      print (s_user1) "¿Becca?");
     ],
     before [;
       Take, Descolgar:
@@ -1175,7 +1174,7 @@ Object tema_becca_tv "el televisor" TemasBecca
   Damusix.PararCanal(CANAL_TV_SALON);
   barra_estado.numero_lineas = 1;
   barra_estado.dibujar();
-  deadflag = 2;
+  BanderaFin(2);
 !  InicioHistoria();
 ];
 

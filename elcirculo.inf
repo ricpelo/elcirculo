@@ -87,7 +87,7 @@ Constant GRAFICOS_PEQUENOS   = 250;
 Constant GRAFICOS_MEDIANOS   = 350;
 Constant GRAFICOS_GRANDES    = 450;
 
-! Constantes de gtalk.h:
+!Constantes de gtalk.h:
 !Constant GT_SELECT       = "Selecciona una opción ";
 !Constant GT_WOULDLIKE    = "^¿Qué vas a decir?^";
 Constant GT_NOQUIP       = "^No se te ocurre nada más que decir.^";
@@ -1072,7 +1072,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
 
   ChangePlayer(katie);
-!  move uniforme_katie to katie;
 
   IniciarMoviles();
   IniciarPuertas();
@@ -1479,7 +1478,6 @@ Class Personaje
       self.select(q);
       glk_set_window(gg_mainwin);
       glk_window_noscroll(gg_mainwin);
-!      glk_cancel_line_event(gg_mainwin, gg_event);
       glk_window_close(gg_conversawin, 0);
       gg_conversawin = 0;
 !      glk_set_config(config_WPaddingY, 0);
@@ -1540,6 +1538,7 @@ Class Sonido
       self.parar_sonido();
     ],    
     quitar [;
+      self.parar();
       remove self;
       give self absent;
     ],
@@ -1619,8 +1618,6 @@ Object timer_imagen_personaje
   ZIPI_spaces(j);
   ZIPI_setcursor(2 + anchura, 1);
   PrintOrRunVar(titulo, 1);
-!  if (titulo ofclass Routine) titulo();
-!  else print (string) titulo;
   ZIPI_roman();
 ];
 
@@ -2083,8 +2080,6 @@ Object MenuAcciones
         if (layoutPantalla == LAYOUT_MENU_PRINCIPAL) {
           if (gg_menuwin) {
             MenuAcciones.CerrarVentana();
-!            glk_window_close(gg_menuwin, 0);
-!            gg_menuwin = 0;
           }
         } else { ! layoutPantalla == LAYOUT_JUEGO
           MenuAcciones.AbrirVentana();
@@ -2183,7 +2178,7 @@ Object MenuAcciones
           glk_set_style(style_Input);
           print " ", (string) _m.ZIPI_titulo, "^";
           glk_set_style(style_Normal);
-        } else { ! if (_m provides input_link) {
+        } else {
           glk_set_style(style_Input);
           print " "; PrintInputLink(_m); print ":^";
           glk_set_style(style_Normal);

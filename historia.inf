@@ -496,10 +496,6 @@ Object tema_ruth_cajon "el cajón del escritorio de Katie" TemasRuth
   Damusix.PararTodo();
   ControlTimer.Resetear();
 
-!  remove sonido_telefono_katie;  give sonido_telefono_katie  absent;
-!  remove sonido_tv_cuarto_katie; give sonido_tv_cuarto_katie absent;
-!  remove sonido_tv_salon_katie;  give sonido_tv_salon_katie  absent;
-
   sonido_telefono_katie.quitar();
   sonido_tv_cuarto_katie.quitar();
   sonido_tv_salon_katie.quitar();

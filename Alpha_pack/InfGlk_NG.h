@@ -1035,11 +1035,13 @@ Constant config_LinkColor   0;
 Constant config_BorderColor 1;
 Constant config_WBorderX    2;
 Constant config_WBorderY    3;
-Constant config_LinkStyle   4;
-Constant config_MonoSize    5;
-Constant config_PropSize    6;
-Constant config_Baseline    7;
-Constant config_Leading     8;
+Constant config_WPaddingX   4;
+Constant config_WPaddingY   5;
+Constant config_LinkStyle   6;
+Constant config_MonoSize    7;
+Constant config_PropSize    8;
+Constant config_Baseline    9;
+Constant config_Leading     10;
 
 ! Establece una opción de configuración:
 [ glk_set_config _vararg_count ret;

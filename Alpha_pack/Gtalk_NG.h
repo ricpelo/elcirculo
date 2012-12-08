@@ -699,12 +699,14 @@ Class Character
       }
 
       if (gg_conversawin == 0) {
+!        glk_set_config(config_WPaddingY, 20);
         gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
                                          winmethod_Below + winmethod_Fixed +
                                          winmethod_Border,
-                                         onoptions, wintype_TextGrid,
+                                         onoptions + 1, wintype_TextGrid,
                                          GG_CONVERSAWIN_ROCK);
         glk_set_window(gg_conversawin);
+        new_line;
         glk_request_hyperlink_event(gg_conversawin);
       } else {
         self.cambiar_altura(onoptions);
@@ -733,10 +735,10 @@ Class Character
       ! Now get the response from the player. Keep on asking until we get
       ! an acceptable answer.
       do {
-        glk_window_move_cursor(gg_conversawin, 1, y);
+        glk_window_move_cursor(gg_conversawin, 1, y + 1);
         print ">";
         selected = ZIPI_tecla(gg_conversawin);
-        glk_window_move_cursor(gg_conversawin, 1, y);
+        glk_window_move_cursor(gg_conversawin, 1, y + 1);
         print " ";
 
         switch (selected) {
@@ -748,7 +750,7 @@ Class Character
             do {
               y--;
             } until (y == 0 ||
-                     glk_window_get_char(gg_conversawin, 3, y) == '[');
+                     glk_window_get_char(gg_conversawin, 3, y + 1) == '[');
             continue;
 
           keycode_Down:
@@ -757,8 +759,8 @@ Class Character
             do {
               y++;
             } until (y == self.altura() - 1 ||
-                     glk_window_get_char(gg_conversawin, 3, y) == '[');
-            if (glk_window_get_char(gg_conversawin, 3, y) ~= '[') y = oldy;
+                     glk_window_get_char(gg_conversawin, 3, y + 1) == '[');
+            if (glk_window_get_char(gg_conversawin, 3, y + 1) ~= '[') y = oldy;
             continue;
 
           keycode_Return:

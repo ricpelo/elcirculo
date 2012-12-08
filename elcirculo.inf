@@ -143,12 +143,12 @@ Constant TIMER_DURACION_TLF_KATIE = 6;
 Array opciones --> MAXIMO_OPCIONES;
 
 ! Números de opción asociados con una tecla de acceso rápido:
-Array numero_opciones -> MAXIMO_TECLAS_OPCIONES;
+Array numeroOpciones -> MAXIMO_TECLAS_OPCIONES;
 
 ! Teclas de acceso rápido en el menú de acciones:
-Array teclas_opciones --> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
-                          'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
-                          'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
+Array teclasOpciones --> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
+                         'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
+                         'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
 
 ! Alto de la ventana gráfica:
 Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
@@ -1639,13 +1639,13 @@ Object timer_imagen_personaje
       j = i + 3;
       ZIPI_setcursor(5 + anchura, j);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
-        glk_set_hyperlink(teclas_opciones-->tec);
+        glk_set_hyperlink(teclasOpciones-->tec);
         print "[";
         glk_set_style(style_Header);
-        print (char) teclas_opciones-->tec;
+        print (char) teclasOpciones-->tec;
         glk_set_style(style_Normal);
         print "] ";
-        numero_opciones->tec = i;
+        numeroOpciones->tec = i;
         tec++;
         PrintOrRun(_m.&ZIPI_item-->i, ZIPI_titulo);
         glk_set_hyperlink(0);
@@ -1704,8 +1704,8 @@ Object timer_imagen_personaje
 
     ! Busca la tecla entre el vector
     for (i = 0 : i < MAXIMO_TECLAS_OPCIONES : i++) {
-      if (key == (teclas_opciones-->i) && i < tec) { 
-        cur = numero_opciones->i;
+      if (key == (teclasOpciones-->i) && i < tec) {
+        cur = numeroOpciones->i;
         key = 132;
         jump Aceptar;
       }
@@ -2204,18 +2204,18 @@ Object MenuAcciones
               glk_set_hyperlink('Q');
               print "[", (s_head) "Q", "] ";
             } else {
-              glk_set_hyperlink(teclas_opciones-->tec);
+              glk_set_hyperlink(teclasOpciones-->tec);
               print "[";
               glk_set_style(style_Header);
               if (tec < MAXIMO_TECLAS_OPCIONES) {
-                print (char) teclas_opciones-->tec;
+                print (char) teclasOpciones-->tec;
               } else {
                 print " ";
               }
               glk_set_style(style_Normal);
               print "] ";
               if (tec < MAXIMO_TECLAS_OPCIONES) {
-                numero_opciones->tec = i;
+                numeroOpciones->tec = i;
                 tec++;
               }
             }
@@ -2280,8 +2280,8 @@ Object MenuAcciones
 
         ! Busca la tecla en el vector:
         for (i = 0 : i < MAXIMO_TECLAS_OPCIONES : i++) {
-          if (key == (teclas_opciones-->i) && i < tec) {
-            cur = numero_opciones->i;
+          if (key == (teclasOpciones-->i) && i < tec) {
+            cur = numeroOpciones->i;
             key = 132;
             jump Aceptar;
           }

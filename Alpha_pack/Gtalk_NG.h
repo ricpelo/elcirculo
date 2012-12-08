@@ -706,12 +706,12 @@ Class Character
                                          onoptions + 1, wintype_TextGrid,
                                          GG_CONVERSAWIN_ROCK);
         glk_set_window(gg_conversawin);
-        new_line;
         glk_request_hyperlink_event(gg_conversawin);
       } else {
         self.cambiar_altura(onoptions);
       }
 
+      new_line;
       ! Go through the options again, now printing a list of those that
       ! are on. Note that we can reuse the variables quipnum and
       ! numoptions from the previous iteration.
@@ -764,7 +764,7 @@ Class Character
             continue;
 
           keycode_Return:
-            selected = glk_window_get_char(gg_conversawin, 4, y);
+            selected = glk_window_get_char(gg_conversawin, 4, y + 1);
             break;
         }
           

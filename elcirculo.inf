@@ -140,7 +140,7 @@ Constant TIMER_DURACION_TLF_KATIE = 6;
 
 
 ! El array de opciones en el menú de acciones:
-Array opciones --> MAXIMO_OPCIONES;
+Array opcionesMenu --> MAXIMO_OPCIONES;
 
 ! Números de opción asociados con una tecla de acceso rápido:
 Array numeroOpciones -> MAXIMO_TECLAS_OPCIONES;
@@ -1327,7 +1327,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 [ YesOrNo
   r;
   r = MenuAcciones.MostrarAcciones(Menu_YesOrNo, true);
-  MenuAcciones.MostrarComunes();
+  MenuAcciones.MostrarImportantes();
   r = r.ZIPI_ejecutar() == 1;
   if (~~r) new_line;
   return r;
@@ -2100,7 +2100,7 @@ Object MenuAcciones
         glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
 !        glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
         r = self.RunMenu(obj, top);
-        self.MostrarComunes();
+        self.MostrarImportantes();
         glk_set_window(gg_mainwin);
         glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
         glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
@@ -2109,13 +2109,13 @@ Object MenuAcciones
       }
       return r;
     ],
-    MostrarComunes [ menu
+    MostrarImportantes [ menu
       i o;
       glk_set_window(gg_menuwin);
       glk_window_clear(gg_menuwin);
       glk_request_hyperlink_event(gg_menuwin);
       new_line;
-      if (menu == 0) menu = Menu_Comunes;
+      if (menu == 0) menu = Menu_Importantes;
       for (i = 0 : i < menu.#ZIPI_item / WORDSIZE : i++) {
         o = menu.&ZIPI_item-->i;
         if (o ~= ZIPI_Separador) {
@@ -2134,7 +2134,7 @@ Object MenuAcciones
                                    winmethod_Right + winmethod_Fixed,
                                    ANCHO_ACCIONES, wintype_TextGrid,
                                    GG_MENUWIN_ROCK);
-      self.MostrarComunes();
+      self.MostrarImportantes();
     ],
     CerrarVentana [;
       glk_window_close(gg_menuwin, 0);
@@ -2151,7 +2151,7 @@ Object MenuAcciones
           continue;
         }
         if (count < MAXIMO_OPCIONES) {
-          opciones-->count = opc;
+          opcionesMenu-->count = opc;
           count++;
         #ifdef DEBUG;
         } else {
@@ -2161,8 +2161,8 @@ Object MenuAcciones
       }
 
       if (~~top) {
-        opciones-->count++ = ZIPI_Separador;
-        opciones-->count++ = ZIPI_Ninguna;
+        opcionesMenu-->count++ = ZIPI_Separador;
+        opcionesMenu-->count++ = ZIPI_Ninguna;
       }
 
       cur = 0;
@@ -2192,7 +2192,7 @@ Object MenuAcciones
           j = i + 3 - delta;
           if (j >= altura) break;
           glk($002B, gg_menuwin, 4, j - 1);
-          opc = opciones-->i;
+          opc = opcionesMenu-->i;
           if (opc ~= ZIPI_Separador) {
             if (opc == ZIPI_Ninguna) {
               glk_set_hyperlink('Q');
@@ -2241,7 +2241,7 @@ Object MenuAcciones
               cur--;
               if (cur < 0) cur = 0;
               if (j <= 3) delta = delta - (oldcur - cur);
-            } until (opciones-->cur ~= ZIPI_Separador);
+            } until (opcionesMenu-->cur ~= ZIPI_Separador);
 
           'j', 'n', '=', '+', 130, -5:
             do {
@@ -2249,14 +2249,14 @@ Object MenuAcciones
               cur++;
               if (cur > count - 1) cur = count - 1;
               if (j >= altura - 1) delta = delta + (cur - oldcur);
-            } until (opciones-->cur ~= ZIPI_Separador);
+            } until (opcionesMenu-->cur ~= ZIPI_Separador);
 
           'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
             if (~~top) rfalse;
 
           132, 13, 'n', ' ', -3, -6:
         .Aceptar;
-            dest = opciones-->cur;
+            dest = opcionesMenu-->cur;
             if (dest ofclass ZIPI_Menu) {
               return MenuAcciones.RunMenu(dest, top);
             } else if (dest == ZIPI_Ninguna) {
@@ -2449,7 +2449,7 @@ Object Menu_Quit
     ZIPI_ejecutar [; return QUIT1__WD; ];
 
 
-Object Menu_Comunes
+Object Menu_Importantes
   class ZIPI_Menu
   with
     ZIPI_titulo "Principal",
@@ -2972,7 +2972,7 @@ Verb meta 'tt'
     }
   }
   StatusLineHeight(1);
-  MenuAcciones.MostrarComunes();
+  MenuAcciones.MostrarImportantes();
   glk_window_noscroll(gg_mainwin);
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
@@ -3205,7 +3205,7 @@ Verb meta 'tt'
        }
 
        StatusLineHeight(1);
-       MenuAcciones.MostrarComunes();
+       MenuAcciones.MostrarImportantes();
        if (hayGraficos) EncenderGraficos();
        ControlTimer.ReanudarTick();
        glk_window_noscroll(gg_mainwin);

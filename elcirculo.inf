@@ -308,7 +308,7 @@ Include "Parser";
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
 
-      if (ev-->1 == gg_menuwin) {
+      if (ev-->1 == gg_menuwin) {  ! Ventana del menú de acciones
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (obj hasnt general) {    ! Si no hay que continuar escribiendo
           glk_set_style(style_Input);
@@ -2147,8 +2147,7 @@ Object MenuAcciones
       for (i = count = 0 : i < _m.#ZIPI_item / WORDSIZE : i++) {
         opc = _m.&ZIPI_item-->i;
         if (opc == 0) continue;
-        if (opc provides ZIPI_condicion &&
-            ~~(ValueOrRun(opc, ZIPI_condicion))) {
+        if (opc provides ZIPI_condicion && ~~(opc.ZIPI_condicion(_m))) {
           continue;
         }
         if (count < MAXIMO_OPCIONES) {
@@ -2293,6 +2292,9 @@ Object Menu_AbrirCon
     ZIPI_titulo "Abrir con...",
     ZIPI_secundario [; return 'con'; ],
     ZIPI_ejecutar [; return 'abre'; ],
+    ZIPI_condicion [ obj;
+      return obj has openable && obj hasnt open;
+    ],
   has
     general; ! Esto indica que el jugador puede seguir escribiendo el input
 
@@ -2301,7 +2303,10 @@ Object Menu_Apagar
   class ZIPI_Otro
   with
     ZIPI_titulo "Apagar",
-    ZIPI_ejecutar [; return 'apaga'; ];
+    ZIPI_ejecutar [; return 'apaga'; ],
+    ZIPI_condicion [ obj;
+      return obj has switchable && obj has on;
+    ];
 
 
 Object Menu_CerrarCon
@@ -2310,6 +2315,9 @@ Object Menu_CerrarCon
     ZIPI_titulo "Cerrar con...",
     ZIPI_secundario [; return 'con'; ],
     ZIPI_ejecutar [; return 'cierra'; ],
+    ZIPI_condicion [ obj;
+      return obj has openable && obj has open;
+    ],
   has
     general; ! Esto indica que el jugador puede seguir escribiendo el input
 
@@ -2318,21 +2326,30 @@ Object Menu_Coger
   class ZIPI_Otro
   with
     ZIPI_titulo "Coger",
-    ZIPI_ejecutar [; return 'coge'; ];
+    ZIPI_ejecutar [; return 'coge'; ],
+    ZIPI_condicion [ obj;
+      return ~~IndirectlyContains(player, obj);
+    ];
 
 
 Object Menu_Dejar
   class ZIPI_Otro
   with
     ZIPI_titulo "Dejar",
-    ZIPI_ejecutar [; return 'deja'; ];
+    ZIPI_ejecutar [; return 'deja'; ],
+    ZIPI_condicion [ obj;
+      return IndirectlyContains(player, obj);
+    ];
 
 
 Object Menu_Encender
   class ZIPI_Otro
   with
     ZIPI_titulo "Encender",
-    ZIPI_ejecutar [; return 'enciende'; ];
+    ZIPI_ejecutar [; return 'enciende'; ],
+    ZIPI_condicion [ obj;
+      return obj has switchable && obj hasnt on;
+    ];
 
     
 Object Menu_Examinar

@@ -338,7 +338,7 @@ Include "Parser";
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
             if (obj provides ZIPI_item) { ! Si el objeto tiene menú
-              r = MostrarMenuAcciones(obj);
+              r = MenuAcciones.MostrarAcciones(obj);
               if (r) { ! Si se ha escogido una opción en el menú:
                 glk_cancel_line_event(gg_mainwin, gg_event);
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
@@ -447,7 +447,7 @@ Include "Parser";
 
 
 [ IdentifyGlkObject fase tipo ref rock;
-  Menu_IdentifyGlkObject(fase, tipo, ref, rock);
+  MenuAcciones.Menu_IdentifyGlkObject(fase, tipo, ref, rock);
   SGW_IdentifyGlk(fase, tipo, ref, rock);
   Damusix.IdentificarSonidos(fase);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
@@ -714,39 +714,6 @@ Include "Parser";
     return;
   }       
   if (fase == 2) { ! Actualizar nuestras ventanas
-    return;
-  }
-];
-
-
-! El IdentifyGlkObject de la ventana de menús de acciones:
-[ Menu_IdentifyGlkObject fase tipo ref rock;
-  if (fase == 0) { ! Poner cero en todos nuestros objetos glk
-    gg_menuwin = 0;
-    return;
-  }       
-  if (fase == 1) { ! Reiniciar correctamente las variables glk
-    switch (tipo) {
-      0: ! es una ventana
-         switch (rock) {
-           GG_MENUWIN_ROCK: gg_menuwin = ref;
-         }
-      1: ! es un flujo
-         ! pero no hay flujos en este ejemplo
-      2: ! es una referencia a fichero
-         ! pero no hay ficheros en este ejemplo
-    }
-    return;
-  }       
-  if (fase == 2) { ! Actualizar nuestras ventanas
-    if (layoutPantalla == LAYOUT_MENU_PRINCIPAL) {
-      if (gg_menuwin) {
-        glk_window_close(gg_menuwin, 0);
-        gg_menuwin = 0;
-      }
-    } else { ! layoutPantalla == LAYOUT_JUEGO
-      AbrirVentanaMenu();
-    }
     return;
   }
 ];
@@ -1044,7 +1011,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   clearTextWindow();
   closeAllWindows();
   glk_window_close(gg_statuswin, 0);
-  AbrirVentanaMenu();
+  MenuAcciones.AbrirVentana();
   gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,
@@ -1151,7 +1118,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
     } else {
       Menu_AfterGameOver.&ZIPI_item-->4 = 0;
     }
-    i = MostrarMenuAcciones(Menu_AfterGameOver, true);
+    i = MenuAcciones.MostrarAcciones(Menu_AfterGameOver, true);
     i = i.ZIPI_ejecutar();
     #Endif; ! TARGET_
     if (i == QUIT1__WD or QUIT2__WD) {
@@ -1356,8 +1323,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! La pregunta de "sí o no" usa ahora el menú de acciones:
 [ YesOrNo
   r;
-  r = MostrarMenuAcciones(Menu_YesOrNo, true);
-  MostrarMenuComunes();
+  r = MenuAcciones.MostrarAcciones(Menu_YesOrNo, true);
+  MenuAcciones.MostrarComunes();
   r = r.ZIPI_ejecutar() == 1;
   if (~~r) new_line;
   return r;
@@ -2081,141 +2048,238 @@ Object ZIPI_Tiempo_Real
 ! ====================================================================
 
 
-! Muestra el menú de acciones de un objeto:
-[ RunMenuAcciones _m top
-  i j count opc cur key dest tec altura anchura delta oldcur;
+Object MenuAcciones
+  with
+    ! El IdentifyGlkObject de la ventana de menús de acciones:
+    Menu_IdentifyGlkObject [ fase tipo ref rock;
+      if (fase == 0) { ! Poner cero en todos nuestros objetos glk
+        gg_menuwin = 0;
+        return;
+      }
+      if (fase == 1) { ! Reiniciar correctamente las variables glk
+        switch (tipo) {
+          0: ! es una ventana
+             switch (rock) {
+               GG_MENUWIN_ROCK: gg_menuwin = ref;
+             }
+          1: ! es un flujo
+             ! pero no hay flujos en este ejemplo
+          2: ! es una referencia a fichero
+             ! pero no hay ficheros en este ejemplo
+        }
+        return;
+      }
+      if (fase == 2) { ! Actualizar nuestras ventanas
+        if (layoutPantalla == LAYOUT_MENU_PRINCIPAL) {
+          if (gg_menuwin) {
+            MenuAcciones.CerrarVentana();
+!            glk_window_close(gg_menuwin, 0);
+!            gg_menuwin = 0;
+          }
+        } else { ! layoutPantalla == LAYOUT_JUEGO
+          MenuAcciones.AbrirVentana();
+        }
+        return;
+      }
+    ],
+    ! Se encarga de mostrar el menú de acciones correctamente, desactivando
+    ! previamente los timers y preparando las ventanas antes y después.
+    ! Si top == true, no se muestra la opción de "[Q] Salir":
+    MostrarAcciones [ obj top
+      r;
+      if (obj provides ZIPI_item) {
+        ControlTimer.PausarTick();
+        glk_cancel_line_event(gg_mainwin, gg_event);
+        glk_set_window(gg_menuwin);
+        glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
+        glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
+        glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
+        r = self.RunMenu(obj, top);
+        self.MostrarComunes();
+        glk_set_window(gg_mainwin);
+        glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
+        glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+        glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
+        ControlTimer.ReanudarTick();
+      }
+      return r;
+    ],
+    MostrarComunes [ menu
+      i o;
+      glk_set_window(gg_menuwin);
+      glk_window_clear(gg_menuwin);
+      glk_request_hyperlink_event(gg_menuwin);
+      new_line;
+      if (menu == 0) menu = Menu_Comunes;
+      for (i = 0 : i < menu.#ZIPI_item / WORDSIZE : i++) {
+        o = menu.&ZIPI_item-->i;
+        if (o ~= ZIPI_Separador) {
+          print " - ";
+          glk_set_hyperlink(o);
+          print (string) o.ZIPI_titulo;
+          glk_set_hyperlink(0);
+        }
+        new_line;
+      }
+      glk_set_window(gg_mainwin);
+    ],
+    AbrirVentana [;
+      if (gg_menuwin) glk_window_close(gg_menuwin, 0);
+      gg_menuwin = glk_window_open(gg_mainwin,
+                                   winmethod_Right + winmethod_Fixed,
+                                   ANCHO_ACCIONES, wintype_TextGrid,
+                                   GG_MENUWIN_ROCK);
+      self.MostrarComunes();
+    ],
+    CerrarVentana [;
+      glk_window_close(gg_menuwin, 0);
+      gg_menuwin = 0;
+    ],
+    ! Muestra el menú de acciones de un objeto:
+    RunMenu [ _m top
+      i j count opc cur key dest tec altura anchura delta oldcur;
 
-  for (i = count = 0 : i < _m.#ZIPI_item / WORDSIZE : i++) {
-    opc = _m.&ZIPI_item-->i;
-    if (opc == 0) continue;
-    if (opc provides ZIPI_condicion && ~~(ValueOrRun(opc, ZIPI_condicion))) {
-      continue;
-    }
-    if (count < MAXIMO_OPCIONES) {
-      opciones-->count = opc;
-      count++;
-    #ifdef DEBUG;
-    } else {
-      print "*** ERROR: Superado número máximo de opciones del menú ***";
-    #endif;
-    }
-  }
-  
-  if (~~top) {
-    opciones-->count++ = ZIPI_Separador;
-    opciones-->count++ = ZIPI_Ninguna;
-  }
-
-  cur = 0;
-  
-  for (::) {
-    glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
-    anchura = gg_arguments-->0;
-    altura  = gg_arguments-->1;
-
-    glk_window_clear(gg_menuwin);
-    if (_m provides ZIPI_titulo) {
-      glk_set_style(style_Input);
-      print " ", (string) _m.ZIPI_titulo, "^";
-      glk_set_style(style_Normal);
-    } else { ! if (_m provides input_link) {
-      glk_set_style(style_Input);
-      print " "; PrintInputLink(_m); print ":^";
-      glk_set_style(style_Normal);
-    }
-
-    if (delta > 0) {
-      glk($002B, gg_menuwin, anchura - 1, 1);
-      print "@@94";
-    }
-
-    for (i = 0 + delta, tec = 0 + delta : i < count : i++) {
-      j = i + 3 - delta;
-      if (j >= altura) break;
-      glk($002B, gg_menuwin, 4, j - 1);
-      opc = opciones-->i; 
-      if (opc ~= ZIPI_Separador) {
-        if (opc == ZIPI_Ninguna) {
-          glk_set_hyperlink('Q');
-          print "[", (s_head) "Q", "] ";
+      for (i = count = 0 : i < _m.#ZIPI_item / WORDSIZE : i++) {
+        opc = _m.&ZIPI_item-->i;
+        if (opc == 0) continue;
+        if (opc provides ZIPI_condicion &&
+            ~~(ValueOrRun(opc, ZIPI_condicion))) {
+          continue;
+        }
+        if (count < MAXIMO_OPCIONES) {
+          opciones-->count = opc;
+          count++;
+        #ifdef DEBUG;
         } else {
-          glk_set_hyperlink(teclas_opciones-->tec);
-          print "[";
-          glk_set_style(style_Header);
-          if (tec < MAXIMO_TECLAS_OPCIONES) print (char) teclas_opciones-->tec;
-          else                              print " ";
+          print "*** ERROR: Superado número máximo de opciones del menú ***";
+        #endif;
+        }
+      }
+
+      if (~~top) {
+        opciones-->count++ = ZIPI_Separador;
+        opciones-->count++ = ZIPI_Ninguna;
+      }
+
+      cur = 0;
+
+      for (::) {
+        glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
+        anchura = gg_arguments-->0;
+        altura  = gg_arguments-->1;
+
+        glk_window_clear(gg_menuwin);
+        if (_m provides ZIPI_titulo) {
+          glk_set_style(style_Input);
+          print " ", (string) _m.ZIPI_titulo, "^";
           glk_set_style(style_Normal);
-          print "] ";
-          if (tec < MAXIMO_TECLAS_OPCIONES) {
-            numero_opciones->tec = i;
-            tec++;
+        } else { ! if (_m provides input_link) {
+          glk_set_style(style_Input);
+          print " "; PrintInputLink(_m); print ":^";
+          glk_set_style(style_Normal);
+        }
+
+        if (delta > 0) {
+          glk($002B, gg_menuwin, anchura - 1, 1);
+          print "@@94";
+        }
+
+        for (i = 0 + delta, tec = 0 + delta : i < count : i++) {
+          j = i + 3 - delta;
+          if (j >= altura) break;
+          glk($002B, gg_menuwin, 4, j - 1);
+          opc = opciones-->i;
+          if (opc ~= ZIPI_Separador) {
+            if (opc == ZIPI_Ninguna) {
+              glk_set_hyperlink('Q');
+              print "[", (s_head) "Q", "] ";
+            } else {
+              glk_set_hyperlink(teclas_opciones-->tec);
+              print "[";
+              glk_set_style(style_Header);
+              if (tec < MAXIMO_TECLAS_OPCIONES) {
+                print (char) teclas_opciones-->tec;
+              } else {
+                print " ";
+              }
+              glk_set_style(style_Normal);
+              print "] ";
+              if (tec < MAXIMO_TECLAS_OPCIONES) {
+                numero_opciones->tec = i;
+                tec++;
+              }
+            }
+            PrintOrRun(opc, ZIPI_titulo);
+            glk_set_hyperlink(0);
           }
         }
-        PrintOrRun(opc, ZIPI_titulo);
-        glk_set_hyperlink(0);
+
+        j = i + 4 - delta;
+
+        if (j > altura) {
+          glk($002B, gg_menuwin, anchura - 1, altura - 1);
+          print "v";
+        }
+
+        j = cur + 3 - delta;
+        glk($002B, gg_menuwin, 1, j - 1);
+        print (s_emph) ">";
+        glk($002B, gg_menuwin, 1, j - 1);
+
+        key = ZIPI_tecla(gg_menuwin, true);
+
+        if (key >= 'a' && key <= 'z') key = key - 32;  ! Pasamos a mayúsculas
+
+        print " ";
+
+        switch (key) {
+          'k', 'p', '-', '_', 129, -4:
+            do {
+              oldcur = cur;
+              cur--;
+              if (cur < 0) cur = 0;
+              if (j <= 3) delta = delta - (oldcur - cur);
+            } until (opciones-->cur ~= ZIPI_Separador);
+
+          'j', 'n', '=', '+', 130, -5:
+            do {
+              oldcur = cur;
+              cur++;
+              if (cur > count - 1) cur = count - 1;
+              if (j >= altura - 1) delta = delta + (cur - oldcur);
+            } until (opciones-->cur ~= ZIPI_Separador);
+
+          'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
+            if (~~top) rfalse;
+
+          132, 13, 'n', ' ', -3, -6:
+        .Aceptar;
+            dest = opciones-->cur;
+            if (dest ofclass ZIPI_Menu) {
+              return MenuAcciones.RunMenu(dest, top);
+            } else if (dest == ZIPI_Ninguna) {
+              rfalse;
+            } else if (dest ofclass ZIPI_Pista) {
+              ZIPI_RunPista(dest);
+            } else if (dest provides ZIPI_cambiar) {
+              dest.ZIPI_cambiar();
+            } else {
+              return dest;
+            }
+        }
+
+        ! Busca la tecla en el vector:
+        for (i = 0 : i < MAXIMO_TECLAS_OPCIONES : i++) {
+          if (key == (teclas_opciones-->i) && i < tec) {
+            cur = numero_opciones->i;
+            key = 132;
+            jump Aceptar;
+          }
+        }
       }
-    }
 
-    j = i + 4 - delta;
-
-    if (j > altura) {
-      glk($002B, gg_menuwin, anchura - 1, altura - 1);
-      print "v";
-    }
-
-    j = cur + 3 - delta;
-    glk($002B, gg_menuwin, 1, j - 1);
-    print (s_emph) ">";
-    glk($002B, gg_menuwin, 1, j - 1);
-    
-    key = ZIPI_tecla(gg_menuwin, true);
-
-    if (key >= 'a' && key <= 'z') key = key - 32;  ! Pasamos a mayúsculas
-
-    print " ";
-
-    switch (key) {
-      'k', 'p', '-', '_', 129, -4:
-        do {
-          oldcur = cur;
-          cur--;
-          if (cur < 0) cur = 0;
-          if (j <= 3) delta = delta - (oldcur - cur);
-        } until (opciones-->cur ~= ZIPI_Separador);
-
-      'j', 'n', '=', '+', 130, -5:
-        do {
-          oldcur = cur;
-          cur++;
-          if (cur > count - 1) cur = count - 1;
-          if (j >= altura - 1) delta = delta + (cur - oldcur);
-        } until (opciones-->cur ~= ZIPI_Separador);
-
-      'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
-        if (~~top) rfalse;
- 
-      132, 13, 'n', ' ', -3, -6:
-    .Aceptar;
-        dest = opciones-->cur;
-        if (dest ofclass ZIPI_Menu)          return RunMenuAcciones(dest, top);
-        else if (dest == ZIPI_Ninguna)       rfalse;
-        else if (dest ofclass ZIPI_Pista)    ZIPI_RunPista(dest);
-        else if (dest provides ZIPI_cambiar) dest.ZIPI_cambiar();
-        else return dest;
-    }
-
-    ! Busca la tecla en el vector:
-    for (i = 0 : i < MAXIMO_TECLAS_OPCIONES : i++) {
-      if (key == (teclas_opciones-->i) && i < tec) { 
-        cur = numero_opciones->i;
-        key = 132;
-        jump Aceptar;
-      }
-    }
-  }
-
-  rfalse;
-];
+      rfalse;
+    ];
 
 
 Object Menu_AbrirCon
@@ -2415,16 +2479,6 @@ Object Menu_Configuracion
 !-------------------------------------------------------------------------------
 
 
-[ AbrirVentanaMenu;
-  if (gg_menuwin) glk_window_close(gg_menuwin, 0);
-  gg_menuwin = glk_window_open(gg_mainwin,
-                               winmethod_Right + winmethod_Fixed,
-                               ANCHO_ACCIONES, wintype_TextGrid,
-                               GG_MENUWIN_ROCK);
-  MostrarMenuComunes();
-];
-
-
 [ ApagarGraficos t;
   hayGraficos = false;
   closeGraphicWindow();
@@ -2442,7 +2496,7 @@ Object Menu_Configuracion
 [ CerrarVentanaMapa;
   glk_window_close(gg_mapawin, 0);
   gg_mapawin = 0;
-  AbrirVentanaMenu();
+  MenuAcciones.AbrirVentana();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
   #ifdef ControlTimer;
@@ -2621,51 +2675,6 @@ Object Menu_Configuracion
   else                     return location;
 ];
 #endif;
-
-
-! Se encarga de mostrar el menú de acciones correctamente, desactivando
-! previamente los timers y preparando las ventanas antes y después.
-! Si top == true, no se muestra la opción de "[Q] Salir":
-[ MostrarMenuAcciones obj top
-  r;
-  if (obj provides ZIPI_item) {
-    ControlTimer.PausarTick();
-    glk_cancel_line_event(gg_mainwin, gg_event);
-    glk_set_window(gg_menuwin);
-    glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
-    glk_cancel_hyperlink_event(gg_statuswin);  ! los enlaces de otras ventanas
-    glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
-    r = RunMenuAcciones(obj, top);
-    MostrarMenuComunes();
-    glk_set_window(gg_mainwin);
-    glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
-    glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
-    glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
-    ControlTimer.ReanudarTick();
-  }
-  return r;
-];
-
-
-[ MostrarMenuComunes menu
-  i o;
-  glk_set_window(gg_menuwin);
-  glk_window_clear(gg_menuwin);
-  glk_request_hyperlink_event(gg_menuwin);
-  new_line;
-  if (menu == 0) menu = Menu_Comunes;
-  for (i = 0 : i < menu.#ZIPI_item / WORDSIZE : i++) {
-    o = menu.&ZIPI_item-->i;
-    if (o ~= ZIPI_Separador) {
-      print " - ";
-      glk_set_hyperlink(o);
-      print (string) o.ZIPI_titulo;
-      glk_set_hyperlink(0);
-    }
-    new_line;
-  }
-  glk_set_window(gg_mainwin);
-];
 
 
 [ MostrarImagenAuxiliar img;
@@ -2943,7 +2952,7 @@ Verb meta 'tt'
     }
   }
   StatusLineHeight(1);
-  MostrarMenuComunes();
+  MenuAcciones.MostrarComunes();
   glk_set_window(gg_mainwin);
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
@@ -3171,14 +3180,12 @@ Verb meta 'tt'
        } else {
          Damusix.PararCanal(CANAL_FONDO);
        }
-       AbrirVentanaMenu();
        StatusLineHeight(1);
-       MostrarMenuComunes();
+       MenuAcciones.AbrirVentana();
+!       MenuAcciones.MostrarComunes();
        glk_set_window(gg_mainwin);
        if (hayGraficos) EncenderGraficos();
-!       clearTextWindow();
        ControlTimer.ReanudarTick();
-!       <<Look>>;
     2: print (s_emph) "[Las pistas han sido desactivadas.]^";
   }
 ];

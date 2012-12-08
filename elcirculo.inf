@@ -1747,7 +1747,9 @@ Object timer_imagen_personaje
     glk_request_hyperlink_event(win);
     if (~~sw) glk_request_mouse_event(win);
   }
+
   glk_request_char_event(gg_mainwin);
+
   while (~~done) {
     glk_select(gg_event);
     ix = HandleGlkEvent(gg_event, 1, gg_arguments);
@@ -1772,11 +1774,14 @@ Object timer_imagen_personaje
       }
     }
   }
+
   glk_cancel_char_event(gg_mainwin);
+
   if (win) {
     glk_request_hyperlink_event(win);
     if (~~sw) glk_request_mouse_event(win);
   }
+
   return key;
 ];
 
@@ -2093,7 +2098,7 @@ Object MenuAcciones
         glk_set_window(gg_menuwin);
         glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
         glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
-        glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
+!        glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
         r = self.RunMenu(obj, top);
         self.MostrarComunes();
         glk_set_window(gg_mainwin);
@@ -3155,8 +3160,7 @@ Verb meta 'tt'
          ApagarGraficos();
          hayGraficos = true;
        }
-       glk_window_close(gg_menuwin, 0);
-       gg_menuwin = 0;
+       MenuAcciones.CerrarVentana();
        ExtenderVentanaEstado();
        tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
        Damusix.PararCanal(CANAL_TELEFONO);
@@ -3182,7 +3186,6 @@ Verb meta 'tt'
        }
        StatusLineHeight(1);
        MenuAcciones.AbrirVentana();
-!       MenuAcciones.MostrarComunes();
        glk_set_window(gg_mainwin);
        if (hayGraficos) EncenderGraficos();
        ControlTimer.ReanudarTick();

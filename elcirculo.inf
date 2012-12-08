@@ -341,7 +341,24 @@ Include "Parser";
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
-            if (obj provides ZIPI_item) { ! Si el objeto tiene menú
+!            if (obj provides ZIPI_item) { ! Si el objeto tiene menú
+            ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
+            if (obj in Compass || ConexionLocalidad(obj)) {
+              glk_set_style(style_Input);
+              print "ve "; PrintInputLink(obj); new_line;
+              glk_set_style(style_Normal);
+              long = PrintAnyToArray(buffer + WORDSIZE,
+                                     INPUT_BUFFER_LEN - WORDSIZE,
+                                     InputLink(obj));
+              buffer-->0 = long;
+              return 2;
+            } else if (obj == location) { ! Si es el nombre de la localidad
+              print (s_input) "mira ", "^";
+              long = PrintAnyToArray(buffer + WORDSIZE,
+                                     INPUT_BUFFER_LEN - WORDSIZE, "m");
+              buffer-->0 = long;
+              return 2;
+            } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               r = MenuAcciones.MostrarAcciones(obj);
               if (r) { ! Si se ha escogido una opción en el menú:
                 glk_cancel_line_event(gg_mainwin, gg_event);
@@ -384,29 +401,12 @@ Include "Parser";
                 buffer-->0 = 0;
                 return 2; ! Se simula la pulsación de Intro con input vacío
               }
-            } else { ! El objeto no tiene un menú asociado
-              if (obj in Compass) { ! ¿Es un punto cardinal? Mostrar la orden
-                glk_set_style(style_Input);
-                print "ve "; PrintInputLink(obj); new_line;
-                glk_set_style(style_Normal);
-                long = PrintAnyToArray(buffer + WORDSIZE,
-                                       INPUT_BUFFER_LEN - WORDSIZE, obj);
-                buffer-->0 = long;
-                return 2;
-              } else if (obj == location) { ! Si es el nombre de la localidad
-                print (s_input) "mira ", "^";
-                long = PrintAnyToArray(buffer + WORDSIZE,
-                                       INPUT_BUFFER_LEN - WORDSIZE, "m");
-                buffer-->0 = long;
-                return 2;
-              }
-            } ! Llegados hasta aquí, no tiene menú ni es un punto cardinal
+            }
           } ! if (obj ofclass Object)
         } ! if (gg_event-->2 == 0)
         ! Si llegamos hasta aquí, puede ser por una de estas causas (o varias):
         ! - El jugador ya había tecleado algo (el input no era vacío)
         ! - El hyperlink pulsado no era un objeto, sino una cadena
-        ! - El hyperlink era un objeto, pero no tenía menú asociado
         long = gg_event-->2;
         long = PrintAnyToArray(buffer + WORDSIZE + long,
                                INPUT_BUFFER_LEN - WORDSIZE, InputLink(obj));
@@ -906,41 +906,21 @@ Class Lugar
     number,
     dibujado false,                   ! Necesario para Mapeador.h
     before [
-      l;
+      l r;
       l = LugarReal();
 
       ! Cuando se usa "EXAMINA EL PASILLO":
       Examine:
         if (noun ofclass Lugar) {
-          if      (noun == l.n_to)   <<Examine n_obj>>;
-          else if (noun == l.s_to)   <<Examine s_obj>>;
-          else if (noun == l.e_to)   <<Examine e_obj>>;
-          else if (noun == l.w_to)   <<Examine w_obj>>;
-          else if (noun == l.ne_to)  <<Examine ne_obj>>;
-          else if (noun == l.nw_to)  <<Examine nw_obj>>;
-          else if (noun == l.se_to)  <<Examine se_obj>>;
-          else if (noun == l.sw_to)  <<Examine sw_obj>>;
-          else if (noun == l.u_to)   <<Examine u_obj>>;
-          else if (noun == l.d_to)   <<Examine d_obj>>;
-          else if (noun == l.in_to)  <<Examine in_obj>>;
-          else if (noun == l.out_to) <<Examine out_obj>>;
+          r = ConexionLocalidad(noun);
+          if (r) <<Examine r>>;
         }
 
       ! Cuando se usa "VE AL PASILLO":
       Enter, SalirA:
         if (noun ofclass Lugar) {
-          if      (noun == l.n_to)   <<Go n_obj>>;
-          else if (noun == l.s_to)   <<Go s_obj>>;
-          else if (noun == l.e_to)   <<Go e_obj>>;
-          else if (noun == l.w_to)   <<Go w_obj>>;
-          else if (noun == l.ne_to)  <<Go ne_obj>>;
-          else if (noun == l.nw_to)  <<Go nw_obj>>;
-          else if (noun == l.se_to)  <<Go se_obj>>;
-          else if (noun == l.sw_to)  <<Go sw_obj>>;
-          else if (noun == l.u_to)   <<Go u_obj>>;
-          else if (noun == l.d_to)   <<Go d_obj>>;
-          else if (noun == l.in_to)  <<Go in_obj>>;
-          else if (noun == l.out_to) <<Go out_obj>>;
+          r = ConexionLocalidad(noun);
+          if (r) <<Go r>>;
         }
         
       GetOff:
@@ -2057,6 +2037,9 @@ Object ZIPI_Tiempo_Real
 
 Object MenuAcciones
   with
+    acciones_comunes Menu_Examinar Menu_Coger Menu_Dejar Menu_Abrir
+                     Menu_Cerrar Menu_AbrirCon Menu_CerrarCon
+                     Menu_Encender Menu_Apagar,
     ! El IdentifyGlkObject de la ventana de menús de acciones:
     Menu_IdentifyGlkObject [ fase tipo ref rock;
       if (fase == 0) { ! Poner cero en todos nuestros objetos glk
@@ -2092,13 +2075,12 @@ Object MenuAcciones
     ! Si top == true, no se muestra la opción de "[Q] Salir":
     MostrarAcciones [ obj top
       r;
-      if (obj provides ZIPI_item) {
+!      if (obj provides ZIPI_item) {
         ControlTimer.PausarTick();
         glk_cancel_line_event(gg_mainwin, gg_event);
         glk_set_window(gg_menuwin);
         glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
         glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
-!        glk_cancel_hyperlink_event(gg_menuwin);    ! incluyendo la de menú
         r = self.RunMenu(obj, top);
         self.MostrarImportantes();
         glk_set_window(gg_mainwin);
@@ -2106,7 +2088,7 @@ Object MenuAcciones
         glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
         glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
         ControlTimer.ReanudarTick();
-      }
+!      }
       return r;
     ],
     MostrarImportantes [ menu
@@ -2142,11 +2124,19 @@ Object MenuAcciones
     ],
     ! Muestra el menú de acciones de un objeto:
     RunMenu [ _m top
-      i j count opc cur key dest tec altura anchura delta oldcur;
+      menu size i j count opc cur key dest tec altura anchura delta oldcur;
 
-      for (i = count = 0 : i < _m.#ZIPI_item / WORDSIZE : i++) {
-        opc = _m.&ZIPI_item-->i;
-        if (opc == 0) continue;
+      if (_m provides ZIPI_item) {
+        menu = _m.&ZIPI_item;
+        size = _m.#ZIPI_item / WORDSIZE;
+      } else {
+        menu = self.&acciones_comunes;
+        size = self.#acciones_comunes / WORDSIZE;
+      }
+
+      for (i = count = 0 : i < size : i++) {
+        opc = menu-->i;
+        if (opc == 0 or ZIPI_Separador) continue;
         if (opc provides ZIPI_condicion && ~~(opc.ZIPI_condicion(_m))) {
           continue;
         }
@@ -2284,6 +2274,16 @@ Object MenuAcciones
     ];
 
 
+Object Menu_Abrir
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Abrir",
+    ZIPI_ejecutar [; return 'abre'; ],
+    ZIPI_condicion [ obj;
+      return obj has openable && obj hasnt open;
+    ];
+
+
 Object Menu_AbrirCon
   class ZIPI_Otro
   with
@@ -2304,6 +2304,16 @@ Object Menu_Apagar
     ZIPI_ejecutar [; return 'apaga'; ],
     ZIPI_condicion [ obj;
       return obj has switchable && obj has on;
+    ];
+
+
+Object Menu_Cerrar
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Cerrar",
+    ZIPI_ejecutar [; return 'cierra'; ],
+    ZIPI_condicion [ obj;
+      return obj has openable && obj has open;
     ];
 
 
@@ -2528,6 +2538,18 @@ Object Menu_Configuracion
   print_ret "[Para hablar con un personaje, usa la forma ~",
             (s_input) "PERSONAJE, lo que sea", "~. Por ejemplo: ~",
             (s_input) "JASON, QUÉ OPINAS DE MADRE", "~.]";
+];
+
+
+! Si dest es una localidad adyacente a la actual, devuelve la dirección en la
+! que se encuentra:
+[ ConexionLocalidad dest
+  l o;
+  l = LugarReal();
+  objectloop (o in Compass) {
+    if (dest == l.(o.door_dir)) return o;
+  }
+  rfalse;
 ];
 
 

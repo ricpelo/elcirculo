@@ -196,6 +196,10 @@ Global mostrarSalidas = true;
 ! La imagen que representa la oscuridad:
 Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
 
+! Lista que se usa en PistasSub() para apagar y encender correctamente
+! los sonidos que estén sonando al entrar en las pistas:
+Array sonidosSonando -> DAMUSIX_NCANALMAX;
+
 
 ! ====================================================================
 ! REPLACES
@@ -3147,48 +3151,55 @@ Verb meta 'tt'
 
 
 [ PistasSub
-  v tlf tv fondo;
+  i;
   switch (hayPistas) {
     0: hayPistas = 1;
+
        print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
              a veces tan fuerte que se suelen obtener pistas prematuramente.
              Por tanto, en cualquier momento durante el juego puedes poner ",
              (link_i) "PISTAS NO", (s_emph) ", y eso te impedirá obtener ayuda
              en la sesión de juego actual. Si sigues queriendo una pista, pon ",
              (link_i) "PISTAS", (s_emph) " otra vez.]^";
+
     1: ControlTimer.PausarTick();
        if (hayGraficos) {
          ApagarGraficos();
          hayGraficos = true;
        }
        ExtenderVentanaEstado();
-       tlf = Damusix.SonandoDeFondoCanal(CANAL_TELEFONO);
-       Damusix.PararCanal(CANAL_TELEFONO);
-       tv = Damusix.SonandoDeFondoCanal(CANAL_TV_SALON);
-       Damusix.PararCanal(CANAL_TV_SALON);
-       fondo = Damusix.SonandoDeFondoCanal(CANAL_FONDO);
-       v = Damusix.QueVolumenCanal(CANAL_FONDO);
-       Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v,
+
+       for (i = 0 : i < DAMUSIX_NCANALMAX : i++) {
+         sonidosSonando->i = Damusix.SonandoDeFondoCanal(i);
+         Damusix.PararCanal(i);
+       }
+
+       Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO,
+                            Damusix.QueVolumenCanal(CANAL_FONDO), 
                             SONIDO_REPETIR);
        Damusix.TocarCanal(CANAL_FONDO);
        
        ZIPI_Empezar();
        
-       if (tlf) Damusix.TocarCanal(CANAL_TELEFONO);
-       if (tv)  Damusix.TocarCanal(CANAL_TV_SALON);
-       if (fondo && LugarReal() provides sgw_mus) {
-         v = Damusix.QueVolumenCanal(CANAL_FONDO);
-         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO, v,
+       for (i = 0 : i < DAMUSIX_NCANALMAX : i++) {
+         if ((i ~= CANAL_FONDO) && (sonidosSonando->i)) Damusix.TocarCanal(i);
+       }
+
+       if ((sonidosSonando->CANAL_FONDO) && (LugarReal() provides sgw_mus)) {
+         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO,
+                              Damusix.QueVolumenCanal(CANAL_FONDO),
                               SONIDO_REPETIR);
          Damusix.TocarCanal(CANAL_FONDO);
        } else {
          Damusix.PararCanal(CANAL_FONDO);
        }
+
        StatusLineHeight(1);
        MenuAcciones.MostrarComunes();
        if (hayGraficos) EncenderGraficos();
        ControlTimer.ReanudarTick();
        glk_window_noscroll(gg_mainwin);
+
     2: print (s_emph) "[Las pistas han sido desactivadas.]^";
   }
 ];

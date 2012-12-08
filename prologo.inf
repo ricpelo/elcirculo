@@ -57,7 +57,6 @@ Object cuarto_katie "Tu habitación"
     ],
     out_to pasillo_katie,
     sgw_img Cuarto_Katie_jpg,
-    sgw_mus 0,
     compass_look [ d;
       if (d == out_obj) {
           "A través de la puerta entreabierta observas el pasillo en penumbra.";
@@ -111,7 +110,6 @@ Object cocina_katie "Cocina"
     u_to pasillo_katie,
     s_to salon_katie,
     sgw_img Cocina_Katie_jpg,
-    sgw_mus 0,
     before [;
       Go:
         if (noun == u_obj) {
@@ -197,8 +195,7 @@ Object pasillo_katie "Pasillo del piso superior"
     ],
     in_to cuarto_katie,
     d_to cocina_katie,
-    sgw_img Pasillo_Katie_jpg,
-    sgw_mus 0;
+    sgw_img Pasillo_Katie_jpg;
 
 
 Object decorado_pasillo_katie pasillo_katie
@@ -246,7 +243,6 @@ Object salon_katie "Salón"
                  oscuridad del exterior.",
     n_to cocina_katie,
     sgw_img Salon_Katie_jpg,
-    sgw_mus 0,
     before [;
       Go:
         if (noun == n_obj && frigorifico_katie has open &&

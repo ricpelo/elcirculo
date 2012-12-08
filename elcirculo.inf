@@ -2519,9 +2519,8 @@ Object Menu_Configuracion
   MenuAcciones.AbrirVentana();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
-  #ifdef ControlTimer;
   ControlTimer.ReanudarTick();
-  #endif;
+  glk_window_noscroll(gg_mainwin);
 ];
 
 

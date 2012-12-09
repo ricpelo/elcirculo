@@ -2143,7 +2143,7 @@ Object MenuAcciones
       for (i = count = 0 : i < size : i++) {
         opc = menu-->i;
         if (opc == 0 or ZIPI_Separador) continue;
-        if (opc provides ZIPI_condicion && ~~(opc.ZIPI_condicion(_m))) {
+        if (opc provides ZIPI_condicion && (~~(opc.ZIPI_condicion(_m)))) {
           continue;
         }
         if (count < MAXIMO_OPCIONES) {
@@ -2996,7 +2996,7 @@ Verb meta 'tt'
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   if (LugarReal() provides sgw_mus) {
     m = LugarReal().sgw_mus;
-    if (fondo && haySonidoFondo && v ~= 0 && ~~(Damusix.SonandoDeFondo(m))) {
+    if (fondo && haySonidoFondo && v ~= 0 && (~~(Damusix.SonandoDeFondo(m)))) {
       Damusix.AsignarCanal(m, CANAL_FONDO, v, SONIDO_REPETIR);
       Damusix.TocarCanal(CANAL_FONDO);
     }

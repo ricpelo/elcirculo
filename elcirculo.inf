@@ -2130,6 +2130,8 @@ Object MenuAcciones
     RunMenu [ _m top
       menu size i j count opc cur key dest tec altura anchura delta oldcur;
 
+      ! Si el objeto tiene menú propio, usamos ése. En caso contrario, usamos
+      ! el menú de acciones comunes:
       if (_m provides ZIPI_item) {
         menu = _m.&ZIPI_item;
         size = _m.#ZIPI_item / WORDSIZE;
@@ -2153,6 +2155,9 @@ Object MenuAcciones
         #endif;
         }
       }
+
+      ! Si sólo hay una opción, y es la de examinar, directamente examinamos:
+      if (count == 1 && menu-->0 == Menu_Examinar) return menu-->0;
 
       if (~~top) {
         opcionesMenu-->count++ = ZIPI_Separador;

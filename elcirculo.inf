@@ -2345,7 +2345,7 @@ Object Menu_Coger
     ZIPI_titulo "Coger",
     ZIPI_ejecutar [; return 'coge'; ],
     ZIPI_condicion [ obj;
-      return ~~IndirectlyContains(player, obj);
+      return (~~IndirectlyContains(player, obj)) && (~~(obj ofclass Personaje));
     ];
 
 

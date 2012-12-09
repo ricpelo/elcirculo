@@ -2181,7 +2181,7 @@ Object MenuAcciones
         for (i = 0 + delta, tec = 0 + delta : i < count : i++) {
           j = i + 3 - delta;
           if (j >= altura) break;
-          glk($002B, gg_menuwin, 4, j - 1);
+          glk($002B, gg_menuwin, 3, j - 1);
           opc = opcionesMenu-->i;
           if (opc ~= ZIPI_Separador) {
             if (opc == ZIPI_Ninguna) {

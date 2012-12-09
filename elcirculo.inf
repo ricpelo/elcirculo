@@ -989,7 +989,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
   Damusix.Tocar(Darkwalk_ogg);
   do {
-    r = ZIPI_RunMenu(ZIPI_Menu_Principal, true);
+    r = ZIPI_RunMenu(ZIPI_Menu_Principal, 2);
   } until (r ~= 3);
   if (r ~= 2) quit;
   clearTextWindow();
@@ -1584,36 +1584,40 @@ Object timer_imagen_personaje
 ! ====================================================================
 
 
-[ ZIPI_PintaTitulo titulo anchura
+[ ZIPI_PintaTitulo titulo anchura altura
   j;
   ZIPI_clrscr();
   #ifdef TARGET_ZCODE;
   @split_window 1;
   #endif;
   ZIPI_setwindow();
-  ZIPI_setcursor(1 + anchura, 1);
+  ZIPI_setcursor(1 + anchura, 1 + altura);
   ZIPI_bold();
   j = ZIPI_getwidth();
   if (j == 0) j = 80;
   ZIPI_spaces(j);
-  ZIPI_setcursor(2 + anchura, 1);
+  ZIPI_setcursor(2 + anchura, 1 + altura);
   PrintOrRunVar(titulo, 1);
   ZIPI_roman();
 ];
 
 
 [ ZIPI_RunMenu _m top
-  i j count cur key dest r tec anchura;
+  i j count cur key dest r tec anchura altura;
 
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
 
   for (::) {
-    anchura = ZIPI_getwidth() / 4;
-    ZIPI_PintaTitulo(_m.ZIPI_titulo, anchura);
+    glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+    anchura = gg_arguments-->0 / 4;
+    if (top == 2) altura = 0;
+    else          altura  = (gg_arguments-->1 / 2) - (count / 2);
+
+    ZIPI_PintaTitulo(_m.ZIPI_titulo, anchura, altura);
 
     for (i = 0, tec = 0 : i < count - 2 : i++) {
-      j = i + 3;
+      j = i + 3 + altura;
       ZIPI_setcursor(5 + anchura, j);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
         glk_set_hyperlink(teclasOpciones->tec);
@@ -1629,13 +1633,13 @@ Object timer_imagen_personaje
       }
     }
 
-    j = i + 4;
+    j = i + 4 + altura;
     ZIPI_setcursor(5 + anchura, j);
     glk_set_hyperlink('Q');
     if (top) print (s_head) "[Q] Salir";
     else     print (s_head) "[Q] Volver";
     glk_set_hyperlink(0);
-    j = cur + 3;
+    j = cur + 3 + altura;
     ZIPI_setcursor(2 + anchura, j);
     print (s_emph) ">";
     ZIPI_setcursor(2 + anchura, j);

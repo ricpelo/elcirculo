@@ -52,13 +52,14 @@ Array _GlulxBoxQuoteAux_ --> 4;
       glk_stylehint_set(wintype_TextGrid, style_BlockQuote,
                         stylehint_ReverseColor, 1);
       gg_quotewin = glk_window_open(gg_mainwin,
-                                    winmethod_Fixed + winmethod_Above,
+                                    winmethod_Fixed + winmethod_Above +
+                                    winmethod_NoBorder,
                                     lines + 4, wintype_TextGrid,
                                     GG_QUOTEWIN_ROCK);
     }
   } else {
     parwin = glk_window_get_parent(gg_quotewin);
-    glk_window_set_arrangement(parwin, $12, lines + 4, 0);
+    glk_window_set_arrangement(parwin, $112, lines + 4, 0);
   }
   
   if (gg_quotewin) {

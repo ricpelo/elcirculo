@@ -880,7 +880,7 @@ Object LibraryMessages
 Class Lugar
 !  class LugarConRastro
   with
-!   sgw_mus Estancia_ogg,
+    sgw_mus 0,
     sgw_img Oscuridad_jpg,
     sgw_vol VOLUMEN_FONDO,
     describe [;

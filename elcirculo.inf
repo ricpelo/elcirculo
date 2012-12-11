@@ -258,6 +258,9 @@ Replace KeyDelay;
 ! muestra entre paréntesis el destino de la dirección:
 Replace LanguageDirection;
 
+Replace ListenSub;
+Replace Locale;
+
 ! Usamos el ParseNoun de IntNombre_NG:
 Replace ParseNoun;
 
@@ -1325,6 +1328,7 @@ Include "random";          ! Cambia la función random()
 Include "Decir";           ! Para poder usar DECIR ... A ...
 Include "Mapeador";
 Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
+Include "Sonidos_NG";
 
 
 !===============================================================================
@@ -1345,45 +1349,45 @@ Class Personaje
   class Movil
   with
     imagen 0,
-    hablarand [ _vararg_count
+    dice_rand [ _vararg_count
       a;
-      self.habla_inicio();
+      self.dice_inicio();
       @call prand _vararg_count a;
-      self.habla_fin();
+      self.dice_fin();
       return a;
     ],
-    hablaonce [ _vararg_count
+    dice_once [ _vararg_count
       a;
-      self.habla_inicio();
+      self.dice_inicio();
       @call prandonce _vararg_count a;
-      self.habla_fin();
+      self.dice_fin();
       return a;
     ],
-    hablalast [ _vararg_count
+    dice_last [ _vararg_count
       a;
-      self.habla_inicio();
+      self.dice_inicio();
       @call prandlast _vararg_count a;
-      self.habla_fin();
+      self.dice_fin();
       return a;
     ],
-    hablaseq [ _vararg_count
+    dice_seq [ _vararg_count
       a;
-      self.habla_inicio();
+      self.dice_inicio();
       @call prandseq _vararg_count a;
-      self.habla_fin();
+      self.dice_fin();
       return a;
     ],
-    habla [ _vararg_count
+    dice [ _vararg_count
       msg nl hablado;
-      self.habla_inicio();
+      self.dice_inicio();
       for ( : _vararg_count > 0: _vararg_count--) {
         @copy sp msg;
         if (msg ofclass String) {
           if (hablado) {          
-            switch (self.habla_retardo) {
+            switch (self.dice_retardo) {
               -1:
                0: KeyDelay();
-               default: WaitDelay(self.habla_retardo);
+               default: WaitDelay(self.dice_retardo);
             }
           }
           print (string) msg;
@@ -1392,11 +1396,11 @@ Class Personaje
           nl = msg;
         }
       }
-      self.habla_fin(nl);
+      self.dice_fin(nl);
       rtrue;
     ],
-    habla_retardo -1,
-    habla_inicio [;
+    dice_retardo -1,
+    dice_inicio [;
       print "^---";
       glk_set_style(style_User1);
       if (self == player) print "Tú: ";
@@ -1404,7 +1408,7 @@ Class Personaje
       glk_set_style(style_Normal);
       print "@<<";
     ],
-    habla_fin [ nl;
+    dice_fin [ nl;
       print "@>>";
       if (~~nl) new_line;
     ],
@@ -1437,7 +1441,6 @@ Class Personaje
       ! Ocultamos antes la imagen en caso de que ya estuviera:
       timer_imagen_personaje.ocultar_imagen();
       MostrarImagenAuxiliar(self.imagen);
-!      timer_imagen_personaje.duracion = 4 + ControlTimer.numero_ticks();
       timer_imagen_personaje.AgregarGestorAlFinal();
       give timer_imagen_personaje general;
     ],

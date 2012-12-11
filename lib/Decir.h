@@ -108,7 +108,7 @@ Global QuienHay;      ! Uno de ellos (el último encontrado)
 ! también que la frase usada por el jugador no puede usar esta
 ! preposición, como p. ej: DI VETE A LA PORRA). Para este caso debe
 ! especificar con quién habla: DI VETE A LA PORRA A MANOLO
-[ frase w ultima;
+[ FraseDecir w ultima;
     consult_from = wn;
     ultima=0;
     do {
@@ -137,7 +137,7 @@ Global QuienHay;      ! Uno de ellos (el último encontrado)
 ! Nueva gramática del verbo "DI" (y sus sinónimos "GRITA" y "RESPONDE"
 !
 Extend 'di' replace
-    * frase                -> Decir
+    * FraseDecir                -> Decir
     * 'a//' creature topic        -> Answer reverse
-    * frase 'a//' creature        -> Answer;
+    * FraseDecir 'a//' creature        -> Answer;
 

@@ -13,7 +13,7 @@
 !
 !---------------------------------------------------------------------------
 
-System_file;
+!System_file;
 
 Message "Estás incluyendo el módulo de Sonidos de Mel Hython
     ¡Atente a las consecuencias!";
@@ -26,7 +26,7 @@ Constant WORDSIZE = 2;
 Class Lugar with number;
 #endif;
 
-#fndef en_ruta;
+#ifndef en_ruta;
 Attribute en_ruta;
 #endif;
 
@@ -41,8 +41,7 @@ Default SONIDOS_MAX_NUM_RUIDOS        = 100;
 ! VARIABLES GLOBALES
 !  
 
-! Reducciones de intensidad sonoda
-
+! Reducciones de intensidad sonora:
 Global costePorObstaculo         = 4;  ! Por pared o puerta cerrada interpuesta
 Global costePorHabitacion        = 2;  ! Por puerta abierta
 Global costePorContenedor        = 1;  ! Por contenedor abierto
@@ -67,9 +66,7 @@ Array tablaLugares table SONIDOS_MAX_NUM_LUGARES;
 Global indiceLugares = 0;
 Global lugaresApuntados = false;
 
-!
-! Función que apunta todos los lugares
-!
+! Función que apunta todos los lugares:
 [ RegistraLugares
   i;
 
@@ -88,9 +85,7 @@ Global lugaresApuntados = false;
   lugaresApuntados = true;
 ];
 
-!
 ! Funcion de registro general
-! 
 [ RegistraTodo;
   if (~~lugaresApuntados) RegistraLugares();
   if (~~ruidosApuntados)  RegistraRuidos();
@@ -106,9 +101,7 @@ Property cercanoA 0;
 ! CLASES NUCLEO
 !  
 
-!
-! Clase para pasar contenidos al método 'escuchado'
-!
+! Clase para pasar contenidos al método 'escuchado':
 Class ContenidoSonoro
   with
     clase 0,           ! --> TipoDeSonido usado para emitirlo
@@ -121,6 +114,7 @@ Class ContenidoSonoro
 
 ! Fifo de llamadas a oyentes. Como mucho 10 anidamientos
 Global indiceAnidamiento = 0;
+
 ContenidoSonoro cO1;
 ContenidoSonoro cO2;
 ContenidoSonoro cO3;
@@ -131,6 +125,7 @@ ContenidoSonoro cO7;
 ContenidoSonoro cO8;
 ContenidoSonoro cO9;
 ContenidoSonoro cO10;
+
 Array contOyente table cO1 cO2 cO3 cO4 cO5 cO6 cO7 cO8 cO9 cO10;
 
 ! Usado como base
@@ -140,7 +135,7 @@ ContenidoSonoro contGeneral
 
 [ ClonaContenido _origen;
   ! print "[",indiceAnidamiento+1,"] ", (name)_origen.clase, " desde ", (name)_origen.origen, "^";
-  if (indiceAnidamiento <= SONIDOS_MAX_NIVEL_ANIDAMIENTO) {
+  if (indiceAnidamiento < SONIDOS_MAX_NIVEL_ANIDAMIENTO) {
     indiceAnidamiento++;
     (contOyente-->indiceAnidamiento).clase       = _origen.clase;
     (contOyente-->indiceAnidamiento).origen      = _origen.origen;
@@ -478,13 +473,14 @@ Class ObjetoOyente
       tablaOyentes-->indiceOyentes = _oyente;
       return true;
     }
-    return false;
+!    return false;
   }
   return false;
 ];
 
 [ RegistraOyentes
   i;
+  if (oyentesApuntados) return;
   objectloop (i ofclass ObjetoOyente) RegistraOyente(i);
   oyentesApuntados = true;
 ];
@@ -538,7 +534,7 @@ Class Ruido
           ! Seguimos escalando en los padres
           inicial = parent(inicial);
           
-          ! Caso especial, nos saltamos al jugador como origen válido de sonidos
+          ! Caso especial: nos saltamos al jugador como origen válido de sonidos
           if (inicial == selfobj) inicial = location;
         }
       }
@@ -579,14 +575,16 @@ Class Ruido
         move self to contGeneral;
       }
     ],
-    before [;
+    before [
+      jo;
       Listen: 
         ! Escuchar un sonido es como examinar una cosa 
         ! muestra su descripción si es que existe
-        if ((self provides description) && (self.jugadorOye())) {
+        jo = self.jugadorOye();
+        if ((self provides description) && jo) {
           PrintOrRun(self, description);
           rtrue;
-        } else if (self.jugadorOye()) {
+        } else if (jo) {
           rfalse;
         } else {
           "No puedes oir eso por aquí cerca.";
@@ -605,7 +603,6 @@ Class Ruido
       tablaRuidos-->indiceRuidos = _ruido;
       return true;
     }
-
 !    return false;
   }
 
@@ -614,6 +611,7 @@ Class Ruido
 
 [ RegistraRuidos
   i;
+  if (ruidosApuntados) return;
   objectloop (i ofclass Ruido) RegistraRuido(i);
   ruidosApuntados = true;
 ];
@@ -631,9 +629,7 @@ TipoDeSonido tipoPlano;
 ! FUNCIONES
 !
 
-!
-! Transmisión recursiva de un sonido desde un objeto EN una habitación
-!
+! Transmisión recursiva de un sonido desde un objeto EN una habitación:
 [ TocaSonido contenido
   i inicial temp_i k enc_orig origen_aparente j hab_esc tipo _oido indOye indLug
   retor;
@@ -690,7 +686,7 @@ TipoDeSonido tipoPlano;
 
   ! Vemos si el jugador oye el sonido
   if ((location ofclass Lugar) && (location has en_ruta) &&
-      (location.number > nivelAudible)) 
+      (location.number > nivelAudible)) { 
     ! Buscamos un origen 'aparente', simplemente un Lugar cercano con 
     ! intensidad mayor
     enc_orig = false;
@@ -729,7 +725,7 @@ TipoDeSonido tipoPlano;
         break;
       } else {
         ! Cada 'escalada' implica perder potencia
-        if (hab_esc has abierto) {
+        if (hab_esc has open) {
           contenido.intensidad = contenido.intensidad - costePorContenedor;
         }
         else {
@@ -767,7 +763,7 @@ TipoDeSonido tipoPlano;
       contenido.intensidad = hab_esc.number;
       contenido.sePuedeVer = TestScope(contenido.origen, i);
       ! Si proviene de un 'Lugar' diferente ponemos el aparente
-      ! sino dejamos la fuente originial aparente
+      ! si no, dejamos la fuente original aparente
       if (parent(i) ~= inicial) contenido.seEscuchaEn = j;
       ! print (name)i, " -> ", contenido.intensidad, "^";
       i.apunta(contenido);
@@ -947,7 +943,7 @@ Global sonidoTrasUnObstaculo;
 ];
 
 ! Nueva función de Escuchar que 'oye' todos los ruidos
-[ EscuchaEspecial
+[ ListenEspecial
   i contador indRud;
   contador = 0;
   if (noun == 0) {
@@ -971,6 +967,8 @@ Global sonidoTrasUnObstaculo;
       "Escuchas un poco por si ", (del) noun, " proviene algún sonido.";
     } else if (noun == selfobj) {
       "Te escuchas un rato, pero no oyes nada raro.";
+    } else if (noun has animate) {
+      "Escuchas un poco por si ", (el) noun, " dice algo.";
     } else {
       "Escuchas un poco por si ", (el) noun, " emite algún sonido.";
     }
@@ -984,7 +982,7 @@ Global sonidoTrasUnObstaculo;
   }
 ];
 
-[ EscucharKKSub;
+[ ListenNadaSub;
   ! print "[EscucharKK con ", (name) noun, "]^";
   ! L__M(##Listen, 1, noun);
   "No veo eso por aquí.";
@@ -1093,6 +1091,14 @@ Global sonidoTrasUnObstaculo;
   ! hacer con ella y que cumpla todos los requisitos
 ];
 
+[ ListenSub;
+  ListenEspecial();
+];
+
+[ Locale obj;
+  LocaleEspecial(obj);
+];
+
 !
 ! Cambiar el Scope de 'Escuchar'
 !
@@ -1102,5 +1108,5 @@ Extend 'escucha' replace
   * noun              -> Listen
   * 'a//' scope=Oible -> Listen
   * scope=Oible       -> Listen
-  * topic             -> EscucharKK;
+  * topic             -> ListenNada;
 

@@ -803,9 +803,9 @@ Class Character
             ! to the quip that the player selected.
             ! print the option text
             glk_set_window(gg_mainwin);
-            player.habla_inicio();
+            player.dice_inicio();
             self.quip(curquip * 10 + 1);
-            player.habla_fin();
+            player.dice_fin();
             glk_set_window(gg_conversawin);
             break;
           }

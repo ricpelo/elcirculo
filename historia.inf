@@ -408,17 +408,17 @@ Object ruth "Ruth"
           tema_ruth_katie:
             if (self hasnt general) {
               give self general;
-              old_ret = self.habla_retardo;
-              self.habla_retardo = 1000;
-              self.habla("No tiene sentido, Rachel...", " Me he pasado cuatro
+              old_ret = self.dice_retardo;
+              self.dice_retardo = 1000;
+              self.dice("No tiene sentido, Rachel...", " Me he pasado cuatro
                           horas en Internet y no he podido encontrar ni un solo
                           caso de una niña de dieciséis años a la que se le
                           pare el corazón...", " He hablado con tres médicos y
                           ninguno sabe decirme qué le pasó a Katie...");
-              self.habla_retardo = old_ret;
+              self.dice_retardo = old_ret;
               rtrue;
             } else {
-              return self.habla("Por favor, Rachel: descubre qué le ha pasado
+              return self.dice("Por favor, Rachel: descubre qué le ha pasado
                                  a mi Katie...");
             }
 

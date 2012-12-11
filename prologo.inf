@@ -76,7 +76,7 @@ Object decorado_cuarto_katie cuarto_katie
 
       Close:
         if (self.palabra == 'puerta') {
-          return becca.habla("¿Pero no vas a salir a coger el teléfono?");
+          return becca.dice("¿Pero no vas a salir a coger el teléfono?");
         }
 
       Take, Push, PushDir:
@@ -136,7 +136,7 @@ Object cocina_katie "Cocina"
                           alma como el mismo silencio.^";
                  }
                  tv_salon_katie.encender();
-                 katie.habla("Becca, deja de bromear... ¿Dónde estas?");
+                 katie.dice("Becca, deja de bromear... ¿Dónde estas?");
                  print "^Miras a tu alrededor, pero sigues estando sola.^";
                  rtrue;
 
@@ -518,7 +518,7 @@ Object telefono_katie "teléfono" cocina_katie
     becca_lo_coge [;
       self.descolgar();
       print "Becca coge el teléfono con expresión seria.^";
-      becca.habla("¿Diga?", true);
+      becca.dice("¿Diga?", true);
       print " ---la oyes decir, casi susurrando,
             al auricular del teléfono.^^";
       print "Lentamente, a medida que escucha lo que el teléfono le dice, se
@@ -527,7 +527,7 @@ Object telefono_katie "teléfono" cocina_katie
       KeyDelay(10000);
       print " hasta que te muestra una amplia sonrisa y pasándote el teléfono,
              divertida, te dice:^";
-      becca.habla("Es tu madre.");
+      becca.dice("Es tu madre.");
       new_line;
       self.coges_el_telefono();
       rtrue;
@@ -542,9 +542,9 @@ Object telefono_katie "teléfono" cocina_katie
              cocina escaleras arriba. Finalmente, cuelgas el teléfono...";
       KeyDelay(25000);
       print (s_emph) " y estas sola.^";
-      katie.habla("¿Becca?", true);
+      katie.dice("¿Becca?", true);
       print " ---la llamas temiendo alzar demasiado la voz, sin respuesta.^";
-      katie.habla("¿BECCA?", true);
+      katie.dice("¿BECCA?", true);
       print " ---gritas esta vez, sacando fuerzas del miedo.^^";
       print_ret (s_emph) "No hay respuesta.";
     ],
@@ -704,7 +704,7 @@ Object tv_salon_katie "televisor" salon_katie
                deja claro: el televisor del salón ha vuelto a encenderse
                solo.^";
       }
-      katie.habla("¡Becca, vale ya!");
+      katie.dice("¡Becca, vale ya!");
       "^Pero Becca no está. Y te quedas ahí, sin subir la escalera, mirando
        en dirección al salón y el televisor encendido.";
     ],
@@ -808,6 +808,7 @@ Object tv_salon_katie "televisor" salon_katie
 
 Object becca "Becca" cuarto_katie
   class Personaje
+  class ObjetoHablante
   with
     name 'becca',
     short_name "Becca",
@@ -1039,12 +1040,12 @@ Object sonido_telefono_katie
         if (becca in cocina_katie && random(100) < 10 &&
             self.ultimo_mensaje == 4) {
           ControlTimer.PrepararImpresion();
-          becca.habla("Venga ya, esto es ridículo...");
+          becca.dice("Venga ya, esto es ridículo...");
           new_line;
           telefono_katie.becca_lo_coge();
         } else if (random(100) < 20) {
           ControlTimer.PrepararImpresion();
-          self.ultimo_mensaje = becca.hablalast(
+          self.ultimo_mensaje = becca.dice_last(
             "Katie... Está sonando el teléfono...",
             "¿Qué pasa? ¿No vas a cogerlo?",
             "¿Por qué no lo coges?",
@@ -1227,78 +1228,78 @@ Object tema_becca_tv "el televisor" TemasBecca
   Damusix.SimpleFadeIn(TV_Fondo_ogg, 2000, VOLUMEN_TV_SALON);
   KeyDelay();
   new_line;
-  becca.habla("La tele es un rollo. Toma: pon lo que quieras.");
+  becca.dice("La tele es un rollo. Toma: pon lo que quieras.");
   print "^Becca te da el mando del televisor.";
   KeyDelay();
   print " Nada más cogerlo, apagas la tele y tiras el mando lejos de ti,
          cayendo por el lado contrario de la cama.^";
   Damusix.PararCanal(CANAL_TV_SALON);
   Damusix.TocarV(TV_Apaga_ogg);
-  katie.habla("No hay nada que me guste.", true);
+  katie.dice("No hay nada que me guste.", true);
   print " ---comentas, aburrida. Y tras unos instantes jugando con un bucle de
          tu pelo, continúas:^";
   KeyDelay();
-  katie.habla("Dicen que hay tantas ondas magnéticas a nuestro alrededor que
+  katie.dice("Dicen que hay tantas ondas magnéticas a nuestro alrededor que
               perdemos como veinte veces más neuronas de lo normal... El
               gobierno lo sabe pero no hacen nada. Es una consipiración.");
   KeyDelay();
-  becca.habla("Sé algo mejor: ¿Sabes lo de la cinta?");
+  becca.dice("Sé algo mejor: ¿Sabes lo de la cinta?");
   KeyDelay();
-  katie.habla("¿Qué cinta?");
+  katie.dice("¿Qué cinta?");
   KeyDelay();
   print "^Becca se incorpora y te mira mientras empieza a contar:^"; 
-  becca.habla("Una cinta de vídeo, que parece normal... Se alquila, creo,
+  becca.dice("Una cinta de vídeo, que parece normal... Se alquila, creo,
               no sé... Pero cuando la pones...");
   KeyDelay();
   print "^Ahora eres tú la que se incorpora, con expresión rígida:^";
-  katie.habla("¿Qué? ¿Qué pasa cuando la pones?");
+  katie.dice("¿Qué? ¿Qué pasa cuando la pones?");
   KeyDelay();
   print "^Becca, con expresión de divertida malicia, continúa su historia:^";
-  becca.habla_inicio();
+  becca.dice_inicio();
   print "Es como una pesadilla...";
   KeyDelay();
   print " Y luego ves a una mujer... Y la mujer te sonríe...";
   KeyDelay();
   print (s_emph) " Te ve a través de la pantalla...";
-  becca.habla_fin(true);
+  becca.dice_fin(true);
   KeyDelay();
   print "^^Tus ojos reflejan el miedo que va creciendo en tu interior, lo que
          divierte más a Becca, que continúa:^";
-  becca.habla_inicio();
+  becca.dice_inicio();
   print "Y cuando se acaba la cinta... Suena el
         teléfono... Alguien sabe que lo has visto...";
   KeyDelay();
   print " Y te dice: ";
   KeyDelay();
   print (s_emph) "'Morirás en siete días'.";
-  becca.habla_fin();
+  becca.dice_fin();
   KeyDelay(esp / 2);
-  katie.habla("¿Quién te lo ha contado?");
+  katie.dice("¿Quién te lo ha contado?");
   KeyDelay();
-  becca.habla("No sé, alguien debe haber...");
+  becca.dice("No sé, alguien debe haber...");
   print "^La interrumpes:^";
-  katie.habla("¿Quién ha sido?");
+  katie.dice("¿Quién ha sido?");
   KeyDelay();
   print "^Logras preocupar a Becca:^";
-  becca.habla("¿Qué te pasa?");
+  becca.dice("¿Qué te pasa?");
   KeyDelay();
-  katie.habla("Yo lo he visto. Josh y yo lo vimos el viernes pasado.");
+  katie.dice("Yo lo he visto. Josh y yo lo vimos el viernes pasado.");
   KeyDelay();
-  becca.habla("Venga ya, Katie... ¡Es un cuento! Pero... ¿no estabas con tus
+  becca.dice("Venga ya, Katie... ¡Es un cuento! Pero... ¿no estabas con tus
               padres? ¡¿Estuviste con Josh el fin de semana?!");
-  katie.habla_inicio();
+  katie.dice_inicio();
   print "Alquilamos una cabaña en las montañas, con unos
         amigos suyos...";
   KeyDelay();
   print " Estaban intentando grabar el partido, la recepción era muy mala...";
-  katie.habla_fin();
+  katie.dice_fin();
   KeyDelay();
-  becca.habla("¿De qué me estás hab...?");
-  katie.habla("¡Escúchame! Cuando pusimos la cinta, el partido
+  becca.dice("¿De qué me estás hab...?");
+  katie.dice("¡Escúchame! Cuando pusimos la cinta, el partido
         no estaba... Era... era...");
   KeyDelay();
-  becca.habla("¿Qué? ¿Qué era?");
-  katie.habla_inicio();
+  becca.dice("¿Qué? ¿Qué era?");
+  katie.dice_inicio();
   print "Era... ", (s_emph) "otra cosa...";
   KeyDelay();
   print " Pensamos que era una broma, pero...";
@@ -1306,13 +1307,13 @@ Object tema_becca_tv "el televisor" TemasBecca
   print " sonó el teléfono...";
   KeyDelay();
   print " Fue hace una semana.";
-  katie.habla_fin();
+  katie.dice_fin();
   KeyDelay();
   print "^La miras a los ojos, llena de terror, y su preocupación hace crecer
          tu miedo:^";
-  katie.habla_inicio();
+  katie.dice_inicio();
   print (s_emph) "El plazo acaba hoy.";
-  katie.habla_fin();
+  katie.dice_fin();
   KeyDelay();
   
 !  if (v ~= 0) {

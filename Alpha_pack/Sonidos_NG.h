@@ -52,7 +52,7 @@ Global nivelSusurro  = 4;
 Global nivelMurmullo = 6;
 Global nivelNormal   = 8;
 Global nivelAlto     = 10;
-Global nivelMuyAlto  = 12;
+!Global nivelMuyAlto  = 12;
 
 Array tablaOyentes table SONIDOS_MAX_NUM_OYENTES;
 Global indiceOyentes = 0;
@@ -158,7 +158,7 @@ ContenidoSonoro contGeneral
 ! Clase general para todos los sonido
 !
 Class TipoDeSonido
-  with 
+  with
     !
     ! La descripcion mínima del sonido irá en 'short_name'
     ! o en las comillas de definición del objeto
@@ -228,7 +228,7 @@ Class TipoDeSonido
     ],
     ! Rutina que imprime el mensaje final de jugador. Esta es la rutina que
     ! puede redefinir el programador para crear sus propios sonidos.
-    escuchado [ contenido
+    escuchado [ contenido no_decir_nada
       textoPotencia textoDistancia _esVoz;
       ! El objeto contenido tiene los atributos:
       !
@@ -239,6 +239,8 @@ Class TipoDeSonido
       ! seEscuchaEn  --> origen aparente (contenedor, dirección...)
       ! texto        --> lo que dice la voz
 
+      if (no_decir_nada) rfalse;
+
       ! No se ha pasado un texto es un sonido ininteligible, una voz 
       if (contenido.texto == 0) {
         _esVoz = false;      ! En principio no es voz
@@ -246,7 +248,7 @@ Class TipoDeSonido
         if (VR(self.usarDistancia)) {
           textoDistancia = self.diDistancia(contenido.intensidad,
                                             contenido.sePuedeVer,
-                                            (self has female));
+                                            self has female);
         } else {
           textoDistancia = 0;
         }
@@ -473,7 +475,6 @@ Class ObjetoOyente
       tablaOyentes-->indiceOyentes = _oyente;
       return true;
     }
-!    return false;
   }
   return false;
 ];
@@ -489,20 +490,45 @@ Class ObjetoOyente
 ! Objeto que produce sonido ambiente
 !
 Class Ruido
+  class TipoDeSonido
   with
     voz tipoPlano,    ! Clase de Voz a usar
     frase 0,          ! Texto que se dice permanentemente
     intensidad 0,     ! Nivel con el que se habla
     origen 0,         ! Objeto que lo produce
-    sonando true,     ! De base esta sonando
-    found_in [;
-      ! Se oyen sonidos si estan presentes y no estan ocultos
-      if (self hasnt concealed) {
-        return TocaDesde(VR(self.voz), VR(self.origen), VR(self.frase),
-                         VR(self.intensidad));
-      } else {
-        return self.jugadorOye();
+    emision 0,        ! El sonido a emitir
+    sonando false,    ! De base NO está sonando
+    verboEmitir "está emitiendo", ! Verbo base usado para emitir sonidos
+    tocar_sonido [ volumen;
+      #ifdef DEBUG;
+      if (self.emision == 0) {
+        "*** ERROR: Se intenta tocar un sonido sin definirlo antes ***"; 
       }
+      #endif;
+      if (self.emision ~= 0) {
+        if (Damusix.SonandoDeFondo(self.emision)) {
+          Damusix.VolumenCanal(self.canal, volumen);
+        } else {
+          Damusix.AsignarCanal(self.emision, self.canal, volumen, 
+                               SONIDO_REPETIR);
+          Damusix.TocarCanal(self.canal);
+        }
+      }
+    ],
+    parar_sonido [;
+      Damusix.PararCanal(self.canal);
+    ],
+    sonar [ snd;
+      self.tocar_sonido(snd);
+    ],
+    quitar [;
+      self.parar();
+      remove self;
+      give self absent;
+    ],
+    found_in [;
+      if (~~self.sonando) rfalse;
+      return self.jugadorOye();
     ],
     jugadorOye [
       enc_orig inicial se_oye i _intensidad indLug;
@@ -515,6 +541,7 @@ Class Ruido
 
       ! Intentamos 'sacar' el sonido a un 'Lugar'
       enc_orig = false;
+
       while (inicial) {
         if (inicial ofclass Lugar) {
           ! Lo hemos logrado, propagar sonido desde ahí
@@ -553,24 +580,33 @@ Class Ruido
       return se_oye;
     ],
     describe [;
-      return true;
+      new_line;
+      return TocaDesde(self);
     ],
-    iniciar [;
+    mensaje_iniciar [;
+      print "Empiezas a oir ", (name) self, ".^";
+    ],
+    iniciar [ no_decir_nada;
       if (~~self.sonando) {
         self.sonando = true;
 
         if ((self hasnt concealed) && (self.jugadorOye())) {
-          print "Empiezas a oir ", (name) VR(self.voz), ".^";
+          if (~~no_decir_nada) self.mensaje_iniciar();
           move self to location;
+          TocaDesde(self, no_decir_nada);
         }
       }
     ],
-    parar [;
+    mensaje_detener [;
+      print "Dejas de oir ", (name) self, ".^";
+    ],
+    detener [ no_decir_nada;
       if (self.sonando) {
         if ((self hasnt concealed) && (self.jugadorOye())) {
-          print "Dejas de oir ", (name) VR(self.voz), ".^";
+          if (~~no_decir_nada) self.mensaje_detener();
         }
 
+        self.parar_sonido();
         self.sonando = false;
         move self to contGeneral;
       }
@@ -587,10 +623,16 @@ Class Ruido
         } else if (jo) {
           rfalse;
         } else {
-          "No puedes oir eso por aquí cerca.";
+          "No puedes oir ", (name) self, " por aquí cerca.";
         }
 
       default:
+        if (TestScope(self.origen)) {
+          noun = self.origen;
+          ! Esto es porque al hacer el truco de la línea anterior (de cambiar
+          ! el noun por la cara) luego no se ejecuta la rutina before:
+          return RunRoutines(noun, before);
+        }
         "No puedes hacer eso con un sonido.";
     ],
   has static;
@@ -629,8 +671,17 @@ TipoDeSonido tipoPlano;
 ! FUNCIONES
 !
 
+[ VolumenSonido intensidad;
+  if (intensidad < nivelAudible)        return 0;
+  else if (intensidad <= nivelSusurro)  return 20;
+  else if (intensidad <= nivelMurmullo) return 40;
+  else if (intensidad <= nivelNormal)   return 60;
+  else if (intensidad <= nivelAlto)     return 80;
+  else                                  return 100;
+];
+
 ! Transmisión recursiva de un sonido desde un objeto EN una habitación:
-[ TocaSonido contenido
+[ TocaSonido contenido no_decir_nada
   i inicial temp_i k enc_orig origen_aparente j hab_esc tipo _oido indOye indLug
   retor;
 
@@ -649,10 +700,11 @@ TipoDeSonido tipoPlano;
 
   ! Intentamos 'sacar' el sonido a un 'Lugar'
   enc_orig = false;
+
   while (inicial) {
     if (inicial ofclass Lugar) {
       ! Lo hemos logrado, propagar sonido desde ahí
-      PropagaSonido(inicial, contenido.intensidad );
+      PropagaSonido(inicial, contenido.intensidad);
       contenido.seEscuchaEn = origen_aparente;
       enc_orig = true;
       break;
@@ -709,7 +761,17 @@ TipoDeSonido tipoPlano;
     ! si no, dejamos la fuente original aparente
     ! print "¿?: ", (name)inicial, " ", (name)i, "^";
     if (location ~= inicial) contenido.seEscuchaEn = i;
-    tipo.escuchado(contenido);
+    tipo.escuchado(contenido, no_decir_nada);
+    
+    ! print "*La intensidad es ", contenido.intensidad, "*";
+    
+    if (contenido.modo ofclass Ruido) {
+      contenido.modo.tocar_sonido(VolumenSonido(contenido.intensidad));
+    } else {
+      Damusix.TocarV(contenido.modo.emision,
+                     VolumenSonido(contenido.intensidad));
+    }
+
     retor = true;
     contenido.intensidad = temp_i;
   }
@@ -926,23 +988,23 @@ Global sonidoTrasUnObstaculo;
   return 0;
 ];
 
-! Tocador de sonidos desde objetos 'no-hablantes'
-[ TocaDesde _tipo _origen _texto _intensidad _modo;
-  contGeneral.origen     = _origen;        ! El que sea
-  contGeneral.modo       = _modo;          ! El que sea
-  contGeneral.sePuedeVer = TestScope(_origen);        
-  contGeneral.texto      = _texto;         ! Texto pedido
-  contGeneral.clase      = _tipo;          ! Clase dada
-  if (_intensidad == 0) {                  ! Si no han dicho nada
-    contGeneral.intensidad = nivelNormal;  !   --> Intensidad media
-  } else {                                 ! sino
-    contGeneral.intensidad = _intensidad;  !   --> la que hayan dicho
+! Tocador de sonidos desde objetos 'no-hablantes':
+[ TocaDesde _modo no_decir_nada;
+  contGeneral.origen = _modo.origen;           ! El que sea
+  contGeneral.modo   = _modo;             ! El que sea
+  contGeneral.texto  = _modo.frase;            ! Texto pedido
+  contGeneral.clase  = _modo;             ! Clase dada
+  if (_modo.intensidad == 0) {                 ! Si no han dicho nada
+    contGeneral.intensidad = nivelNormal; !   --> Intensidad media
+  } else {                                ! si sí:
+    contGeneral.intensidad = _modo.intensidad; !   --> la que hayan dicho
   }
+  contGeneral.sePuedeVer = TestScope(_modo.origen);
 
-  return TocaSonido(contGeneral);
+  return TocaSonido(contGeneral, no_decir_nada);
 ];
 
-! Nueva función de Escuchar que 'oye' todos los ruidos
+! Nueva función de Escuchar que 'oye' todos los ruidos:
 [ ListenEspecial
   i contador indRud;
   contador = 0;
@@ -950,7 +1012,7 @@ Global sonidoTrasUnObstaculo;
     for (indRud = 1 : indRud <= indiceRuidos : indRud++) {
       ! print "<", indRud, ",", indiceRuidos, ">^";
       i = tablaRuidos-->indRud;
-      if (TocaDesde(i.voz, i.origen, i.frase, i.intensidad)) {
+      if (i.sonando && TocaDesde(i)) {
         ! Puede ser escuchado por el jugador
         contador++;
       }
@@ -959,7 +1021,7 @@ Global sonidoTrasUnObstaculo;
     for (indRud = 1 : indRud <= indiceRuidos : indRud++) {
       i = tablaRuidos-->indRud;
       if ((i.sonando) && (i.origen == noun)) {
-        "Parece que ", (del) noun, " procede ", (name) i.voz, ".";
+        "Parece que ", (the) noun, " emite ", (name) i, ".";
       }
     }
 
@@ -969,6 +1031,9 @@ Global sonidoTrasUnObstaculo;
       "Te escuchas un rato, pero no oyes nada raro.";
     } else if (noun has animate) {
       "Escuchas un poco por si ", (el) noun, " dice algo.";
+    } else if (noun ofclass Ruido && noun.sonando) {
+      TocaDesde(noun);
+      rtrue;
     } else {
       "Escuchas un poco por si ", (el) noun, " emite algún sonido.";
     }

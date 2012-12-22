@@ -596,12 +596,12 @@ Object tv_cuarto_katie "televisor" cuarto_katie
 !    initial "Ves el televisor.",
     encender [;
       give self general;
-      sonido_tv_cuarto_katie.sonar();
+      sonido_tv_cuarto_katie.iniciar();
       cuarto_katie.sgw_img = Cuarto_Katie_TV_Encendida_jpg;
       viewImageCenter(Cuarto_Katie_TV_Encendida_jpg);
     ],
     apagar [;
-      sonido_tv_cuarto_katie.parar();
+      sonido_tv_cuarto_katie.detener();
       cuarto_katie.sgw_img = Cuarto_Katie_jpg;
       viewImageCenter(Cuarto_Katie_jpg);
     ],
@@ -713,7 +713,7 @@ Object tv_salon_katie "televisor" salon_katie
     encender [ sw;
       give self general;
       give self on;
-      sonido_tv_salon_katie.sonar();
+      sonido_tv_salon_katie.iniciar();
       salon_katie.sgw_img = Salon_Katie_TV_Encendida_jpg;
       if (location == salon_katie) {
         viewImageCenter(Salon_Katie_TV_Encendida_jpg);
@@ -722,7 +722,7 @@ Object tv_salon_katie "televisor" salon_katie
     ],
     apagar [;
       give self ~on;
-      sonido_tv_salon_katie.parar();
+      sonido_tv_salon_katie.detener();
       salon_katie.sgw_img = Salon_Katie_jpg;
       if (location == salon_katie) {
         viewImageCenter(salon_katie.sgw_img);
@@ -829,8 +829,8 @@ Object becca "Becca" cuarto_katie
     ],
     react_before [;
       Gritar:
-        self.habla("¡¿Pero qué te pasa?! ¿Qué ocurre? ¿A qué vienen esos
-                    gritos?");
+        self.dice("¡¿Pero qué te pasa?! ¿Qué ocurre? ¿A qué vienen esos
+                   gritos?");
         rtrue;
     ],
     react_after [ c;
@@ -840,14 +840,14 @@ Object becca "Becca" cuarto_katie
           ! Lo hago así para que el mensaje de Becca aparezca DESPUÉS de los
           ! mensajes que genere la rutina after:
           RunRoutines(noun, after);
-          if (c) self.habla("Qué extraño... ¿Qué ha pasado con la imagen?");
-          else   self.habla("Sigue sin haber imagen...");
+          if (c) self.dice("Qué extraño... ¿Qué ha pasado con la imagen?");
+          else   self.dice("Sigue sin haber imagen...");
           rtrue;
         }
     ],
     before [;
       Llamar:
-        return self.habla("Estoy aquí... ¿No me ves?");
+        return self.dice("Estoy aquí... ¿No me ves?");
     ],
     life [
       tema;
@@ -855,33 +855,33 @@ Object becca "Becca" cuarto_katie
         tema = AveriguarTema(TemasBecca);
         switch (tema) {
           tema_becca_telefono:
-            self.habla("¿Crees que puede ser la misma persona que te llamó
+            self.dice("¿Crees que puede ser la misma persona que te llamó
                         en la cabaña?");
             PreguntaSiNo = 1;
 
           tema_becca_tv:
             if (tv_cuarto_katie has general || tv_salon_katie has general) {
-              self.habla("Parece que se ha ido la señal.");
+              self.dice("Parece que se ha ido la señal.");
             } else {
-              self.habla("Sí, haces bien en apagar la tele. Es un rollo.");
+              self.dice("Sí, haces bien en apagar la tele. Es un rollo.");
             }
             
           default:
-            self.habla("No entiendo qué quieres decirme.");
+            self.dice("No entiendo qué quieres decirme.");
         }
         rtrue;
 
       default:
-        return self.habla("No te entiendo...");
+        return self.dice("No te entiendo...");
     ],
     orders [;
       if (player == self) rfalse;
 
       Venir, Seguir:
-        return self.habla("Te sigo, Katie, ya te sigo.");
+        return self.dice("Te sigo, Katie, ya te sigo.");
 
       Go, GoIn, Enter, Exit, Subir, Bajar:
-        return self.habla("No pienso ir sola a ninguna parte.");
+        return self.dice("No pienso ir sola a ninguna parte.");
         
       Take:
         if (noun == telefono_katie) {
@@ -889,19 +889,19 @@ Object becca "Becca" cuarto_katie
             return telefono_katie.becca_lo_coge();
           } else {
             if (cocina_katie has visited) {
-              return self.habla("El teléfono está en la cocina.");
+              return self.dice("El teléfono está en la cocina.");
             } else {
-              return self.habla("¿Dónde está el teléfono?");
+              return self.dice("¿Dónde está el teléfono?");
             }
           }
         }
 
       Saludar:
-        return self.habla("Katie, déjate de saludos ahora. El teléfono sigue
-                           sonando.");
+        return self.dice("Katie, déjate de saludos ahora. El teléfono sigue
+                          sonando.");
 
       default:
-        return self.habla("Mejor hazlo tú misma.");
+        return self.dice("Mejor hazlo tú misma.");
     ],
   has
     female;
@@ -998,39 +998,50 @@ Object timer_telefono_katie
 ! ====================================================================
 
 
-Object sonido_telefono_katie
-  class Sonido
+!Object voz_telefono_katie
+!  class TipoDeSonido
+!  with
+!    found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
+!    emision Telefono1_ogg,
+!    canal CANAL_TELEFONO,
+!    volumen_principal VOLUMEN_TELEFONO;
+
+Object sonido_telefono_katie "el sonido de un teléfono"
+  class Ruido
   with
-    found_in cuarto_katie pasillo_katie cocina_katie salon_katie,
+    name 'telefono',
+    origen telefono_katie,
+    duracion_alarma 10,
     emision Telefono1_ogg,
     canal CANAL_TELEFONO,
     volumen_principal VOLUMEN_TELEFONO,
-    fuente telefono_katie,
-    duracion_alarma 10,
     time_left,
     time_out [;
-      if (self.sonando()) {
+      if (self.sonando) {
         StartTimer(self, self.duracion_alarma);
         self.avisar_que_suena();
       }
     ],
+!    mensaje_iniciar [;
+!      rfalse;
+!    ],
     avisar_que_suena [;
       ControlTimer.PrepararImpresion();
       switch (LugarReal()) {
-        cuarto_katie: "^El teléfono sigue sonando fuera, en la planta baja.";
+        cuarto_katie:  "^El teléfono sigue sonando fuera, en la planta baja.";
         pasillo_katie: "^El teléfono sigue sonando en la planta baja.";
-        cocina_katie: "^El teléfono sigue sonando.";
-        salon_katie: "^El teléfono sigue sonando en la cocina.";
+        cocina_katie:  "^El teléfono sigue sonando.";
+        salon_katie:   "^El teléfono sigue sonando en la cocina.";
       }
     ],
     sonar [ sw;
-      self.tocar_sonido();
+      self.iniciar(true);
       StartTimer(self, self.duracion_alarma);
       if (~~sw) "Son las diez de la noche en punto y, súbitamente, comienza a
                  sonar el teléfono en la planta baja.";
     ],
     parar [ sw;
-      self.parar_sonido();
+      self.detener(true);
       StopTimer(self);
       if (~~sw) "El teléfono deja de sonar.";
     ],
@@ -1057,25 +1068,25 @@ Object sonido_telefono_katie
 
 
 Object sonido_tv_cuarto_katie
-  class Sonido
+  class Ruido
   with
-    found_in salon_katie pasillo_katie,
+!    found_in salon_katie pasillo_katie,
     emision TV_Ruido_ogg, 
     canal CANAL_TV_CUARTO,
-    fuente tv_cuarto_katie,
-    volumen_principal VOLUMEN_TV_CUARTO,
-    propagacion 2;
+    origen tv_cuarto_katie,
+    volumen_principal VOLUMEN_TV_CUARTO;
+!    propagacion 2;
 
 
 Object sonido_tv_salon_katie
-  class Sonido
+  class Ruido
   with
-    found_in salon_katie cocina_katie pasillo_katie,
+!    found_in salon_katie cocina_katie pasillo_katie,
     emision TV_Ruido_ogg,
     canal CANAL_TV_SALON,
-    fuente tv_salon_katie,
-    volumen_principal VOLUMEN_TV_SALON,
-    propagacion 2;
+    origen tv_salon_katie,
+    volumen_principal VOLUMEN_TV_SALON;
+!    propagacion 2;
 
 
 !Object msg_becca

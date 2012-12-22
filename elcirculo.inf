@@ -930,13 +930,13 @@ Class Lugar
         if (noun == LugarReal()) <<Exit>>;
         rfalse;
     ],
-    after [ o;
+    after [;
       Go:
         ! Si se está mostrando la imagen de un personaje, quitarla antes:
         timer_imagen_personaje.ocultar_imagen();
         SGW_MarcoDeTrabajo(1);
         ! Actualizar el volumen de los sonidos:
-        objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
+!        objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
     ],
   has
     scenery light;
@@ -1470,63 +1470,63 @@ Class Personaje
     animate proper;
 
     
-Class Sonido
-  with
-    emision 0,     ! El sonido a emitir
-    fuente 0,      ! El objeto del que parte el sonido
-    propagacion 3, ! El nº de localidades desde el que se puede oir el sonido
-    volumen_principal 100, ! Volumen del sonido cuando el objeto está ahí
-    volumen [
-      d r;
-      if (self.fuente == 0) return 0;
-      if (ScopeCeiling(self.fuente) == LugarReal()) {
-        return self.volumen_principal;
-      }
-      move testigo to ScopeCeiling(player);
-      PNJ_Ruta(testigo, MOVIMIENTO_PERSEGUIR, self.fuente);
-      d = testigo.longitud_precamino;
-      PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
-      remove testigo;
-      r = self.volumen_principal -
-          (self.volumen_principal / self.propagacion * d);
-      if (r < 0) r = 0;
-      return r;
-    ],
-    cambiar_volumen [;
-      Damusix.VolumenCanal(self.canal, self.volumen());
-    ],
-    sonando [;
-      return Damusix.SonandoDeFondoCanal(self.canal);
-    ],
-    tocar_sonido [ snd;
-      if (snd ~= 0) self.emision = snd;
-      #ifdef DEBUG;
-      if (self.emision == 0) {
-        "*** ERROR: Se intenta tocar un sonido sin definirlo antes ***"; 
-      }
-      #endif;
-      if (self.emision ~= 0) {
-        Damusix.AsignarCanal(self.emision, self.canal, self.volumen(),
-                             SONIDO_REPETIR);
-        Damusix.TocarCanal(self.canal);
-      }
-    ],
-    parar_sonido [;
-      Damusix.PararCanal(self.canal);
-    ],
-    sonar [ snd;
-      self.tocar_sonido(snd);
-    ],
-    parar [;
-      self.parar_sonido();
-    ],    
-    quitar [;
-      self.parar();
-      remove self;
-      give self absent;
-    ],
-  has
-    concealed;
+!Class Sonido
+!  with
+!    emision 0,     ! El sonido a emitir
+!    fuente 0,      ! El objeto del que parte el sonido
+!    propagacion 3, ! El nº de localidades desde el que se puede oir el sonido
+!    volumen_principal 100, ! Volumen del sonido cuando el objeto está ahí
+!    volumen [
+!      d r;
+!      if (self.fuente == 0) return 0;
+!      if (ScopeCeiling(self.fuente) == LugarReal()) {
+!        return self.volumen_principal;
+!      }
+!      move testigo to ScopeCeiling(player);
+!      PNJ_Ruta(testigo, MOVIMIENTO_PERSEGUIR, self.fuente);
+!      d = testigo.longitud_precamino;
+!      PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
+!      remove testigo;
+!      r = self.volumen_principal -
+!          (self.volumen_principal / self.propagacion * d);
+!      if (r < 0) r = 0;
+!      return r;
+!    ],
+!    cambiar_volumen [;
+!      Damusix.VolumenCanal(self.canal, self.volumen());
+!    ],
+!    sonando [;
+!      return Damusix.SonandoDeFondoCanal(self.canal);
+!    ],
+!    tocar_sonido [ snd;
+!      if (snd ~= 0) self.emision = snd;
+!      #ifdef DEBUG;
+!      if (self.emision == 0) {
+!        "*** ERROR: Se intenta tocar un sonido sin definirlo antes ***"; 
+!      }
+!      #endif;
+!      if (self.emision ~= 0) {
+!        Damusix.AsignarCanal(self.emision, self.canal, self.volumen(),
+!                             SONIDO_REPETIR);
+!        Damusix.TocarCanal(self.canal);
+!      }
+!    ],
+!    parar_sonido [;
+!      Damusix.PararCanal(self.canal);
+!    ],
+!    sonar [ snd;
+!      self.tocar_sonido(snd);
+!    ],
+!    parar [;
+!      self.parar_sonido();
+!    ],    
+!    quitar [;
+!      self.parar();
+!      remove self;
+!      give self absent;
+!    ],
+!  has
+!    concealed;
 
 
 !===============================================================================

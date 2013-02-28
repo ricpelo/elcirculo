@@ -596,12 +596,12 @@ Object tv_cuarto_katie "televisor" cuarto_katie
 !    initial "Ves el televisor.",
     encender [;
       give self general;
-      sonido_tv_cuarto_katie.iniciar();
+      sonido_tv_cuarto_katie.iniciar(true);
       cuarto_katie.sgw_img = Cuarto_Katie_TV_Encendida_jpg;
       viewImageCenter(Cuarto_Katie_TV_Encendida_jpg);
     ],
     apagar [;
-      sonido_tv_cuarto_katie.detener();
+      sonido_tv_cuarto_katie.detener(true);
       cuarto_katie.sgw_img = Cuarto_Katie_jpg;
       viewImageCenter(Cuarto_Katie_jpg);
     ],

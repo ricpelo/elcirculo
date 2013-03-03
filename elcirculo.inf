@@ -896,6 +896,30 @@ Class Lugar
         rtrue;
       }
     ],
+    del_nombre_direccion [ flag;
+      if (flag) print "D";
+      else      print "d";
+
+      if (self has proper) {
+        print "e ", (name) self;
+        rtrue;
+      }
+
+      #ifdef TARGET_ZCODE;
+      texto_impreso-->0 = 50;
+      @output_stream 3 texto_impreso;
+      print (the) self;
+      @output_stream -3;
+      ! Si NO ES articulo "el", agregar 'e' y un espacio:
+      if (texto_impreso->2 ~= 'e') print "e ";
+      #ifnot; !TARGET_GLULX
+      PrintAnyToArray(texto_impreso, 50, self, mostrar_nombre);
+      ! Si NO ES articulo "el", agregar 'e' y un espacio:
+      if (texto_impreso->0 ~= 'e') print "e ";
+      #endif;
+
+      self.mostrar_nombre();
+    ],
     mostrar_nombre [;
       if (self has visited && self provides nombre_si_visitado) {
         PrintOrRun(self, nombre_si_visitado, 1); rfalse;

@@ -44,6 +44,7 @@ Object cuarto_katie "Tu habitación"
     name_f 'habitacion',
 !    input_link "habitacion",
     nombre_direccion "tu habitación",
+!    del_nombre_direccion "de tu habitación",
     adjectives 'tu',
     description [;
       "La pequeña ", (link) "lámpara", " de la ", (link) "mesita",
@@ -101,6 +102,7 @@ Object cocina_katie "Cocina"
     name 'cocina',
 !    input_link "cocina",
     nombre_direccion "la cocina",
+!    del_nombre_direccion "de la cocina",
     description "La cocina, sobria y funcional, es el núcleo central del
                  piso inferior, el distribuidor por el que llegar a los
                  restantes lugares de la casa. El frigorífico y el teléfono
@@ -156,7 +158,9 @@ Object cocina_katie "Cocina"
             }
           }
         }
-    ];
+    ]
+  has
+    female;
 
 
 Object decorado_cocina_katie cocina_katie
@@ -180,6 +184,7 @@ Object pasillo_katie "Pasillo del piso superior"
     name 'pasillo',
 !    input_link "pasillo",
     nombre_direccion "el pasillo",
+!    del_nombre_direccion "del pasillo",
     description [;
       print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
              te había parecido tan oscuro y carente de alma. Una fría
@@ -234,6 +239,7 @@ Object salon_katie "Salón"
     name 'salon' 'salita' 'sala',
 !    input_link "salon",
     nombre_direccion "el salón",
+!    del_nombre_direccion "del salón",
     description "El salón de tu casa está claramente dominado por un televisor
                  de gran tamaño situado sobre una mesa en la pared frontal.
                  Junto al enorme sofá a unos tres metros de la misma forman
@@ -1015,6 +1021,7 @@ Object sonido_telefono_katie "el sonido de un teléfono"
     emision Telefono1_ogg,
     canal CANAL_TELEFONO,
     volumen_principal VOLUMEN_TELEFONO,
+    intensidad NIVEL_ALTO,
     time_left,
     time_out [;
       if (self.sonando) {
@@ -1022,9 +1029,9 @@ Object sonido_telefono_katie "el sonido de un teléfono"
         self.avisar_que_suena();
       }
     ],
-!    mensaje_iniciar [;
-!      rfalse;
-!    ],
+    mensaje_iniciar [;
+      rfalse;
+    ],
     avisar_que_suena [;
       ControlTimer.PrepararImpresion();
       switch (LugarReal()) {
@@ -1035,7 +1042,7 @@ Object sonido_telefono_katie "el sonido de un teléfono"
       }
     ],
     sonar [ sw;
-      self.iniciar(true);
+      self.iniciar(); ! true);
       StartTimer(self, self.duracion_alarma);
       if (~~sw) "Son las diez de la noche en punto y, súbitamente, comienza a
                  sonar el teléfono en la planta baja.";

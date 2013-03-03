@@ -37,6 +37,13 @@ Default SONIDOS_MAX_NUM_OYENTES       = 100;
 Default SONIDOS_MAX_NUM_LUGARES       = 100;
 Default SONIDOS_MAX_NUM_RUIDOS        = 100;
 
+Default NIVEL_AUDIBLE  = 2;
+Default NIVEL_SUSURRO  = 4;
+Default NIVEL_MURMULLO = 6;
+Default NIVEL_NORMAL   = 8;
+Default NIVEL_ALTO     = 10;
+! Default NIVEL_MUYALTO  = 12;
+
 !
 ! VARIABLES GLOBALES
 !  
@@ -46,13 +53,6 @@ Global costePorObstaculo         = 4;  ! Por pared o puerta cerrada interpuesta
 Global costePorHabitacion        = 2;  ! Por puerta abierta
 Global costePorContenedor        = 1;  ! Por contenedor abierto
 Global costePorContenedorCerrado = 2;  ! Por contenedor cerrado
-
-Global nivelAudible  = 2;
-Global nivelSusurro  = 4;
-Global nivelMurmullo = 6;
-Global nivelNormal   = 8;
-Global nivelAlto     = 10;
-!Global nivelMuyAlto  = 12;
 
 Array tablaOyentes table SONIDOS_MAX_NUM_OYENTES;
 Global indiceOyentes = 0;
@@ -197,13 +197,13 @@ Class TipoDeSonido
       if (sePuedeVer) return 0;
 
       if (femenino) {
-        if (intensidad <= nivelSusurro)       return self.adjetivoMuyLejana;
-        else if (intensidad <= nivelMurmullo) return self.adjetivoLejana;
-        else                                  return 0;
+        if (intensidad <= NIVEL_SUSURRO)       return self.adjetivoMuyLejana;
+        else if (intensidad <= NIVEL_MURMULLO) return self.adjetivoLejana;
+        else                                   return 0;
       } else {
-        if (intensidad <= nivelSusurro)       return self.adjetivoMuyLejano;
-        else if (intensidad <= nivelMurmullo) return self.adjetivoLejano;
-        else                                  return 0;
+        if (intensidad <= NIVEL_SUSURRO)       return self.adjetivoMuyLejano;
+        else if (intensidad <= NIVEL_MURMULLO) return self.adjetivoLejano;
+        else                                   return 0;
       }
     ],
     ! Rutina que devuelve una descripcion de potencia auditiva escuchada
@@ -213,17 +213,17 @@ Class TipoDeSonido
       ! esVoz      --> contiene true si el contenido tenía texto
       modo = modo;
       if (~~esVoz) {
-        if (intensidad <= nivelSusurro)       return self.noVozSusurro;
-        else if (intensidad <= nivelMurmullo) return self.noVozMurmullo;
-        else if (intensidad <= nivelNormal)   return self.noVozNormal;
-        else if (intensidad <= nivelAlto)     return self.noVozAlto;
-        else                                  return self.noVozMuyAlto;
+        if (intensidad <= NIVEL_SUSURRO)       return self.noVozSusurro;
+        else if (intensidad <= NIVEL_MURMULLO) return self.noVozMurmullo;
+        else if (intensidad <= NIVEL_NORMAL)   return self.noVozNormal;
+        else if (intensidad <= NIVEL_ALTO)     return self.noVozAlto;
+        else                                   return self.noVozMuyAlto;
       } else {
-        if (intensidad <= nivelSusurro)       return self.VozSusurro;
-        else if (intensidad <= nivelMurmullo) return self.VozMurmullo;
-        else if (intensidad <= nivelNormal)   return self.VozNormal;
-        else if (intensidad <= nivelAlto)     return self.VozAlto;
-        else                                  return self.VozMuyAlto;
+        if (intensidad <= NIVEL_SUSURRO)       return self.VozSusurro;
+        else if (intensidad <= NIVEL_MURMULLO) return self.VozMurmullo;
+        else if (intensidad <= NIVEL_NORMAL)   return self.VozNormal;
+        else if (intensidad <= NIVEL_ALTO)     return self.VozAlto;
+        else                                   return self.VozMuyAlto;
       }
     ],
     ! Rutina que imprime el mensaje final de jugador. Esta es la rutina que
@@ -257,7 +257,7 @@ Class TipoDeSonido
         contenido.modo = contenido.modo;
 
         ! En esta clase base si el umbral de audicion está en 3
-        if (contenido.intensidad > nivelAudible) {
+        if (contenido.intensidad > NIVEL_AUDIBLE) {
           ! Es escuchado por el jugador
           if ((contenido.sePuedeVer) && (VR(self.usarDireccion))) {
             ! Se ve, indicar origen
@@ -276,7 +276,7 @@ Class TipoDeSonido
               ! pero se sabe de donde
               print (string) VR(self.verboOir), " ", (name) self;
               if (textoDistancia ~= 0) print " ", (string) VR(textoDistancia);
-              print " proveniente ", (del) contenido.seEscuchaEn;
+              print " proveniente ", (DireccionSonido) contenido.seEscuchaEn;
             } else {
               ! y no se sabe de donde
               print (string) VR(self.verboOir), " ", (name) self;
@@ -304,11 +304,11 @@ Class TipoDeSonido
         }
 
         ! Tiene texto es una voz
-        if (contenido.intensidad > nivelAudible) {
+        if (contenido.intensidad > NIVEL_AUDIBLE) {
           ! Es escuchado por el jugador
           if ((contenido.sePuedeVer) && (VR(self.usarDireccion))) {
             ! Se ve, indicar origen
-            if (contenido.intensidad > nivelSusurro) {
+            if (contenido.intensidad > NIVEL_SUSURRO) {
               ! Se entiende lo que dice
               print (The) contenido.origen, " ", (string) VR(self.verboDecir);
 
@@ -317,7 +317,7 @@ Class TipoDeSonido
               }
               if (textoDistancia ~= 0) print " ", (string) VR(textoDistancia);
               
-              print ": ~", (string) contenido.texto,"~";
+              print ": ~", (string) contenido.texto, "~";
             } else {
               ! No se entiende lo que dice
               print (The) contenido.origen, " ", (string) VR(self.verboDecir),
@@ -343,7 +343,7 @@ Class TipoDeSonido
                 }
 
                 print (del) contenido.origen, "proveniente ",
-                      (del) contenido.seEscuchaEn, " que ",
+                      (DireccionSonido) contenido.seEscuchaEn, " que ",
                       (string) VR(self.verboDecir);
               } else {
                 ! No se sabe de donde viene
@@ -372,7 +372,7 @@ Class TipoDeSonido
                   print (string) VR(textoDistancia), " ";
                 }
 
-                print "proveniente ", (del) contenido.seEscuchaEn, " que ",
+                print "proveniente ", (DireccionSonido) contenido.seEscuchaEn, " que ",
                       (string) VR(self.verboDecir);
               } else {
                 ! No se sabe de donde viene
@@ -390,7 +390,7 @@ Class TipoDeSonido
               }
             }
 
-            if (contenido.intensidad > nivelSusurro) {
+            if (contenido.intensidad > NIVEL_SUSURRO) {
               print ": ~", (string) contenido.texto, "~";
             } else {
               print " algo";
@@ -430,7 +430,7 @@ Class ObjetoHablante
       contGeneral.clase       = VR(self.voz);
       ! Intensidad proporcionada o intensidad media
       if (_intensidad ~= 0) contGeneral.intensidad = _intensidad;
-      else                  contGeneral.intensidad = nivelNormal;
+      else                  contGeneral.intensidad = NIVEL_NORMAL;
       ! 'Tocar' el sonido
       TocaSonido(contGeneral);
     ];
@@ -460,7 +460,7 @@ Class ObjetoOyente
     oido [ _sonido;
       ! El objeto base hace una tontería; tiene que ser cada objeto el que 
       ! haga algo particular para reaccionar ante los sonidos que oiga
-      if ((TestScope(self)) && (_sonido.intensidad > nivelAudible) &&
+      if ((TestScope(self)) && (_sonido.intensidad > NIVEL_AUDIBLE) &&
           (_sonido.origen ~= self)) {
         print (The) self, " parece haber oído algo.^";
         ! print (name)_sonido.seEscuchaEn, _sonido.seEscuchaEn;
@@ -535,7 +535,7 @@ Class Ruido
       ! Se ve si el sonido alcanza 'location'
       if ((~~self.origen) || (~~self.sonando)) return false;
       if (self.intensidad ~= 0) _intensidad = VR(self.intensidad);
-      else                      _intensidad = nivelNormal;
+      else                      _intensidad = NIVEL_NORMAL;
 
       inicial = parent(VR(self.origen));
 
@@ -568,7 +568,7 @@ Class Ruido
 
       if (enc_orig == false) return false;
 
-      se_oye = ((location has en_ruta) && (location.number > nivelAudible));
+      se_oye = ((location has en_ruta) && (location.number > NIVEL_AUDIBLE));
 
       ! Limpiar la propagación
       for (indLug = 1 : indLug <= indiceLugares : indLug++) {
@@ -593,7 +593,7 @@ Class Ruido
         if ((self hasnt concealed) && (self.jugadorOye())) {
           if (~~no_decir_nada) self.mensaje_iniciar();
           move self to location;
-          TocaDesde(self, no_decir_nada);
+          TocaDesde(self, true); ! no_decir_nada);
         }
       }
     ],
@@ -672,12 +672,12 @@ TipoDeSonido tipoPlano;
 !
 
 [ VolumenSonido intensidad;
-  if (intensidad < nivelAudible)        return 0;
-  else if (intensidad <= nivelSusurro)  return 20;
-  else if (intensidad <= nivelMurmullo) return 40;
-  else if (intensidad <= nivelNormal)   return 60;
-  else if (intensidad <= nivelAlto)     return 80;
-  else                                  return 100;
+  if (intensidad < NIVEL_AUDIBLE)        return 0;
+  else if (intensidad <= NIVEL_SUSURRO)  return 20;
+  else if (intensidad <= NIVEL_MURMULLO) return 40;
+  else if (intensidad <= NIVEL_NORMAL)   return 60;
+  else if (intensidad <= NIVEL_ALTO)     return 80;
+  else                                   return 100;
 ];
 
 ! Transmisión recursiva de un sonido desde un objeto EN una habitación:
@@ -738,7 +738,7 @@ TipoDeSonido tipoPlano;
 
   ! Vemos si el jugador oye el sonido
   if ((location ofclass Lugar) && (location has en_ruta) &&
-      (location.number > nivelAudible)) { 
+      (location.number > NIVEL_AUDIBLE)) {
     ! Buscamos un origen 'aparente', simplemente un Lugar cercano con 
     ! intensidad mayor
     enc_orig = false;
@@ -860,6 +860,13 @@ TipoDeSonido tipoPlano;
   return retor;
 ];
 
+[ DireccionSonido d
+  l;
+  l = LugarReal();
+  if (d ofclass CompassDirection) l.(d.door_dir).del_nombre_direccion();
+  else                            print (del) d;
+];
+
 Global sonidoTrasUnObstaculo;
 
 [ PropagaSonido habitacion _intensidad
@@ -895,7 +902,7 @@ Global sonidoTrasUnObstaculo;
   contGeneral.seEscuchaEn = 0;             ! En un lugar desconocido
   contGeneral.texto       = _texto;        ! Texto pedido
   if (_intensidad == 0) {                  ! Si no han dicho nada
-    contGeneral.intensidad = nivelNormal;  !   --> Intensidad media
+    contGeneral.intensidad = NIVEL_NORMAL; !   --> Intensidad media
   } else {                                 ! sino
     contGeneral.intensidad = _intensidad;  !   --> la que hayan dicho
   }
@@ -995,7 +1002,7 @@ Global sonidoTrasUnObstaculo;
   contGeneral.texto  = _modo.frase;            ! Texto pedido
   contGeneral.clase  = _modo;             ! Clase dada
   if (_modo.intensidad == 0) {                 ! Si no han dicho nada
-    contGeneral.intensidad = nivelNormal; !   --> Intensidad media
+    contGeneral.intensidad = NIVEL_NORMAL; !   --> Intensidad media
   } else {                                ! si sí:
     contGeneral.intensidad = _modo.intensidad; !   --> la que hayan dicho
   }

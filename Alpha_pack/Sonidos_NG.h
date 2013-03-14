@@ -518,8 +518,8 @@ Class Ruido
     parar_sonido [;
       Damusix.PararCanal(self.canal);
     ],
-    sonar [ snd;
-      self.tocar_sonido(snd);
+    sonar [ vol;
+      self.tocar_sonido(vol);
     ],
     quitar [;
       self.parar();

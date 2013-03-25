@@ -1083,6 +1083,13 @@ Constant config_Leading     10;
   return ret;
 ];
 
+! Devuelve el tamaño de la pantalla en píxeles:
+[ glk_get_screen_size _vararg_count ret;
+  ! glk_get_screen_size (width height)
+  ! And now the @glk call
+  @glk $FFF5 _vararg_count ret;
+  return ret;
+];
 
 ! ====================================================================
 ! FIN DE LAS EXTENSIONES DE ALPHA AVENTURAS

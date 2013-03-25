@@ -3321,7 +3321,9 @@ Verb meta 'tt'
 !                               gg_arguments-->2);
 !    WaitDelay(1);
 !  }
-  "Saludas cordialmente.";
+  glk_get_screen_size(gg_arguments, gg_arguments + WORDSIZE);
+  "El ancho es ", gg_arguments-->0, " y el alto es ", gg_arguments-->1, ".";
+!  "Saludas cordialmente.";
 ];
 
 

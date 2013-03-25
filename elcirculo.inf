@@ -2668,7 +2668,8 @@ Object Menu_Configuracion
 ];
 
 
-[ IniciarGraficosSonidos;
+[ IniciarGraficosSonidos
+  ancho alto;
   if (glk_gestalt(gestalt_AlphaAventuras, 0) == 0) {
     print "^Lo sentimos, pero este juego necesita un intérprete
             propio y no funcionará con ningún otro intérprete Glulx
@@ -2699,6 +2700,15 @@ Object Menu_Configuracion
   IniciarSonidos();
 
   ! Inicialización gráfica
+  glk_get_screen_size(gg_arguments, gg_arguments + WORDSIZE);
+  ancho = gg_arguments-->0;
+  alto  = gg_arguments-->1;
+
+  if      (alto <= 700)  altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+  else if (alto <= 800)  altoVentanaGrafica = GRAFICOS_PEQUENOS;
+  else if (alto <= 1080) altoVentanaGrafica = GRAFICOS_MEDIANOS;
+  else                   altoVentanaGrafica = GRAFICOS_GRANDES;
+
   initializeSGW(altoVentanaGrafica);
 ];
 

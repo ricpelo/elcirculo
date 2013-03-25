@@ -1650,8 +1650,11 @@ Object timer_imagen_personaje
   for (::) {
     glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
     anchura = gg_arguments-->0 / 4;
-    if (top == 2) altura = 0;
-    else          altura  = (gg_arguments-->1 / 2) - (count / 2);
+    if ((top == 2) || (layoutPantalla == LAYOUT_MENU_PRINCIPAL)) {
+      altura = 0;
+    } else {
+      altura = (gg_arguments-->1 / 2) - (count / 2);
+    }
 
     ZIPI_PintaTitulo(_m.ZIPI_titulo, anchura, altura);
 

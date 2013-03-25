@@ -719,7 +719,7 @@ Object tv_salon_katie "televisor" salon_katie
     encender [ sw;
       give self general;
       give self on;
-      sonido_tv_salon_katie.iniciar();
+      sonido_tv_salon_katie.iniciar(true);
       salon_katie.sgw_img = Salon_Katie_TV_Encendida_jpg;
       if (location == salon_katie) {
         viewImageCenter(Salon_Katie_TV_Encendida_jpg);
@@ -728,7 +728,7 @@ Object tv_salon_katie "televisor" salon_katie
     ],
     apagar [;
       give self ~on;
-      sonido_tv_salon_katie.detener();
+      sonido_tv_salon_katie.detener(true);
       salon_katie.sgw_img = Salon_Katie_jpg;
       if (location == salon_katie) {
         viewImageCenter(salon_katie.sgw_img);
@@ -779,11 +779,13 @@ Object tv_salon_katie "televisor" salon_katie
 !          }
 !        }     
     ],
-    after [;
+    after [
+      c;
       SwitchOn:
+        c = self hasnt general;
         self.encender(true);
         StopTimer(self);
-        if (self hasnt general) {
+        if (c) {
           give self general;
           "Al encender el televisor compruebas que no aparece ninguna emisión
            salvo la típica imagen de ruido granulado y el sonido de estática

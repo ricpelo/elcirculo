@@ -264,6 +264,10 @@ Replace LanguageDirection;
 Replace ListenSub;
 Replace Locale;
 
+! Para deshabilitar los modos breve y superbreve:
+Replace LMode1Sub;
+Replace LMode3Sub;
+
 ! Usamos el ParseNoun de IntNombre_NG:
 Replace ParseNoun;
 
@@ -1293,6 +1297,17 @@ Include "Timer";            ! Mi librería de eventos temporizados
   l.d.mostrar_nombre();
   glk_set_hyperlink(0);
   if (par) print ")";
+];
+
+
+! Desactiva los modos breve y superbreve:
+[ LMode1Sub;
+   print_ret (s_emph) "[Modo deshabilitado.]";
+];
+
+
+[ LMode3Sub;
+   print_ret (s_emph) "[Modo deshabilitado.]";
 ];
 
 

@@ -54,9 +54,6 @@ Constant NO_SCORE;
 ! Hay curiosidades al final del juego
 !Constant AMUSING_PROVIDED;
 
-! Altura (en px.) de la ventana de logo en el menú principal:
-Constant ALTURA_LOGO_MENU = 450;
-
 ! Ancho de la ventana de acciones:
 Constant ANCHO_ACCIONES  = 25;
 
@@ -151,6 +148,9 @@ Array numeroOpciones -> MAXIMO_TECLAS_OPCIONES;
 Array teclasOpciones -> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
                         'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
                         'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
+
+! Altura (en px.) de la ventana de logo en el menú principal:
+Global altoLogoMenu = 450;
 
 ! Alto de la ventana gráfica:
 Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
@@ -1024,7 +1024,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ Initialise r v;
   IniciarGraficosSonidos();
-  openGraphicWindow(ALTURA_LOGO_MENU);
+  openGraphicWindow(altoLogoMenu);
   clearGraphicWindow();
   ExtenderVentanaEstado();
   clearMainWindow();
@@ -1762,7 +1762,7 @@ Object timer_imagen_personaje
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
   if (gr) {
-    openGraphicWindow(ALTURA_LOGO_MENU);
+    openGraphicWindow(altoLogoMenu);
     clearGraphicWindow();
     viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   }
@@ -2722,10 +2722,19 @@ Object Menu_Configuracion
   ancho = gg_arguments-->0;
   alto  = gg_arguments-->1;
 
-  if      (alto <= 700)  altoVentanaGrafica = GRAFICOS_MINUSCULOS;
-  else if (alto <= 800)  altoVentanaGrafica = GRAFICOS_PEQUENOS;
-  else if (alto <= 1080) altoVentanaGrafica = GRAFICOS_MEDIANOS;
-  else                   altoVentanaGrafica = GRAFICOS_GRANDES;
+  if (alto <= 700)  {
+    altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+    altoLogoMenu = 350;
+    glk_decr_fontsize(); glk_decr_fontsize();
+  } else if (alto <= 800) {
+    altoVentanaGrafica = GRAFICOS_PEQUENOS;
+    altoLogoMenu = 400;
+    glk_decr_fontsize();
+  } else if (alto <= 1080) {
+    altoVentanaGrafica = GRAFICOS_MEDIANOS;
+  } else {
+    altoVentanaGrafica = GRAFICOS_GRANDES;
+  }
 
   initializeSGW(altoVentanaGrafica);
 ];

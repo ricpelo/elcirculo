@@ -142,6 +142,7 @@ Object jardin_ruth "Jardín de la casa"
     nombre_direccion "el jardín",
     description "El jardín de la casa.",
 !    input_link "jardin",
+    w_to salon_ruth,
     in_to salon_ruth;
     
 

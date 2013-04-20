@@ -39,6 +39,7 @@ Constant GG_MAPAWIN_ROCK = 212;
 Global gg_mapawin = 0;
 Global ladoCuadrado = 41;
 Global g_sitio = 0;              ! El sitio actual (se usa en Mapa_HandleGlkEvent)
+Global lugaresDibujados = 0;
 
 Default MAPA_COLOR_LOCAL          = $ffffff;
 Default MAPA_COLOR_CURSOR         = $00aaaa;
@@ -49,6 +50,12 @@ Default MAPA_COLOR_ARRIBA_ABAJO   = $0000ff;
 Default MAPA_COLOR_DENTRO_FUERA   = $0000ff;
 Default MAPA_COLOR_BORDE          = $ffffff;
 Default MAPA_COLOR_CONEXION       = $ffffff;
+
+Default MAPA_MAX_LUGARES = 30;
+
+Array lugaresMapaPosX  --> MAPA_MAX_LUGARES;
+Array lugaresMapaPosY  --> MAPA_MAX_LUGARES;
+Array lugaresMapaLugar --> MAPA_MAX_LUGARES;
 
 Verb meta 'mapa'
   *                 -> Mapa;
@@ -127,9 +134,13 @@ Verb meta 'mapa'
     else                      color = MAPA_COLOR_LOCAL;
     mitad = ladoCuadrado / 2;
     glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx - mitad,
-                         posy - mitad,ladoCuadrado, ladoCuadrado);
+                         posy - mitad, ladoCuadrado, ladoCuadrado);
     glk_window_fill_rect(gg_mapawin, color, posx - mitad + 3, posy - mitad + 3,
                          ladoCuadrado - 6, ladoCuadrado - 6);
+    lugaresMapaPosX-->lugaresDibujados = posx - mitad;
+    lugaresMapaPosY-->lugaresDibujados = posy - mitad;
+    lugaresMapaLugar-->lugaresDibujados = sitio;
+    lugaresDibujados++;
     sep = ladoCuadrado + mitad;
     ck = ComprobarSalidaMapa(sitio, e_to); 
     if (ck) {
@@ -263,6 +274,7 @@ Verb meta 'mapa'
   glk_window_get_size(gg_mapawin, gg_arguments, gg_arguments + WORDSIZE);
   glk_window_fill_rect(gg_mapawin, MAPA_COLOR_BORDE, 0, 0, gg_arguments-->0, gg_arguments-->1);
   glk_window_fill_rect(gg_mapawin, $000000, 2, 2, gg_arguments-->0 - 4, gg_arguments-->1 - 4);
+  lugaresDibujados = 0;
   DibujarMapa(sitio, cenx, ceny, 1);
   objectloop (o ofclass Lugar) o.dibujado = false;
   ImprimirBarraEstadoMapa(sitio);
@@ -348,6 +360,7 @@ Verb meta 'mapa'
                                winmethod_NoBorder,
                                100, wintype_Graphics, GG_MAPAWIN_ROCK);
   if (gg_mapawin == 0) return;
+  glk_request_mouse_event(gg_mapawin);
   glk_window_set_background_color(gg_mapawin, SCBACK);
   glk_window_clear(gg_mapawin);
   glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
@@ -426,7 +439,11 @@ Global num_link = -100;
   while (true) {
     g_sitio = sitio;
 !    tecla = KeyDelay();
-    tecla = ZIPI_tecla(gg_statuswin, true);
+    tecla = MapaTecla();
+    if (g_sitio ~= sitio) {
+      sitio = g_sitio;
+      RefrescarMapa(sitio, cenx, ceny);
+    }
     glk_window_get_size(gg_mapawin, gg_arguments, gg_arguments + WORDSIZE);
     cenx = (gg_arguments-->0) / 2; ! ancho / 2
     ceny = (gg_arguments-->1) / 2; ! alto / 2
@@ -459,6 +476,56 @@ Global num_link = -100;
 .Salir;
   CerrarVentanaMapa(altura);
   g_sitio = 0;
+];
+
+[ MapaTecla
+  key done ix i;
+
+  glk_request_hyperlink_event(gg_statuswin);
+  glk_request_mouse_event(gg_mapawin);
+  glk_request_char_event(gg_mainwin);
+
+  while (~~done) {
+    glk_select(gg_event);
+    ix = HandleGlkEvent(gg_event, 1, gg_arguments);
+    if (ix == 2) {
+      key = gg_arguments-->0;
+      done = true;
+    } else if (ix >= 0) {
+      switch (gg_event-->0) {
+        evtype_CharInput, evtype_Hyperlink:
+          key = gg_event-->2;
+          done = true;
+        evtype_MouseInput:
+          if (gg_event-->1 == gg_mapawin) {
+            for (i = 0 : i < lugaresDibujados : i++) {
+              if (gg_event-->2 >= lugaresMapaPosX-->i &&
+                  gg_event-->2 <= lugaresMapaPosX-->i + ladoCuadrado &&
+                  gg_event-->3 >= lugaresMapaPosY-->i &&
+                  gg_event-->3 <= lugaresMapaPosY-->i + ladoCuadrado) {
+                g_sitio = lugaresMapaLugar-->i;
+                break;
+              }
+            }
+          }
+          key = 0; ! Devuelve la tecla 0, para no interferir
+          done = true;
+        evtype_Arrange, evtype_Redraw:
+          DrawStatusLine();     ! Redibujamos la línea de estado
+          glk_set_window(gg_statuswin);  ! Volvemos a la ventana anterior
+          ! Cuando se redimensiona habiendo un menú de acciones, se
+          ! devuelve la tecla 0, lo que hará que se redibuje la ventana:
+          key = 0;
+          done = true;
+      }
+    }
+  }
+
+  glk_cancel_char_event(gg_mainwin);
+  glk_request_hyperlink_event(gg_statuswin);
+  glk_request_mouse_event(gg_mapawin);
+
+  return key;
 ];
 
 ! Fin

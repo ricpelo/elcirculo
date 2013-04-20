@@ -306,12 +306,11 @@ Include "Parser";
 [ HandleGlkEvent ev context buffer
   obj long r;
   switch (ev-->0) {
-!    evtype_MouseInput:
-!      glk_request_mouse_event(ev-->1); ! ev-->1 es la ventana
-!      if (context == 0) return 1;      ! line input request
-!      glk($00D3, gg_mainwin);          ! glk_cancel_char_event
-!      buffer-->0 = 0;
-!      return 2;
+    evtype_MouseInput:
+      if (HandleGlkMouseEvent(ev-->1)) {
+        buffer-->0 = 0;
+        return 2; ! Se simula la pulsación de Intro con input vacío
+      }
 
     evtype_Hyperlink:
       glk_request_hyperlink_event(ev-->1);  ! ev-->1 es la ventana
@@ -1047,7 +1046,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (hayGraficos) EncenderGraficos();
   ! Los eventos hay que iniciarlos aquí, y no en IniciarAventura
   ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
-  ! glk_request_mouse_event(gg_bigwin);
   glk_request_hyperlink_event(gg_mainwin);
   glk_request_hyperlink_event(gg_statuswin);
   glk_request_hyperlink_event(gg_menuwin);
@@ -2648,14 +2646,18 @@ Object Menu_Configuracion
 ];
 
 
-[ EncenderGraficos t;
+[ EncenderGraficos t
+  habiaGraficos;
+  habiaGraficos = hayGraficos;
   hayGraficos = true;
   openGraphicWindow(altoVentanaGrafica);
+  glk_request_mouse_event(gg_bigwin);
   clearGraphicWindow();
   MostrarImagenLocalidad();
   if (t) {
     glk_set_style(style_Emphasized);
-    print "[Gráficos activados (tamaño ";
+    if (habiaGraficos) print "[Cambiando tamaño de gráficos (tamaño ";
+    else               print "[Gráficos activados (tamaño ";
     switch (altoVentanaGrafica) {
       GRAFICOS_PEQUENOS: print "pequeño";
       GRAFICOS_MEDIANOS: print "mediano";
@@ -2683,6 +2685,17 @@ Object Menu_Configuracion
   glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
                              winmethod_Above + winmethod_Proportional +
                              winmethod_NoBorder, por, 0);
+];
+
+
+[ HandleGlkMouseEvent ventana;
+  if (ventana == gg_bigwin) {
+    ZIPI_Tamano_Graficos.ZIPI_cambiar();
+    new_line;
+    EncenderGraficos(true);
+    rtrue;
+  }
+  rfalse;
 ];
 
 

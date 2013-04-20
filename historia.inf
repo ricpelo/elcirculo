@@ -173,7 +173,7 @@ Object salon_ruth "Salón de la casa"
         give aidan general;
         PNJ_Ruta(aidan, MOVIMIENTO_POR_META, cuarto_katie_ruth,
                  CAMINO_CUALQUIERA);
-        aidan.habla("Rachel, voy a pasear un poco por la casa.");
+        aidan.dice("Rachel, voy a pasear un poco por la casa.");
         aidan.movimiento();
         rtrue;
       }
@@ -262,17 +262,17 @@ Object aidan "Aidan"
     ],
     life [;
       Ask:
-        return self.habla("No te entiendo, Rachel.");
+        return self.dice("No te entiendo, Rachel.");
     ],
     orders [;
       Venir, Seguir:
         if (noun == nothing) noun = player;
-        if (noun == self) return self.habla("No puedo.");
+        if (noun == self) return self.dice("No puedo.");
         PNJ_Ruta(self, MOVIMIENTO_PERSEGUIR, noun);
-        return self.habla("Ya voy, Rachel.");
+        return self.dice("Ya voy, Rachel.");
 
       default:
-        return self.habla("No puedo hacer eso, Rachel.");
+        return self.dice("No puedo hacer eso, Rachel.");
     ];
 
 
@@ -321,21 +321,21 @@ Object amigos_katie "amigos de Katie"
         ! Quip 2
         21: print "Hola, chicos... ¿Cómo estáis?";
         22: self.qoff(2); self.qon(3); self.qon(4);
-            amiga_morena.habla("Bien.");
+            amiga_morena.dice("Bien.");
         23: qqon = true;
             qtransfer = 1;
         
         ! Quip 3
         31: print "¿Sabéis algo de Katie?";
         32: self.qoff(3);
-            amiga_morena.habla("No.");
+            amiga_morena.dice("No.");
         33: ! qqon = true;
             qtransfer = 1;
 
         ! Quip 4
         41: print "¿Alguna cosa más que queráis comentarme?";
         42: self.qoff(4);
-            amiga_morena.habla("Jejeje...");
+            amiga_morena.dice("Jejeje...");
         43: ! qqon = true;
             qtransfer = 1;
       }
@@ -397,7 +397,7 @@ Object ruth "Ruth"
       tema old_ret;
       Ask:
         if (LugarReal() ~= cocina_ruth) {
-          self.habla("Aquí no... Vamos a un sitio más tranquilo.");
+          self.dice("Aquí no... Vamos a un sitio más tranquilo.");
           PNJ_Ruta(self, MOVIMIENTO_NINGUNO);
           PNJIr(self, n_obj);
           rtrue;
@@ -431,23 +431,23 @@ Object ruth "Ruth"
                      después, mete dos dedos en un pequeño bolsillo de su
                      vestido y saca una minúscula llave plateada. La contempla
                      brevemente ante sus ojos y te la entrega.^";
-              return self.habla("Toma: me guardé la llave de su escritorio
+              return self.dice("Toma: me guardé la llave de su escritorio
                                  ayer, cuando hice limpieza en su habitación.");
             } else {
               ! Ya te la ha dado:
-              return self.habla("Espero que te sirva de ayuda.");
+              return self.dice("Espero que te sirva de ayuda.");
             }
 
           default:
-            return self.habla("No lo sé... De verdad que no lo sé...");
+            return self.dice("No lo sé... De verdad que no lo sé...");
         }
     ],
     orders [;
       Saludar:
-        return self.habla("Hola, Rachel.");
+        return self.dice("Hola, Rachel.");
 
       default:
-        return self.habla("Perdona si soy brusca, pero mi hija acaba de morir y
+        return self.dice("Perdona si soy brusca, pero mi hija acaba de morir y
                            no me apetece hacer nada.");
     ],
   has

@@ -126,34 +126,40 @@ Verb meta 'mapa'
     else if (central == 1)    color = MAPA_COLOR_CURSOR;
     else                      color = MAPA_COLOR_LOCAL;
     mitad = ladoCuadrado / 2;
-    glk_window_fill_rect(gg_mapawin, color, posx - mitad, posy - mitad,
-                         ladoCuadrado, ladoCuadrado);
+    glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx - mitad,
+                         posy - mitad,ladoCuadrado, ladoCuadrado);
+    glk_window_fill_rect(gg_mapawin, color, posx - mitad + 3, posy - mitad + 3,
+                         ladoCuadrado - 6, ladoCuadrado - 6);
     sep = ladoCuadrado + mitad;
     ck = ComprobarSalidaMapa(sitio, e_to); 
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx + mitad, posy, ck);
-      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx + mitad, posy,
-                           sep - ladoCuadrado + 1, 1);
+      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx + mitad,
+                           posy - 1,
+                           sep - ladoCuadrado + 1, 3);
       DibujarMapa(DestinoSalidaMapa(sitio, e_to), posx + sep, posy, 0);
     }
     ck = ComprobarSalidaMapa(sitio, w_to); 
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx - mitad, posy, ck);
-      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx - sep + mitad, posy,
-                           sep - ladoCuadrado + 1, 1);
+      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION,
+                           posx - sep + mitad, posy - 1,
+                           sep - ladoCuadrado + 1, 3);
       DibujarMapa(DestinoSalidaMapa(sitio, w_to), posx - sep, posy, 0);
     }
     ck = ComprobarSalidaMapa(sitio, n_to); 
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx, posy - mitad, ck);
-      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx, posy - sep + mitad, 1,
+      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION,
+                           posx - 1, posy - sep + mitad, 3,
                            sep - ladoCuadrado + 1);
       DibujarMapa(sitio.n_to, posx, posy - sep, 0);
     }
     ck = ComprobarSalidaMapa(sitio, s_to);
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx, posy + mitad, ck);
-      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx, posy + mitad, 1,
+      glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, posx - 1,
+                           posy + mitad, 3,
                            sep - ladoCuadrado + 1);
       DibujarMapa(sitio.s_to, posx, posy + sep, 0);
     }
@@ -161,7 +167,9 @@ Verb meta 'mapa'
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx - mitad, posy - mitad, ck);
       for (x = posx - sep + mitad, y = posy - sep + mitad : x <= posx - mitad : x++, y++) {
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x - 1, y + 1, 1, 1);
         glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x, y, 1, 1);
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x + 1, y - 1, 1, 1);
       }
       DibujarMapa(sitio.nw_to, posx - sep, posy - sep, 0);
     }
@@ -169,7 +177,9 @@ Verb meta 'mapa'
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx + mitad, posy - mitad, ck);
       for (x = posx + mitad, y = posy - mitad : x <= posx + sep - mitad : x++, y--) {
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x - 1, y - 1, 1, 1);
         glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x, y, 1, 1);
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x + 1, y + 1, 1, 1);
       }
       DibujarMapa(sitio.ne_to, posx + sep, posy - sep, 0);
     }
@@ -177,7 +187,9 @@ Verb meta 'mapa'
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx - mitad, posy + mitad, ck);
       for (x = posx - sep + mitad, y = posy + sep - mitad : x <= posx - mitad : x++, y--) {
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x - 1, y - 1, 1, 1);
         glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x, y, 1, 1);
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x + 1, y + 1, 1, 1);
       }
       DibujarMapa(sitio.sw_to, posx - sep, posy + sep, 0);
     }
@@ -185,7 +197,9 @@ Verb meta 'mapa'
     if (ck) {
       if (ck == 2 or 3) DibujarPuertaMapa(posx + mitad, posy + mitad, ck);
       for (x = posx + mitad, y = posy + mitad : x <= posx + sep - mitad : x++, y++) {
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x - 1, y + 1, 1, 1);
         glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x, y, 1, 1);
+        glk_window_fill_rect(gg_mapawin, MAPA_COLOR_CONEXION, x + 1, y - 1, 1, 1);
       }
       DibujarMapa(sitio.se_to, posx + sep, posy + sep, 0);
     }

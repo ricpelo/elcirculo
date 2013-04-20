@@ -1228,6 +1228,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
+[ BeforeParsing;
+  if (gg_objwin) closeImageSlide();
+];
+
+
 [ DrawStatusLine;
   if (dibujarEstado) {
     barra_estado.dibujar();

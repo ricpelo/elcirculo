@@ -283,10 +283,8 @@ Verb meta 'mapa'
 [ ImprimirBarraEstadoMapa sitio;
   glk($002F, gg_statuswin); ! select
   glk($002A, gg_statuswin); ! clear
-  glk($0086, style_SubHeader);
-  glk($002B, gg_statuswin, 1, 0); ! locate
   ImprimirNombreSitioMapa(sitio);
-  AyudaMapa();
+  AyudaMapa(sitio);
   glk($002F, gg_mainwin);   ! select
   #ifdef IMPRIMIR_DESCRIPCION_MAPA;
   PrintOrRun(sitio, description);
@@ -294,7 +292,10 @@ Verb meta 'mapa'
 ];
 
 [ ImprimirNombreSitioMapa sitio;
+  glk($0086, style_SubHeader);
+  glk($002B, gg_statuswin, 0, 1); ! locate
   print (name) sitio;
+  glk($0086, style_Normal);
 ];
 
 [ EsMapeable sitio;
@@ -349,13 +350,16 @@ Verb meta 'mapa'
 !  openGraphicWindow(200);
   if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
   gg_menuwin = 0;
+  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+  altura = gg_arguments-->1;
+  glk_window_close(gg_statuswin, 0);
   if (gg_bigwin ~= 0) glk_window_close(gg_bigwin, 0);
   gg_bigwin = glk_window_open(gg_mainwin,
                               winmethod_Above + winmethod_Proportional +
                               winmethod_NoBorder,
                               35, wintype_Graphics, GG_BIGWIN_ROCK);
   if (gg_mapawin ~= 0) glk_window_close(gg_mapawin, 0);
-  gg_mapawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+  gg_mapawin = glk_window_open((gg_mainwin),
                                winmethod_Right + winmethod_Proportional +
                                winmethod_NoBorder,
                                50, wintype_Graphics, GG_MAPAWIN_ROCK);
@@ -363,10 +367,7 @@ Verb meta 'mapa'
   glk_request_mouse_event(gg_mapawin);
   glk_window_set_background_color(gg_mapawin, SCBACK);
   glk_window_clear(gg_mapawin);
-  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
-  altura = gg_arguments-->1;
 !  StatusLineHeight(7);
-  glk_window_close(gg_statuswin, 0);
   gg_statuswin = glk_window_open(gg_mainwin,
                                  winmethod_Above + winmethod_Proportional +
                                  winmethod_NoBorder,
@@ -397,23 +398,52 @@ Global num_link = -100;
   num_link--;
 ];
 
-[ AyudaMapa
-  ancho;
+[ AyudaMapa sitio
+  fila;
   glk($002F, gg_statuswin); ! select
   num_link = -100;
-  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
-  ancho = gg_arguments-->0;
-  ancho = (ancho / 6 + ancho / 5) / 2;
+  glk_window_get_cursor(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+  fila = gg_arguments-->1; ! Guardamos la fila actual
+  fila = fila + 2;
+  if (ComprobarSalidaMapa(sitio, u_to)) {
+    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    print "- ", (s_link) "Arriba";
+  } else num_link--;
+  if (ComprobarSalidaMapa(sitio, d_to)) {
+    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    print "- ", (s_link) "Abajo";
+  } else num_link--;
+  if (ComprobarSalidaMapa(sitio, in_to)) {
+    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    print "- ", (s_link) "Dentro";
+  } else num_link--;
+  if (ComprobarSalidaMapa(sitio, out_to)) {
+    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    print "- ", (s_link) "Fuera";
+  } else num_link--;
+
+  fila++;
+  glk_window_move_cursor(gg_statuswin, 1, fila++);
+  print "- ", (s_link) "Zoom acercar";
+  glk_window_move_cursor(gg_statuswin, 1, fila++);
+  print "- ", (s_link) "Zoom alejar";
+  fila++;
+  glk_window_move_cursor(gg_statuswin, 1, fila++);
+  print "- ", (s_link) "Cerrar mapa";
+
+!  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+!  ancho = gg_arguments-->0;
+!  ancho = (ancho / 6 + ancho / 5) / 2;
   
 !  T Y U   7 8 9     ^      Arriba: 5 , Inicio   Dentro: * , Intro 
 !  G   J   4   6   <   >     Abajo: 0 , Fin       Fuera: / , Retroceso
 !  B N M   1 2 3     v     Acercar: Z , +        Volver: Q 
 !                           Alejar: X , -
   
-  glk_window_move_cursor(gg_statuswin, ancho, 2); print (s_link) "T", " ", (s_link) "Y", " ", (s_link) "U", "   ", (s_link) "7", " ", (s_link) "8", " ", (s_link) "9", "     ", (s_link) "@@94", "     ", (s_link) "Arriba: 5 , Inicio", "   ", (s_link) "Dentro: * , Intro";
-  glk_window_move_cursor(gg_statuswin, ancho, 3); print (s_link) "G", "   ", (s_link) "J", "   ", (s_link) "4", "   ", (s_link) "6", "   ", (s_link) "<", "   ", (s_link) ">", "    ", (s_link) "Abajo: 0 , Fin", "       ", (s_link) "Fuera: / , Retroceso";
-  glk_window_move_cursor(gg_statuswin, ancho, 4); print (s_link) "B", " ", (s_link) "N", " ", (s_link) "M", "   ", (s_link) "1", " ", (s_link) "2", " ", (s_link) "3", "     ", (s_link) "v", "    ", (s_link) "Acercar: Z , +", "        ", (s_link) "Volver: Q";
-  glk_window_move_cursor(gg_statuswin, ancho, 5); print "                        ", (s_link) "Alejar: X , -";
+!  glk_window_move_cursor(gg_statuswin, ancho, 2); print (s_link) "T", " ", (s_link) "Y", " ", (s_link) "U", "   ", (s_link) "7", " ", (s_link) "8", " ", (s_link) "9", "     ", (s_link) "@@94", "     ", (s_link) "Arriba: 5 , Inicio", "   ", (s_link) "Dentro: * , Intro";
+!  glk_window_move_cursor(gg_statuswin, ancho, 3); print (s_link) "G", "   ", (s_link) "J", "   ", (s_link) "4", "   ", (s_link) "6", "   ", (s_link) "<", "   ", (s_link) ">", "    ", (s_link) "Abajo: 0 , Fin", "       ", (s_link) "Fuera: / , Retroceso";
+!  glk_window_move_cursor(gg_statuswin, ancho, 4); print (s_link) "B", " ", (s_link) "N", " ", (s_link) "M", "   ", (s_link) "1", " ", (s_link) "2", " ", (s_link) "3", "     ", (s_link) "v", "    ", (s_link) "Acercar: Z , +", "        ", (s_link) "Volver: Q";
+!  glk_window_move_cursor(gg_statuswin, ancho, 5); print "                        ", (s_link) "Alejar: X , -";
 
 !  print "^
 !         ^ ", (s_input) "Cursor arriba", ", ", (s_input) "8", ", ", (s_input) "Y", ": ", (s_link) "Norte",
@@ -453,25 +483,25 @@ Global num_link = -100;
     cenx = (gg_arguments-->0) / 2; ! ancho / 2
     ceny = (gg_arguments-->1) / 2; ! alto / 2
     switch (tecla) {
-      'q', 'Q', -125:      jump Salir;
-      'z', 'Z', '+', -124: ladoCuadrado = ladoCuadrado + 20;
+      'q', 'Q', -106:      jump Salir;
+      'z', 'Z', '+', -104: ladoCuadrado = ladoCuadrado + 20;
                            RefrescarMapa(sitio, cenx, ceny);
-      'x', 'X', '-', -126: if (ladoCuadrado > 21) {
+      'x', 'X', '-', -105: if (ladoCuadrado > 21) {
                              ladoCuadrado = ladoCuadrado - 20;
                              RefrescarMapa(sitio, cenx, ceny);
                            }
-      -5, '2', 'n', 'N', -118, -121, -123: sitio = ValidarYRefrescarMapa(sitio, s_to,   cenx, ceny);
-      -4, '8', 'y', 'Y', -101, -104, -106: sitio = ValidarYRefrescarMapa(sitio, n_to,   cenx, ceny);
-      -2, '4', 'g', 'G', -110, -112, -114: sitio = ValidarYRefrescarMapa(sitio, w_to,   cenx, ceny);
-      -3, '6', 'j', 'J', -109, -111, -113: sitio = ValidarYRefrescarMapa(sitio, e_to,   cenx, ceny);
-      '7', 't', 'T', -100, -103:           sitio = ValidarYRefrescarMapa(sitio, nw_to,  cenx, ceny);
-      '9', 'u', 'U', -102, -105:           sitio = ValidarYRefrescarMapa(sitio, ne_to,  cenx, ceny);
-      '1', 'b', 'B', -117, -120:           sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
-      '3', 'm', 'M', -119, -122:           sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
-      -12, 'a', 'A', '5', -107:            sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
-      -13, 'z', 'Z', '0', -115:            sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
-      -6, '*', -108:                       sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
-      -7, '.', '/', -116:                  sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
+      -5, '2', 'n', 'N'                  : sitio = ValidarYRefrescarMapa(sitio, s_to,   cenx, ceny);
+      -4, '8', 'y', 'Y'                  : sitio = ValidarYRefrescarMapa(sitio, n_to,   cenx, ceny);
+      -2, '4', 'g', 'G'                  : sitio = ValidarYRefrescarMapa(sitio, w_to,   cenx, ceny);
+      -3, '6', 'j', 'J'                  : sitio = ValidarYRefrescarMapa(sitio, e_to,   cenx, ceny);
+      '7', 't', 'T'            :           sitio = ValidarYRefrescarMapa(sitio, nw_to,  cenx, ceny);
+      '9', 'u', 'U'            :           sitio = ValidarYRefrescarMapa(sitio, ne_to,  cenx, ceny);
+      '1', 'b', 'B'            :           sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
+      '3', 'm', 'M'            :           sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
+      -12, 'a', 'A', '5', -100:            sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
+      -13, 'z', 'Z', '0', -101:            sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
+      -6, '*', -102:                       sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
+      -7, '.', '/', -103:                  sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
 !      'h', 'H':                           AyudaMapa(sitio, cenx, ceny);
       #ifdef DEBUG;
       ' ':                                 playerTo(sitio); jump Salir;

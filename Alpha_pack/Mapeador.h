@@ -355,18 +355,23 @@ Verb meta 'mapa'
                               winmethod_NoBorder,
                               35, wintype_Graphics, GG_BIGWIN_ROCK);
   if (gg_mapawin ~= 0) glk_window_close(gg_mapawin, 0);
-  gg_mapawin = glk_window_open(gg_mainwin,
-                               winmethod_Above + winmethod_Proportional +
+  gg_mapawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+                               winmethod_Right + winmethod_Proportional +
                                winmethod_NoBorder,
-                               100, wintype_Graphics, GG_MAPAWIN_ROCK);
+                               50, wintype_Graphics, GG_MAPAWIN_ROCK);
   if (gg_mapawin == 0) return;
   glk_request_mouse_event(gg_mapawin);
   glk_window_set_background_color(gg_mapawin, SCBACK);
   glk_window_clear(gg_mapawin);
   glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
   altura = gg_arguments-->1;
-  StatusLineHeight(7);
-  AyudaMapa();
+!  StatusLineHeight(7);
+  glk_window_close(gg_statuswin, 0);
+  gg_statuswin = glk_window_open(gg_mainwin,
+                                 winmethod_Above + winmethod_Proportional +
+                                 winmethod_NoBorder,
+                                 100, wintype_TextGrid, GG_STATUSWIN_ROCK);
+!  AyudaMapa();
   return altura;
 ];
 

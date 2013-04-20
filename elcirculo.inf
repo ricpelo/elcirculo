@@ -3376,6 +3376,7 @@ Verb meta 'tt'
 !                               gg_arguments-->2);
 !    WaitDelay(1);
 !  }
+  viewImageSlide(Logo_Circulo_Chico_jpg);
   "Saludas cordialmente.";
 ];
 

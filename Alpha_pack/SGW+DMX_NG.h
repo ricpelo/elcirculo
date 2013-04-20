@@ -926,6 +926,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
 [ closeGraphicWindow;
     #ifdef TARGET_GLULX;
       #ifndef SGW_SIN_GRAFICOS;
+        closeImageSlide();
         if (gg_bigwin) { ! si la ventana existe
           glk_window_close(gg_bigwin,0); ! la cerramos
           bigwin_alto = 0; ! dejamos de recordar altura
@@ -1043,6 +1044,21 @@ Default LITEXT  = SCBACK; ! se invierte el color
     #endif;
 ];
 
+[ openImageSlide;
+  if (gg_bigwin == 0) { return; }
+
+  ! primero cerramos la ventana, por si acaso
+  closeImageSlide();
+
+  gg_objwin = 0; ! por si acaso (uno nunca sabe... =P)
+  ! intentamos abrir la ventana con ancho suficiente para la imagen
+  gg_objwin = glk_window_open(gg_bigwin,
+                              winmethod_Right + winmethod_Proportional +
+                              winmethod_NoBorder,
+                              25, wintype_Graphics, GG_OBJWIN_ROCK);
+  viewImageSGW();
+];
+
 ! ELIUK: MUESTRA UNA IMAGEN (NO DEBE SER MUY GRANDE) EN LA VENTANA
 ! GRAFICA LATERAL PARA IMAGENES DE OBJETOS, CON EFECTO DE DESLIZAMIENTO
 ! (BASADA EN LA BUENA IDEA Y EN PARTE DEL CODIGO DE MAPACHE Y DEPRESIV)
@@ -1059,26 +1075,25 @@ Default LITEXT  = SCBACK; ! se invierte el color
         ! si no se pueden pintar graficos...
         if (glk_gestalt(gestalt_Graphics,0) == 0) { return; } ! no hacemos nada
 
-        ! primero cerramos la ventana, por si acaso
-        closeImageSlide();
-
         ! si la imagen no existe...
         if (imagen == 0) { return; } ! terminamos con error
 
         ! calculamos ancho de la imagen para abrir una ventana apropiada
-        glk_image_get_info(imagen,gg_arguments,gg_arguments+WORDSIZE);
-        ancho_img = gg_arguments-->0;
+!        glk_image_get_info(imagen,gg_arguments,gg_arguments+WORDSIZE);
+!        ancho_img = gg_arguments-->0;
 
-        gg_objwin = 0; ! por si acaso (uno nunca sabe... =P)
-        ! intentamos abrir la ventana con ancho suficiente para la imagen
-        gg_objwin = glk_window_open(gg_mainwin,winmethod_Right+winmethod_Fixed,
-          ancho_img+(BORDEWIN*2),wintype_Graphics,GG_OBJWIN_ROCK);
+        openImageSlide();
+!        gg_objwin = 0; ! por si acaso (uno nunca sabe... =P)
+!        ! intentamos abrir la ventana con ancho suficiente para la imagen
+!        gg_objwin = glk_window_open(gg_mainwin,winmethod_Right+winmethod_Fixed,
+!          ancho_img+(BORDEWIN*2),wintype_Graphics,GG_OBJWIN_ROCK);
 
         ! si la ventana no se ha creado con exito...
         if (gg_objwin == 0) { return; } ! terminamos con error
 
         ! guardamos la imagen actual de la ventana de slide
         curr_obj_pic = imagen;
+        if (metaclass(imagen) == Object) imagen = imagen.sgw_img;
 
         ! si hay un Fade activo de Damusix, forzar "no-deslizamiento"
         #ifdef SGW_CON_DAMUSIX;
@@ -1086,39 +1101,39 @@ Default LITEXT  = SCBACK; ! se invierte el color
         #endif; ! SGW_CON_DAMUSIX
 
         ! si queremos el efecto de deslizamiento
-        if (~~flag) {
-          ! metemos la imagen
-          for (i=0 : i<=ancho_img : i=i+4) { ! NOTA: no cambiar el incremento de 'i'
-            drawImageSlide(i);    ! pintamos la imagen
-            slideViewPausa(15,i); ! hacemos la pausa (importante 'i')
-          }
-        }
+!        if (~~flag) {
+!          ! metemos la imagen
+!          for (i=0 : i<=ancho_img : i=i+4) { ! NOTA: no cambiar el incremento de 'i'
+!            drawImageSlide(i);    ! pintamos la imagen
+!            slideViewPausa(15,i); ! hacemos la pausa (importante 'i')
+!          }
+!        }
         ! NO BORRAR: para corregir pequeño error de calculo en la posicion final
         ! de la imagen. (El error sucede por 'i=i+4' [mirar "metemos la imagen"],
         ! al final 'i' puede ser mayor que 'ancho_img' y no se ejecuta dibujado
         ! en la posicion final correcta. Con esto lo arreglamos.)
-        drawImageSlide(ancho_img);
+        drawImageSlide();
 
         ! si queremos el efecto de deslizamiento
-        if (~~flag) {
-          ! mostramos imagen durante 3 segundos para que se pueda observar
-          slideViewPausa(3000,ancho_img); ! (importante 'ancho_img')
-          !--------------------------------------------------------------------
-          ! sacamos la imagen
-          for (i=ancho_img : i>=0 : i=i-4) { ! NOTA: no cambiar el decremento de 'i'
-            drawImageSlide(i);    ! pintamos la imagen
-            slideViewPausa(15,i); ! hacemos la pausa (importante 'i')
-          }
-          ! NO BORRAR: para corregir pequeño error de calculo en la posicion final
-          ! de imagen. (El error sucede por 'i=i-4' [mirar "sacamos la imagen"],
-          ! al final 'i' puede ser menor a cero y no se ejecuta dibujado en la
-          ! posicion final correcta. Con esto lo arreglamos.)
-          drawImageSlide(-1*BORDEWIN);    ! VALOR NEG. PARA COMPENSAR RESTA INTERNA
-          slideViewPausa(15,-1*BORDEWIN); ! IMPORTANTE, NO BORRAR
-          !--------------------------------------------------------------------
-          ! finalmente cerramos la ventana. Happy!! =D
-          closeImageSlide();
-        }
+!        if (~~flag) {
+!          ! mostramos imagen durante 3 segundos para que se pueda observar
+!          slideViewPausa(3000,ancho_img); ! (importante 'ancho_img')
+!          !--------------------------------------------------------------------
+!          ! sacamos la imagen
+!          for (i=ancho_img : i>=0 : i=i-4) { ! NOTA: no cambiar el decremento de 'i'
+!            drawImageSlide(i);    ! pintamos la imagen
+!            slideViewPausa(15,i); ! hacemos la pausa (importante 'i')
+!          }
+!          ! NO BORRAR: para corregir pequeño error de calculo en la posicion final
+!          ! de imagen. (El error sucede por 'i=i-4' [mirar "sacamos la imagen"],
+!          ! al final 'i' puede ser menor a cero y no se ejecuta dibujado en la
+!          ! posicion final correcta. Con esto lo arreglamos.)
+!          drawImageSlide(-1*BORDEWIN);    ! VALOR NEG. PARA COMPENSAR RESTA INTERNA
+!          slideViewPausa(15,-1*BORDEWIN); ! IMPORTANTE, NO BORRAR
+!          !--------------------------------------------------------------------
+!          ! finalmente cerramos la ventana. Happy!! =D
+!          closeImageSlide();
+!        }
         ! AVISO: si el programador no quiere efecto de deslizamiento (activando flag),
         ! entonces debe encargarse el mismo de cerrar la ventana con closeImageSlide()
       #endif;
@@ -1130,10 +1145,11 @@ Default LITEXT  = SCBACK; ! se invierte el color
       #ifndef SGW_SIN_GRAFICOS;
         ! dejamos de recordar la imagen actual para la ventana de slide
         curr_obj_pic = 0;
-        ! y si tambien existe la ventana (aun esta abieta), la cerramos
+        ! y si tambien existe la ventana (aun esta abierta), la cerramos
         if (gg_objwin) {
           glk_window_close(gg_objwin,0); ! la cerramos
           gg_objwin = 0;                 ! y limpiamos referencia
+          viewImageSGW();
         }
       #endif;
     #endif;
@@ -1148,6 +1164,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
     ! ELIUK: RUTINA PRINCIPAL DE DIBUJADO DE IMAGENES EN VENTANA CHICA (SLIDE)
     [ drawImageSlide pos ! se restara a la posicion actual
         alto_img ancho_win alto_win; ! todas son variables auxiliares
+        pos = pos;
         !-----------------------------------------------------------------------
         ! calculamos el alto de la imagen
         glk_image_get_info(curr_obj_pic,gg_arguments,gg_arguments+WORDSIZE);
@@ -1161,8 +1178,9 @@ Default LITEXT  = SCBACK; ! se invierte el color
         glk_window_set_background_color(gg_objwin,SCBACK);
         ! limpiamos la ventana con el color de fondo
         glk_window_clear(gg_objwin);
+        drawImageSGW(gg_objwin,curr_obj_pic,POS_CENTRADO,BORDEWIN,BORDEWIN);
         ! finalmente pintamos la imagen en la posicion que corresponde (y borde)
-        glk_image_draw(gg_objwin,curr_obj_pic,(ancho_win-BORDEWIN)-pos,(alto_win-alto_img)/2);
+!        glk_image_draw(gg_objwin,curr_obj_pic,(ancho_win-BORDEWIN)-pos,(alto_win-alto_img)/2);
     ];
 
     ! ELIUK: Hace una pausa con ayuda el Timer y re-pinta la imagen si es necesario

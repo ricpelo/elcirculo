@@ -1163,16 +1163,17 @@ Default LITEXT  = SCBACK; ! se invierte el color
 
     ! ELIUK: RUTINA PRINCIPAL DE DIBUJADO DE IMAGENES EN VENTANA CHICA (SLIDE)
     [ drawImageSlide pos ! se restara a la posicion actual
-        alto_img ancho_win alto_win imagen; ! todas son variables auxiliares
+!        alto_img ancho_win alto_win
+        imagen; ! todas son variables auxiliares
         pos = pos;
         !-----------------------------------------------------------------------
         ! calculamos el alto de la imagen
-        glk_image_get_info(curr_obj_pic,gg_arguments,gg_arguments+WORDSIZE);
-        alto_img = gg_arguments-->1;
+!        glk_image_get_info(curr_obj_pic,gg_arguments,gg_arguments+WORDSIZE);
+!        alto_img = gg_arguments-->1;
         ! calculamos el tamaño de la ventana
-        glk_window_get_size(gg_objwin,gg_arguments,gg_arguments+WORDSIZE);
-        ancho_win = gg_arguments-->0;
-        alto_win  = gg_arguments-->1;
+!        glk_window_get_size(gg_objwin,gg_arguments,gg_arguments+WORDSIZE);
+!        ancho_win = gg_arguments-->0;
+!        alto_win  = gg_arguments-->1;
         !-----------------------------------------------------------------------
         ! ponemos el color de fondo para la ventana
         glk_window_set_background_color(gg_objwin,SCBACK);

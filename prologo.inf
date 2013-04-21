@@ -584,6 +584,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     name_m 'televisor',
     nombre_link "televisor",  ! No hace falta, porque vale igual que input_link
 !    input_link "televisor",
+    sgw_img Logo_Circulo_Chico_jpg,
     ZIPI_item
       Menu_Examinar
       Menu_AbrirCon
@@ -614,6 +615,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     before [;
       Examine:
         PrintOrRun(self, description);
+        viewImageSlide(self);
         rtrue;
 
       Enchufar:

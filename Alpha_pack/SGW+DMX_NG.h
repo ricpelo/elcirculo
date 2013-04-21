@@ -1056,6 +1056,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
                               winmethod_Right + winmethod_Proportional +
                               winmethod_NoBorder,
                               25, wintype_Graphics, GG_OBJWIN_ROCK);
+  glk_request_mouse_event(gg_objwin);
   viewImageSGW();
 ];
 
@@ -1093,7 +1094,6 @@ Default LITEXT  = SCBACK; ! se invierte el color
 
         ! guardamos la imagen actual de la ventana de slide
         curr_obj_pic = imagen;
-        if (metaclass(imagen) == Object) imagen = imagen.sgw_img;
 
         ! si hay un Fade activo de Damusix, forzar "no-deslizamiento"
         #ifdef SGW_CON_DAMUSIX;
@@ -1163,7 +1163,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
 
     ! ELIUK: RUTINA PRINCIPAL DE DIBUJADO DE IMAGENES EN VENTANA CHICA (SLIDE)
     [ drawImageSlide pos ! se restara a la posicion actual
-        alto_img ancho_win alto_win; ! todas son variables auxiliares
+        alto_img ancho_win alto_win imagen; ! todas son variables auxiliares
         pos = pos;
         !-----------------------------------------------------------------------
         ! calculamos el alto de la imagen
@@ -1178,7 +1178,9 @@ Default LITEXT  = SCBACK; ! se invierte el color
         glk_window_set_background_color(gg_objwin,SCBACK);
         ! limpiamos la ventana con el color de fondo
         glk_window_clear(gg_objwin);
-        drawImageSGW(gg_objwin,curr_obj_pic,POS_CENTRADO,BORDEWIN,BORDEWIN);
+        imagen = curr_obj_pic;
+        if (metaclass(imagen) == Object) imagen = imagen.sgw_img;
+        drawImageSGW(gg_objwin, imagen, POS_CENTRADO, BORDEWIN, BORDEWIN);
         ! finalmente pintamos la imagen en la posicion que corresponde (y borde)
 !        glk_image_draw(gg_objwin,curr_obj_pic,(ancho_win-BORDEWIN)-pos,(alto_win-alto_img)/2);
     ];
@@ -1746,7 +1748,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
         !-----------------------------------------------------------------------
         2:
           if(action == ##Examine && noun provides sgw_img) {
-            viewImageSlide(noun.sgw_img);
+            viewImageSlide(noun);
           }
           else {
             closeImageSlide();

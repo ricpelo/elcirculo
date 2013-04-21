@@ -195,6 +195,10 @@ Global layoutPantalla = LAYOUT_MENU_PRINCIPAL;
 ! Si se ha activado el listado automático de salidas:
 Global mostrarSalidas = true;
 
+! Esta variable se pone a true en HandleGlkEvent para que BeforeParsing
+! no cierre la ventana en ese turno. Allí se vuelve a poner a false:
+Global noCerrarVentanaObj = false;
+
 ! La imagen que representa la oscuridad:
 Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
 
@@ -307,7 +311,14 @@ Include "Parser";
   obj long r;
   switch (ev-->0) {
     evtype_MouseInput:
-      if (HandleGlkMouseEvent(ev-->1)) {
+      glk_request_mouse_event(ev-->1);
+      if (context == 1) return 1;  ! character input request, no se hace nada
+      r = HandleGlkMouseEvent(ev-->1);
+      if (r) {
+        if (r ~= 1) {
+          obj = r;
+          jump HayObjeto;
+        }
         buffer-->0 = 0;
         return 2; ! Se simula la pulsación de Intro con input vacío
       }
@@ -347,6 +358,7 @@ Include "Parser";
       }
 
       if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Principal o de estado
+      .HayObjeto;
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
@@ -368,6 +380,8 @@ Include "Parser";
               buffer-->0 = long;
               return 2;
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
+              viewImageSlide(obj);
+              noCerrarVentanaObj = true;
               r = MenuAcciones.MostrarAcciones(obj);
               if (r) { ! Si se ha escogido una opción en el menú:
                 glk_cancel_line_event(gg_mainwin, gg_event);
@@ -1229,7 +1243,10 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 
 [ BeforeParsing;
-  if (gg_objwin) closeImageSlide();
+  if (gg_objwin) {
+    if (~~noCerrarVentanaObj) closeImageSlide();
+    else                      noCerrarVentanaObj = false;
+  }
 ];
 
 
@@ -2146,6 +2163,7 @@ Object MenuAcciones
         glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
         glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
         r = self.RunMenu(obj, top);
+        if (~~r) noCerrarVentanaObj = false;
         self.MostrarImportantes();
         glk_set_window(gg_mainwin);
         glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
@@ -2703,7 +2721,9 @@ Object Menu_Configuracion
     ZIPI_Tamano_Graficos.ZIPI_cambiar();
     new_line;
     EncenderGraficos(true);
-    rtrue;
+    return 1;
+  } else if (ventana == gg_objwin) {
+    if (metaclass(curr_obj_pic) == Object) return curr_obj_pic;
   }
   rfalse;
 ];

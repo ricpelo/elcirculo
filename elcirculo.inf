@@ -1244,8 +1244,12 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ BeforeParsing;
   if (gg_objwin) {
-    if (~~noCerrarVentanaObj) closeImageSlide();
-    else                      noCerrarVentanaObj = false;
+    if (~~noCerrarVentanaObj) {
+      if (noun == nothing) closeImageSlide();
+      else                 viewImageSlide(noun);
+    } else {
+      noCerrarVentanaObj = false;
+    }
   }
 ];
 

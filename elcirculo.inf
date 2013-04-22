@@ -281,6 +281,8 @@ Replace QuitarAcentos;
 ! Cambia la función random() (ver random.h):
 Replace random;
 
+Replace SaveSub;
+
 ! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
 ! REGISTRA...):
 Replace SearchSub;
@@ -1342,14 +1344,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
     if (word == 0) { ! no comprendida
       for (i = at: i < at + len: i++)
         switch (buf->i) {
-          'á': buf->i = 'a';
-          'é': buf->i = 'e';
-          'ë': buf->i = 'e';
-          'í': buf->i = 'i';
-          'ó': buf->i = 'o';
-          'ú': buf->i = 'u';
-          'ü': buf->i = 'u';
+          'á', 'à', 'ä', 'â': buf->i = 'a';
+          'é', 'è', 'ë', 'ê': buf->i = 'e';
+          'í', 'ì', 'ï', 'î': buf->i = 'i';
+          'ó', 'ò', 'ö', 'ô': buf->i = 'o';
+          'ú', 'ù', 'ü', 'û': buf->i = 'u';
           'ñ': buf->i = 'n';
+          'ç': buf->i = 'c';
           '?': buf->i = ' ';
           '¿': buf->i = ' ';
           '!': buf->i = ' ';
@@ -1930,6 +1931,35 @@ Object ZIPI_Graficos
     ],
     ZIPI_cambiar [;
       hayGraficos = ~~hayGraficos;
+    ];
+
+
+Object ZIPI_Guardar
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "Guardar partida",
+    ZIPI_item
+      ZIPI_Guardar_1;
+
+
+Object ZIPI_Guardar_1
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [
+      i;
+      LeeDescripcion("1");
+      for (i = WORDSIZE : i < buffer-->0 + WORDSIZE : i++) {
+        print (char) buffer->i;
+      }
+    ],
+    ZIPI_ejecutar [;
+!      KeyboardPrimitive(buffer, parse);
+      glk_request_line_event(gg_statuswin, buffer + WORDSIZE,
+                             INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+!      buffer-->0 = 4; buffer->WORDSIZE = 'h'; buffer->(WORDSIZE + 1) = 'o';
+!      buffer->(WORDSIZE + 2) = 'l'; buffer->(WORDSIZE + 3) = 'a';
+      Guardar("1", buffer);
+      rtrue;
     ];
 
 
@@ -3129,6 +3159,21 @@ Verb meta 'tt'
 ];
 
 
+[ SaveSub;
+  ControlTimer.PausarTick();
+  ExtenderVentanaEstado();
+  
+  ZIPI_RunMenu(ZIPI_Guardar, true);
+  
+  StatusLineHeight(1);
+  MenuAcciones.MostrarImportantes();
+  glk_window_noscroll(gg_mainwin);
+  if (hayGraficos) EncenderGraficos();
+  else             ApagarGraficos();
+  ControlTimer.ReanudarTick();
+];
+
+
 [ ConsultSub;
   <<Examine noun>>;
 ];
@@ -3377,7 +3422,8 @@ Verb meta 'tt'
 ];
 
 
-[ SaludarSub;
+[ SaludarSub
+  long;
 !  i c;
 !  glk_set_config(config_LinkColor,
 !                 glk_window_stylehint_get(gg_mainwin, style_Normal,
@@ -3401,8 +3447,161 @@ Verb meta 'tt'
 !                               gg_arguments-->2);
 !    WaitDelay(1);
 !  }
-  viewImageSlide(Logo_Circulo_Chico_jpg);
+!  viewImageSlide(Logo_Circulo_Chico_jpg);
+  long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
+                         "pepe");
+  buffer-->0 = long;
+  Guardar("1", buffer);
   "Saludas cordialmente.";
+];
+
+
+[ Guardar c buf
+  fref res i oldstr;
+
+  ! Guarda la situación:
+  fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
+                                    ChangeAnyToCString(Cadena, c, ".sav"), 0);
+  if (fref == 0) jump SFailed;
+  gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump SFailed;
+  @save gg_savestr res;
+  if (res == -1) {
+    ! The player actually just typed "restore". We're going to print
+    !  L__M(##Restore,2); the Z-Code Inform library does this correctly
+    ! now. But first, we have to recover all the Glk objects; the values
+    ! in our global variables are all wrong.
+    GGRecoverObjects();
+    glk_stream_close(gg_savestr, 0);
+    gg_savestr = 0;
+    return L__M(##Restore, 2);
+  }
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+!  if (res == 0) return L__M(##Save, 2);
+
+  ! Guarda la descripción:
+  fref = glk_fileref_create_by_name(fileusage_Data + fileusage_TextMode,
+                                    ChangeAnyToCString(Cadena, c, ".txt"), 0);
+  if (fref == 0) jump SFailed;
+!  ControlTimer.PausarTick();
+!  KeyboardPrimitive(buffer, parse);
+  gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump SFailed;
+  oldstr = glk_stream_get_current();
+  glk_stream_set_current(gg_savestr);
+  for (i = WORDSIZE : i < buf-->0 + WORDSIZE : i++) print (char) buf->i;
+  glk_stream_set_current(oldstr);
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+!  ControlTimer.ReanudarTick();
+  return L__M(##Save, 2);
+.SFailed;
+!  ControlTimer.ReanudarTick();
+  L__M(##Save, 1);
+];
+
+
+[ Restaurar c
+  fref res; ! i ch;
+
+  ! Recupera la descripción:
+!  fref = glk_fileref_create_by_name(fileusage_Data + fileusage_TextMode,
+!                                    ChangeAnyToCString(Cadena, c, ".txt"), 0);
+!  if (fref == 0) jump RFailed;
+!  gg_savestr = glk_stream_open_file(fref, $02, GG_SAVESTR_ROCK);
+!  glk_fileref_destroy(fref);
+!  if (gg_savestr == 0) jump RFailed;
+!  ch = glk_get_char_stream(gg_savestr);
+!  i = 0;
+!  while (ch ~= -1) {
+!    buffer->(i + WORDSIZE) = ch;
+!    ch = glk_get_char_stream(gg_savestr);
+!    i++;
+!  }
+!  buffer-->0 = i;
+!!  long = glk_get_buffer_stream(gg_savestr, buffer + WORDSIZE,
+!!                               INPUT_BUFFER_LEN - WORDSIZE);
+!!  buffer-->0 = long;
+!  glk_stream_close(gg_savestr, 0);
+!  gg_savestr = 0;
+!  for (i = WORDSIZE : i < buffer-->0 + WORDSIZE : i++) print (char) buffer->i;
+
+  ! Restaura la partida:
+  fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
+                                    ChangeAnyToCString(Cadena, c, ".sav"), 0);
+  if (fref == 0) jump RFailed;
+  gg_savestr = glk_stream_open_file(fref, $02, GG_SAVESTR);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump RFailed;
+  @restore gg_savestr res;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+.RFailed;
+  return 0;
+];
+
+
+[ LeeDescripcion c
+  fref ch i;
+  ! Recupera la descripción:
+  fref = glk_fileref_create_by_name(fileusage_Data + fileusage_TextMode,
+                                    ChangeAnyToCString(Cadena, c, ".txt"), 0);
+  if (fref == 0) jump RFailed;
+  gg_savestr = glk_stream_open_file(fref, $02, GG_SAVESTR_ROCK);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump RFailed;
+  ch = glk_get_char_stream(gg_savestr);
+  i = 0;
+  while (ch ~= -1) {
+    buffer->(i + WORDSIZE) = ch;
+    ch = glk_get_char_stream(gg_savestr);
+    i++;
+  }
+  buffer-->0 = i;
+!  long = glk_get_buffer_stream(gg_savestr, buffer + WORDSIZE,
+!                               INPUT_BUFFER_LEN - WORDSIZE);
+!  buffer-->0 = long;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+  rfalse;
+.Rfailed;
+  i = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE,
+                      "<Slot vacío>");
+  buffer-->0 = i;
+];
+
+
+[ Cadena c1 c2;
+  print (string) c1, (string) c2;
+!  long = PrintAnyToArray(buffer + WORDSIZE, INPUT_BUFFER_LEN - WORDSIZE, c);
+!  buffer-->0 = long;
+!  for (i = WORDSIZE : i < buffer-->0 + WORDSIZE : i++) {
+!   switch (buffer->i) {
+!      'á', 'à', 'ä', 'â': buffer->i = 'a';
+!      'Á', 'À', 'Ä', 'Â': buffer->i = 'A';
+!      'é', 'è', 'ë', 'ê': buffer->i = 'e';
+!      'É', 'È', 'Ë', 'Ê': buffer->i = 'E';
+!      'í', 'ì', 'ï', 'î': buffer->i = 'i';
+!      'Í', 'Ì', 'Ï', 'Î': buffer->i = 'I';
+!      'ó', 'ò', 'ö', 'ô': buffer->i = 'o';
+!      'Ó', 'Ò', 'Ö', 'Ô': buffer->i = 'O';
+!      'ú', 'ù', 'ü', 'û': buffer->i = 'u';
+!      'Ú', 'Ù', 'Ü', 'Û': buffer->i = 'U';
+!      'ñ': buffer->i = 'n';
+!      'Ñ': buffer->i = 'N';
+!      'ç': buffer->i = 'c';
+!      'Ç': buffer->i = 'C';
+!      '?': buffer->i = ' ';
+!      '¿': buffer->i = ' ';
+!      '!': buffer->i = ' ';
+!      '¡': buffer->i = ' ' ;
+!    }
+!    print (char) buffer->i;
+!  }
+!  print ".sav";
 ];
 
 
@@ -3412,6 +3611,7 @@ Verb meta 'tt'
 
 
 [ SeguirSub;
+  Restaurar("1");
   "Decide por ti mism", (o) player, " a dónde deseas ir.";
 ];
 

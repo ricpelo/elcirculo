@@ -1245,8 +1245,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
 [ BeforeParsing;
   if (gg_objwin) {
     if (~~noCerrarVentanaObj) {
-      if (noun == nothing) closeImageSlide();
-      else                 viewImageSlide(noun);
+      if (noun == 0 or nothing) closeImageSlide();
+      else if (noun ofclass Object or String) viewImageSlide(noun);
     } else {
       noCerrarVentanaObj = false;
     }
@@ -1466,7 +1466,8 @@ Class Personaje
                default: WaitDelay(self.dice_retardo);
             }
           }
-          print (string) msg;
+          ! print (string) msg;
+          PrintAnything(msg);
           hablado = true;
         } else {
           nl = msg;
@@ -1479,8 +1480,10 @@ Class Personaje
     dice_inicio [;
       print "^---";
       glk_set_style(style_User1);
+      glk_set_hyperlink(self);
       if (self == player) print "Tú: ";
       else                print (string) self.short_name, ": ";
+      glk_set_hyperlink(0);
       glk_set_style(style_Normal);
       print "@<<";
     ],
@@ -1489,14 +1492,14 @@ Class Personaje
       if (~~nl) new_line;
     ],
     marcha [ dir;
-      print "^", (The) self, " ";
+      print "^", (link) self, " ";
       if (dir == in_obj)       print "entra en ";
       else if (dir == out_obj) print "sale por ";
       else                     print "se marcha ";
       print (DirDada) dir, ".^";
     ],
     llega [ dir;
-      print "^", (The) self, " ";
+      print "^", (link) self, " ";
       if (self.tipo_de_movimiento == MOVIMIENTO_PERSEGUIR) {
         if (self.perseguido == player) {
           print "te sigue";
@@ -2435,7 +2438,9 @@ Object Menu_Coger
     ZIPI_titulo "Coger",
     ZIPI_ejecutar [; return 'coge'; ],
     ZIPI_condicion [ obj;
-      return (~~IndirectlyContains(player, obj)) && (~~(obj ofclass Personaje));
+      return (obj hasnt static or scenery &&
+              (~~IndirectlyContains(player, obj))) &&
+              (~~(obj ofclass Personaje));
     ];
 
 

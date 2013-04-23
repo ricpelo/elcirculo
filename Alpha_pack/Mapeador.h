@@ -37,7 +37,7 @@ Message "|__________________________________________________________________|";
 Constant GG_MAPAWIN_ROCK = 212;
 
 Global gg_mapawin = 0;
-Global ladoCuadrado = 41;
+Global ladoCuadrado = 61;
 Global g_sitio = 0;              ! El sitio actual (se usa en Mapa_HandleGlkEvent)
 Global lugaresDibujados = 0;
 

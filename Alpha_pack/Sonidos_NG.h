@@ -178,11 +178,11 @@ Class TipoDeSonido
     adjetivoMuyLejana "muy lejana",  ! Distancia muy lejana-femenina
     adjetivoLejano "lejano",         ! Distancia lejano-masculino
     adjetivoMuyLejano "muy lejano",  ! Distancia muy lejano-masculino
-    noVozSusurro "que apenas se oye",
-    noVozMurmullo "que suena muy bajito",
+    noVozSusurro ", que apenas se oye",
+    noVozMurmullo " sonando muy bajito",
     noVozNormal 0,
-    noVozAlto "que se oye muy claramente",
-    noVozMuyAlto "de tal intensidad que casi te deja sordo",
+    noVozAlto " sonando muy claramente",
+    noVozMuyAlto ", con una intensidad que casi te deja sordo",
     vozSusurro "pero apenas se entiende",
     vozMurmullo "pero suena como un susurro",
     vozNormal 0,
@@ -194,7 +194,7 @@ Class TipoDeSonido
     ! Cuando el sonido proviene de un objeto que el jugador puede ver:
     suena_aqui [ contenido;
       print (The) contenido.origen, " ", (string) VR(self.verboEmitir),
-        " ", (name) self;
+        " ", (name) self, "^";
     ],
     ! Rutina que devuelve un texto indicando nada, 'lejana' o 'muy lejana' según
     ! si la fuente se ve y su intensidad sonora
@@ -272,7 +272,7 @@ Class TipoDeSonido
               ! coletilla que se usa con texto
               _esVoz = true;
             } else {
-              self.suena_aqui(contenido);
+              if (self.suena_aqui ~= false) self.suena_aqui(contenido);
               rfalse;
             }
           } else {
@@ -294,7 +294,7 @@ Class TipoDeSonido
           if (VR(self.usarPotencia)) {
             textoPotencia = self.diPotencia(contenido.intensidad,
                                             contenido.modo, _esVoz);
-            if (textoPotencia ~= 0) print ", ", (string)VR(textoPotencia), ".^";
+            if (textoPotencia ~= 0) print (string)VR(textoPotencia), ".^";
             else                    print ".^";
           } else {
             print ".^";
@@ -406,7 +406,7 @@ Class TipoDeSonido
           if (VR(self.usarPotencia)) {
             textoPotencia = self.diPotencia(contenido.intensidad, 
                                             contenido.modo, true);
-            if (textoPotencia ~= 0) print ", ", (string)VR(textoPotencia), ".^";
+            if (textoPotencia ~= 0) print (string)VR(textoPotencia), ".^";
             else                    print ".^";
           } else {
             print".^";
@@ -586,7 +586,7 @@ Class Ruido
       return se_oye;
     ],
     describe [;
-      new_line;
+      if (self.suena_aqui ~= false) new_line;
       return TocaDesde(self);
     ],
     mensaje_iniciar [;

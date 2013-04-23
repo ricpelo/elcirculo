@@ -262,13 +262,16 @@ Object salon_katie "Salón"
     input_link "salón",
     nombre_direccion "el salón",
 !    del_nombre_direccion "del salón",
-    description "El salón de tu casa está claramente dominado por un televisor
-                 de gran tamaño situado sobre una mesa en la pared frontal.
-                 Junto al enorme sofá a unos tres metros de la misma forman
-                 en la práctica el único mobiliario disponible, exceptuando
-                 un par de sillas a ambos lados del sofá y algunos cuadros
-                 colgados de las paredes. Una ventana cerrada deja pasar la
-                 oscuridad del exterior.",
+    description [;
+      "El salón de tu casa está claramente dominado por un ",
+      (link) tv_salon_katie, " de gran tamaño situado sobre una ",
+      (link) "mesa", " en la pared frontal. Junto al enorme ", (link) "sofá",
+      " a unos tres metros de la misma forman en la práctica el único
+      mobiliario disponible, exceptuando un par de ", (link) "sillas", " a
+      ambos lados del ", (link) "sofá", " y algunos cuadros colgados de las
+      paredes. Una ", (link) "ventana", " cerrada deja pasar la oscuridad del
+      exterior.";
+    ],
     n_to cocina_katie,
     sgw_img Salon_Katie_jpg,
     before [;
@@ -282,6 +285,14 @@ Object decorado_salon_katie salon_katie
   class Decorado
   with
     before [;
+      Examine:
+        switch (self.palabra) {
+          'sillas':
+            "Son dos sillas, una a cada lado del ", (link) "sofá", " central.";
+          'mesa':
+            "La mesa en la que se apoya el ", (link) tv_salon_katie, " tiene el
+             tamaño justo para albergar un aparato de tales dimensiones.";
+        }
       Open, Close:
         if (self.palabra == 'ventana')
           "El mecanismo está roto desde hace mucho tiempo y no te permite
@@ -292,13 +303,11 @@ Object decorado_salon_katie salon_katie
     describe
       'ventana' "Una amplia ventana sin cortinas ni persianas abre un agujero
                  a la oscuridad que rodea la casa." G_FEMENINO
-      'sillas'  "Son dos sillas, una a cada lado del sofá central."
-                G_FEMENINO + G_PLURAL
+      'sillas'  ""  G_FEMENINO + G_PLURAL
       'sofa'    "Aunque sabes que resulta cómodo una vez que te sientas, al
                  tacto resulta resbaladizo, frío y duro. Permanece estático en
                  el centro de la estancia." 0
-      'mesa'    "La mesa en la que se apoya el televisor tiene el tamaño justo
-                 para albergar un aparato de tales dimensiones." G_FEMENINO;
+      'mesa'     "" G_FEMENINO;
     
     
 ! ====================================================================
@@ -310,7 +319,7 @@ Object uniforme_katie "uniforme"
   with
     name_m 'uniforme',
     name_f 'falda' 'blusa',
-    description "El clásico uniforme de Instituto privado americano, compuesto
+    description "El clásico uniforme de instituto privado americano, compuesto
                  de una blusa blanca y una falda tableada a cuadros.",
     before [;
       Take, Wear:
@@ -319,7 +328,7 @@ Object uniforme_katie "uniforme"
       Disrobe, Drop:
         "La ocasión recomienda que sigas llevando ropa puesta...";
         
-      Examine:
+      Examine, ExaminarFalso:
         rfalse;
         
       default:
@@ -337,19 +346,25 @@ Object uniforme_katie "uniforme"
 Object charco_katie "charco de agua"
   with
     name 'charco' 'agua' 'liquido',
-    description "Es, claramente, un charco con forma irregular
-                 alimentado del agua que se filtra por debajo de la puerta
-                 de tu habitación.",
+    description [;
+      "Es, claramente, un charco con forma irregular
+       alimentado del agua que se filtra por debajo de la ", (link) "puerta",
+       " de tu ", (link) cuarto_katie, ".";
+    ],
     initial [;
       StartTimer(self, 4);
       "Depositado en mitad del pasillo, como una mancha líquida en el
-       suelo, ves un charco de agua que se extiende filtrándose por
-       debajo de la puerta cerrada de tu habitación.";
+       suelo, ves un ", (link) self,  " que se extiende filtrándose por
+       debajo de la ", (link) "puerta", " cerrada de tu ",
+       (link) cuarto_katie, ".";
+    ],
+    nuevo_initial [;
+      "El ", (string) link(self, "charco"), " es cada vez más grande. No deja
+      de salir agua por debajo de la ", (link) "puerta", ".";
     ],
     time_left 0,
     time_out [;
-      self.initial = "El charco es cada vez más grande. No deja de salir agua
-                      por debajo de la puerta.";
+      self.initial = self.nuevo_initial;
     ],
     react_before [;
       Examine:
@@ -359,7 +374,7 @@ Object charco_katie "charco de agua"
     ],
     before [;
       Touch:
-        "Rozas el charco de agua con el pulgar de uno de tus pies descalzos y
+        "Rozas el ", (link) self, " con el pulgar de uno de tus pies descalzos y
          perciben su frío y su viscosidad.";
 
       Smell:
@@ -418,20 +433,21 @@ Object frigorifico_katie "frigorífico" cocina_katie
     input_link "frigorífico",
     description [;
       if (self hasnt open) {
-        "Un moderno frigorífico de puertas metálicas y casi imperceptible
+        "Un moderno ", (link) self, " de puertas metálicas y casi imperceptible
          ronroneo.";
       } else {
-        "El frigorífico, entreabierto, emite un haz de luz azulado bañando
+        "El ", (link) self, " entreabierto, emite un haz de luz azulado bañando
          parte de la cocina a su paso. El sonido del motor resulta más
          audible que cuando estaba cerrado.";
       }
     ],
     se_abre_solo [;
       give self general;
-      print "Nada más cruzar el arco que separa la cocina del salón, notas
-             algo moverse junto al teléfono, justo en el extremo de tu
+      print "Nada más cruzar el ", (link) "arco", " que separa la cocina del ",
+            (link) salon_katie, ", notas algo moverse junto al ",
+            (link) telefono_katie, " justo en el extremo de tu
              percepción visual. Al girar la mirada, ves la causa y el
-             corazón te da un vuelco: la puerta del frigorífico se va
+             corazón te da un vuelco: la puerta del ", (link) self, " se va
              abriendo poco a poco, totalmente silenciosa, hasta quedar a
              medio abrir.";
       KeyDelay();
@@ -441,30 +457,31 @@ Object frigorifico_katie "frigorífico" cocina_katie
     when_open [;
       if (~~(self.ya_visto_abierto)) {
         self.ya_visto_abierto = true;
-        "^Ves el frigorífico abierto, como una invitación a lo desconocido."; 
+        "^Ves el ", (link) self, " abierto, como una invitación a lo
+        desconocido."; 
       } else {
-        "^El frigorífico sigue abierto.";
+        "^El ", (link) self, " sigue abierto.";
       }
     ],
     before [;
       Open:
         if (self hasnt general) {
-          "Abres el frigorífico, observas la comida con nulo interés, y vuelves
-           a cerrarlo cuestionándote brevemente el por qué de tu falta de
-           apetito.";
+          "Abres el ", (link) self, ", observas la comida con nulo interés, y
+           vuelves a cerrarlo cuestionándote brevemente el por qué de tu falta
+           de apetito.";
         } else {
           "No te atreves a volverlo a abrir.";
         }
 
       Close:
-        if (self hasnt open) "El frigorífico ya está cerrado.";
+        if (self hasnt open) "El ", (link) self, " ya está cerrado.";
     ],
     after [;
       Close:
         self.cerrar();
         cocina_katie.sgw_img = Cocina_Katie_jpg;
         viewImageCenter(Cocina_Katie_jpg);
-        "Cierras el frigorífico con rapidez sin atreverte a mirar en su
+        "Cierras el ", (link) self, " con rapidez sin atreverte a mirar en su
         interior.";
     ];
 
@@ -473,15 +490,19 @@ Object puerta_katie "puerta de tu habitación"
   with
     name 'puerta' 'habitacion',
     article "la",
-    description "Bajo la puerta cerrada de tu habitación se escurre hacia el
-                 pasillo un flujo lento pero constante de agua. Un resplandor
-                 blanquecino proveniente de tu habitación acompaña al río de
-                 agua mientras atraviesa la rendija inferior de la puerta. Del
-                 pomo, empapado como si rezumara humedad, caen continuas gotas
-                 al suelo.",
-    initial "Alguien ha cerrado la puerta de tu habitación, dejando bajo ella
-             una fina abertura por la que salen un líquído hediondo y una
-             luz mortecina.",
+    description [;
+      "Bajo la ", (string) link(self, "puerta cerrada de tu habitación"), " se
+       escurre hacia el pasillo un flujo lento pero constante de ",
+       (link) "agua", ". Un resplandor blanquecino proveniente de tu ",
+       (link) cuarto_katie, " acompaña al río de agua mientras atraviesa la
+       rendija inferior de la puerta. Del ", (link) "pomo", ", empapado como si
+       rezumara humedad, caen continuas gotas al suelo.";
+    ],
+    initial [;
+      "Alguien ha cerrado la ", (link) self, ", dejando bajo ella
+       una fina abertura por la que salen un ", (link) "líquído", " hediondo y
+       una luz mortecina.";
+    ],
     add_to_scope decorado_puerta_katie,
     react_before [;
       Enter, GoIn:
@@ -513,13 +534,14 @@ Object puerta_katie "puerta de tu habitación"
         rtrue;
 
       Llamar:
-        "Llamas a la puerta, pero nadie contesta.";
+        "Llamas a la ", (link) "puerta", ", pero nadie contesta.";
 
       Attack:
-        "La puerta es demasiado sólida y no eres lo bastante fuerte.";
+        "La ", (link) "puerta", " es demasiado sólida y no eres lo bastante
+        fuerte.";
 
       Close:
-        "La puerta ya está cerrada.";
+        "La ", (link) "puerta", " ya está cerrada.";
         
     ],
   has
@@ -529,8 +551,10 @@ Object puerta_katie "puerta de tu habitación"
 Object telefono_katie "teléfono" cocina_katie
   with
     name 'telefono' 'auricular' 'tlf',
-    description "El teléfono de tu casa, de un color blanco gastado, cuelga de
-                 la pared junto al frigorífico.",
+    description [;
+      "El ", (link) self, " de tu casa, de un color blanco gastado, cuelga de
+      la pared junto al ", (link) frigorifico_katie, ".";
+    ],
     input_link "teléfono",
 !    initial "Ves tu teléfono.",
     sonando [;
@@ -589,11 +613,11 @@ Object telefono_katie "teléfono" cocina_katie
         }
 
       Drop, Colgar:
-        "El teléfono ya está colgado.";
+        "El ", (link) self, " ya está colgado.";
 
       LlamarPor:
         if (self.sonando()) {
-          "El teléfono está sonando. No puedes llamar tú ahora.";
+          "El ", (link) self, ". No puedes llamar tú ahora.";
         } else {
           <<Descolgar self>>;
         }
@@ -618,7 +642,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
 !      Menu_Encender
 !      Menu_Apagar,
     description [;
-      print "Un pequeño televisor sin aspectos destacables. Está ";
+      print "Un pequeño ", (link) self, " sin aspectos destacables. Está ";
       if (self has on) print "encendido, emitiendo nieve y ruido de estática";
       else             print "apagado";
       ".";
@@ -643,7 +667,7 @@ Object tv_cuarto_katie "televisor" cuarto_katie
         rtrue;
 
       Enchufar:
-        "El televisor ya estaba enchufado.";
+        "El ", (link) self, " ya estaba enchufado.";
         
       Desenchufar:
         "¿Para qué quieres desenchufarl", (o) self, "?";
@@ -653,17 +677,18 @@ Object tv_cuarto_katie "televisor" cuarto_katie
         c = self hasnt general;
         self.encender();
         if (c) {
-          "Al encender el televisor, te sorprende comprobar que no aparece
-           ninguna imagen, sino simple ruido y estática, como si no recibiera
-           señal.";
+          "Al encender el ", (link) self, ", te sorprende comprobar que no
+           aparece ninguna imagen, sino simple ruido y estática, como si no
+           recibiera señal.";
         } else {
-          "Vuelves a encender el televisor y el ruido granulado aparece de
-           nuevo en la pantalla acompañado de estática.";
+          "Vuelves a encender el ", (link) self, " y el ruido granulado aparece
+           de nuevo en la pantalla acompañado de estática.";
         }
 
       SwitchOff:
         self.apagar();
-        "Apagas el televisor, sin evitar sentir cierto alivio al hacerlo.";
+        "Apagas el ", (link) self, ", sin evitar sentir cierto alivio al
+        hacerlo.";
     ],
   has
     scenery switchable;
@@ -676,25 +701,25 @@ Object tv_salon_katie "televisor" salon_katie
     gender G_MASCULINO,
     description [;
       if (self hasnt general) {
-        "Un televisor negro, impersonal, de gran tamaño, con una pantalla
-         tan oscura que su superficie apenas refleja el entorno en el que
-         se encuentra.";
+        "Un ", (link) self, " negro, impersonal, de gran tamaño, con una
+         pantalla tan oscura que su superficie apenas refleja el entorno en el
+         que se encuentra.";
       } else {
         if (self has on) {
-          "El enorme televisor ilumina la estancia con un brillo vivo y
+          "El enorme ", (link) self, " ilumina la estancia con un brillo vivo y
            cambiante, resultado del perpetuo movimiento del ruido en la
            pantalla, que te recuerda al de millones de organismos
            microscópicos moviéndose y chocando entre sí.";
         } else {
-          "El televisor, ahora apagado, se presenta tan oscuro como un mal
-           presagio.";
+          "El ", (link) self, ", ahora apagado, se presenta tan oscuro como un
+           mal presagio.";
         }
       }
     ],
     describe [;
       if (self has on) {
-        "^El televisor está encendido, mostrando un ruido granulado que baña
-         el salón con una luz sucia y nerviosa.";
+        "^El ", (link) self, " está encendido, mostrando un ruido granulado que
+         baña el salón con una luz sucia y nerviosa.";
       }
       rtrue;
     ],
@@ -721,24 +746,25 @@ Object tv_salon_katie "televisor" salon_katie
                            CalcVol(real_location.sgw_vol), -1);
       Damusix.TocarCanal(CANAL_FONDO);
       if (~~sw) {
-        print "El televisor se vuelve a encender. Solo. Otra vez.
-               Más sonido de estática proveniente del salón,
-               transformando la atmósfera en pura inquietud. Ahora
+        print "El ", (link) self, " se vuelve a encender. Solo. Otra vez.
+               Más sonido de estática proveniente del ", (link) salon_katie,
+               ", transformando la atmósfera en pura inquietud. Ahora
                sí que puedes sentir con claridad los latidos de tu
                corazón rebotando en tu pecho de pura ansiedad.^";
       } else {
         if (LugarReal() ~= salon_katie) {
-          print "^Un momento... ¿Eso que oyes... no es el televisor?^";
+          print "^Un momento... ¿Eso que oyes... no es el ", (link) self, "?^";
         }
         print "^Durante unos instantes no acabas de creerlo... Buscas una
                explicación lógica, intentas convencerte a ti misma de que no
                es cierto... Pero la realidad, injusta pero imparcial, te lo
-               deja claro: el televisor del salón ha vuelto a encenderse
-               solo.^";
+               deja claro: el ", (link) self, " del ", (link) salon_katie, "ha
+               vuelto a encenderse solo.^";
       }
       katie.dice("¡Becca, vale ya!");
-      "^Pero Becca no está. Y te quedas ahí, sin subir la escalera, mirando
-       en dirección al salón y el televisor encendido.";
+      "^Pero ", (link) becca, " no está. Y te quedas ahí, sin subir la ",
+      (link) "escalera", ", mirando en dirección al ", (link) salon_katie, " y
+      el ", (link) tv_salon_katie, " encendido.";
     ],
     enchufado true,
     encendidos_solo 0,
@@ -778,7 +804,7 @@ Object tv_salon_katie "televisor" salon_katie
         rfalse;
 
       Enchufar:
-        "El televisor ya está enchufado.";
+        "El ", (link) self, " ya está enchufado.";
         
       Desenchufar:
         "El cable del enchufe pasa por la parte trasera y no alcanzas a tirar
@@ -813,12 +839,12 @@ Object tv_salon_katie "televisor" salon_katie
         StopTimer(self);
         if (c) {
           give self general;
-          "Al encender el televisor compruebas que no aparece ninguna emisión
-           salvo la típica imagen de ruido granulado y el sonido de estática
-           que se oye siempre que no se capta ninguna señal.";
+          "Al encender el ", (link) self, " compruebas que no aparece ninguna
+           emisión salvo la típica imagen de ruido granulado y el sonido de
+           estática que se oye siempre que no se capta ninguna señal.";
         } else {
-          "Vuelves a encender el televisor y éste vuelve a mostrar ruido y a
-           emitir sonido de estática.";
+          "Vuelves a encender el ", (link) self, " y éste vuelve a mostrar ruido
+           y a emitir sonido de estática.";
         }
 
       SwitchOff:
@@ -828,8 +854,8 @@ Object tv_salon_katie "televisor" salon_katie
           2: frigorifico_katie.abrir();
              cocina_katie.sgw_img = Cocina_Frigo_Abierto_jpg;
         }
-        "Con un gesto rápido, apagas el televisor y la estática desaparece,
-         retornando la estancia a la semioscuridad.";
+        "Con un gesto rápido, apagas el ", (link) self, " y la estática
+         desaparece, retornando la estancia a la semioscuridad.";
     ],
   has
     static switchable;
@@ -846,19 +872,22 @@ Object becca "Becca" cuarto_katie
   with
     name 'becca',
     short_name "Becca",
-    description "Becca es, sin duda, tu mejor amiga, y lo es desde os
-                 conocísteis, hace ya siglos. Es morena, con grandes ojos
-                 verdes, y de carácter un tanto rebelde. Compañeras de
-                 Instituto que sois, lleva puesto el mismo uniforme que tú.",
+    description [;
+      print_ret (link) self, " es, sin duda, tu mejor amiga, y lo es desde os
+       conocísteis, hace ya siglos. Es morena, con grandes ojos
+       verdes, y de carácter un tanto rebelde. Compañeras de
+       instituto que sois, lleva puesto el mismo ",
+       (link) "uniforme", " que tú.";
+    ],
     initial "^Junto a ti está Becca.",
     nombre_link "Becca",
 !    input_link "Becca",
     imagen Becca_jpg,
     describe [;
       switch (random(3)) {
-        1: "^A tu lado, tu amiga Becca te observa con inquietud.";
+        1: "^A tu lado, tu amiga ", (link) self, " te observa con inquietud.";
         2: "^", (link) self, " te mira esperando qué vas a hacer.";
-        3: "^Tu amiga Becca está a tu lado.";
+        3: "^Tu amiga ", (link) self, " está a tu lado.";
       }
     ],
     react_before [;
@@ -897,7 +926,10 @@ Object becca "Becca" cuarto_katie
             if (tv_cuarto_katie has general || tv_salon_katie has general) {
               self.dice("Parece que se ha ido la señal.");
             } else {
-              self.dice("Sí, haces bien en apagar la tele. Es un rollo.");
+              self.dice_inicio();
+              print "Sí, haces bien en apagar la ",
+                    (string) link(tv_cuarto_katie, "tele"), ". Es un rollo.";
+              self.dice_fin();
             }
             
           default:
@@ -1085,7 +1117,7 @@ Object sonido_telefono_katie "el sonido de un teléfono"
     parar [ sw;
       self.detener(true);
       StopTimer(self);
-      if (~~sw) "El teléfono deja de sonar.";
+      if (~~sw) "El ", (link) telefono_katie, " deja de sonar.";
     ],
     ultimo_mensaje 0,
     each_turn [;
@@ -1125,6 +1157,9 @@ Object sonido_tv_salon_katie
   with
 !    found_in salon_katie cocina_katie pasillo_katie,
     emision TV_Ruido_ogg,
+    ! No se describe cuando está sonando aquí mismo, porque usaremos nuestras
+    ! propias descripciones:
+    suena_aqui false,
     canal CANAL_TV_SALON,
     origen tv_salon_katie,
     volumen_principal VOLUMEN_TV_SALON;

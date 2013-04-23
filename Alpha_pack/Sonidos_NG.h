@@ -191,6 +191,11 @@ Class TipoDeSonido
     !
     ! Rutinas
     !
+    ! Cuando el sonido proviene de un objeto que el jugador puede ver:
+    suena_aqui [ contenido;
+      print (The) contenido.origen, " ", (string) VR(self.verboEmitir),
+        " ", (name) self;
+    ],
     ! Rutina que devuelve un texto indicando nada, 'lejana' o 'muy lejana' según
     ! si la fuente se ve y su intensidad sonora
     diDistancia [ intensidad sePuedeVer femenino;
@@ -267,8 +272,8 @@ Class TipoDeSonido
               ! coletilla que se usa con texto
               _esVoz = true;
             } else {
-              print (The) contenido.origen, " ", (string) VR(self.verboEmitir),
-                    " ", (name) self;
+              self.suena_aqui(contenido);
+              rfalse;
             }
           } else {
             ! No se ve directamente
@@ -492,6 +497,7 @@ Class ObjetoOyente
 Class Ruido
   class TipoDeSonido
   with
+    name 'sonido',
     voz tipoPlano,    ! Clase de Voz a usar
     frase 0,          ! Texto que se dice permanentemente
     intensidad 0,     ! Nivel con el que se habla
@@ -613,7 +619,7 @@ Class Ruido
     ],
     before [
       jo;
-      Listen: 
+      Examine, Listen:
         ! Escuchar un sonido es como examinar una cosa 
         ! muestra su descripción si es que existe
         jo = self.jugadorOye();
@@ -635,7 +641,7 @@ Class Ruido
         }
         "No puedes hacer eso con un sonido.";
     ],
-  has static;
+  has static proper;
 
 ! Función necesaria para registrar Ruidos
 [ RegistraRuido _ruido;

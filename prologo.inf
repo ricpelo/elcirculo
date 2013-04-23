@@ -60,7 +60,8 @@ Object cuarto_katie "Tu habitación"
     sgw_img Cuarto_Katie_jpg,
     compass_look [ d;
       if (d == out_obj) {
-          "A través de la puerta entreabierta observas el pasillo en penumbra.";
+          "A través de la ", (link) "puerta", " entreabierta observas el ",
+          (link) pasillo_katie, " en penumbra.";
       }
     ];
 
@@ -69,6 +70,11 @@ Object decorado_cuarto_katie cuarto_katie
   class Decorado
   with
     before [;
+      Examine:
+        if (self.palabra == 'mesita')
+          "Una baja mesita al fondo de la habitación sostiene,
+           solitaria, el ", (link) tv_cuarto_katie, " del dormitorio.";
+
       Enter:
         if (self.palabra == 'puerta') <<Go out_obj>>;
 
@@ -91,8 +97,7 @@ Object decorado_cuarto_katie cuarto_katie
               el por qué, se te antoja poco acogedora." G_FEMENINO
       'lampara' "Una lámpara que emite una tenue luz especialmente verdosa." 
                 G_FEMENINO
-      'mesita' "Una baja mesita al fondo de la habitación sostiene,
-                solitaria, el televisor del dormitorio." G_FEMENINO
+      'mesita' "" G_FEMENINO
       'puerta' "La puerta de tu habitación permanece entreabierta." G_FEMENINO;
 
 
@@ -103,12 +108,15 @@ Object cocina_katie "Cocina"
 !    input_link "cocina",
     nombre_direccion "la cocina",
 !    del_nombre_direccion "de la cocina",
-    description "La cocina, sobria y funcional, es el núcleo central del
-                 piso inferior, el distribuidor por el que llegar a los
-                 restantes lugares de la casa. El frigorífico y el teléfono
-                 son los dos únicos elementos destacables en una estancia,
-                 por otro lado, gélida y casi en penumbra. A través de un
-                 enorme arco sin puerta se accede al salón de la casa.",
+    description [;
+      "La cocina, sobria y funcional, es el núcleo central del
+       piso inferior, el distribuidor por el que llegar a los
+       restantes lugares de la casa. El ", (link) frigorifico_katie, " y el ",
+       (link) telefono_katie, " son los dos únicos elementos destacables en una
+       estancia, por otro lado, gélida y casi en penumbra. A través de un
+       enorme ", (link) "arco", " sin puerta se accede al ", (link) salon_katie,
+       " de la casa.";
+    ],
     u_to pasillo_katie,
     s_to salon_katie,
     sgw_img Cocina_Katie_jpg,
@@ -120,22 +128,25 @@ Object cocina_katie "Cocina"
             switch (tv_salon_katie.encendidos_solo) {
               0: if (tv_salon_katie has on) {
                    tv_salon_katie.apagar();
-                   print "Justo cuando ibas a salir de la cocina para subir al
-                          piso de arriba, oyes que el televisor se apaga solo
-                          en el salón. Te giras para comprobar que,
-                          efectivamente, el salón está a oscuras y el silencio
+                   print "Justo cuando ibas a salir de la cocina para subir
+                          al ", (string) link(pasillo_katie, "piso de arriba"),
+                          ", oyes que el ", (link) tv_salon_katie, " se apaga
+                          solo en el ", (link) salon_katie, ". Te giras para
+                          comprobar que, efectivamente, el ",
+                          (link) salon_katie, " está a oscuras y el silencio
                           parece ahora más intenso que nunca.";
                    KeyDelay();
                    print " Instantes después, vuelve a encenderse, dejando en
                           el ambiente un sonido de estática tan carente de
                           calidez y alma como el mismo silencio.^";
                  } else {
-                   print "Justo cuando ibas a salir de la cocina para subir al
-                          piso de arriba, oyes que el televisor se enciende
+                   print "Justo cuando ibas a salir de la cocina para subir
+                          al ", (string) link(pasillo_katie, "piso de arriba"),
+                          " oyes que el ", (link) tv_salon_katie, " se enciende
                           solo en el salón. Te giras lentamente para comprobar
-                          que, en efecto, el salón brilla y parpadea al ritmo
-                          de un sonido de estática tan carente de calidez y
-                          alma como el mismo silencio.^";
+                          que, en efecto, el ", (link) salon_katie, " brilla y
+                          parpadea al ritmo de un sonido de estática tan
+                          carente de calidez y alma como el mismo silencio.^";
                  }
                  tv_salon_katie.encender();
                  katie.dice("Becca, deja de bromear... ¿Dónde estas?");
@@ -152,7 +163,8 @@ Object cocina_katie "Cocina"
               default:
                 if (tv_salon_katie has on) {
               .NoDejarEncendido;
-                  "Algo te dice que no quieres dejar el televisor encendido.
+                  "Algo te dice que no quieres dejar el ",
+                  (link) tv_salon_katie, " encendido.
                    Algo inexplicable, irracional y primario.";
                 }
             }
@@ -173,27 +185,31 @@ Object decorado_cocina_katie cocina_katie
     sinonimos
       'escalera' 'escaleras' G_FEMENINO,
     describe
-      'escaleras' "Las escaleras permiten el acceso a la planta alta."
+      'escaleras' [; print "Las escaleras permiten el acceso a la ",
+                     (string) link(pasillo_katie, "planta alta"), ".";
+                     return ""; ]
                    G_FEMENINO + G_PLURAL
-      'arco' "La pared sur se abre en forma de arco para acceder al salón." 0;
+      'arco' [; print "La pared sur se abre en forma de arco para acceder al ",
+                (link) salon_katie, "."; return ""; ] 0;
 
 
 Object pasillo_katie "Pasillo del piso superior"
   class LugarCasaKatie
   with
     name 'pasillo',
-!    input_link "pasillo",
+    input_link "pasillo",
     nombre_direccion "el pasillo",
 !    del_nombre_direccion "del pasillo",
     description [;
       print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
              te había parecido tan oscuro y carente de alma. Una fría
              corriente de aire lo recorre de extremo a extremo, subiendo
-             por las escaleras que dan a la planta baja y cruzando tu
+             por las ", (link) "escaleras", " que dan a la ",
+             (string) link(cocina_katie, "planta baja"), " y cruzando tu
              espalda en forma de escalofríos continuos y persistentes.";
       if (puerta_katie notin self) {
-        " La puerta abierta a tu habitación es prácticamente la única
-         fuente de luz en este lúgubre pasaje."; 
+        " La ", (link) "puerta", " abierta a tu ", (link) cuarto_katie, " es
+        prácticamente la única fuente de luz en este lúgubre pasaje."; 
       } else {
         new_line;
       }
@@ -207,6 +223,17 @@ Object decorado_pasillo_katie pasillo_katie
   class Decorado
   with
     before [;
+      Examine:
+        switch (self.palabra) {
+          'escaleras':
+            "Las escaleras, de madera recia y resistente, conducen
+             directamente a la ", (link) cocina_katie, " en la planta baja.";
+          'puerta':
+            "La puerta entreabierta muestra una vista parcial de tu ",
+            (link) cuarto_katie, " cercándola como el marco de un cuadro
+            vertical y alargado.";
+          }
+
       Enter:
         if (self.palabra == 'puerta') <<Go in_obj>>;
 
@@ -224,20 +251,15 @@ Object decorado_pasillo_katie pasillo_katie
     sinonimos
       'escalera' 'escaleras' G_FEMENINO,
     describe
-      'escaleras' "Las escaleras, de madera recia y resistente, conducen
-                   directamente a la cocina en la planta baja."
-                   G_FEMENINO + G_PLURAL
-      'puerta' "La puerta entreabierta muestra una vista parcial de tu
-                habitación, cercándola como el marco de un cuadro vertical y
-                alargado."
-                G_FEMENINO;
+      'escaleras' "" G_FEMENINO + G_PLURAL
+      'puerta' "" G_FEMENINO;
 
 
 Object salon_katie "Salón"
   class LugarCasaKatie
   with
     name 'salon' 'salita' 'sala',
-!    input_link "salon",
+    input_link "salón",
     nombre_direccion "el salón",
 !    del_nombre_direccion "del salón",
     description "El salón de tu casa está claramente dominado por un televisor
@@ -393,6 +415,7 @@ Object frigorifico_katie "frigorífico" cocina_katie
     name_f 'nevera' 'puerta',
     article "el",
     gender G_MASCULINO,
+    input_link "frigorífico",
     description [;
       if (self hasnt open) {
         "Un moderno frigorífico de puertas metálicas y casi imperceptible
@@ -508,6 +531,7 @@ Object telefono_katie "teléfono" cocina_katie
     name 'telefono' 'auricular' 'tlf',
     description "El teléfono de tu casa, de un color blanco gastado, cuelga de
                  la pared junto al frigorífico.",
+    input_link "teléfono",
 !    initial "Ves tu teléfono.",
     sonando [;
       return sonido_telefono_katie.sonando();
@@ -585,14 +609,14 @@ Object tv_cuarto_katie "televisor" cuarto_katie
     nombre_link "televisor",  ! No hace falta, porque vale igual que input_link
 !    input_link "televisor",
     sgw_img Logo_Circulo_Chico_jpg,
-    ZIPI_item
-      Menu_Examinar
-      Menu_AbrirCon
-      Menu_CerrarCon
-      Menu_Coger
-      Menu_Dejar
-      Menu_Encender
-      Menu_Apagar,
+!    ZIPI_item
+!      Menu_Examinar
+!      Menu_AbrirCon
+!      Menu_CerrarCon
+!      Menu_Coger
+!      Menu_Dejar
+!      Menu_Encender
+!      Menu_Apagar,
     description [;
       print "Un pequeño televisor sin aspectos destacables. Está ";
       if (self has on) print "encendido, emitiendo nieve y ruido de estática";
@@ -1019,7 +1043,8 @@ Object timer_telefono_katie
 Object sonido_telefono_katie "el sonido de un teléfono"
   class Ruido
   with
-    name 'telefono',
+    adjectives 'telefono',
+    description "Es un sonido estridente que te pone los pelos de punta.",
     origen telefono_katie,
     duracion_alarma 10,
     emision Telefono1_ogg,
@@ -1033,16 +1058,22 @@ Object sonido_telefono_katie "el sonido de un teléfono"
         self.avisar_que_suena();
       }
     ],
+    suena_aqui [;
+      "El ", (link) telefono_katie, " está sonando con fuerza.";
+    ],
     mensaje_iniciar [;
       rfalse;
     ],
     avisar_que_suena [;
       ControlTimer.PrepararImpresion();
       switch (LugarReal()) {
-        cuarto_katie:  "^El teléfono sigue sonando fuera, en la planta baja.";
-        pasillo_katie: "^El teléfono sigue sonando en la planta baja.";
-        cocina_katie:  "^El teléfono sigue sonando.";
-        salon_katie:   "^El teléfono sigue sonando en la cocina.";
+        cuarto_katie:  "^El ", (link) telefono_katie, " sigue sonando fuera, en
+                        la planta baja.";
+        pasillo_katie: "^El ", (link) telefono_katie, " sigue sonando en la
+                        planta baja.";
+        cocina_katie:  "^El ", (link) telefono_katie, " sigue sonando.";
+        salon_katie:   "^El ", (link) telefono_katie, " sigue sonando en la
+                        cocina.";
       }
     ],
     sonar [ sw;

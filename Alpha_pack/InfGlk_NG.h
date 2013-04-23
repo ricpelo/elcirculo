@@ -1042,6 +1042,7 @@ Constant config_MonoSize    7;
 Constant config_PropSize    8;
 Constant config_Baseline    9;
 Constant config_Leading     10;
+Constant config_Cols        11;
 
 ! Establece una opción de configuración:
 [ glk_set_config _vararg_count ret;

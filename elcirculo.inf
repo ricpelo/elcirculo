@@ -107,6 +107,7 @@ Constant INICIAL_MONOSIZE = 170;
 Constant INICIAL_PROPSIZE = 200;
 Constant INICIAL_LEADING  = 25;
 Constant INICIAL_BASELINE = 17;
+Constant INICIAL_COLS     = 115;
 
 ! Las posibles distribuciones de ventanas en la aventura:
 Constant LAYOUT_MENU_PRINCIPAL = 0; ! Distribución en el menú principal
@@ -1675,7 +1676,7 @@ Object timer_imagen_personaje
 
 
 [ ZIPI_RunMenu _m top
-  i j count cur key dest r tec anchura altura max long;
+  i j count cur key dest r tec inicio anchura altura max long;
 
   cur = 0;
   count = _m.#ZIPI_item / WORDSIZE; count = count + 2;
@@ -1694,18 +1695,27 @@ Object timer_imagen_personaje
         if (long > max) max = long;
       }
     }
-    anchura = (anchura / 2) - (max / 2);
+    inicio = (anchura / 2) - (max / 2);
     if ((top == 2) || (layoutPantalla == LAYOUT_MENU_PRINCIPAL)) {
       altura = 0;
     } else {
       altura = (gg_arguments-->1 / 2) - (count / 2);
     }
 
-    ZIPI_PintaTitulo(_m.ZIPI_titulo, anchura, altura);
+    ZIPI_PintaTitulo(_m.ZIPI_titulo, inicio, altura);
+
+    if (_m == ZIPI_Configuracion) {
+      glk_set_style(style_Header);
+      ZIPI_setcursor(1, altura + 11); print "|";
+      ZIPI_setcursor(1, altura + 12); print "|";
+      ZIPI_setcursor(anchura, altura + 11); print "|";
+      ZIPI_setcursor(anchura, altura + 12); print "|";
+      glk_set_style(style_Normal);
+    }
 
     for (i = 0, tec = 0 : i < count - 2 : i++) {
       j = i + 3 + altura;
-      ZIPI_setcursor(3 + anchura, j);
+      ZIPI_setcursor(3 + inicio, j);
       if ((_m.&ZIPI_item-->i) ~= ZIPI_Separador) {
         glk_set_hyperlink(teclasOpciones->tec);
         print "[";
@@ -1721,15 +1731,15 @@ Object timer_imagen_personaje
     }
 
     j = i + 4 + altura;
-    ZIPI_setcursor(3 + anchura, j);
+    ZIPI_setcursor(3 + inicio, j);
     glk_set_hyperlink('Q');
     if (top) print (s_head) "[Q] Salir";
     else     print (s_head) "[Q] Volver";
     glk_set_hyperlink(0);
     j = cur + 3 + altura;
-    ZIPI_setcursor(anchura, j);
+    ZIPI_setcursor(inicio, j);
     print (s_emph) ">";
-    ZIPI_setcursor(anchura, j);
+    ZIPI_setcursor(inicio, j);
 
     key = ZIPI_tecla(gg_statuswin);
 
@@ -1867,7 +1877,22 @@ Object ZIPI_Accesibilidad
       ZIPI_Tiempo_Real
       ZIPI_Mostrar_Hyperlinks;
 
-      
+
+Object ZIPI_Aumentar_Ancho_Ventana
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Aumentar tamaño de la ventana de texto",
+    ZIPI_cambiar [;
+      glk_set_config(config_Cols, glk_get_config(config_Cols) + 5);
+      ZIPI_Configuracion.guardar_valores();
+      RefrescarVentanasTexto();
+      ! Esto sólo se ve en el menú principal, porque durante el juego
+      ! el menú de configuración ocupa toda la pantalla, y luego
+      ! restauramos el gráfico de la localidad actual:
+      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
+    ];
+
+
 Object ZIPI_Aumentar_Texto
   class ZIPI_Otro
   with
@@ -1892,18 +1917,22 @@ Object ZIPI_Configuracion
     propsize INICIAL_PROPSIZE,
     leading  INICIAL_LEADING,
     baseline INICIAL_BASELINE,
+    cols     INICIAL_COLS,
     guardar_valores [;
       self.monosize = glk_get_config(config_MonoSize);
       self.propsize = glk_get_config(config_PropSize);
       self.leading  = glk_get_config(config_Leading);
       self.baseline = glk_get_config(config_Baseline);
+      self.cols     = glk_get_config(config_Cols);
     ],
     restaurar_valores [;
       glk_set_config(config_MonoSize, self.monosize);
       glk_set_config(config_PropSize, self.propsize);
       glk_set_config(config_Leading,  self.leading);
       glk_set_config(config_Baseline, self.baseline);
+      glk_set_config(config_Cols,     self.cols);
       RefrescarVentanasTexto();
+      MostrarImagenLocalidad();
     ],
     ZIPI_item
       ZIPI_Graficos
@@ -1914,7 +1943,25 @@ Object ZIPI_Configuracion
       ZIPI_Aumentar_Texto
       ZIPI_Disminuir_Texto
       ZIPI_Separador
+      ZIPI_Aumentar_Ancho_Ventana
+      ZIPI_Disminuir_Ancho_Ventana
+      ZIPI_Separador
       ZIPI_Accesibilidad;
+
+
+Object ZIPI_Disminuir_Ancho_Ventana
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Disminuir tamaño de la ventana de texto",
+    ZIPI_cambiar [;
+      glk_set_config(config_Cols, glk_get_config(config_Cols) - 5);
+      ZIPI_Configuracion.guardar_valores();
+      RefrescarVentanasTexto();
+      ! Esto sólo se ve en el menú principal, porque durante el juego
+      ! el menú de configuración ocupa toda la pantalla, y luego
+      ! restauramos el gráfico de la localidad actual:
+      viewImageCenter(Logo_Circulo_Con_Letras_jpg);
+    ];
 
 
 Object ZIPI_Disminuir_Texto

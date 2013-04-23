@@ -54,9 +54,6 @@ Constant NO_SCORE;
 ! Hay curiosidades al final del juego
 !Constant AMUSING_PROVIDED;
 
-! Altura de la ventana del menú principal:
-Constant ALTO_MENU_PRINCIPAL = 14;
-
 ! Ancho de la ventana de acciones:
 Constant ANCHO_ACCIONES  = 25;
 
@@ -151,6 +148,9 @@ Array numeroOpciones -> MAXIMO_TECLAS_OPCIONES;
 Array teclasOpciones -> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
                         'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
                         'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
+
+! Altura (en px.) de la ventana de logo en el menú principal:
+Global altoLogoMenu = 450;
 
 ! Alto de la ventana gráfica:
 Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
@@ -1036,20 +1036,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 
 [ Initialise r v;
-  KeyDelay(1); ! Para que no produzca un efecto de "reposicionado" del logotipo
   IniciarGraficosSonidos();
-  closeGraphicWindow();
-  glk_window_close(gg_statuswin, 0);
-  gg_statuswin = glk_window_open(gg_mainwin,
-                                 winmethod_Below + winmethod_Fixed +
-                                 winmethod_NoBorder,
-                                 ALTO_MENU_PRINCIPAL, wintype_TextGrid,
-                                 GG_STATUSWIN_ROCK);
-  gg_bigwin = glk_window_open(gg_mainwin,
-                              winmethod_Below + winmethod_Proportional +
-                              winmethod_NoBorder,
-                              100, wintype_Graphics, GG_BIGWIN_ROCK);
+  openGraphicWindow(altoLogoMenu);
   clearGraphicWindow();
+  ExtenderVentanaEstado();
+  clearMainWindow();
   viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
@@ -1796,30 +1787,14 @@ Object timer_imagen_personaje
 [ ZIPI_RunOtro _o
   r gr;
   gr = gg_bigwin ~= 0;
-  if (gr) {
-    closeGraphicWindow();
-    glk_window_close(gg_statuswin, 0);
-    gg_statuswin = glk_window_open(gg_mainwin,
-                                   winmethod_Above + winmethod_Proportional +
-                                   winmethod_NoBorder,
-                                   100, wintype_TextGrid, GG_STATUSWIN_ROCK);
-  }
+  if (gr) closeGraphicWindow();
   ZIPI_PintaTitulo(_o.ZIPI_titulo);
   print "^";
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
   if (gr) {
-    closeGraphicWindow();
-    glk_window_close(gg_statuswin, 0);
-    gg_statuswin = glk_window_open(gg_mainwin,
-                                   winmethod_Below + winmethod_Fixed +
-                                   winmethod_NoBorder,
-                                   ALTO_MENU_PRINCIPAL, wintype_TextGrid,
-                                   GG_STATUSWIN_ROCK);
-    gg_bigwin = glk_window_open(gg_mainwin,
-                                winmethod_Below + winmethod_Proportional +
-                                winmethod_NoBorder,
-                                100, wintype_Graphics, GG_BIGWIN_ROCK);
+    openGraphicWindow(altoLogoMenu);
+    clearGraphicWindow();
     viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   }
   return r;
@@ -1975,12 +1950,8 @@ Object ZIPI_Jugar_Con_Intro
   with
     ZIPI_titulo "Comenzar la aventura con introducción",
     ZIPI_ejecutar [;
-      closeGraphicWindow();
-      glk_window_close(gg_statuswin, 0);
-      gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
-                                 winmethod_Above + winmethod_Fixed +
-                                 winmethod_NoBorder,
-                                 1, wintype_TextGrid, GG_STATUSWIN_ROCK);
+      StatusLineHeight(1);
+      glk_window_clear(gg_statuswin);
       glk_set_window(gg_mainwin);
       clearTextWindow();
       if (hayGraficos) EncenderGraficos();
@@ -1997,12 +1968,8 @@ Object ZIPI_Jugar_Sin_Intro
   with
     ZIPI_titulo "Comenzar la aventura saltando la introducción",
     ZIPI_ejecutar [;
-      closeGraphicWindow();
-      glk_window_close(gg_statuswin, 0);
-      gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
-                                 winmethod_Above + winmethod_Fixed +
-                                 winmethod_NoBorder,
-                                 1, wintype_TextGrid, GG_STATUSWIN_ROCK);
+      StatusLineHeight(1);
+      glk_window_clear(gg_statuswin);
       glk_set_window(gg_mainwin);
       clearTextWindow();
       if (hayGraficos) EncenderGraficos();
@@ -2812,9 +2779,21 @@ Object Menu_Configuracion
 
   if (alto <= 700)  {
     altoVentanaGrafica = GRAFICOS_MINUSCULOS;
-    glk_decr_fontsize(); glk_decr_fontsize();
+    altoLogoMenu = 300;
+    glk_decr_fontsize();
+    glk_decr_fontsize();
+    glk_decr_fontsize();
+    glk_decr_fontsize();
+  } else if (alto <= 768) {
+    altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+    altoLogoMenu = 350;
+    glk_decr_fontsize();
+    glk_decr_fontsize();
+    glk_decr_fontsize();
   } else if (alto <= 800) {
     altoVentanaGrafica = GRAFICOS_PEQUENOS;
+    altoLogoMenu = 350;
+    glk_decr_fontsize();
     glk_decr_fontsize();
   } else if (alto <= 1080) {
     altoVentanaGrafica = GRAFICOS_MEDIANOS;

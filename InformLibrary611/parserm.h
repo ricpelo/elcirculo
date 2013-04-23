@@ -5699,12 +5699,12 @@ statuswin_current = true;
 
         if (doclear || ( window ~= 1 && (clr_fg ~= f || clr_bg ~= b) ) ) {
             glk($0024, gg_mainwin, 0);
-            gg_mainwin = glk($0023, 0, $100, 0, 3, GG_MAINWIN_ROCK); ! window_open
+            gg_mainwin = glk($0023, 0, 0, 0, 3, GG_MAINWIN_ROCK); ! window_open
             if (gg_scriptstr ~= 0)
                 glk($002D, gg_mainwin, gg_scriptstr); ! window_set_echo_stream
         }
 
-        gg_statuswin = glk($0023, gg_mainwin, $112, gg_statuswin_cursize,
+        gg_statuswin = glk($0023, gg_mainwin, $12, gg_statuswin_cursize,
            4, GG_STATUSWIN_ROCK); ! window_open
         if (statuswin_current && gg_statuswin) MoveCursor(); else MainWindow();
 
@@ -5884,7 +5884,7 @@ statuswin_current = true;
         gg_arguments-->0 = lines;
         ix = InitGlkWindow(GG_QUOTEWIN_ROCK);
         if (ix == 0)
-            gg_quotewin = glk($0023, gg_mainwin, $112, lines, 3,
+            gg_quotewin = glk($0023, gg_mainwin, $12, lines, 3,
                 GG_QUOTEWIN_ROCK); ! window_open
     }
     else {
@@ -5942,7 +5942,7 @@ statuswin_current = true;
         ! Open the story window.
         res = InitGlkWindow(GG_MAINWIN_ROCK);
         if (res == 0)
-            gg_mainwin = glk($0023, 0, $100, 0, 3, GG_MAINWIN_ROCK); ! window_open
+            gg_mainwin = glk($0023, 0, 0, 0, 3, GG_MAINWIN_ROCK); ! window_open
         if (gg_mainwin == 0) {
             ! If we can't even open one window, there's no point in going on.
             quit;
@@ -5957,7 +5957,7 @@ statuswin_current = true;
         res = InitGlkWindow(GG_STATUSWIN_ROCK);
         if (res == 0) {
             gg_statuswin_cursize = gg_statuswin_size;
-            gg_statuswin = glk($0023, gg_mainwin, $112, gg_statuswin_cursize,
+            gg_statuswin = glk($0023, gg_mainwin, $12, gg_statuswin_cursize,
                 4, GG_STATUSWIN_ROCK); ! window_open
         }
     }

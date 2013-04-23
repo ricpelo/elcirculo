@@ -1033,6 +1033,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 
 [ Initialise r v;
+  KeyDelay(1); ! Se hace para que no dibuje y acto seguido "recoloque" el logo
   IniciarGraficosSonidos();
   openGraphicWindow(altoLogoMenu);
   clearGraphicWindow();

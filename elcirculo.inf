@@ -376,6 +376,26 @@ Include "Parser";
                                      INPUT_BUFFER_LEN - WORDSIZE, "m");
               buffer-->0 = long;
               return 2;
+            } else if (obj == Menu_Importantes) {
+              MenuAcciones.AbrirVentana();
+              r = MenuAcciones.MostrarAcciones(obj);
+              MenuAcciones.CerrarVentana();
+              if (r) {
+                glk_cancel_line_event(gg_mainwin, gg_event);
+                glk_set_style(style_Input);
+                r = r.ZIPI_ejecutar();
+                PrintAnything(r);
+                new_line;
+                glk_set_style(style_Normal);
+                long = PrintAnyToArray(buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE,
+                                       r);       ! El verbo
+                buffer-->0 = long;
+                return 2;
+              } else {
+                buffer-->0 = 0;
+                return 2; ! Se simula la pulsación de Intro con input vacío
+              }
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               viewImageSlide(obj);
               noCerrarVentanaObj = true;
@@ -1278,7 +1298,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 
 [ DrawStatusLine
-  ancho alin;
+  ancho;
   if (~~dibujarEstado || gg_statuswin == 0) rfalse;
   glk_set_window(gg_statuswin);
   StatusLineHeight(1);
@@ -1290,13 +1310,10 @@ Include "Timer";            ! Mi librería de eventos temporizados
   glk_set_hyperlink(location);
   print (name) location;
   glk_set_hyperlink(0);
-  if (turns < 10) alin = 9;
-  else if (turns < 100) alin = 10;
-  else if (turns < 1000) alin = 11;
-  else if (turns < 10000) alin = 12;
-  else alin = 13;
-  glk_window_move_cursor(gg_statuswin, ancho - alin, 0);
-  print "Turnos: ", turns;
+  glk_window_move_cursor(gg_statuswin, ancho - 4, 0);
+  glk_set_hyperlink(Menu_Importantes);
+  print "Menú";
+  glk_set_hyperlink(0);
   glk_set_window(gg_mainwin);
 ];
 
@@ -2685,7 +2702,7 @@ Object Menu_Inventario
   class ZIPI_Otro
   with
     ZIPI_titulo "Inventario",
-    ZIPI_ejecutar [; return "i"; ];
+    ZIPI_ejecutar [; return "inventario"; ];
 
 
 Object Menu_Mapa
@@ -2729,6 +2746,7 @@ Object Menu_Configuracion
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
+  glk_request_hyperlink_event(gg_statuswin);
 !  MenuAcciones.AbrirVentana();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();

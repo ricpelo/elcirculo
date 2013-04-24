@@ -1006,7 +1006,6 @@ Include "BetaTest";         ! Modo betatesting
 
 Include "VerbLib";
 
-Include "Barra";            ! Barra de estado personalizable
 Include "Contenedor";       ! Contenedores
 Include "Decorado_NG";      ! Objetos de decorado
 Include "Diary";            ! Un diario autorellenable durante el juego
@@ -1252,10 +1251,27 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
-[ DrawStatusLine;
-  if (dibujarEstado) {
-    barra_estado.dibujar();
-  }
+[ DrawStatusLine
+  ancho alin;
+  if (~~dibujarEstado || gg_statuswin == 0) rfalse;
+  glk_set_window(gg_statuswin);
+  StatusLineHeight(1);
+  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+  ancho = gg_arguments-->0;
+  glk_window_clear(gg_statuswin);
+  glk_window_move_cursor(gg_statuswin, 0, 0);
+  glk_set_style(style_SubHeader);
+  glk_set_hyperlink(location);
+  print (name) location;
+  glk_set_hyperlink(0);
+  if (turns < 10) alin = 9;
+  else if (turns < 100) alin = 10;
+  else if (turns < 1000) alin = 11;
+  else if (turns < 10000) alin = 12;
+  else alin = 13;
+  glk_window_move_cursor(gg_statuswin, ancho - alin, 0);
+  print "Turnos: ", turns;
+  glk_set_window(gg_mainwin);
 ];
 
 
@@ -1613,17 +1629,6 @@ Class Personaje
 ! ====================================================================
 ! OBJETOS DE SOPORTE
 ! ====================================================================
-
-
-Object barra_estado
-  class objeto_barra_estado
-  with
-    modo BE_COMPUESTO,
-    disposicion
-      1  1 true BE_LOCALIDAD
-      68 1 true BE_TURNOS,
-    lineas_inv
-      BE_INV_TOTAL;
 
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades

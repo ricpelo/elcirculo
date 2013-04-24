@@ -150,11 +150,11 @@ Array teclasOpciones -> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
                         'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
                         'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
 
-! Altura (en px.) de la ventana de logo en el menú principal:
-Global altoLogoMenu = 450;
+! Anchura (en px.) de la ventana de logo en el menú principal:
+Global anchoLogoMenu = 450;
 
-! Alto de la ventana gráfica:
-Global altoVentanaGrafica = GRAFICOS_MEDIANOS;
+! Anchura de la ventana gráfica:
+Global anchoVentanaGrafica = GRAFICOS_MEDIANOS;
 
 ! Interruptor para indicar si hay que dibujar o no la línea de estado
 ! (ver rutina Initialise):
@@ -1138,7 +1138,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   sonido_telefono_katie.sonar();
   KeyDelay();
 !  MenuAcciones.AbrirVentana();
-!  openGraphicWindow(altoVentanaGrafica);
+!  openGraphicWindow(anchoVentanaGrafica);
 ];
 
 
@@ -1869,7 +1869,7 @@ Object timer_imagen_personaje
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
   if (gr) {
-    openGraphicWindow(altoLogoMenu);
+    openGraphicWindow(anchoLogoMenu);
     clearGraphicWindow();
     viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   }
@@ -2198,7 +2198,7 @@ Object ZIPI_Tamano_Graficos
   class ZIPI_Otro
   with
     ZIPI_titulo [;
-      switch (altoVentanaGrafica) {
+      switch (anchoVentanaGrafica) {
         GRAFICOS_MINUSCULOS: "Tamaño de gráficos: ",
                              GRAFICOS_MINUSCULOS, " px. (MINÚSCULOS)";
         GRAFICOS_PEQUENOS:   "Tamaño de gráficos: ",
@@ -2208,14 +2208,14 @@ Object ZIPI_Tamano_Graficos
         GRAFICOS_GRANDES:    "Tamaño de gráficos: ",
                              GRAFICOS_GRANDES,  " px. (GRANDES)";
         default:             "Tamaño de gráficos: ",
-                             altoVentanaGrafica, " px.";          
+                             anchoVentanaGrafica, " px.";          
       }
     ],
     ZIPI_cambiar [;
-      if (altoVentanaGrafica < GRAFICOS_GRANDES)
-        altoVentanaGrafica = altoVentanaGrafica + 50;
+      if (anchoVentanaGrafica < GRAFICOS_GRANDES)
+        anchoVentanaGrafica = anchoVentanaGrafica + 50;
       else
-        altoVentanaGrafica = GRAFICOS_MINUSCULOS;
+        anchoVentanaGrafica = GRAFICOS_MINUSCULOS;
     ];
 
 
@@ -2811,7 +2811,7 @@ Object Menu_Configuracion
   habiaGraficos;
   habiaGraficos = hayGraficos;
   hayGraficos = true;
-  openGraphicWindow(altoVentanaGrafica);
+  openGraphicWindow(anchoVentanaGrafica);
   glk_request_mouse_event(gg_bigwin);
   clearGraphicWindow();
   MostrarImagenLocalidad();
@@ -2819,11 +2819,11 @@ Object Menu_Configuracion
     glk_set_style(style_Emphasized);
     if (habiaGraficos) print "[Cambiando tamaño de gráficos (tamaño ";
     else               print "[Gráficos activados (tamaño ";
-    switch (altoVentanaGrafica) {
+    switch (anchoVentanaGrafica) {
       GRAFICOS_PEQUENOS: print "pequeño";
       GRAFICOS_MEDIANOS: print "mediano";
       GRAFICOS_GRANDES:  print "grande";
-      default:           print altoVentanaGrafica, " px";
+      default:           print anchoVentanaGrafica, " px";
     }
     print ").]^";
     style roman;
@@ -2895,31 +2895,31 @@ Object Menu_Configuracion
   ancho = gg_arguments-->0;
   alto  = gg_arguments-->1;
 
-  if (alto <= 700)  {
-    altoVentanaGrafica = GRAFICOS_MINUSCULOS;
-    altoLogoMenu = 300;
+  if (alto <= 600)  {
+    anchoVentanaGrafica = GRAFICOS_PEQUENOS;
+    anchoLogoMenu = 250;
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
   } else if (alto <= 768) {
-    altoVentanaGrafica = GRAFICOS_MINUSCULOS;
-    altoLogoMenu = 350;
+    anchoVentanaGrafica = GRAFICOS_MEDIANOS;
+    anchoLogoMenu = 350;
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
   } else if (alto <= 800) {
-    altoVentanaGrafica = GRAFICOS_PEQUENOS;
-    altoLogoMenu = 350;
+    anchoVentanaGrafica = GRAFICOS_MEDIANOS;
+    anchoLogoMenu = 350;
     glk_decr_fontsize();
     glk_decr_fontsize();
-  } else if (alto <= 1080) {
-    altoVentanaGrafica = GRAFICOS_MEDIANOS;
+!  } else if (alto <= 1080) {
+!    anchoVentanaGrafica = GRAFICOS_MEDIANOS;
   } else {
-    altoVentanaGrafica = GRAFICOS_GRANDES;
+    anchoVentanaGrafica = GRAFICOS_GRANDES;
   }
 
-  initializeSGW(altoLogoMenu);
+  initializeSGW(anchoLogoMenu);
 ];
 
 
@@ -3391,19 +3391,19 @@ Verb meta 'tt'
 
 
 [ GraficosGrandesSub;
-  altoVentanaGrafica = GRAFICOS_GRANDES;
+  anchoVentanaGrafica = GRAFICOS_GRANDES;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosMedianosSub;
-  altoVentanaGrafica = GRAFICOS_MEDIANOS;
+  anchoVentanaGrafica = GRAFICOS_MEDIANOS;
   EncenderGraficosSub();
 ];
 
 
 [ GraficosPequenosSub;
-  altoVentanaGrafica = GRAFICOS_PEQUENOS;
+  anchoVentanaGrafica = GRAFICOS_PEQUENOS;
   EncenderGraficosSub();
 ];
 

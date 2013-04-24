@@ -42,7 +42,7 @@ Default NIVEL_SUSURRO  = 4;
 Default NIVEL_MURMULLO = 6;
 Default NIVEL_NORMAL   = 8;
 Default NIVEL_ALTO     = 10;
-! Default NIVEL_MUYALTO  = 12;
+Default NIVEL_MUYALTO  = 12;
 
 !
 ! VARIABLES GLOBALES
@@ -181,7 +181,7 @@ Class TipoDeSonido
     noVozSusurro ", que apenas se oye",
     noVozMurmullo " sonando muy bajito",
     noVozNormal 0,
-    noVozAlto " sonando muy claramente",
+    noVozAlto " sonando con fuerza",
     noVozMuyAlto ", con una intensidad que casi te deja sordo",
     vozSusurro "pero apenas se entiende",
     vozMurmullo "pero suena como un susurro",
@@ -194,7 +194,7 @@ Class TipoDeSonido
     ! Cuando el sonido proviene de un objeto que el jugador puede ver:
     suena_aqui [ contenido;
       print (The) contenido.origen, " ", (string) VR(self.verboEmitir),
-        " ", (name) self, "^";
+        " ", (name) self, ".^";
     ],
     ! Rutina que devuelve un texto indicando nada, 'lejana' o 'muy lejana' según
     ! si la fuente se ve y su intensidad sonora
@@ -277,6 +277,7 @@ Class TipoDeSonido
             }
           } else {
             ! No se ve directamente
+            if (self.suena_aqui == false) new_line;
             if ((VR(self.usarDireccion)) && (contenido.seEscuchaEn ~= 0)) {
               ! pero se sabe de donde
               print (string) VR(self.verboOir), " ", (name) self;
@@ -498,6 +499,7 @@ Class Ruido
   class TipoDeSonido
   with
     name 'sonido',
+    articles 0 0 0,
     voz tipoPlano,    ! Clase de Voz a usar
     frase 0,          ! Texto que se dice permanentemente
     intensidad 0,     ! Nivel con el que se habla
@@ -641,7 +643,7 @@ Class Ruido
         }
         "No puedes hacer eso con un sonido.";
     ],
-  has static proper;
+  has static;
 
 ! Función necesaria para registrar Ruidos
 [ RegistraRuido _ruido;

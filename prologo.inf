@@ -1141,18 +1141,19 @@ Object sonido_telefono_katie "el sonido de un teléfono"
     ];
 
 
-Object sonido_tv_cuarto_katie
+Object sonido_tv_cuarto_katie "un sonido de estática"
   class Ruido
   with
 !    found_in salon_katie pasillo_katie,
     emision TV_Ruido_ogg, 
     canal CANAL_TV_CUARTO,
     origen tv_cuarto_katie,
+    intensidad NIVEL_ALTO,
     volumen_principal VOLUMEN_TV_CUARTO;
 !    propagacion 2;
 
 
-Object sonido_tv_salon_katie
+Object sonido_tv_salon_katie "el sonido de un televisor"
   class Ruido
   with
 !    found_in salon_katie cocina_katie pasillo_katie,
@@ -1162,6 +1163,7 @@ Object sonido_tv_salon_katie
     suena_aqui false,
     canal CANAL_TV_SALON,
     origen tv_salon_katie,
+    intensidad NIVEL_ALTO,
     volumen_principal VOLUMEN_TV_SALON;
 !    propagacion 2;
 

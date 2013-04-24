@@ -3644,7 +3644,7 @@ Property persona alias number;
     !  2: Respuesta si el jugador escribe algo distinto de "si" o "no"
     switch (n) {
       1: print "Por favor, responde sí o no.";
-      2: print "¿Realmente quieres abandonar el juego? ";  ! ELIUK BLAU: antes "Seguro que..."
+      2: print "¿Realmente quieres abandonar el juego?^";  ! ELIUK BLAU: antes "Seguro que..."
     }
     
   Remove:
@@ -3669,7 +3669,7 @@ Property persona alias number;
     !  1: Respuesta al comando REINICIAR
     !  2: Si no se puede reiniciar
     switch (n) {
-      1: print "¿Realmente quieres reiniciar el juego? ";  ! ELIUK BLAU: antes "Seguro que..."
+      1: print "¿Realmente quieres reiniciar el juego?^";  ! ELIUK BLAU: antes "Seguro que..."
       2: "Error.";
     }
 

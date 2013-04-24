@@ -1126,7 +1126,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 ! La pregunta del final del luego, ahora usando el menú de acciones:
 [ AfterGameOver
-  i;
+  i numopcs;
 
   .RRQPL;
 
@@ -1139,22 +1139,45 @@ Include "Timer";            ! Mi librería de eventos temporizados
     temp_global=0;
     #IfV5; read buffer parse DrawStatusLine; #Endif; ! V5
     #Ifnot; ! TARGET_GLULX
+    numopcs = 2;
     #ifdef DEATH_MENTION_UNDO;
     Menu_AfterGameOver.&ZIPI_item-->2 = Menu_Undo;
+    numopcs++;
     #ifnot;
     Menu_AfterGameOver.&ZIPI_item-->2 = 0;
     #endif;
     if (TASKS_PROVIDED == 0) {
       Menu_AfterGameOver.&ZIPI_item-->3 = Menu_Score;
+      numopcs++;
     } else {
       Menu_AfterGameOver.&ZIPI_item-->3 = 0;
     }
     if (deadflag == 2 && AMUSING_PROVIDED == 0) {
       Menu_AfterGameOver.&ZIPI_item-->4 = Menu_Amusing;
+      numopcs++;
     } else {
       Menu_AfterGameOver.&ZIPI_item-->4 = 0;
     }
-    i = MenuAcciones.MostrarAcciones(Menu_AfterGameOver, true);
+    ControlTimer.PausarTick();
+    glk_cancel_line_event(gg_mainwin, gg_event);
+    gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+                                      winmethod_Below + winmethod_Fixed +
+                                      winmethod_Border,
+                                      numopcs + 4, wintype_TextGrid,
+                                      GG_CONVERSAWIN_ROCK);
+    glk_set_window(gg_conversawin);
+    glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
+    glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
+    glk_cancel_hyperlink_event(gg_menuwin);    ! enlaces de otras ventanas
+    i = MenuAcciones.RunMenu(Menu_AfterGameOver, true, gg_conversawin);
+    if (~~i) noCerrarVentanaObj = false;
+    glk_set_window(gg_mainwin);
+    glk_window_close(gg_conversawin, 0);
+    gg_conversawin = 0;
+    glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
+    glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+    glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
+    ControlTimer.ReanudarTick();
     i = i.ZIPI_ejecutar();
     #Endif; ! TARGET_
     if (i == QUIT1__WD or QUIT2__WD) {
@@ -1399,10 +1422,28 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! La pregunta de "sí o no" usa ahora el menú de acciones:
 [ YesOrNo
   r;
-  r = MenuAcciones.MostrarAcciones(Menu_YesOrNo, true);
-  MenuAcciones.MostrarImportantes();
+  ControlTimer.PausarTick();
+  glk_cancel_line_event(gg_mainwin, gg_event);
+  gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+                                    winmethod_Below + winmethod_Fixed +
+                                    winmethod_Border,
+                                    5, wintype_TextGrid,
+                                    GG_CONVERSAWIN_ROCK);
+  glk_set_window(gg_conversawin);
+  glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
+  glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
+  if (gg_menuwin) glk_cancel_hyperlink_event(gg_menuwin);
+  r = MenuAcciones.RunMenu(Menu_YesOrNo, true, gg_conversawin);
+  if (~~r) noCerrarVentanaObj = false;
+  glk_set_window(gg_mainwin);
+  glk_window_close(gg_conversawin, 0);
+  gg_conversawin = 0;
+  glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
+  glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+  if (gg_menuwin) glk_request_hyperlink_event(gg_menuwin);
+  ControlTimer.ReanudarTick();
   r = r.ZIPI_ejecutar() == 1;
-  if (~~r) new_line;
+!  if (~~r) new_line;
   return r;
 ];
 
@@ -2220,21 +2261,19 @@ Object MenuAcciones
     ! Si top == true, no se muestra la opción de "[Q] Salir":
     MostrarAcciones [ obj top
       r;
-!      if (obj provides ZIPI_item) {
-        ControlTimer.PausarTick();
-        glk_cancel_line_event(gg_mainwin, gg_event);
-        glk_set_window(gg_menuwin);
-        glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
-        glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
-        r = self.RunMenu(obj, top);
-        if (~~r) noCerrarVentanaObj = false;
-        self.MostrarImportantes();
-        glk_set_window(gg_mainwin);
-        glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
-        glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
-        glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
-        ControlTimer.ReanudarTick();
-!      }
+      ControlTimer.PausarTick();
+      glk_cancel_line_event(gg_mainwin, gg_event);
+      glk_set_window(gg_menuwin);
+      glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
+      glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
+      r = self.RunMenu(obj, top);
+      if (~~r) noCerrarVentanaObj = false;
+      self.MostrarImportantes();
+      glk_set_window(gg_mainwin);
+      glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
+      glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
+      glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
+      ControlTimer.ReanudarTick();
       return r;
     ],
     MostrarImportantes [ menu
@@ -2269,7 +2308,7 @@ Object MenuAcciones
       gg_menuwin = 0;
     ],
     ! Muestra el menú de acciones de un objeto:
-    RunMenu [ _m top
+    RunMenu [ _m top win
       menu size i j count opc cur key dest tec altura anchura delta oldcur;
 
       ! Si el objeto tiene menú propio, usamos ése. En caso contrario, usamos
@@ -2307,13 +2346,14 @@ Object MenuAcciones
       }
 
       cur = 0;
+      if (win == 0) win = gg_menuwin;
 
       for (::) {
-        glk_window_get_size(gg_menuwin, gg_arguments, gg_arguments + WORDSIZE);
+        glk_window_get_size(win, gg_arguments, gg_arguments + WORDSIZE);
         anchura = gg_arguments-->0;
         altura  = gg_arguments-->1;
 
-        glk_window_clear(gg_menuwin);
+        glk_window_clear(win);
         if (_m provides ZIPI_titulo) {
           glk_set_style(style_Input);
           print " ", (string) _m.ZIPI_titulo, "^";
@@ -2325,14 +2365,14 @@ Object MenuAcciones
         }
 
         if (delta > 0) {
-          glk($002B, gg_menuwin, anchura - 1, 1);
+          glk_window_move_cursor(win, anchura - 1, 1);
           print "@@94";
         }
 
         for (i = 0 + delta, tec = 0 + delta : i < count : i++) {
           j = i + 3 - delta;
           if (j >= altura) break;
-          glk($002B, gg_menuwin, 3, j - 1);
+          glk_window_move_cursor(win, 3, j - 1);
           opc = opcionesMenu-->i;
           if (opc ~= ZIPI_Separador) {
             if (opc == ZIPI_Ninguna) {
@@ -2359,17 +2399,17 @@ Object MenuAcciones
 
         j = i + 4 - delta;
 
-        if (j > altura) {
-          glk($002B, gg_menuwin, anchura - 1, altura - 1);
+        if (j > altura + top) {
+          glk_window_move_cursor(win, anchura - 1, altura - 1);
           print "v";
         }
 
         j = cur + 3 - delta;
-        glk($002B, gg_menuwin, 1, j - 1);
+        glk_window_move_cursor(win, 1, j - 1);
         print (s_emph) ">";
-        glk($002B, gg_menuwin, 1, j - 1);
+        glk_window_move_cursor(win, 1, j - 1);
 
-        key = ZIPI_tecla(gg_menuwin, true);
+        key = ZIPI_tecla(win, true);
 
         if (key >= 'a' && key <= 'z') key = key - 32;  ! Pasamos a mayúsculas
 
@@ -2399,7 +2439,7 @@ Object MenuAcciones
         .Aceptar;
             dest = opcionesMenu-->cur;
             if (dest ofclass ZIPI_Menu) {
-              return MenuAcciones.RunMenu(dest, top);
+              return MenuAcciones.RunMenu(dest, top, win);
             } else if (dest == ZIPI_Ninguna) {
               rfalse;
             } else if (dest ofclass ZIPI_Pista) {

@@ -392,8 +392,9 @@ Include "Parser";
                 buffer-->0 = long;
                 return 2;
               } else {
-                buffer-->0 = 0;
-                return 2; ! Se simula la pulsación de Intro con input vacío
+                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE, 0);
+                return 1;
               }
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               viewImageSlide(obj);
@@ -439,8 +440,9 @@ Include "Parser";
                   return 2; ! No seguimos escribiendo: Intro
                 }
               } else { ! Si no se ha escogido ninguna opción del menú
-                buffer-->0 = 0;
-                return 2; ! Se simula la pulsación de Intro con input vacío
+                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                       INPUT_BUFFER_LEN - WORDSIZE, 0);
+                return 1;
               }
             }
           } ! if (obj ofclass Object)

@@ -284,6 +284,7 @@ Verb meta 'mapa'
   glk($002F, gg_statuswin); ! select
   glk($002A, gg_statuswin); ! clear
   ImprimirNombreSitioMapa(sitio);
+  glk($002F, gg_objwin); ! select
   AyudaMapa(sitio);
   glk($002F, gg_mainwin);   ! select
   #ifdef IMPRIMIR_DESCRIPCION_MAPA;
@@ -293,7 +294,7 @@ Verb meta 'mapa'
 
 [ ImprimirNombreSitioMapa sitio;
   glk($0086, style_SubHeader);
-  glk($002B, gg_statuswin, 0, 1); ! locate
+  glk($002B, gg_statuswin, 0, 0); ! locate
   print (name) sitio;
   glk($0086, style_Normal);
 ];
@@ -348,30 +349,35 @@ Verb meta 'mapa'
   ControlTimer.PausarTick();
   #endif;
 !  openGraphicWindow(200);
-  if (gg_menuwin ~= 0) glk_window_close(gg_menuwin, 0);
-  gg_menuwin = 0;
+  if (gg_menuwin) {
+    glk_window_close(gg_menuwin, 0);
+    gg_menuwin = 0;
+  }
   glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
   altura = gg_arguments-->1;
-  glk_window_close(gg_statuswin, 0);
-  if (gg_bigwin ~= 0) glk_window_close(gg_bigwin, 0);
+!  glk_window_close(gg_statuswin, 0);
+  if (gg_bigwin) glk_window_close(gg_bigwin, 0);
   gg_bigwin = glk_window_open(gg_mainwin,
-                              winmethod_Above + winmethod_Proportional +
+                              winmethod_Left + winmethod_Proportional +
                               winmethod_NoBorder,
-                              35, wintype_Graphics, GG_BIGWIN_ROCK);
-  if (gg_mapawin ~= 0) glk_window_close(gg_mapawin, 0);
-  gg_mapawin = glk_window_open((gg_mainwin),
-                               winmethod_Right + winmethod_Proportional +
+                              25, wintype_Graphics, GG_BIGWIN_ROCK);
+  if (gg_objwin) glk_window_close(gg_objwin, 0);
+  gg_objwin = glk_window_open(gg_mainwin,
+                              winmethod_Left + winmethod_Fixed +
+                              winmethod_NoBorder,
+                              20, wintype_TextGrid, GG_STATUSWIN_ROCK);
+!  glk_window_clear(gg_statuswin);
+  if (gg_mapawin) glk_window_close(gg_mapawin, 0);
+  gg_mapawin = glk_window_open(gg_mainwin,
+                               winmethod_Above + winmethod_Proportional +
                                winmethod_NoBorder,
-                               50, wintype_Graphics, GG_MAPAWIN_ROCK);
+                               100, wintype_Graphics, GG_MAPAWIN_ROCK);
   if (gg_mapawin == 0) return;
   glk_request_mouse_event(gg_mapawin);
+!  glk_request_hyperlink_event(gg_objwin);
   glk_window_set_background_color(gg_mapawin, SCBACK);
   glk_window_clear(gg_mapawin);
 !  StatusLineHeight(7);
-  gg_statuswin = glk_window_open(gg_mainwin,
-                                 winmethod_Above + winmethod_Proportional +
-                                 winmethod_NoBorder,
-                                 100, wintype_TextGrid, GG_STATUSWIN_ROCK);
 !  AyudaMapa();
   return altura;
 ];
@@ -399,36 +405,43 @@ Global num_link = -100;
 ];
 
 [ AyudaMapa sitio
-  fila;
-  glk($002F, gg_statuswin); ! select
+  fila sw;
+  glk_set_window(gg_objwin);
+  glk_window_clear(gg_objwin);
   num_link = -100;
-  glk_window_get_cursor(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+  glk_window_get_cursor(gg_objwin, gg_arguments, gg_arguments + WORDSIZE);
   fila = gg_arguments-->1; ! Guardamos la fila actual
   fila = fila + 2;
+  sw = false;
   if (ComprobarSalidaMapa(sitio, u_to)) {
-    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    glk_window_move_cursor(gg_objwin, 1, fila++);
     print "- ", (s_link) "Arriba";
+    sw = true;
   } else num_link--;
   if (ComprobarSalidaMapa(sitio, d_to)) {
-    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    glk_window_move_cursor(gg_objwin, 1, fila++);
     print "- ", (s_link) "Abajo";
+    sw = true;
   } else num_link--;
   if (ComprobarSalidaMapa(sitio, in_to)) {
-    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    glk_window_move_cursor(gg_objwin, 1, fila++);
     print "- ", (s_link) "Dentro";
+    sw = true;
   } else num_link--;
   if (ComprobarSalidaMapa(sitio, out_to)) {
-    glk_window_move_cursor(gg_statuswin, 1, fila++);
+    glk_window_move_cursor(gg_objwin, 1, fila++);
     print "- ", (s_link) "Fuera";
+    sw = true;
   } else num_link--;
 
-  fila++;
-  glk_window_move_cursor(gg_statuswin, 1, fila++);
+  if (sw) fila++;
+
+  glk_window_move_cursor(gg_objwin, 1, fila++);
   print "- ", (s_link) "Zoom acercar";
-  glk_window_move_cursor(gg_statuswin, 1, fila++);
+  glk_window_move_cursor(gg_objwin, 1, fila++);
   print "- ", (s_link) "Zoom alejar";
   fila++;
-  glk_window_move_cursor(gg_statuswin, 1, fila++);
+  glk_window_move_cursor(gg_objwin, 1, fila++);
   print "- ", (s_link) "Cerrar mapa";
 
 !  glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
@@ -516,7 +529,7 @@ Global num_link = -100;
 [ MapaTecla
   key done ix i;
 
-  glk_request_hyperlink_event(gg_statuswin);
+  glk_request_hyperlink_event(gg_objwin);
   glk_request_mouse_event(gg_mapawin);
   glk_request_char_event(gg_mainwin);
 
@@ -557,7 +570,7 @@ Global num_link = -100;
   }
 
   glk_cancel_char_event(gg_mainwin);
-  glk_request_hyperlink_event(gg_statuswin);
+  glk_request_hyperlink_event(gg_objwin);
   glk_request_mouse_event(gg_mapawin);
 
   return key;

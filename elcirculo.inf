@@ -2741,7 +2741,11 @@ Object Menu_Configuracion
 [ CerrarVentanaMapa;
   glk_window_close(gg_mapawin, 0);
   gg_mapawin = 0;
-  if (gg_statuswin ~= 0) glk_window_close(gg_statuswin, 0);
+  if (gg_objwin) {
+    glk_window_close(gg_objwin, 0); ! gg_objwin se usa en el mapa para la
+    gg_objwin = 0;                  ! ventana de texto con hipervínculos
+  }
+  if (gg_statuswin) glk_window_close(gg_statuswin, 0);
   gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,

@@ -379,7 +379,9 @@ Include "Parser";
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               viewImageSlide(obj);
               noCerrarVentanaObj = true;
+              MenuAcciones.AbrirVentana();
               r = MenuAcciones.MostrarAcciones(obj);
+              MenuAcciones.CerrarVentana();
               if (r) { ! Si se ha escogido una opción en el menú:
                 glk_cancel_line_event(gg_mainwin, gg_event);
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
@@ -1034,7 +1036,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 [ Initialise r v;
   KeyDelay(1); ! Se hace para que no dibuje y acto seguido "recoloque" el logo
   IniciarGraficosSonidos();
-  openGraphicWindow(altoLogoMenu);
   clearGraphicWindow();
   ExtenderVentanaEstado();
   clearMainWindow();
@@ -1049,17 +1050,18 @@ Include "Timer";            ! Mi librería de eventos temporizados
   clearTextWindow();
   closeAllWindows();
   glk_window_close(gg_statuswin, 0);
-  MenuAcciones.AbrirVentana();
-  gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
+!  MenuAcciones.AbrirVentana();
+  gg_statuswin = glk_window_open(gg_mainwin,
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
   if (hayGraficos) EncenderGraficos();
+
   ! Los eventos hay que iniciarlos aquí, y no en IniciarAventura
   ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
   glk_request_hyperlink_event(gg_mainwin);
   glk_request_hyperlink_event(gg_statuswin);
-  glk_request_hyperlink_event(gg_menuwin);
+!  glk_request_hyperlink_event(gg_menuwin);
 ];
 
 
@@ -1115,7 +1117,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
   Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
   sonido_telefono_katie.sonar();
   KeyDelay();
-  openGraphicWindow(altoVentanaGrafica);
+!  MenuAcciones.AbrirVentana();
+!  openGraphicWindow(altoVentanaGrafica);
 ];
 
 
@@ -2251,7 +2254,9 @@ Object MenuAcciones
             MenuAcciones.CerrarVentana();
           }
         } else { ! layoutPantalla == LAYOUT_JUEGO
-          MenuAcciones.AbrirVentana();
+          if (gg_menuwin) {
+            MenuAcciones.AbrirVentana();
+          }
         }
         return;
       }
@@ -2724,7 +2729,7 @@ Object Menu_Configuracion
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
-  MenuAcciones.AbrirVentana();
+!  MenuAcciones.AbrirVentana();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
   ControlTimer.ReanudarTick();
@@ -2892,7 +2897,7 @@ Object Menu_Configuracion
     altoVentanaGrafica = GRAFICOS_GRANDES;
   }
 
-  initializeSGW(altoVentanaGrafica);
+  initializeSGW(altoLogoMenu);
 ];
 
 
@@ -3239,11 +3244,12 @@ Verb meta 'tt'
     }
   }
   StatusLineHeight(1);
-  MenuAcciones.MostrarImportantes();
-  glk_window_noscroll(gg_mainwin);
+!  MenuAcciones.MostrarImportantes();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
   ControlTimer.ReanudarTick();
+  glk_set_window(gg_mainwin);
+  glk_window_noscroll(gg_mainwin);
 ];
 
 
@@ -3472,9 +3478,10 @@ Verb meta 'tt'
        }
 
        StatusLineHeight(1);
-       MenuAcciones.MostrarImportantes();
+!       MenuAcciones.MostrarImportantes();
        if (hayGraficos) EncenderGraficos();
        ControlTimer.ReanudarTick();
+       glk_set_window(gg_mainwin);
        glk_window_noscroll(gg_mainwin);
 
     2: print (s_emph) "[Las pistas han sido desactivadas.]^";

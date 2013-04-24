@@ -908,9 +908,15 @@ Default LITEXT  = SCBACK; ! se invierte el color
         !---------------------------------------------------------------------------
         ! si la ventana grafica superior no existe, ahora la abrimos
         if (gg_bigwin == 0) {
-          gg_bigwin = glk_window_open(glk_window_get_parent(gg_mainwin),
-            (winmethod_Above+winmethod_Fixed+winmethod_NoBorder), h,
-            wintype_Graphics, GG_BIGWIN_ROCK);
+          if (layoutPantalla == LAYOUT_MENU_PRINCIPAL) {
+            gg_bigwin = glk_window_open(glk_window_get_parent(gg_mainwin),
+              (winmethod_Above+winmethod_Fixed+winmethod_NoBorder), h,
+              wintype_Graphics, GG_BIGWIN_ROCK);
+          } else {
+            gg_bigwin = glk_window_open(gg_mainwin,
+              (winmethod_Left+winmethod_Fixed+winmethod_NoBorder), h,
+              wintype_Graphics, GG_BIGWIN_ROCK);
+          }
         }
         ! si la ventana grafica superior no se ha creado con exito...
         if (gg_bigwin == 0) { return; } ! no hacemos nada y retornamos
@@ -1053,7 +1059,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
   gg_objwin = 0; ! por si acaso (uno nunca sabe... =P)
   ! intentamos abrir la ventana con ancho suficiente para la imagen
   gg_objwin = glk_window_open(gg_bigwin,
-                              winmethod_Right + winmethod_Proportional +
+                              winmethod_Above + winmethod_Proportional +
                               winmethod_NoBorder,
                               25, wintype_Graphics, GG_OBJWIN_ROCK);
   glk_request_mouse_event(gg_objwin);

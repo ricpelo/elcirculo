@@ -700,7 +700,7 @@ Class Character
 
       if (gg_conversawin == 0) {
 !        glk_set_config(config_WPaddingY, 20);
-        gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
+        gg_conversawin = glk_window_open(gg_mainwin,
                                          winmethod_Below + winmethod_Fixed +
                                          winmethod_Border,
                                          onoptions + 1, wintype_TextGrid,

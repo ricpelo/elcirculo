@@ -1183,11 +1183,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
     }
     ControlTimer.PausarTick();
     glk_cancel_line_event(gg_mainwin, gg_event);
-    gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
-                                      winmethod_Below + winmethod_Fixed +
-                                      winmethod_Border,
-                                      numopcs + 4, wintype_TextGrid,
-                                      GG_CONVERSAWIN_ROCK);
+    gg_conversawin = glk_window_open(gg_mainwin,
+                                     winmethod_Below + winmethod_Fixed +
+                                     winmethod_Border,
+                                     numopcs + 4, wintype_TextGrid,
+                                     GG_CONVERSAWIN_ROCK);
     glk_set_window(gg_conversawin);
     glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
     glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
@@ -1444,11 +1444,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
   r;
   ControlTimer.PausarTick();
   glk_cancel_line_event(gg_mainwin, gg_event);
-  gg_conversawin = glk_window_open(glk_window_get_parent(gg_mainwin),
-                                    winmethod_Below + winmethod_Fixed +
-                                    winmethod_Border,
-                                    5, wintype_TextGrid,
-                                    GG_CONVERSAWIN_ROCK);
+  gg_conversawin = glk_window_open(gg_mainwin,
+                                   winmethod_Below + winmethod_Fixed +
+                                   winmethod_Border,
+                                   5, wintype_TextGrid,
+                                   GG_CONVERSAWIN_ROCK);
   glk_set_window(gg_conversawin);
   glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
   glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas

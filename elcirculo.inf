@@ -38,9 +38,9 @@
 
 
 Constant Story "@<<EL CÍRCULO@>>";
-Constant Headline "^(c) 2012 Alpha Aventuras^^
-                  Teclea CRÉDITOS si quieres saber más acerca de la aventura, o
-                  AYUDA cuando estés bloqueado.^";
+Constant Headline "^(c) 2012 Alpha Aventuras^^";
+!                  Teclea CRÉDITOS si quieres saber más acerca de la aventura, o
+!                  AYUDA cuando estés bloqueado.^";
 Release 1;
 
 ! Queremos usar el comando 'Salidas'
@@ -2650,6 +2650,28 @@ Object Menu_Save
     ZIPI_ejecutar [; return "guardar"; ];
 
 
+Object Menu_Undo
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Deshacer",
+    ZIPI_ejecutar [; return UNDO1__WD; ];
+
+
+Object Menu_Score
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Puntuación",
+    ZIPI_condicion [; return TASKS_PROVIDED == 0; ],
+    ZIPI_ejecutar [; return FULLSCORE1__WD; ];
+
+
+Object Menu_Creditos
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Créditos",
+    ZIPI_ejecutar [; return "créditos"; ];
+
+
 Object Menu_Quit
   class ZIPI_Otro
   with
@@ -2669,6 +2691,10 @@ Object Menu_Importantes
       ZIPI_Separador
       Menu_Save
       Menu_Restore
+      ZIPI_Separador
+      Menu_Undo
+      Menu_Score
+      Menu_Creditos
       ZIPI_Separador
       Menu_Restart
       Menu_Quit;

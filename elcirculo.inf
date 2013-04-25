@@ -3557,7 +3557,10 @@ Verb meta 'tt'
 !                               gg_arguments-->2);
 !    WaitDelay(1);
 !  }
-  viewImageSlide(Logo_Circulo_Chico_jpg);
+!  viewImageSlide(Logo_Circulo_Chico_jpg);
+  pagina_contenidos.update();
+  diario_llave.update();
+  diario_amigos.update();
   "Saludas cordialmente.";
 ];
 

@@ -28,7 +28,7 @@
 ! ====================================================================
 
 
-Object midiario "Diario de Rachel"
+Object MiDiario "Diario de Rachel"
   class Diary
   with
     short_name "Diario de Rachel",
@@ -40,36 +40,36 @@ Object midiario "Diario de Rachel"
     ];
 
 
-Object -> pagina_contenidos "Contenidos"
+Object pagina_contenidos "Contenidos" MiDiario
   class ContentsPage;
 
 
-Object -> p1 "24 de febrero"
+Object p1 "24 de febrero" MiDiario
   class DiaryEntry
   with
     short_name "24 de febrero";
 
 
-Object -> -> diario_llave
+Object diario_llave p1
   class DiaryEntry
   with
     description "Ruth me da una llave pequeña.";
 
 
-Object -> -> diario_ticket
+Object diario_ticket p1
   class DiaryEntry
   with
     description "Dentro de la carpeta de Katie había un ticket de revelado de
                  fotos.";
 
 
-Object -> p2 "18 de marzo"
+Object p2 "18 de marzo" MiDiario
   class DiaryEntry
   with
     short_name "18 de marzo";
 
 
-Object -> -> diario_amigos
+Object diario_amigos p2
   class DiaryEntry
   with
     description "He hablado con los amigos.";
@@ -90,6 +90,11 @@ Verb 'diario'
 
 
 [ DiarioSub;
-  clearGraphicWindow();
-  midiario.select(midiario.last_page);
+  closeGraphicWindow();
+  ControlTimer.PausarTick();
+  MiDiario.select(MiDiario.last_page);
+  StatusLineHeight(1);
+  ControlTimer.ReanudarTick();
+  if (hayGraficos) EncenderGraficos();
+  glk_window_noscroll(gg_mainwin);
 ];

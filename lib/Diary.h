@@ -123,12 +123,12 @@ Include "IString";
 
 Class Diary
   with    
-    D_PKEY__TX "P = Página anterior",
-    D_NKEY__TX "N = Página siguiente",
-    D_QKEY__TX "Q = Volver al juego",
-    D_GKEY__TX "G = Ir a una página ",
+    D_PKEY__TX "<- = Página anterior",
+    D_NKEY__TX "-> = Página siguiente",
+    D_QKEY__TX " Q = Volver al juego",
+    D_GKEY__TX " G = Ir a una página ",
     D_PAGE__TX "Página ",
-    D_AWAY__TX "^^Cierras el diario.^",
+    D_AWAY__TX "^Cierras el diario.^",
     D_UPDT__TX "Tu diario se ha actualizado.",         
     D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
     update [ flag;   
@@ -161,58 +161,42 @@ Class Diary
     message 0,
     emblazon [
       i j;
-      if (pretty_flag == 0) return self.Lowkey_emblazon();
-      #ifdef TARGET_ZCODE;
-      @erase_window -1;
-      i = 0->33; if (i == 0) i = 80;
-      #ifnot; ! TARGET_GLULX
-      glk($002A, gg_quotewin);  ! window_clear
-      glk($002A, gg_statuswin); ! window_clear
-      glk($002A, gg_mainwin);   ! window_clear
-      #ifdef _SGWDMX_H_;
-      glk($002A, gg_bigwin);    ! window_clear
-      #endif;
-      ! window_get_size
-      glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+!      if (pretty_flag == 0) return self.Lowkey_emblazon();
+      glk_window_clear(gg_quotewin);
+      glk_window_clear(gg_statuswin);
+!      glk_window_clear(gg_mainwin);
+      glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
-      #endif;
-      #ifdef TARGET_ZCODE;
-      @split_window 3;
-      @set_window 1;
-      style reverse;
-      #ifnot; ! TARGET_GLULX 
-      StatusLineHeight(3);
-      glk($002F, gg_statuswin); ! set_window
+!      StatusLineHeight(3);
+      ExtenderVentanaEstado();
+      glk_set_window(gg_statuswin);
       glk_set_style(style_BlockQuote);
-      #endif;
       MoveCursor(1, 1); spaces(i);
       MoveCursor(2, 1); spaces(i);
       MoveCursor(3, 1); spaces(i);
-      MoveCursor(1, 1);
+      MoveCursor(1, 2);
       print (string) self.D_PAGE__TX, self.pagen, "/", self.last_page;
       CenterU(self.doname(), 1);
       CenterU(self.dopagename(), 2);
       MoveCursor(2, 2); print (string) self.D_PKEY__TX;
-      j = i - 19;
+      j = i - 20;
       MoveCursor(2, j); print (string) self.D_NKEY__TX;
       MoveCursor(3, 2); print (string) self.D_QKEY__TX;
       MoveCursor(3, j); print (string) self.D_GKEY__TX;
-      #ifdef TARGET_ZCODE;
-      @set_window 0;
-      #ifnot; ! TARGET_GLULX 
-      glk($002F, gg_mainwin); ! set_window
-      #endif;
+      glk_set_style(style_Preformatted);
+      MoveCursor(5, 1);
+!      glk_set_window(gg_mainwin);
     ],
-    Lowkey_emblazon [;
-      print "^^---"; self.doname(); print "---^";
-      print (string) self.D_PAGE__TX, self.pagen, " ";
-      self.dopagename(); print "^^";
-      print (string) self.D_PKEY__TX; spaces(4);
-      print (string) self.D_NKEY__TX; new_line;
-      print (string) self.D_QKEY__TX; spaces(4);
-      print (string) self.D_GKEY__TX;
-      new_line; new_line;
-    ],
+!    Lowkey_emblazon [;
+!      print "^^---"; self.doname(); print "---^";
+!      print (string) self.D_PAGE__TX, self.pagen, " ";
+!      self.dopagename(); print "^^";
+!      print (string) self.D_PKEY__TX; spaces(4);
+!      print (string) self.D_NKEY__TX; new_line;
+!      print (string) self.D_QKEY__TX; spaces(4);
+!      print (string) self.D_GKEY__TX;
+!      new_line; new_line;
+!    ],
     Diary_HandleGlkEvent [ ev context buffer;
       if (self has general) {     ! Si estamos mostrando el diario... 
         context = context;
@@ -229,13 +213,8 @@ Class Diary
       while (self.dopage() ~= 2)
         ;
       give self ~general;         ! Ya no lo estamos mostrando
-      if (pretty_flag ~= 0) {
-        #ifdef TARGET_ZCODE;
-        @erase_window -1;
-        #ifnot; ! TARGET_GLULX 
-        glk($002A, gg_mainwin);  ! window_clear
-        #endif;
-      }
+!      if (pretty_flag ~= 0) glk_window_clear(gg_mainwin);
+      glk_set_window(gg_mainwin);
       print (string) self.D_AWAY__TX; rtrue;
     ],
     page 0, 
@@ -272,13 +251,13 @@ Class Diary
       do {
         keypress = KeyDelay();
       } until ((keypress == 129 or 'P' or 'p' or 130 or 'N' or 'n' or 'q' or
-                            'Q' or  27 or 'g' or 'G') ||
+                            'Q' or  27 or 'g' or 'G' or -2 or -3) ||
                (keypress == 32 or 10 or 13 && self.pagen == 0));
   
-      if (keypress == 129 or 'P' or 'p') return 0;
+      if (keypress == 129 or 'P' or 'p' or -2) return 0;
       if (keypress == 32 or 10 or 13 && self.pagen == 0) return 1;
       if (keypress == 'G' or 'g') {
-        glk($002A, gg_mainwin);   ! window_clear
+        glk_window_clear(gg_mainwin);
         if (pretty_flag) box "¿A qué página quieres ir?";
         else             print "¿A qué página quieres ir? >";
         KeyboardPrimitive(buffer, parse);
@@ -287,7 +266,7 @@ Class Diary
         self.pagen = k;
         return 3;
       }
-      if (keypress == 130 or 'N' or 'n') return 1;
+      if (keypress == 130 or 'N' or 'n' or -3) return 1;
       if (keypress ==  27 or 'Q' or 'q') return 2;
     ];
 
@@ -346,13 +325,13 @@ Class ContentsPage
     ],
     ucutoff [
       i;
-      glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+      glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
       return (self.page) * (i - 5);
     ],
     lcutoff [
       i;
-      glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+      glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
       return (self.page - 1) * (i - 5) + 1;
     ],
@@ -367,7 +346,7 @@ Class ContentsPage
     ],
     ListEntry [ num
       i j;
-      glk($0025, gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+      glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       j = gg_arguments-->0;
       i = j - 13;
 !      if (i <= 0) i = j - 3;

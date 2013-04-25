@@ -258,9 +258,6 @@ Class TipoDeSonido
           textoDistancia = 0;
         }
 
-        ! En esta clase base se ignora el modo
-        contenido.modo = contenido.modo;
-
         ! En esta clase base si el umbral de audicion está en 3
         if (contenido.intensidad > NIVEL_AUDIBLE) {
           ! Es escuchado por el jugador
@@ -309,7 +306,7 @@ Class TipoDeSonido
           textoDistancia = 0;
         }
 
-        ! Tiene texto es una voz
+        ! Tiene texto, es una voz
         if (contenido.intensidad > NIVEL_AUDIBLE) {
           ! Es escuchado por el jugador
           if ((contenido.sePuedeVer) && (VR(self.usarDireccion))) {
@@ -323,7 +320,7 @@ Class TipoDeSonido
               }
               if (textoDistancia ~= 0) print " ", (string) VR(textoDistancia);
               
-              print ": ~", (string) contenido.texto, "~";
+              print ": @<<", (string) contenido.texto, "@>>";
             } else {
               ! No se entiende lo que dice
               print (The) contenido.origen, " ", (string) VR(self.verboDecir),
@@ -397,7 +394,7 @@ Class TipoDeSonido
             }
 
             if (contenido.intensidad > NIVEL_SUSURRO) {
-              print ": ~", (string) contenido.texto, "~";
+              print ": @<<", (string) contenido.texto, "@>>";
             } else {
               print " algo";
             }
@@ -428,12 +425,12 @@ Class ObjetoHablante
     habla [ _texto _intensidad _modo;
       ! print "~",(name)self, " usando ", (name)self.voz, "~^";
       ! Rellenamos el contenido de forma apropiada
-      contGeneral.origen      = self;     ! El que sea
-      contGeneral.modo        = _modo;    ! Nada el que sea
-      contGeneral.sePuedeVer  = true;     ! Fuera de la vista
-      contGeneral.seEscuchaEn = 0;        ! Da igual
-      contGeneral.texto       = _texto;   ! Texto pedido
-      contGeneral.clase       = VR(self.voz);
+      contGeneral.origen      = self;            ! El que sea
+      contGeneral.modo        = _modo;           ! El que sea
+      contGeneral.sePuedeVer  = TestScope(self); ! Fuera de la vista
+      contGeneral.seEscuchaEn = 0;               ! Da igual
+      contGeneral.texto       = _texto;          ! Texto pedido
+      contGeneral.clase       = VR(self.voz);    ! El objeto TipoDeSonido
       ! Intensidad proporcionada o intensidad media
       if (_intensidad ~= 0) contGeneral.intensidad = _intensidad;
       else                  contGeneral.intensidad = NIVEL_NORMAL;
@@ -500,7 +497,7 @@ Class Ruido
   with
     name 'sonido',
     articles 0 0 0,
-    voz tipoPlano,    ! Clase de Voz a usar
+!    voz tipoPlano,    ! Clase de Voz a usar
     frase 0,          ! Texto que se dice permanentemente
     intensidad 0,     ! Nivel con el que se habla
     origen 0,         ! Objeto que lo produce
@@ -601,7 +598,7 @@ Class Ruido
         if ((self hasnt concealed) && (self.jugadorOye())) {
           if (~~no_decir_nada) self.mensaje_iniciar();
           move self to location;
-          TocaDesde(self, true); ! no_decir_nada);
+          TocaDesde(self, true);
         }
       }
     ],
@@ -619,17 +616,17 @@ Class Ruido
         move self to contGeneral;
       }
     ],
-    before [
-      jo;
+    before [;
       Examine, Listen:
         ! Escuchar un sonido es como examinar una cosa 
         ! muestra su descripción si es que existe
-        jo = self.jugadorOye();
-        if ((self provides description) && jo) {
-          PrintOrRun(self, description);
-          rtrue;
-        } else if (jo) {
-          rfalse;
+        if (self.jugadorOye()) {
+          if (self provides description) {
+            PrintOrRun(self, description);
+            rtrue;
+          } else {
+            rfalse;
+          }
         } else {
           "No puedes oir ", (name) self, " por aquí cerca.";
         }
@@ -1036,7 +1033,7 @@ Global sonidoTrasUnObstaculo;
     for (indRud = 1 : indRud <= indiceRuidos : indRud++) {
       i = tablaRuidos-->indRud;
       if ((i.sonando) && (i.origen == noun)) {
-        "Parece que ", (the) noun, " emite ", (name) i, ".";
+        "Parece que ", (the) noun, " está emitiendo ", (name) i, ".";
       }
     }
 

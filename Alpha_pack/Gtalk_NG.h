@@ -630,8 +630,8 @@ Class Character
   
   ! This method carries out a conversation with our character. Call it with
   ! the first argument set to a quip which represents a main menu.
-  select [ curquip
-    times quipnum numoptions onoptions o selected spoken y oldy;
+  select [ curquip no_decir_nada
+    times quipnum numoptions onoptions o selected spoken y oldy ret;
 
     ! Check if we need to initialize. This process is, among other things,
     ! responsible for calculating our maxquip value, so we can see if it
@@ -798,16 +798,22 @@ Class Character
         if (self.qtest(curquip)) {
           ! it's on, but is it the one the player wants?
           if (selected == ++onoptions) {
-            ! It's the right one. Just break out of this loop, since
-            ! we'll then jump back to the beginning with curquip set
-            ! to the quip that the player selected.
-            ! print the option text
-            glk_set_window(gg_mainwin);
-            player.dice_inicio();
-            self.quip(curquip * 10 + 1);
-            player.dice_fin();
-            glk_set_window(gg_conversawin);
-            break;
+            if (no_decir_nada) {
+              ret = self.quip(curquip * 10 + 2);
+              if (ret) return ret;
+              else     return selected;
+            } else {
+              ! It's the right one. Just break out of this loop, since
+              ! we'll then jump back to the beginning with curquip set
+              ! to the quip that the player selected.
+              ! print the option text
+              glk_set_window(gg_mainwin);
+              player.dice_inicio();
+              self.quip(curquip * 10 + 1);
+              player.dice_fin();
+              glk_set_window(gg_conversawin);
+              break;
+            }
           }
         }
       }

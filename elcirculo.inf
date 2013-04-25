@@ -1154,7 +1154,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 ! La pregunta del final del luego, ahora usando el menú de acciones:
 [ AfterGameOver
-  i numopcs;
+  i;
 
   .RRQPL;
 
@@ -1167,46 +1167,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
     temp_global=0;
     #IfV5; read buffer parse DrawStatusLine; #Endif; ! V5
     #Ifnot; ! TARGET_GLULX
-    numopcs = 2;
-    #ifdef DEATH_MENTION_UNDO;
-    Menu_AfterGameOver.&ZIPI_item-->2 = Menu_Undo;
-    numopcs++;
-    #ifnot;
-    Menu_AfterGameOver.&ZIPI_item-->2 = 0;
-    #endif;
-    if (TASKS_PROVIDED == 0) {
-      Menu_AfterGameOver.&ZIPI_item-->3 = Menu_Score;
-      numopcs++;
-    } else {
-      Menu_AfterGameOver.&ZIPI_item-->3 = 0;
-    }
-    if (deadflag == 2 && AMUSING_PROVIDED == 0) {
-      Menu_AfterGameOver.&ZIPI_item-->4 = Menu_Amusing;
-      numopcs++;
-    } else {
-      Menu_AfterGameOver.&ZIPI_item-->4 = 0;
-    }
-    ControlTimer.PausarTick();
-    glk_cancel_line_event(gg_mainwin, gg_event);
-    gg_conversawin = glk_window_open(gg_mainwin,
-                                     winmethod_Below + winmethod_Fixed +
-                                     winmethod_Border,
-                                     numopcs + 4, wintype_TextGrid,
-                                     GG_CONVERSAWIN_ROCK);
-    glk_set_window(gg_conversawin);
-    glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
-    glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
-    glk_cancel_hyperlink_event(gg_menuwin);    ! enlaces de otras ventanas
-    i = MenuAcciones.RunMenu(Menu_AfterGameOver, true, gg_conversawin);
-    if (~~i) noCerrarVentanaObj = false;
-    glk_set_window(gg_mainwin);
-    glk_window_close(gg_conversawin, 0);
-    gg_conversawin = 0;
-    glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
-    glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
-    glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
-    ControlTimer.ReanudarTick();
-    i = i.ZIPI_ejecutar();
+    i = Menu_AfterGameOver.Qselect(1);
     #Endif; ! TARGET_
     if (i == QUIT1__WD or QUIT2__WD) {
         #Ifdef TARGET_ZCODE;
@@ -1447,29 +1408,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! La pregunta de "sí o no" usa ahora el menú de acciones:
 [ YesOrNo
   r;
-  ControlTimer.PausarTick();
-  glk_cancel_line_event(gg_mainwin, gg_event);
-  gg_conversawin = glk_window_open(gg_mainwin,
-                                   winmethod_Below + winmethod_Fixed +
-                                   winmethod_Border,
-                                   5, wintype_TextGrid,
-                                   GG_CONVERSAWIN_ROCK);
-  glk_set_window(gg_conversawin);
-  glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
-  glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
-  if (gg_menuwin) glk_cancel_hyperlink_event(gg_menuwin);
-  r = MenuAcciones.RunMenu(Menu_YesOrNo, true, gg_conversawin);
-  if (~~r) noCerrarVentanaObj = false;
-  glk_set_window(gg_mainwin);
-  glk_window_close(gg_conversawin, 0);
-  gg_conversawin = 0;
-  glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
-  glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
-  if (gg_menuwin) glk_request_hyperlink_event(gg_menuwin);
-  ControlTimer.ReanudarTick();
-  r = r.ZIPI_ejecutar() == 1;
-!  if (~~r) new_line;
-  return r;
+  r = Menu_YesOrNo.Qselect(1);
+  return r == 1;
 ];
 
 
@@ -1617,7 +1557,9 @@ Class Personaje
       old_pie;
       old_pie = parse_input_externo;
       if (parse_input_externo == -1) parse_input_externo = 1;
+      ControlTimer.PausarTick();
       self.select(q);
+      ControlTimer.ReanudarTick();
       glk_set_window(gg_mainwin);
       glk_window_noscroll(gg_mainwin);
       glk_window_close(gg_conversawin, 0);
@@ -2591,39 +2533,100 @@ Object ZIPI_Ninguna
 
 
 Object Menu_YesOrNo
-  class ZIPI_Menu
+  class Character
   with
-    ZIPI_titulo "¿Sí o no?",
-    ZIPI_item
-      Menu_Yes
-      Menu_No;
+    quip [ a b;
+      switch (a) {
+        ! Quip 1: Menú principal
+        11: ! No se necesita nombre de quip para el menú principal
+        12: ! No se necesita respuesta
+        13: qtype = MainMenu;
+            qqon = true;
+            killz = true;
+        14: return Qlist(b, 2, 2, 3);
 
+        ! Quip 2
+        21: print "Sí";
+        22: self.qoff(2, 3);
+        23: qqon = true;
 
-Object Menu_Yes
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "Sí",
-    ZIPI_ejecutar [; return 1; ];
-
-
-Object Menu_No
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "No",
-    ZIPI_ejecutar [; return 0; ];
+        ! Quip 3
+        31: print "No";
+        32: self.qoff(2, 3);
+        33: qqon = true;
+      }
+    ],
+    Qselect [ q r;
+      self.qon(2, 3);
+      ControlTimer.PausarTick();
+      r = self.select(q, true);
+      ControlTimer.ReanudarTick();
+      glk_set_window(gg_mainwin);
+      glk_window_noscroll(gg_mainwin);
+      glk_window_close(gg_conversawin, 0);
+      gg_conversawin = 0;
+      return r;
+    ];
 
 
 Object Menu_AfterGameOver
-  class ZIPI_Menu
+  class Character
   with
-    ZIPI_titulo "Opciones:",
-    ZIPI_item
-      Menu_Restart
-      Menu_Restore
-      Menu_Undo
-      Menu_Score
-      Menu_Amusing
-      Menu_Quit;
+    quip [ a b;
+      switch (a) {
+        ! Quip 1: Menú principal
+        11: ! No se necesita nombre de quip para el menú principal
+        12: ! No se necesita respuesta
+        13: qtype = MainMenu;
+            qqon = true;
+            killz = true;
+        14: return Qlist(b, 6, 2, 3, 4, 5, 6, 7);
+
+        ! Quip 2
+        21: print "Reiniciar";
+        22: return RESTART__WD;
+        23: qqon = true;
+
+        ! Quip 3
+        31: print "Recuperar";
+        32: return RESTORE__WD;
+        33: qqon = true;
+
+        ! Quip 4
+        41: print "Deshacer";
+        42: return UNDO1__WD;
+        43:
+            #ifdef DEATH_MENTION_UNDO;
+            qqon = true;
+            #endif;
+
+        ! Quip 5
+        51: print "Puntuación";
+        52: return FULLSCORE1__WD;
+        53: if (TASKS_PROVIDED == 0) qqon = true;
+
+        ! Quip 6
+        61: print "Curiosidades";
+        62: return AMUSING__WD;
+        63: if (deadflag == 2 && AMUSING_PROVIDED == 0) qqon = true;
+
+        ! Quip 7
+        71: print "Terminar";
+        72: return QUIT1__WD;
+        73: qqon = true;
+      }
+    ],
+    Qselect [ q r;
+      self.qon(2, 3, 7);
+      ControlTimer.PausarTick();
+      r = self.select(q, true);
+      ControlTimer.ReanudarTick();
+      glk_set_window(gg_mainwin);
+      glk_window_noscroll(gg_mainwin);
+      glk_window_close(gg_conversawin, 0);
+      gg_conversawin = 0;
+      return r;
+    ];
 
 
 Object Menu_Restart
@@ -2637,7 +2640,7 @@ Object Menu_Restore
   class ZIPI_Otro
   with
     ZIPI_titulo "Recuperar",
-    ZIPI_ejecutar [; return RESTORE__WD; ];
+   ZIPI_ejecutar [; return RESTORE__WD; ];
 
 
 Object Menu_Save
@@ -2645,28 +2648,6 @@ Object Menu_Save
   with
     ZIPI_titulo "Guardar",
     ZIPI_ejecutar [; return "guardar"; ];
-
-
-Object Menu_Undo
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "Anular",
-    ZIPI_ejecutar [; return UNDO1__WD; ];
-
-
-Object Menu_Score
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "Puntuación",
-    ZIPI_condicion [; return TASKS_PROVIDED == 0; ],
-    ZIPI_ejecutar [; return FULLSCORE1__WD; ];
-
-
-Object Menu_Amusing
-  class ZIPI_Otro
-  with
-    ZIPI_titulo "Curiosidades",
-    ZIPI_ejecutar [; return AMUSING__WD; ];    
 
 
 Object Menu_Quit

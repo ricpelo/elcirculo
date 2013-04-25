@@ -551,9 +551,7 @@ Constant SubMenu  = 2;
 
 ! The Character class. All NPCs with conversation menus should belong to
 ! this class.
-Class Character
-  has animate,
-
+Class Conversacion
   ! This is the array in which we store the on/off status of all our quips.
   ! The number of entries determines how many quips we can have at most,
   ! and this can be calculated like so:

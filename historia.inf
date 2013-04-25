@@ -295,7 +295,7 @@ Object amigo_katie "amigo"
 
 
 Object amigos_katie "amigos de Katie"
-  class Character
+  class Conversacion
   class Personaje
   with
     name 'amigo' 'chico',

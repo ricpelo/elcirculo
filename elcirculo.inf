@@ -2533,7 +2533,7 @@ Object ZIPI_Ninguna
 
 
 Object Menu_YesOrNo
-  class Character
+  class Conversacion
   with
     quip [ a b;
       switch (a) {
@@ -2570,7 +2570,7 @@ Object Menu_YesOrNo
 
 
 Object Menu_AfterGameOver
-  class Character
+  class Conversacion
   with
     quip [ a b;
       switch (a) {

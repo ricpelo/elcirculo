@@ -1033,7 +1033,7 @@ Global sonidoTrasUnObstaculo;
     for (indRud = 1 : indRud <= indiceRuidos : indRud++) {
       i = tablaRuidos-->indRud;
       if ((i.sonando) && (i.origen == noun)) {
-        "Parece que ", (the) noun, " está emitiendo ", (name) i, ".";
+        "Parece que ", (the) noun, " ", VR(i.verboEmitir), " ", (name) i, ".";
       }
     }
 

@@ -2505,7 +2505,7 @@ Object Menu_Dejar
     ZIPI_titulo "Dejar",
     ZIPI_ejecutar [; return 'deja'; ],
     ZIPI_condicion [ obj;
-      return IndirectlyContains(player, obj);
+      return obj ~= player && IndirectlyContains(player, obj);
     ];
 
 

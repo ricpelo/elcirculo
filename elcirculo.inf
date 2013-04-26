@@ -1694,6 +1694,24 @@ Object
     nombre_direccion   NULL;
 
 
+Object autoguardador
+  with
+    found_in [; rtrue; ],
+    each_turn [;
+      if (self.found_in()) {
+        if (~~(AutoSave())) {
+          print "^No se ha podido guardar la partida automáticamente. Se
+                 deshabilitará el guardado automático.^";
+          remove self;
+          give self absent;
+          self.found_in = false;
+        }
+      }
+    ],
+  has
+    concealed;
+
+
 Object testigo
   class Movil;
 
@@ -2822,15 +2840,21 @@ Object Menu_Configuracion
 
   fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
                                     ChangeAnyToCString(CadenaAutoSave), 0);
-  if (fref == 0) jump RFailed;
+  if (fref == 0) {
+    glk_fileref_destroy(fref);
+    rfalse;
+  }
   gg_savestr = glk_stream_open_file(fref, $02, GG_SAVESTR);
   glk_fileref_destroy(fref);
   if (gg_savestr == 0) jump RFailed;
   @restore gg_savestr res;
   glk_stream_close(gg_savestr, 0);
   gg_savestr = 0;
+  rtrue;
 .RFailed;
-  return 0;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+  rfalse;
 ];
 
 
@@ -2839,7 +2863,10 @@ Object Menu_Configuracion
 
   fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
                                     ChangeAnyToCString(CadenaAutoSave), 0);
-  if (fref == 0) jump SFailed;
+  if (fref == 0) {
+    glk_fileref_destroy(fref);
+    rfalse;
+  }
   gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
   glk_fileref_destroy(fref);
   if (gg_savestr == 0) jump SFailed;
@@ -2850,14 +2877,14 @@ Object Menu_Configuracion
     ! now. But first, we have to recover all the Glk objects; the values
     ! in our global variables are all wrong.
     GGRecoverObjects();
-    glk_stream_close(gg_savestr, 0);
-    gg_savestr = 0;
-    return; ! L__M(##Restore, 2);
   }
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+  rtrue;
 .SFailed;
   glk_stream_close(gg_savestr, 0);
   gg_savestr = 0;
-  return;
+  rfalse;
 ];
 
 
@@ -3722,7 +3749,6 @@ Verb meta 'tt'
 
 
 [ SeguirSub;
-  AutoSave();
   "Decide por ti mism", (o) player, " a dónde deseas ir.";
 ];
 

@@ -227,9 +227,8 @@ Replace AfterPrompt;
 ! dirección aparezca en la descripción de la localidad de destino del "empuje":
 Replace AllowPushDir;
 
-! En este juego no se habla, ni se responde, ni se dice:
+! En este juego no se responde, ni se habla:
 Replace AnswerSub;
-Replace DecirSub;
 Replace TellSub;
 
 ! Para usar el comando box con Glulx:
@@ -1470,7 +1469,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 Include "SpanishG";
 
 Include "random";          ! Cambia la función random()
-Include "Decir";           ! Para poder usar DECIR ... A ...
+!Include "Decir";           ! Para poder usar DECIR ... A ...
 Include "Mapeador";
 Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 Include "Sonidos_NG";
@@ -1596,8 +1595,12 @@ Class Personaje
       Examine:
         self.mostrar_imagen();
     ],
+    life [;
+      Tell, Answer:
+        if (actor ~= player) <<Ask actor>>;
+    ],
     orders [;
-      NotUnderstood, Tell, Answer:
+      NotUnderstood:
         if (actor ~= player) <<Ask actor>>;
     ],
     ! Nosotros usaremos Qselect en lugar de select, para que funcione con el
@@ -3331,12 +3334,20 @@ Verb meta 'musica'
   * 'off'/'apagada'/'no'/ 'nx'        -> ApagarMusica;
 
 Verb 'no.verb' * noun -> ExaminarFalso;
-
+ 
 Verb meta 'pistas'
   *                 -> Pistas
   * 'no' / 'nx'     -> PistasNo;
 
 Verb 'preguntale' = 'pregunta';
+
+Extend 'pregunta' replace
+  * creature 'sobre'/'por' topic       -> Pregunta
+  * 'a//' creature                     -> Pregunta
+  * 'a//' creature 'sobre'/'por' topic -> Pregunta
+  * 'sobre'/'por' topic 'a//' creature -> Pregunta reverse
+  * topic 'a//' creature               -> Pregunta reverse
+  * 'a//' creature 'acerca' 'de' topic -> Pregunta;
 
 Extend only 'sal' 'salte' 'salirse' 'salirte'
   * noun            -> SalirA
@@ -3699,6 +3710,11 @@ Verb meta 'tt'
 
     2: print (s_emph) "[Las pistas han sido desactivadas.]^";
   }
+];
+
+
+[ PreguntaSub;
+  ComoHablar();
 ];
 
 

@@ -2,9 +2,10 @@ elcirculo.blb
 elcirculo.blc
 elcirculo.bli
 elcirculo.ulx
-.elcirculo.inf.swp
-.elcirculo.inf.marks
+*.swp
+*.marks
 *.o
 *.a
 *~
+*.sav
 

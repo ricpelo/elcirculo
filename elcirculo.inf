@@ -69,6 +69,9 @@ Constant CLR_GG_PERSBACK = CLR_GG_BLACK;
 ! Color de los hyperlinks al empezar la aventura:
 Constant COLOR_HYPERLINK = $a1d0fc;
 
+! Al acabar una partida (con éxito o fracaso) te da la opción de UNDO:
+Constant DEATH_MENTION_UNDO;
+
 ! No queremos marcos en las cajas hechas con el comando box:
 Constant GBOXQUOTE_NOFRAME;
 
@@ -1430,6 +1433,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   .Salir;
     quit;
   }
+  new_line;
 ];
 
 

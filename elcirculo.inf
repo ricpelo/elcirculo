@@ -2687,6 +2687,7 @@ Object Menu_Importantes
       Menu_Ayuda
       Menu_Inventario
       Menu_Mapa
+      Menu_Diario
       Menu_Configuracion
       ZIPI_Separador
       Menu_Save
@@ -2707,6 +2708,13 @@ Object Menu_Ayuda
     ZIPI_ejecutar [; return "ayuda"; ];
 
     
+Object Menu_Diario
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Diario",
+    ZIPI_ejecutar [; return "diario"; ];
+
+
 Object Menu_Inventario
   class ZIPI_Otro
   with

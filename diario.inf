@@ -90,11 +90,22 @@ Verb 'diario'
 
 
 [ DiarioSub;
-  closeGraphicWindow();
   ControlTimer.PausarTick();
+  viewImageCenter(Logo_Alpha_Aventuras_jpg);
   MiDiario.select(MiDiario.last_page);
-  StatusLineHeight(1);
+  glk_window_close(gg_conversawin, 0);
+  gg_conversawin = 0;
+  if (hayGraficos) {
+    if (gg_statuswin) glk_window_close(gg_statuswin, 0);
+    gg_statuswin = glk_window_open(glk_window_get_parent(gg_mainwin),
+                                   winmethod_Above + winmethod_Fixed +
+                                   winmethod_NoBorder,
+                                   1, wintype_TextGrid, GG_STATUSWIN_ROCK);
+    glk_request_hyperlink_event(gg_statuswin);
+  } else {
+    StatusLineHeight(1);
+  }
   ControlTimer.ReanudarTick();
-  if (hayGraficos) EncenderGraficos();
+  MostrarImagenLocalidad();
   glk_window_noscroll(gg_mainwin);
 ];

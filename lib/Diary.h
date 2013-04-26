@@ -163,12 +163,24 @@ Class Diary
       i j;
 !      if (pretty_flag == 0) return self.Lowkey_emblazon();
       glk_window_clear(gg_quotewin);
-      glk_window_clear(gg_statuswin);
-!      glk_window_clear(gg_mainwin);
+      if (hayGraficos) {
+        if (gg_statuswin) glk_window_close(gg_statuswin, 0);
+        gg_statuswin = glk_window_open(gg_mainwin,
+                                       winmethod_Above + winmethod_Fixed +
+                                       winmethod_NoBorder,
+                                       3, wintype_TextGrid, GG_STATUSWIN_ROCK);
+      } else {
+        StatusLineHeight(3);
+      }
       glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
-!      StatusLineHeight(3);
-      ExtenderVentanaEstado();
+      if (gg_conversawin) glk_window_close(gg_conversawin, 0);
+      gg_conversawin = glk_window_open(gg_mainwin,
+                                       winmethod_Above +
+                                       winmethod_Proportional +
+                                       winmethod_NoBorder,
+                                       100, wintype_TextBuffer,
+                                       GG_CONVERSAWIN_ROCK);
       glk_set_window(gg_statuswin);
       glk_set_style(style_BlockQuote);
       MoveCursor(1, 1); spaces(i);
@@ -183,9 +195,7 @@ Class Diary
       MoveCursor(2, j); print (string) self.D_NKEY__TX;
       MoveCursor(3, 2); print (string) self.D_QKEY__TX;
       MoveCursor(3, j); print (string) self.D_GKEY__TX;
-      glk_set_style(style_Preformatted);
-      MoveCursor(5, 1);
-!      glk_set_window(gg_mainwin);
+      glk_set_window(gg_conversawin);
     ],
 !    Lowkey_emblazon [;
 !      print "^^---"; self.doname(); print "---^";
@@ -215,7 +225,8 @@ Class Diary
       give self ~general;         ! Ya no lo estamos mostrando
 !      if (pretty_flag ~= 0) glk_window_clear(gg_mainwin);
       glk_set_window(gg_mainwin);
-      print (string) self.D_AWAY__TX; rtrue;
+      print (string) self.D_AWAY__TX;
+      rtrue;
     ],
     page 0, 
     pagen 0,
@@ -257,7 +268,7 @@ Class Diary
       if (keypress == 129 or 'P' or 'p' or -2) return 0;
       if (keypress == 32 or 10 or 13 && self.pagen == 0) return 1;
       if (keypress == 'G' or 'g') {
-        glk_window_clear(gg_mainwin);
+        glk_window_clear(gg_conversawin);
         if (pretty_flag) box "¿A qué página quieres ir?";
         else             print "¿A qué página quieres ir? >";
         KeyboardPrimitive(buffer, parse);
@@ -346,7 +357,8 @@ Class ContentsPage
     ],
     ListEntry [ num
       i j;
-      glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
+      glk_window_get_size(gg_conversawin, gg_arguments,
+                          gg_arguments + WORDSIZE);
       j = gg_arguments-->0;
       i = j - 13;
 !      if (i <= 0) i = j - 3;

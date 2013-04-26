@@ -93,6 +93,7 @@ Verb 'diario'
   ControlTimer.PausarTick();
   viewImageCenter(Logo_Alpha_Aventuras_jpg);
   MiDiario.select(MiDiario.last_page);
+  glk_set_config(config_LinkColor, MiDiario.colorLink);
   glk_window_close(gg_conversawin, 0);
   gg_conversawin = 0;
   if (hayGraficos) {

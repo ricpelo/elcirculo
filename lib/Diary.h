@@ -131,6 +131,7 @@ Class Diary
     D_AWAY__TX "^Cierras el diario.^",
     D_UPDT__TX "Tu diario se ha actualizado.",         
     D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
+    colorLink COLOR_HYPERLINK,
     update [ flag;   
       !Pmove(page, self);
 !      give page on;
@@ -141,7 +142,10 @@ Class Diary
 
 !      if (flag == 1 or 2) {
         self.last_page = -1;
-        objectloop (o in self && o has on) self.last_page++;
+        objectloop (o in self && o has on) {
+          self.last_page++;
+          o.page = self.last_page;
+        }
 !      }
 
       if (flag == 0) {
@@ -166,9 +170,9 @@ Class Diary
       if (hayGraficos) {
         if (gg_statuswin) glk_window_close(gg_statuswin, 0);
         gg_statuswin = glk_window_open(gg_mainwin,
-                                       winmethod_Above + winmethod_Fixed +
-                                       winmethod_NoBorder,
+                                       winmethod_Above + winmethod_Fixed,
                                        3, wintype_TextGrid, GG_STATUSWIN_ROCK);
+        glk_request_hyperlink_event(gg_statuswin);
       } else {
         StatusLineHeight(3);
       }
@@ -181,8 +185,13 @@ Class Diary
                                        winmethod_NoBorder,
                                        100, wintype_TextBuffer,
                                        GG_CONVERSAWIN_ROCK);
+      glk_request_hyperlink_event(gg_conversawin);
       glk_set_window(gg_statuswin);
-      glk_set_style(style_BlockQuote);
+      self.colorLink = glk_get_config(config_LinkColor);
+      glk_set_config(config_LinkColor,
+                     glk_window_stylehint_get(gg_statuswin, style_SubHeader,
+                                              stylehint_TextColor));
+      glk_set_style(style_SubHeader);
       MoveCursor(1, 1); spaces(i);
       MoveCursor(2, 1); spaces(i);
       MoveCursor(3, 1); spaces(i);
@@ -190,11 +199,23 @@ Class Diary
       print (string) self.D_PAGE__TX, self.pagen, "/", self.last_page;
       CenterU(self.doname(), 1);
       CenterU(self.dopagename(), 2);
-      MoveCursor(2, 2); print (string) self.D_PKEY__TX;
+      MoveCursor(2, 2);
+      glk_set_hyperlink('P');
+      print (string) self.D_PKEY__TX;
+      glk_set_hyperlink(0);
       j = i - 20;
-      MoveCursor(2, j); print (string) self.D_NKEY__TX;
-      MoveCursor(3, 2); print (string) self.D_QKEY__TX;
-      MoveCursor(3, j); print (string) self.D_GKEY__TX;
+      MoveCursor(2, j);
+      glk_set_hyperlink('N');
+      print (string) self.D_NKEY__TX;
+      glk_set_hyperlink(0);
+      MoveCursor(3, 2);
+      glk_set_hyperlink('Q');
+      print (string) self.D_QKEY__TX;
+      glk_set_hyperlink(0);
+      MoveCursor(3, j);
+      glk_set_hyperlink('G');
+      print (string) self.D_GKEY__TX;
+      glk_set_hyperlink(0);
       glk_set_window(gg_conversawin);
     ],
 !    Lowkey_emblazon [;
@@ -252,33 +273,57 @@ Class Diary
         0: self.pagen--;
         1: self.pagen++;
         2: return 2;
+        default: self.pagen = j.page;
       }
       if (self.pagen < 0) self.pagen = 0;
       if (self.pagen > self.last_page) self.pagen = self.last_page;
       return 1;
     ],
     keyloop [
-      keypress k;
-      do {
-        keypress = KeyDelay();
-      } until ((keypress == 129 or 'P' or 'p' or 130 or 'N' or 'n' or 'q' or
-                            'Q' or  27 or 'g' or 'G' or -2 or -3) ||
-               (keypress == 32 or 10 or 13 && self.pagen == 0));
-  
-      if (keypress == 129 or 'P' or 'p' or -2) return 0;
-      if (keypress == 32 or 10 or 13 && self.pagen == 0) return 1;
-      if (keypress == 'G' or 'g') {
-        glk_window_clear(gg_conversawin);
-        if (pretty_flag) box "¿A qué página quieres ir?";
-        else             print "¿A qué página quieres ir? >";
-        KeyboardPrimitive(buffer, parse);
-        if (parse-->(WORDSIZE - 1) == 0) return 4;
-        k = TryNumber(1);
-        self.pagen = k;
-        return 3;
+      keypress k done;
+      while (true) {
+        glk_request_char_event(gg_mainwin);
+        done = false;
+        while (~~done) {
+          glk_select(gg_event);
+          switch (gg_event-->0) {
+            evtype_CharInput:
+              keypress = gg_event-->2;
+              done = true;
+
+            evtype_Hyperlink:
+              glk_cancel_char_event(gg_mainwin);
+              keypress = gg_event-->2;
+              done = true;
+          }
+        }
+        if (keypress ofclass Object) return keypress;
+        switch (keypress) {
+          129, 'P', 'p', -2:
+            return 0;
+
+          32, 10, 13:
+            if (self.pagen == 0) return 1;
+
+          'G', 'g':
+            if (keypress == 'G' or 'g') {
+              glk_window_clear(gg_conversawin);
+              if (pretty_flag) box "¿A qué página quieres ir?";
+              else             print "¿A qué página quieres ir? >";
+              KeyboardPrimitive(buffer, parse);
+              if (parse-->(WORDSIZE - 1) == 0) return 4;
+              k = TryNumber(1);
+              self.pagen = k;
+              return 3;
+            }
+
+          130, 'N', 'n', -3:
+            return 1;
+
+          27, 'Q', 'q':
+            return 2;
+        }
       }
-      if (keypress == 130 or 'N' or 'n' or -3) return 1;
-      if (keypress ==  27 or 'Q' or 'q') return 2;
     ];
 
 
@@ -292,6 +337,7 @@ Class DiaryEntry
         d.update(flag);
       }
     ],
+    page 0,
     description [
       o sp;
       objectloop (o in self && o has on) {
@@ -328,7 +374,9 @@ Class ContentsPage
         if (o has on && i < ValueOrRun(self, ucutoff) &&
             i > ValueOrRun(self, lcutoff)) {
           self.listItem = o;
-          self.ListEntry(i);
+          glk_set_hyperlink(o);
+          self.ListEntry(i - 1);
+          glk_set_hyperlink(0);
           new_line;
         }
       }
@@ -338,15 +386,15 @@ Class ContentsPage
       i;
       glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
-      return (self.page) * (i - 5);
+      return (self.page + 1) * (i - 5);
     ],
     lcutoff [
       i;
       glk_window_get_size(gg_statuswin, gg_arguments, gg_arguments + WORDSIZE);
       i = gg_arguments-->0;
-      return (self.page - 1) * (i - 5) + 1;
+      return (self.page) * (i - 5) + 1;
     ],
-    page 1,
+    page 0,
     PageHeader [; 
       rtrue;
     ],

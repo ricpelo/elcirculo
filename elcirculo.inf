@@ -150,8 +150,8 @@ Array teclasOpciones -> '1' '2' '3' '4' '5' '6' '7' '8' '9' 'A'
                         'B' 'C' 'D' 'E' 'F' 'G' 'H' 'I' 'L' 'M'
                         'O' 'R' 'S' 'T' 'U' 'V' 'W' 'X' 'Y' 'Z';
 
-! Anchura (en px.) de la ventana de logo en el menú principal:
-Global anchoLogoMenu = 450;
+! Altura (en px.) de la ventana de logo en el menú principal:
+Global altoLogoMenu = 450;
 
 ! Anchura de la ventana gráfica:
 Global anchoVentanaGrafica = GRAFICOS_MEDIANOS;
@@ -1061,8 +1061,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
 !-------------------------------------------------------------------------------
 
 
-[ Initialise r v;
+[ Initialise
+  r v menu;
   KeyDelay(1); ! Se hace para que no dibuje y acto seguido "recoloque" el logo
+  if (ExisteAutoSave()) menu = ZIPI_Menu_Principal_Con_AutoLoad;
+  else                  menu = ZIPI_Menu_Principal;
   IniciarGraficosSonidos();
   clearGraphicWindow();
   ExtenderVentanaEstado();
@@ -1072,7 +1075,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);
   Damusix.Tocar(Darkwalk_ogg);
   do {
-    r = ZIPI_RunMenu(ZIPI_Menu_Principal, 2);
+    r = ZIPI_RunMenu(menu, 2);
   } until (r ~= 3);
   if (r ~= 2) quit;
   clearTextWindow();
@@ -1858,7 +1861,7 @@ Object timer_imagen_personaje
   r = _o.ZIPI_ejecutar();
   if (~~r) ZIPI_Espera();
   if (gr) {
-    openGraphicWindow(anchoLogoMenu);
+    openGraphicWindow(altoLogoMenu);
     clearGraphicWindow();
     viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   }
@@ -2005,6 +2008,23 @@ Object ZIPI_Configuracion
       ZIPI_Accesibilidad;
 
 
+Object ZIPI_Continuar_Partida
+  class ZIPI_Otro
+  with
+    ZIPI_titulo "Continuar la partida",
+    ZIPI_ejecutar [;
+      StatusLineHeight(1);
+      clearTextWindow();
+      glk_set_window(gg_mainwin);
+      if (AutoLoad() == 0) {
+        glk_set_window(gg_statuswin);
+        ExtenderVentanaEstado();
+        print "^Error: no se ha podido cargar la partida.";
+        rfalse;
+      }
+    ];
+
+
 Object ZIPI_Disminuir_Ancho_Ventana
   class ZIPI_Otro
   with
@@ -2087,6 +2107,20 @@ Object ZIPI_Menu_Principal
   with
     ZIPI_titulo "EL CÍRCULO - (c) Alpha Aventuras 2012",
     ZIPI_item
+      ZIPI_Jugar_Con_Intro
+      ZIPI_Jugar_Sin_Intro
+      ZIPI_Restaurar_Partida
+      ZIPI_Configuracion
+      ZIPI_Separador
+      ZIPI_Menu1;
+
+
+Object ZIPI_Menu_Principal_Con_AutoLoad
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "EL CÍRCULO - (c) Alpha Aventuras 2012",
+    ZIPI_item
+      ZIPI_Continuar_Partida
       ZIPI_Jugar_Con_Intro
       ZIPI_Jugar_Sin_Intro
       ZIPI_Restaurar_Partida
@@ -2783,6 +2817,50 @@ Object Menu_Configuracion
 !-------------------------------------------------------------------------------
 
 
+[ AutoLoad
+  fref res;
+
+  fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
+                                    ChangeAnyToCString(CadenaAutoSave), 0);
+  if (fref == 0) jump RFailed;
+  gg_savestr = glk_stream_open_file(fref, $02, GG_SAVESTR);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump RFailed;
+  @restore gg_savestr res;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+.RFailed;
+  return 0;
+];
+
+
+[ AutoSave
+  fref res;
+
+  fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
+                                    ChangeAnyToCString(CadenaAutoSave), 0);
+  if (fref == 0) jump SFailed;
+  gg_savestr = glk_stream_open_file(fref, $01, GG_SAVESTR_ROCK);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump SFailed;
+  @save gg_savestr res;
+  if (res == -1) {
+    ! The player actually just typed "restore". We're going to print
+    !  L__M(##Restore,2); the Z-Code Inform library does this correctly
+    ! now. But first, we have to recover all the Glk objects; the values
+    ! in our global variables are all wrong.
+    GGRecoverObjects();
+    glk_stream_close(gg_savestr, 0);
+    gg_savestr = 0;
+    return; ! L__M(##Restore, 2);
+  }
+.SFailed;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+  return;
+];
+
+
 [ ApagarGraficos t;
   hayGraficos = false;
   closeGraphicWindow();
@@ -2794,6 +2872,11 @@ Object Menu_Configuracion
   deadflag = df;
   ControlTimer.DesactivarTick();
   Damusix.PararTodo();
+];
+
+
+[ CadenaAutoSave;
+  print "autosave.sav";
 ];
 
 
@@ -2900,6 +2983,24 @@ Object Menu_Configuracion
 ];
 
 
+[ ExisteAutoSave
+  fref;
+  fref = glk_fileref_create_by_name(fileusage_SavedGame + fileusage_BinaryMode,
+                                    ChangeAnyToCString(CadenaAutoSave), 0);
+  if (fref == 0) jump RFailed;
+  gg_savestr = glk_stream_open_file(fref, $02, GG_SAVESTR);
+  glk_fileref_destroy(fref);
+  if (gg_savestr == 0) jump RFailed;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+  rtrue;
+.RFailed;
+  glk_stream_close(gg_savestr, 0);
+  gg_savestr = 0;
+  rfalse;
+];
+
+
 [ ExtenderVentanaEstado por;
   if (por == 0) por = 100;
   glk_window_set_arrangement(glk_window_get_parent(gg_statuswin),
@@ -2956,20 +3057,20 @@ Object Menu_Configuracion
 
   if (alto <= 600)  {
     anchoVentanaGrafica = GRAFICOS_PEQUENOS;
-    anchoLogoMenu = 250;
+    altoLogoMenu = 250;
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
   } else if (alto <= 768) {
     anchoVentanaGrafica = GRAFICOS_MEDIANOS;
-    anchoLogoMenu = 350;
+    altoLogoMenu = 300;
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
   } else if (alto <= 800) {
     anchoVentanaGrafica = GRAFICOS_MEDIANOS;
-    anchoLogoMenu = 350;
+    altoLogoMenu = 350;
     glk_decr_fontsize();
     glk_decr_fontsize();
 !  } else if (alto <= 1080) {
@@ -2978,7 +3079,7 @@ Object Menu_Configuracion
     anchoVentanaGrafica = GRAFICOS_GRANDES;
   }
 
-  initializeSGW(anchoLogoMenu);
+  initializeSGW(altoLogoMenu);
 ];
 
 
@@ -3621,6 +3722,7 @@ Verb meta 'tt'
 
 
 [ SeguirSub;
+  AutoSave();
   "Decide por ti mism", (o) player, " a dónde deseas ir.";
 ];
 

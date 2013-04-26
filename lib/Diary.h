@@ -131,7 +131,6 @@ Class Diary
     D_AWAY__TX "^Cierras el diario.^",
     D_UPDT__TX "Tu diario se ha actualizado.",         
     D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
-    colorLink COLOR_HYPERLINK,
     update [ flag;   
       !Pmove(page, self);
 !      give page on;
@@ -187,10 +186,6 @@ Class Diary
                                        GG_CONVERSAWIN_ROCK);
       glk_request_hyperlink_event(gg_conversawin);
       glk_set_window(gg_statuswin);
-      self.colorLink = glk_get_config(config_LinkColor);
-      glk_set_config(config_LinkColor,
-                     glk_window_stylehint_get(gg_statuswin, style_SubHeader,
-                                              stylehint_TextColor));
       glk_set_style(style_SubHeader);
       MoveCursor(1, 1); spaces(i);
       MoveCursor(2, 1); spaces(i);

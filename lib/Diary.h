@@ -128,7 +128,7 @@ Class Diary
     D_QKEY__TX " Q = Volver al juego",
     D_GKEY__TX " G = Ir a una página ",
     D_PAGE__TX "Página ",
-    D_AWAY__TX "^Cierras el diario.^",
+    D_AWAY__TX "Cierras el diario.^",
     D_UPDT__TX "Tu diario se ha actualizado.",         
     D_INFO__TX "Teclea @<<%BDIARIO%P@>> para leer la última entrada.",
     update [ flag;   
@@ -193,24 +193,24 @@ Class Diary
       MoveCursor(1, 2);
       print (string) self.D_PAGE__TX, self.pagen, "/", self.last_page;
       CenterU(self.doname(), 1);
-      CenterU(self.dopagename(), 2);
+      CenterU(self.dopagename(), 3);
       MoveCursor(2, 2);
       glk_set_hyperlink('P');
       print (string) self.D_PKEY__TX;
       glk_set_hyperlink(0);
       j = i - 20;
+      MoveCursor(1, j);
+      glk_set_hyperlink('Q');
+      print (string) self.D_QKEY__TX;
+      glk_set_hyperlink(0);
       MoveCursor(2, j);
       glk_set_hyperlink('N');
       print (string) self.D_NKEY__TX;
       glk_set_hyperlink(0);
-      MoveCursor(3, 2);
-      glk_set_hyperlink('Q');
-      print (string) self.D_QKEY__TX;
-      glk_set_hyperlink(0);
-      MoveCursor(3, j);
-      glk_set_hyperlink('G');
-      print (string) self.D_GKEY__TX;
-      glk_set_hyperlink(0);
+!      MoveCursor(3, j);
+!      glk_set_hyperlink('G');
+!      print (string) self.D_GKEY__TX;
+!      glk_set_hyperlink(0);
       glk_set_window(gg_conversawin);
     ],
 !    Lowkey_emblazon [;
@@ -275,7 +275,7 @@ Class Diary
       return 1;
     ],
     keyloop [
-      keypress k done;
+      keypress done;
       while (true) {
         glk_request_char_event(gg_mainwin);
         done = false;
@@ -300,17 +300,17 @@ Class Diary
           32, 10, 13:
             if (self.pagen == 0) return 1;
 
-          'G', 'g':
-            if (keypress == 'G' or 'g') {
-              glk_window_clear(gg_conversawin);
-              if (pretty_flag) box "¿A qué página quieres ir?";
-              else             print "¿A qué página quieres ir? >";
-              KeyboardPrimitive(buffer, parse);
-              if (parse-->(WORDSIZE - 1) == 0) return 4;
-              k = TryNumber(1);
-              self.pagen = k;
-              return 3;
-            }
+!          'G', 'g':
+!            if (keypress == 'G' or 'g') {
+!              glk_window_clear(gg_conversawin);
+!              if (pretty_flag) box "¿A qué página quieres ir?";
+!              else             print "¿A qué página quieres ir? >";
+!              KeyboardPrimitive(buffer, parse);
+!              if (parse-->(WORDSIZE - 1) == 0) return 4;
+!              k = TryNumber(1);
+!              self.pagen = k;
+!              return 3;
+!            }
 
           130, 'N', 'n', -3:
             return 1;

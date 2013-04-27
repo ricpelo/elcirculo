@@ -1951,19 +1951,32 @@ Object timer_imagen_personaje
       done = true;
     } else if (ix >= 0) {
       switch (gg_event-->0) {
-        2, 8: ! evtype_CharInput, evtype_Hyperlink
-              key = gg_event-->2;
-              done = true;
-           4: ! evtype_MouseInput
-              key = 0; ! Devuelve la tecla 0, para no interferir
-              done = true;
-        5, 6: ! evtype_Arrange, evtype_Redraw
-              DrawStatusLine();     ! Redibujamos la línea de estado
-              if (win) glk_set_window(win);  ! Volvemos a la ventana anterior
-              ! Cuando se redimensiona habiendo un menú de acciones, se
-              ! devuelve la tecla 0, lo que hará que se redibuje la ventana:
-              key = 0;
-              done = true;
+        evtype_CharInput:
+          key = gg_event-->2;
+          done = true;
+
+        evtype_Hyperlink:
+          glk_request_hyperlink_event(gg_event-->1);
+          ! Si estamos en el menú de acciones y pulsamos de nuevo "Menú",
+          ! devolvemos 'Q' para que se cierre el menú (así, pulsando "Menú"
+          ! vamos abriendo y cerrando la ventana alternativamente):
+          if (win == gg_menuwin && gg_event-->1 == gg_statuswin) {
+            key = 'Q';
+          } else {
+            key = gg_event-->2;
+          }
+          done = true;
+
+        evtype_MouseInput:
+          key = 0; ! Devuelve la tecla 0, para no interferir
+          done = true;
+        evtype_Arrange, evtype_Redraw:
+          DrawStatusLine();     ! Redibujamos la línea de estado
+          if (win) glk_set_window(win);  ! Volvemos a la ventana anterior
+          ! Cuando se redimensiona habiendo un menú de acciones, se
+          ! devuelve la tecla 0, lo que hará que se redibuje la ventana:
+          key = 0;
+          done = true;
       }
     }
   }
@@ -2562,6 +2575,7 @@ Object MenuAcciones
           }
         }
 
+        glk_request_hyperlink_event(gg_statuswin);
         glk_set_window(win);
 
         j = cur + 3 - delta;

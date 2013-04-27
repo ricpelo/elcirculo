@@ -5704,7 +5704,7 @@ statuswin_current = true;
                 glk($002D, gg_mainwin, gg_scriptstr); ! window_set_echo_stream
         }
 
-        gg_statuswin = glk($0023, gg_mainwin, $12, gg_statuswin_cursize,
+        gg_statuswin = glk($0023, gg_mainwin, $112, gg_statuswin_cursize,
            4, GG_STATUSWIN_ROCK); ! window_open
         if (statuswin_current && gg_statuswin) MoveCursor(); else MainWindow();
 
@@ -5957,7 +5957,7 @@ statuswin_current = true;
         res = InitGlkWindow(GG_STATUSWIN_ROCK);
         if (res == 0) {
             gg_statuswin_cursize = gg_statuswin_size;
-            gg_statuswin = glk($0023, gg_mainwin, $12, gg_statuswin_cursize,
+            gg_statuswin = glk($0023, gg_mainwin, $112, gg_statuswin_cursize,
                 4, GG_STATUSWIN_ROCK); ! window_open
         }
     }

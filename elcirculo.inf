@@ -1703,17 +1703,24 @@ Object
 
 Object autoguardador
   with
-    found_in [; rtrue; ],
-    activar [; rtrue; ],
-    desactivar [; rfalse; ],
+    found_in [; return self.activado; ],
+    activar [;
+      give self ~absent;
+      move self to location;
+      self.activado = true;
+    ],
+    desactivar [;
+      remove self;
+      give self absent;
+      self.activado = false;
+    ],
+    activado true,
     each_turn [;
       if (self.found_in()) {
         if (~~(AutoSave())) {
           print "^No se ha podido guardar la partida automáticamente. Se
                  deshabilitará el guardado automático.^";
-          remove self;
-          give self absent;
-          self.found_in = self.desactivar;
+          self.desactivar();
         }
       }
     ],
@@ -1989,18 +1996,15 @@ Object ZIPI_AutoSave
   class ZIPI_Otro
   with
     ZIPI_titulo [;
-      if (autoguardador.found_in()) {
+      if (autoguardador.activado) {
         "Guardar partida automáticamente: SÍ (recomendado)";
       } else {
         "Guardar partida automáticamente: NO";
       }
     ],
     ZIPI_cambiar [;
-      if (autoguardador.found_in()) {
-        autoguardador.found_in = autoguardador.desactivar;
-      } else {
-        autoguardador.found_in = autoguardador.activar;
-      }
+      if (autoguardador.activado) autoguardador.desactivar();
+      else                        autoguardador.activar();
     ];
 
 

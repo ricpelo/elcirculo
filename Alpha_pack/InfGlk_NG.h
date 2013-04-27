@@ -1078,7 +1078,7 @@ Constant config_Cols        11;
 
 ! Obliga a saltarse todo el scroll de la ventana de texto:
 [ glk_window_noscroll _vararg_count ret;
-  ! glk_window_get_char (win)
+  ! glk_window_noscroll (win)
   ! And now the @glk call
   @glk $FFF6 _vararg_count ret;
   return ret;
@@ -1089,6 +1089,22 @@ Constant config_Cols        11;
   ! glk_get_screen_size (width height)
   ! And now the @glk call
   @glk $FFF5 _vararg_count ret;
+  return ret;
+];
+
+! Activa o desactiva el reflow propio de Gargoyle en las ventanas de texto:
+[ glk_set_reflow _vararg_count ret;
+  ! glk_set_reflow (val)
+  ! And now the @glk call
+  @glk $FFF4 _vararg_count ret;
+  return ret;
+];
+
+! Devuelve el valor actual del reflow:
+[ glk_get_reflow _vararg_count ret;
+  ! glk_get_reflow ()
+  ! And now the @glk call
+  @glk $FFF3 _vararg_count ret;
   return ret;
 ];
 

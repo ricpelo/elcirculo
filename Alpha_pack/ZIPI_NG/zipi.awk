@@ -190,6 +190,8 @@ END{
 #    print "  text";
 #    for (j=0;j<opciones[i]; j++)
 #      print "    \"" opcion[i, j] "\"";
+    if (i == 1)
+        print "  ZIPI_informacion \"Instrucciones básicas de interés si juegas a una aventura por primera vez\",";
     print "  ZIPI_item";
     for (j=0;j<opciones[i]; j++)
       print "    " item[i,j] ;

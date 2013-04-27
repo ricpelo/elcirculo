@@ -9,6 +9,7 @@ with
 ZIPI_Menu ZIPI_Menu1
 with
   ZIPI_titulo "Información general - Lee esto primero",
+  ZIPI_informacion "Instrucciones básicas de interés si juegas a una aventura por primera vez",
   ZIPI_item
     ZIPI_Otro0
     ZIPI_Otro1

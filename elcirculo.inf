@@ -1704,6 +1704,8 @@ Object
 Object autoguardador
   with
     found_in [; rtrue; ],
+    activar [; rtrue; ],
+    desactivar [; rfalse; ],
     each_turn [;
       if (self.found_in()) {
         if (~~(AutoSave())) {
@@ -1711,7 +1713,7 @@ Object autoguardador
                  deshabilitará el guardado automático.^";
           remove self;
           give self absent;
-          self.found_in = false;
+          self.found_in = self.desactivar;
         }
       }
     ],
@@ -1953,15 +1955,6 @@ Object timer_imagen_personaje
 ];
 
 
-Object ZIPI_Accesibilidad
-  class ZIPI_Menu
-  with
-    ZIPI_titulo "Opciones de accesibilidad",
-    ZIPI_item
-      ZIPI_Tiempo_Real
-      ZIPI_Mostrar_Hyperlinks;
-
-
 Object ZIPI_Aumentar_Ancho_Ventana
   class ZIPI_Otro
   with
@@ -1992,10 +1985,40 @@ Object ZIPI_Aumentar_Texto
     ];
 
 
+Object ZIPI_AutoSave
+  class ZIPI_Otro
+  with
+    ZIPI_titulo [;
+      if (autoguardador.found_in()) {
+        "Guardar partida automáticamente: SÍ (recomendado)";
+      } else {
+        "Guardar partida automáticamente: NO";
+      }
+    ],
+    ZIPI_cambiar [;
+      if (autoguardador.found_in()) {
+        autoguardador.found_in = autoguardador.desactivar;
+      } else {
+        autoguardador.found_in = autoguardador.activar;
+      }
+    ];
+
+
+Object ZIPI_Avanzadas
+  class ZIPI_Menu
+  with
+    ZIPI_titulo "Opciones avanzadas",
+    ZIPI_anchura 50,
+    ZIPI_item
+      ZIPI_Tiempo_Real
+      ZIPI_Mostrar_Hyperlinks
+      ZIPI_AutoSave;
+
+
 Object ZIPI_Configuracion
   class ZIPI_Menu
   with
-    ZIPI_titulo "Opciones de gráficos y sonido",
+    ZIPI_titulo "Opciones de configuración",
     ZIPI_anchura 45,
     monosize INICIAL_MONOSIZE,
     propsize INICIAL_PROPSIZE,
@@ -2030,7 +2053,7 @@ Object ZIPI_Configuracion
       ZIPI_Aumentar_Ancho_Ventana
       ZIPI_Disminuir_Ancho_Ventana
       ZIPI_Separador
-      ZIPI_Accesibilidad;
+      ZIPI_Avanzadas;
 
 
 Object ZIPI_Continuar_Partida

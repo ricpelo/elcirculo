@@ -2539,6 +2539,32 @@ Object MenuAcciones
           print "v";
         }
 
+        glk_set_window(gg_statuswin);
+        glk_window_move_cursor(gg_statuswin, 0, 0);
+        glk_window_get_size(gg_statuswin, gg_arguments,
+                            gg_arguments + WORDSIZE);
+        for (i = 0 : i < (gg_arguments-->0) - 4 : i++) {
+          print (string) " ";
+        }
+        glk_window_move_cursor(gg_statuswin, 0, 0);
+
+        if (cur < count - 2) {
+          dest = opcionesMenu-->cur;
+          if (dest provides ZIPI_informacion) {
+            glk_set_window(gg_statuswin);
+            glk_window_move_cursor(gg_statuswin, 0, 0);
+            glk_window_get_size(gg_statuswin, gg_arguments,
+                                gg_arguments + WORDSIZE);
+            for (i = 0 : i < gg_arguments-->0 - 4 : i++) {
+              print (string) " ";
+            }
+            glk_window_move_cursor(gg_statuswin, 0, 0);
+            PrintAnything(dest, ZIPI_informacion, _m);
+          }
+        }
+
+        glk_set_window(win);
+
         j = cur + 3 - delta;
         glk_window_move_cursor(win, 1, j - 1);
         print (s_emph) ">";
@@ -2573,6 +2599,7 @@ Object MenuAcciones
           132, 13, 'n', ' ', -3, -6:
         .Aceptar;
             dest = opcionesMenu-->cur;
+            DrawStatusLine();
             if (dest ofclass ZIPI_Menu) {
               return MenuAcciones.RunMenu(dest, top, win);
             } else if (dest == ZIPI_Ninguna) {
@@ -2605,6 +2632,7 @@ Object Menu_Abrir
   with
     ZIPI_titulo "Abrir",
     ZIPI_ejecutar [; return 'abre'; ],
+    ZIPI_informacion [ obj; print "Abrir ", (the) obj; ],
     ZIPI_condicion [ obj;
       return obj has openable && obj hasnt open;
     ];
@@ -2614,6 +2642,7 @@ Object Menu_AbrirCon
   class ZIPI_Otro
   with
     ZIPI_titulo "Abrir con...",
+    ZIPI_informacion [ obj; print "Abrir ", (the) obj, " con algo"; ],
     ZIPI_secundario [; return 'con'; ],
     ZIPI_ejecutar [; return 'abre'; ],
     ZIPI_condicion [ obj;
@@ -2627,6 +2656,7 @@ Object Menu_Apagar
   class ZIPI_Otro
   with
     ZIPI_titulo "Apagar",
+    ZIPI_informacion [ obj; print "Apagar ", (the) obj; ],
     ZIPI_ejecutar [; return 'apaga'; ],
     ZIPI_condicion [ obj;
       return obj has switchable && obj has on;
@@ -2637,6 +2667,7 @@ Object Menu_Cerrar
   class ZIPI_Otro
   with
     ZIPI_titulo "Cerrar",
+    ZIPI_informacion [ obj; print "Cerrar ", (the) obj; ],
     ZIPI_ejecutar [; return 'cierra'; ],
     ZIPI_condicion [ obj;
       return obj has openable && obj has open;
@@ -2647,6 +2678,7 @@ Object Menu_CerrarCon
   class ZIPI_Otro
   with
     ZIPI_titulo "Cerrar con...",
+    ZIPI_informacion [ obj; print "Cerrar ", (the) obj, " con algo"; ],
     ZIPI_secundario [; return 'con'; ],
     ZIPI_ejecutar [; return 'cierra'; ],
     ZIPI_condicion [ obj;
@@ -2660,6 +2692,7 @@ Object Menu_Coger
   class ZIPI_Otro
   with
     ZIPI_titulo "Coger",
+    ZIPI_informacion [ obj; print "Coger ", (the) obj; ],
     ZIPI_ejecutar [; return 'coge'; ],
     ZIPI_condicion [ obj;
       return (obj hasnt static or scenery &&
@@ -2672,6 +2705,7 @@ Object Menu_Dejar
   class ZIPI_Otro
   with
     ZIPI_titulo "Dejar",
+    ZIPI_informacion [ obj; print "Dejar ", (the) obj; ],
     ZIPI_ejecutar [; return 'deja'; ],
     ZIPI_condicion [ obj;
       return obj ~= player && IndirectlyContains(player, obj);
@@ -2682,6 +2716,7 @@ Object Menu_Encender
   class ZIPI_Otro
   with
     ZIPI_titulo "Encender",
+    ZIPI_informacion [ obj; print "Encender ", (the) obj; ],
     ZIPI_ejecutar [; return 'enciende'; ],
     ZIPI_condicion [ obj;
       return obj has switchable && obj hasnt on;
@@ -2692,6 +2727,7 @@ Object Menu_Examinar
   class ZIPI_Otro
   with
     ZIPI_titulo "Examinar",
+    ZIPI_informacion [ obj; print "Examinar ", (the) obj; ],
     ZIPI_ejecutar [; return 'ex'; ];
 
 

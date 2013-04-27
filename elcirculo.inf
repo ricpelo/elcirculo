@@ -2001,7 +2001,7 @@ Object ZIPI_Aumentar_Ancho_Ventana
                       pantalla",
     ZIPI_cambiar [;
       ZIPI_Configuracion.ha_cambiado_algo = true;
-      glk_set_config(config_Cols, glk_get_config(config_Cols) + 5);
+      glk_set_config(config_Cols, glk_get_config(config_Cols) + 4);
       ZIPI_Configuracion.guardar_valores();
       RefrescarVentanasTexto();
       ! Esto sólo se ve en el menú principal, porque durante el juego
@@ -2132,7 +2132,7 @@ Object ZIPI_Disminuir_Ancho_Ventana
       ZIPI_Configuracion.ha_cambiado_algo = true;
       cols = glk_get_config(config_Cols);
       if (cols > INICIAL_COLS) {
-        glk_set_config(config_Cols, cols - 5);
+        glk_set_config(config_Cols, cols - 4);
         ZIPI_Configuracion.guardar_valores();
         RefrescarVentanasTexto();
         ! Esto sólo se ve en el menú principal, porque durante el juego

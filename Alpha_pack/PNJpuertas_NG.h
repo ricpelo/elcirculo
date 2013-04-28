@@ -56,27 +56,6 @@ Class PnjPuerta
       if (self.interior == 0 or parent(self)) return "entrando";
       else                                    return "saliendo";
     ],
-    mostrar_nombre [;
-      glk_set_hyperlink(self);
-      print (the) self;
-      glk_set_hyperlink(0);
-    ],
-    ! Muestra el nombre de la puerta con un 'de'/'del' delante:
-    del_nombre_direccion [ flag;
-      glk_set_hyperlink(self);
-      if (flag) print "D";
-      else      print "d";
-      if (self has proper) {
-        print "e ", (name) self;
-        jump Salir;
-      }
-      PrintAnyToArray(texto_impreso, 50, self, mostrar_nombre);
-      ! Si NO ES articulo "el", agregar 'e' y un espacio:
-      if (texto_impreso->0 ~= 'e') print "e ";
-      self.mostrar_nombre();
-    .Salir;
-      glk_set_hyperlink(0);
-    ],
     el_o_ella [
       gna;
       gna = GetGNAOfObject(self);
@@ -307,7 +286,10 @@ Class PnjPuerta
       ! El lado_cierre afecta tanto a los Pnjs como al jugador
     
       Examine:
-        if (self provides description) PrintOrRun(self, description, 1);
+        if (self provides description) {
+          PrintOrRun(self, description, 1);
+          print " ";
+        }
 !        else                           new_line;
   
         if (self.lado_cierre == 0 or location) {

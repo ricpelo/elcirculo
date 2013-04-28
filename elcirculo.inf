@@ -808,7 +808,7 @@ Object LibraryMessages
     mostrar_nombre [ l;
       l = LugarReal().(lm_o.door_dir);
       if (l == nothing) print (the) lm_o;
-      else              l.mostrar_nombre();
+      else              MostrarNombre(l);
     ],
     before [;
       Look:
@@ -852,7 +852,7 @@ Object LibraryMessages
              } else {
                print "No ", (puedes_) " pasar a través ";
              }
-             lm_o.del_nombre_direccion();
+             DelNombreDireccion(lm_o);
              ".";
         }
         
@@ -881,7 +881,7 @@ Object LibraryMessages
 
       GetOff:
         print "Pero si no est", (oy_) " en ";
-        if (lm_o ofclass Lugar) lm_o.mostrar_nombre();
+        if (lm_o ofclass Lugar) MostrarNombre(lm_o);
         else                    print (the) lm_o;
         "...";
 
@@ -949,37 +949,6 @@ Class Lugar
         glk_set_style(style_Normal);
         rtrue;
       }
-    ],
-    ! Muestra el nombre de la localidad, dependiendo de si ha sido visitado o
-    ! no, y de si proporciona la propiedad nombre_direccion:
-    mostrar_nombre [;
-      glk_set_hyperlink(self);
-      if (self has visited && self provides nombre_si_visitado) {
-        PrintOrRun(self, nombre_si_visitado, 1); jump Salir;
-      }
-      if (self hasnt visited && self provides nombre_no_visitado) {
-        PrintOrRun(self, nombre_no_visitado, 1); jump Salir;
-      }
-      if (self provides nombre_direccion) PrintOrRun(self, nombre_direccion, 1);
-      else                                print (name) self;
-    .Salir;
-      glk_set_hyperlink(0);
-    ],
-    ! Muestra el nombre de la localidad con un 'de'/'del' delante:
-    del_nombre_direccion [ flag;
-      glk_set_hyperlink(self);
-      if (flag) print "D";
-      else      print "d";
-      if (self has proper) {
-        print "e ", (name) self;
-        jump Salir;
-      }
-      PrintAnyToArray(texto_impreso, 50, self, mostrar_nombre);
-      ! Si NO ES articulo "el", agregar 'e' y un espacio:
-      if (texto_impreso->0 ~= 'e') print "e ";
-      self.mostrar_nombre();
-    .Salir;
-      glk_set_hyperlink(0);
     ],
     number,                           ! Necesario en varias librerías
     dibujado false,                   ! Necesario para Mapeador.h
@@ -1355,13 +1324,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
     puerta = dest;
     dest = dest.d;
 !    glk_set_hyperlink(dest);
-    dest.mostrar_nombre();
+    MostrarNombre(dest);
 !    glk_set_hyperlink(0);
-    print ", a través de ";
-    puerta.mostrar_nombre();
+    print ", por ";
+    MostrarNombre(puerta);
   } else {
 !    glk_set_hyperlink(dest);
-    dest.mostrar_nombre();
+    MostrarNombre(dest);
 !    glk_set_hyperlink(0);
   }
   if (par) print ")";
@@ -1592,7 +1561,7 @@ Class Personaje
       }
       if (dir ~= NULL) {
         print " desde ";
-        LugarReal().(dir.door_dir).mostrar_nombre();
+        MostrarNombre(LugarReal().(dir.door_dir));
         print ".^";
       }
     ],
@@ -1705,13 +1674,14 @@ Class Personaje
 
 
 ! Lugar necesario para que no haya errores al compilar si no hay localidades
-! definidas con nombre_si_visitado, nombre_no_visitado y nombre_dirección:
+! definidas con ciertas propiedades:
 Object
   class Lugar
   with
-    nombre_si_visitado NULL,
-    nombre_no_visitado NULL,
-    nombre_direccion   NULL;
+    nombre_si_visitado   NULL,
+    nombre_no_visitado   NULL,
+    nombre_direccion     NULL,
+    del_nombre_direccion NULL;
 
 
 Object autoguardador
@@ -3140,6 +3110,33 @@ Object Menu_Configuracion
 ];
 
 
+! Muestra el nombre de la localidad con un 'de'/'del' delante:
+[ DelNombreDireccion o flag;
+  glk_set_hyperlink(o);
+  if (flag) print "D";
+  else      print "d";
+  if (o has proper) {
+    print "e ";
+    if (o provides del_nombre_direccion) {
+      if (o ofclass Routine) o.del_nombre_direccion();
+      else print (string) o.del_nombre_direccion();
+    } else {
+      MostrarNombre(o);
+    }
+  } else {
+    if (o provides del_nombre_direccion) {
+      PrintAnyToArray(texto_impreso, 50, o, del_nombre_direccion);
+    } else {
+      PrintAnyToArray(texto_impreso, 50, MostrarNombre, o);
+    }
+    ! Si NO ES articulo "el", agregar 'e' y un espacio:
+    if (texto_impreso->0 ~= 'e') print "e ";
+    MostrarNombre(o);
+  }
+  glk_set_hyperlink(0);
+];
+
+
 [ DespuesReflow;
   glk_set_window(gg_mainwin);
   glk_window_noscroll(gg_mainwin);
@@ -3172,7 +3169,7 @@ Object Menu_Configuracion
     
   if (par) print " (";
   if (~~(i == in_obj or out_obj)) print "hacia ";
-  l.(i.door_dir).mostrar_nombre();
+  MostrarNombre(l.(i.door_dir));
   if (par) print ")";
 ];
 
@@ -3401,6 +3398,22 @@ Object Menu_Configuracion
     viewImageCenter(imagen, true);
     WaitDelay(retardo);
   }  
+];
+
+
+! Muestra el nombre de la localidad, dependiendo de si ha sido visitado o
+! no, y de si proporciona la propiedad nombre_direccion:
+[ MostrarNombre o;
+  glk_set_hyperlink(o);
+  if (o has visited && o provides nombre_si_visitado)
+    PrintOrRun(o, nombre_si_visitado, 1);
+  else if (o hasnt visited && self provides nombre_no_visitado)
+    PrintOrRun(o, nombre_no_visitado, 1);
+  else if (o provides nombre_direccion)
+    PrintOrRun(o, nombre_direccion, 1);
+  else
+    print (the) o;
+  glk_set_hyperlink(0);
 ];
 
 

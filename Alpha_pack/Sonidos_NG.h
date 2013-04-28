@@ -876,8 +876,9 @@ TipoDeSonido tipoPlano;
   } else {
     dest = d;
   }
-  if (dest provides del_nombre_direccion) dest.del_nombre_direccion();
-  else                                    print (del) dest;
+  DelNombreDireccion(dest);
+!  if (dest provides del_nombre_direccion) dest.del_nombre_direccion();
+!  else                                    print (del) dest;
 ];
 
 Global sonidoTrasUnObstaculo;

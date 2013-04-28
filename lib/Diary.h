@@ -192,7 +192,9 @@ Class Diary
       MoveCursor(3, 1); spaces(i);
       MoveCursor(1, 2);
       print (string) self.D_PAGE__TX, self.pagen, "/", self.last_page;
+      glk_set_hyperlink('0');
       CenterU(self.doname(), 1);
+      glk_set_hyperlink(0);
       CenterU(self.dopagename(), 3);
       MoveCursor(2, 2);
       glk_set_hyperlink('P');
@@ -268,6 +270,7 @@ Class Diary
         0: self.pagen--;
         1: self.pagen++;
         2: return 2;
+        3: self.pagen = 0;
         default: self.pagen = j.page;
       }
       if (self.pagen < 0) self.pagen = 0;
@@ -294,6 +297,9 @@ Class Diary
         }
         if (keypress ofclass Object) return keypress;
         switch (keypress) {
+          '0':
+            return 3;
+
           129, 'P', 'p', -2:
             return 0;
 

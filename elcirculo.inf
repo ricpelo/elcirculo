@@ -2095,12 +2095,11 @@ Object ZIPI_Continuar_Partida
       StatusLineHeight(1);
       clearTextWindow();
       glk_set_window(gg_mainwin);
-      if (AutoLoad() == 0) {
-        glk_set_window(gg_statuswin);
-        ExtenderVentanaEstado();
-        print "^Error: no se ha podido cargar la partida.";
-        rfalse;
-      }
+      AutoLoad();
+      glk_set_window(gg_statuswin);
+      ExtenderVentanaEstado();
+      print "^Error: no se ha podido cargar la partida.";
+      rfalse;
     ];
 
 

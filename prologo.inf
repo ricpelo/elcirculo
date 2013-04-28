@@ -56,7 +56,7 @@ Object cuarto_katie "Tu habitación"
       " que observa todo sin parpadear su único ojo desde una pequeña ",
         (link) "mesa", " situada en la pared contraria.";
     ],
-    out_to pasillo_katie,
+    out_to puerta_katie,
     sgw_img Cuarto_Katie_jpg,
     compass_look [ d;
       if (d == out_obj) {
@@ -214,7 +214,7 @@ Object pasillo_katie "Pasillo del piso superior"
         new_line;
       }
     ],
-    in_to cuarto_katie,
+    in_to puerta_katie,
     d_to cocina_katie,
     sgw_img Pasillo_Katie_jpg;
 
@@ -487,6 +487,26 @@ Object frigorifico_katie "frigorífico" cocina_katie
 
 
 Object puerta_katie "puerta de tu habitación"
+  class PNJPuerta
+  class EscenarioAbrible
+  with
+    adjectives 'habitacion',
+    article "la",
+    description "La puerta de tu habitación",
+!    initial [;
+!      "Alguien ha cerrado la ", (link) self, ", dejando bajo ella
+!       una fina abertura por la que salen un ", (link) "líquído", " hediondo y
+!       una luz mortecina.";
+!    ],
+    out_to pasillo_katie,
+    in_to  cuarto_katie,
+    interior cuarto_katie,
+    exterior pasillo_katie,
+  has
+    female;
+
+
+Object puerta_final_katie "puerta de tu habitación"
   with
     name 'puerta' 'habitacion',
     article "la",
@@ -516,8 +536,8 @@ Object puerta_katie "puerta de tu habitación"
         
       default:
         if (noun == decorado_puerta_katie &&
-          decorado_puerta_katie.palabra_usada == 'pomo' or 'picaporte') {
-          noun = puerta_katie;
+            decorado_puerta_katie.palabra_usada == 'pomo' or 'picaporte') {
+          noun = puerta_final_katie;
           ! Esto es porque al hacer el truco de la línea anterior (de cambiar
           ! el noun por la cara) luego no se ejecuta la rutina before:
           return RunRoutines(self, before);

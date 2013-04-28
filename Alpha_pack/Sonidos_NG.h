@@ -866,10 +866,16 @@ TipoDeSonido tipoPlano;
 ];
 
 [ DireccionSonido d
-  l;
+  l dest;
   l = LugarReal();
-  if (d ofclass CompassDirection) l.(d.door_dir).del_nombre_direccion();
-  else                            print (del) d;
+  if (d ofclass CompassDirection) {
+    dest = l.(d.door_dir);
+    if (dest has door && dest has open) dest = dest.(d.door_dir);
+  } else {
+    dest = d;
+  }
+  if (dest provides del_nombre_direccion) dest.del_nombre_direccion();
+  else                                    print (del) dest;
 ];
 
 Global sonidoTrasUnObstaculo;
@@ -927,7 +933,7 @@ Global sonidoTrasUnObstaculo;
 ];
 
 [ ConduceSonidoA direccion estelugar
-  k tmp tmp2;
+  k; ! tmp tmp2;
   sonidoTrasUnObstaculo = false;
 
   ! print "-ConduceSonidoA: ", (name) direccion, ":";
@@ -953,12 +959,12 @@ Global sonidoTrasUnObstaculo;
   if (k has door) {
     ! print " una puerta ";
     sonidoTrasUnObstaculo = (k hasnt open);
-
-    tmp = parent(k);
-    move k to estelugar;
-    tmp2 = k.door_to();
-    move k to tmp;
-    k = tmp2;
+!    tmp = parent(k);
+!    move k to estelugar;
+!    tmp2 = k.door_to;
+!    move k to tmp;
+!    k = tmp2;
+    k = k.(direccion.door_dir);
     ! print " que lleva a ";
   }
     

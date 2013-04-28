@@ -966,25 +966,13 @@ Class Lugar
       glk_set_hyperlink(self);
       if (flag) print "D";
       else      print "d";
-
       if (self has proper) {
         print "e ", (name) self;
         jump Salir;
       }
-
-      #ifdef TARGET_ZCODE;
-      texto_impreso-->0 = 50;
-      @output_stream 3 texto_impreso;
-      print (the) self;
-      @output_stream -3;
-      ! Si NO ES articulo "el", agregar 'e' y un espacio:
-      if (texto_impreso->2 ~= 'e') print "e ";
-      #ifnot; !TARGET_GLULX
       PrintAnyToArray(texto_impreso, 50, self, mostrar_nombre);
       ! Si NO ES articulo "el", agregar 'e' y un espacio:
       if (texto_impreso->0 ~= 'e') print "e ";
-      #endif;
-
       self.mostrar_nombre();
     .Salir;
       glk_set_hyperlink(0);
@@ -1329,7 +1317,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! Esta versión no muestra los puntos cardinales y representa las direcciones
 ! como los nombres de los lugares a los que se llega por esa dirección:
 [ LanguageDirection d
-  l par;
+  l par dest puerta;
   par = true;
   switch (d) {
     n_to:    par = false; ! print "al norte";
@@ -1349,9 +1337,20 @@ Include "Timer";            ! Mi librería de eventos temporizados
   l = LugarReal();
   print " ";
   if (par) print "(";
-  glk_set_hyperlink(l.d);
-  l.d.mostrar_nombre();
-  glk_set_hyperlink(0);
+  dest = l.d;
+  if (dest has door && dest has open) {
+    puerta = dest;
+    dest = dest.d;
+!    glk_set_hyperlink(dest);
+    dest.mostrar_nombre();
+!    glk_set_hyperlink(0);
+    print ", a través de ";
+    puerta.mostrar_nombre();
+  } else {
+!    glk_set_hyperlink(dest);
+    dest.mostrar_nombre();
+!    glk_set_hyperlink(0);
+  }
   if (par) print ")";
 ];
 
@@ -3115,11 +3114,12 @@ Object Menu_Configuracion
 
 ! Si dest es una localidad adyacente a la actual, devuelve la dirección en la
 ! que se encuentra:
-[ ConexionLocalidad dest
-  l o;
+[ ConexionLocalidad conex
+  l o dest;
   l = LugarReal();
   objectloop (o in Compass) {
-    if (dest == l.(o.door_dir)) return o;
+    dest = l.(o.door_dir);
+    if (conex == dest) return o;
   }
   rfalse;
 ];

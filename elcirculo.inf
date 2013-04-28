@@ -847,9 +847,13 @@ Object LibraryMessages
                "No v", (eo_) " ningún sitio en el que ", (pueda_) " entrar.";
              "No ", (puedes_) " ir por ahí, porque no hay salida hacia ",
               (the) noun, ".";
-          5: if (estoyEmpujando)
-               "^No ", (puedes_) " empujar nada a través ", (del) lm_o, ".";
-             "No ", (puedes_) " pasar a través ", (del) lm_o, ".";
+          5: if (estoyEmpujando) {
+               print "^No ", (puedes_) " empujar nada a través ";
+             } else {
+               print "No ", (puedes_) " pasar a través ";
+             }
+             lm_o.del_nombre_direccion();
+             ".";
         }
         
       Take:
@@ -1130,9 +1134,10 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
   ChangePlayer(katie);
 
-  IniciarMoviles();
-  IniciarPuertas();
-!  IniciarRastros();
+  IniciarMoviles();  ! Inicia los móviles
+  IniciarPuertas();  ! Inicia las puertas
+!  IniciarRastros(); ! Inicia los rastros
+  RegistraTodo();    ! Registra los sonidos
 
   Damusix.PararCanal(CANAL_FONDO);
   Damusix.LiberarCanal(DarkWalk_ogg);

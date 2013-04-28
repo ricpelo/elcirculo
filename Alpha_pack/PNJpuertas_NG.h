@@ -61,7 +61,7 @@ Class PnjPuerta
       print (the) self;
       glk_set_hyperlink(0);
     ],
-        ! Muestra el nombre de la localidad con un 'de'/'del' delante:
+    ! Muestra el nombre de la puerta con un 'de'/'del' delante:
     del_nombre_direccion [ flag;
       glk_set_hyperlink(self);
       if (flag) print "D";
@@ -327,7 +327,22 @@ Class PnjPuerta
           else               "Está cerrad", (o) self, "."; ! ^";
         }
         rtrue;    
-      ],
+    ],
+    each_turn [
+      o;
+      Open:
+        if (noun ofclass PnjPuerta) {
+          LimpiarPropagacion();
+          objectloop (o ofclass Ruido) {
+            if (o.jugadorOye()) {
+              if (o notin location) {
+                move o to location;
+                TocaDesde(o);
+              }
+            }
+          }
+        }
+    ],
   has
     door static;
 

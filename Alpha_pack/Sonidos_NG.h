@@ -246,6 +246,8 @@ Class TipoDeSonido
 
       if (no_decir_nada) rfalse;
 
+      new_line;
+
       ! No se ha pasado un texto es un sonido ininteligible, una voz 
       if (contenido.texto == 0) {
         _esVoz = false;      ! En principio no es voz
@@ -274,7 +276,6 @@ Class TipoDeSonido
             }
           } else {
             ! No se ve directamente
-            if (self.suena_aqui == false) new_line;
             if ((VR(self.usarDireccion)) && (contenido.seEscuchaEn ~= 0)) {
               ! pero se sabe de donde
               print (string) VR(self.verboOir), " ", (name) self;
@@ -465,7 +466,7 @@ Class ObjetoOyente
       ! haga algo particular para reaccionar ante los sonidos que oiga
       if ((TestScope(self)) && (_sonido.intensidad > NIVEL_AUDIBLE) &&
           (_sonido.origen ~= self)) {
-        print (The) self, " parece haber oído algo.^";
+        print "^", (The) self, " parece haber oído algo.^";
         ! print (name)_sonido.seEscuchaEn, _sonido.seEscuchaEn;
       }
     ];
@@ -532,11 +533,10 @@ Class Ruido
       give self absent;
     ],
     found_in [;
-      if (~~self.sonando) rfalse;
       return self.jugadorOye();
     ],
     jugadorOye [
-      enc_orig inicial se_oye i _intensidad indLug;
+      enc_orig inicial se_oye _intensidad;
       ! Se ve si el sonido alcanza 'location'
       if ((~~self.origen) || (~~self.sonando)) return false;
       if (self.intensidad ~= 0) _intensidad = VR(self.intensidad);
@@ -576,17 +576,14 @@ Class Ruido
       se_oye = ((location has en_ruta) && (location.number > NIVEL_AUDIBLE));
 
       ! Limpiar la propagación
-      for (indLug = 1 : indLug <= indiceLugares : indLug++) {
-        i = tablaLugares-->indLug;
-        give i ~en_ruta;
-        i.number = 0;
-      }
+      LimpiarPropagacion();
 
       return se_oye;
     ],
     describe [;
-      if (self.suena_aqui ~= false) new_line;
-      return TocaDesde(self);
+!      if (self.suena_aqui ~= false) new_line;
+      TocaDesde(self);
+      rtrue;
     ],
     mensaje_iniciar [;
       print "Empiezas a oir ", (name) self, ".^";
@@ -687,7 +684,7 @@ TipoDeSonido tipoPlano;
 
 ! Transmisión recursiva de un sonido desde un objeto EN una habitación:
 [ TocaSonido contenido no_decir_nada
-  i inicial temp_i k enc_orig origen_aparente j hab_esc tipo _oido indOye indLug
+  i inicial temp_i k enc_orig origen_aparente j hab_esc tipo _oido indOye
   retor;
 
   ! La primera vez crear el array
@@ -839,13 +836,7 @@ TipoDeSonido tipoPlano;
   }
 
   ! Limpiar la propagación
-  for (indLug = 1 : indLug <= indiceLugares : indLug++) {
-    i = tablaLugares-->indLug;
-    if (i has en_ruta) {
-      give i ~en_ruta;
-      i.number = 0;
-    }
-  }
+  LimpiarPropagacion();
 
   ! Ahora hacer que oigan los oyentes
   for (indOye = 1 : indOye <= indiceOyentes : indOye++) {
@@ -863,6 +854,17 @@ TipoDeSonido tipoPlano;
   }
 
   return retor;
+];
+
+[ LimpiarPropagacion
+  indLug i;
+  for (indLug = 1 : indLug <= indiceLugares : indLug++) {
+    i = tablaLugares-->indLug;
+    if (i has en_ruta) {
+      give i ~en_ruta;
+      i.number = 0;
+    }
+  }
 ];
 
 [ DireccionSonido d
@@ -957,7 +959,6 @@ Global sonidoTrasUnObstaculo;
   }
 
   if (k has door) {
-    ! print " una puerta ";
     sonidoTrasUnObstaculo = (k hasnt open);
 !    tmp = parent(k);
 !    move k to estelugar;
@@ -1009,12 +1010,12 @@ Global sonidoTrasUnObstaculo;
 ! Tocador de sonidos desde objetos 'no-hablantes':
 [ TocaDesde _modo no_decir_nada;
   contGeneral.origen = _modo.origen;           ! El que sea
-  contGeneral.modo   = _modo;             ! El que sea
+  contGeneral.modo   = _modo;                  ! El que sea
   contGeneral.texto  = _modo.frase;            ! Texto pedido
-  contGeneral.clase  = _modo;             ! Clase dada
+  contGeneral.clase  = _modo;                  ! Clase dada
   if (_modo.intensidad == 0) {                 ! Si no han dicho nada
-    contGeneral.intensidad = NIVEL_NORMAL; !   --> Intensidad media
-  } else {                                ! si sí:
+    contGeneral.intensidad = NIVEL_NORMAL;     !   --> Intensidad media
+  } else {                                     ! si sí:
     contGeneral.intensidad = _modo.intensidad; !   --> la que hayan dicho
   }
   contGeneral.sePuedeVer = TestScope(_modo.origen);

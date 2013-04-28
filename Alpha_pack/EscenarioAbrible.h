@@ -18,6 +18,7 @@ class EscenarioAbrible
     ! propiedad si_cerrado no se usa, porque cuando está cerrado es un escenario, y por
     ! tanto no se describe.
     describe [;
+      new_line;
       if (self has open) PrintOrRun(self, when_open);
       else               PrintOrRun(self, when_closed);
       rtrue;

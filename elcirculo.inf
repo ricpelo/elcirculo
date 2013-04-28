@@ -367,7 +367,7 @@ Include "Parser";
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
 !            if (obj provides ZIPI_item) { ! Si el objeto tiene menú
             ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
-            if (obj in Compass || ConexionLocalidad(obj)) {
+            if (obj in Compass || (ConexionLocalidad(obj) && obj hasnt door)) {
               glk_set_style(style_Input);
               print "ve "; PrintInputLink(obj); new_line;
               glk_set_style(style_Normal);
@@ -848,8 +848,8 @@ Object LibraryMessages
              "No ", (puedes_) " ir por ahí, porque no hay salida hacia ",
               (the) noun, ".";
           5: if (estoyEmpujando)
-               "^No ", (puedes_) " empujar nada a través ", (del) noun, ".";
-             "No ", (puedes_) " pasar a través ", (del) noun, ".";
+               "^No ", (puedes_) " empujar nada a través ", (del) lm_o, ".";
+             "No ", (puedes_) " pasar a través ", (del) lm_o, ".";
         }
         
       Take:
@@ -1281,6 +1281,14 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
+[ PonerLugarAlAlcance actual dir
+  dest;
+  dest = actual.dir;
+  if (dest ofclass Lugar) PlaceInScope(dest);
+  else if (dest has door && dest has open) PlaceInScope(dest.dir);
+];
+
+
 [ InScope actor
   l;
 
@@ -1291,18 +1299,18 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
   ! Así podemos usar "VE AL SALON" y "EXAMINA EL SALON" en lugar de
   ! "VE AL SUR" y "EXAMINA EL SUR" (ver también la clase Lugar): 
-  if (l provides n_to)   PlaceInScope(l.n_to);
-  if (l provides s_to)   PlaceInScope(l.s_to);
-  if (l provides e_to)   PlaceInScope(l.e_to);
-  if (l provides w_to)   PlaceInScope(l.w_to);
-  if (l provides ne_to)  PlaceInScope(l.ne_to);
-  if (l provides nw_to)  PlaceInScope(l.nw_to);
-  if (l provides se_to)  PlaceInScope(l.se_to);
-  if (l provides sw_to)  PlaceInScope(l.sw_to);
-  if (l provides u_to)   PlaceInScope(l.u_to);
-  if (l provides d_to)   PlaceInScope(l.d_to);
-  if (l provides in_to)  PlaceInScope(l.in_to);
-  if (l provides out_to) PlaceInScope(l.out_to);
+  if (l provides n_to)   PonerLugarAlAlcance(l, n_to);
+  if (l provides s_to)   PonerLugarAlAlcance(l, s_to);
+  if (l provides e_to)   PonerLugarAlAlcance(l, e_to);
+  if (l provides w_to)   PonerLugarAlAlcance(l, w_to);
+  if (l provides ne_to)  PonerLugarAlAlcance(l, ne_to);
+  if (l provides nw_to)  PonerLugarAlAlcance(l, nw_to);
+  if (l provides se_to)  PonerLugarAlAlcance(l, se_to);
+  if (l provides sw_to)  PonerLugarAlAlcance(l, sw_to);
+  if (l provides u_to)   PonerLugarAlAlcance(l, u_to);
+  if (l provides d_to)   PonerLugarAlAlcance(l, d_to);
+  if (l provides in_to)  PonerLugarAlAlcance(l, in_to);
+  if (l provides out_to) PonerLugarAlAlcance(l, out_to);
 
   ! Así le podemos pedir a Becca que coja el teléfono aunque el teléfono no
   ! esté presente:
@@ -3119,7 +3127,9 @@ Object Menu_Configuracion
   l = LugarReal();
   objectloop (o in Compass) {
     dest = l.(o.door_dir);
-    if (conex == dest) return o;
+    if (dest == conex) return o;
+    else if (dest has door && dest has open &&
+             dest.(o.door_dir) == conex) return dest;
   }
   rfalse;
 ];

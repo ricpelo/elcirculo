@@ -216,9 +216,11 @@ Class PnjPuerta
   
       if (TestScope(self) || TestScope(quien)) {
         if (x == DEJA_CERRADO && res == 0 or 1 or 5 or 7) {
+          new_line;
           print (The) quien, " cierra ", (the) self, ".^";
         }
         if (x == DEJA_CERRADO_CON && res == 0 or 1 or 5 or 7) {
+          new_line;
           print (The) quien, " cierra ", (the) self;
           if (self.lado_cierre == parent(quien)) {
             print ".^";
@@ -305,8 +307,8 @@ Class PnjPuerta
       ! El lado_cierre afecta tanto a los Pnjs como al jugador
     
       Examine:
-        if (self provides description) PrintOrRun(self, description);
-        else                           new_line;
+        if (self provides description) PrintOrRun(self, description, 1);
+!        else                           new_line;
   
         if (self.lado_cierre == 0 or location) {
           if (self provides with_key) {
@@ -321,8 +323,8 @@ Class PnjPuerta
         }
   
         if (self has openable) {
-          if (self has open) "Ahora está abiert", (o) self, ".^";
-          else               "Está cerrad", (o) self, ".^";
+          if (self has open) "Ahora está abiert", (o) self, ".";
+          else               "Está cerrad", (o) self, "."; ! ^";
         }
         rtrue;    
       ],

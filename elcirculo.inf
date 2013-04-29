@@ -288,6 +288,9 @@ Replace QuitSub;
 ! Cambia la función random() (ver random.h):
 Replace random;
 
+! Nuestra versión pregunta si quiere guardar la partida antes de reiniciar:
+Replace RestartSub;
+
 ! En este juego no se usa el BuscarEn (MIRA EN, BUSCA EN/DENTRO/DE/SOBRE,
 ! REGISTRA...):
 Replace SearchSub;
@@ -1385,34 +1388,84 @@ Include "Timer";            ! Mi librería de eventos temporizados
   print "¿Realmente quieres abandonar el juego? ";
   if (YesOrNo() ~= 0) {
     print (s_input) " Sí^";
-    print "¿Deseas guardar la partida antes de salir? ";
-    if (YesOrNo() ~= 0) {
-      print (s_input) "Sí^";
-      fref = glk($0062, $01, $01, 0); ! fileref_create_by_prompt
-      if (fref == 0) jump SFailed;
-      gg_savestr = glk($0042, fref, $01, GG_SAVESTR_ROCK); ! stream_open_file
-      glk($0063, fref); ! fileref_destroy
-      if (gg_savestr == 0) jump SFailed;
-      @save gg_savestr res;
-      if (res == -1) {
-          ! The player actually just typed "restore". We're going to print
-          !  L__M(##Restore,2); the Z-Code Inform library does this correctly
-          ! now. But first, we have to recover all the Glk objects; the values
-          ! in our global variables are all wrong.
-          GGRecoverObjects();
-          glk($0044, gg_savestr, 0); ! stream_close
-          gg_savestr = 0;
-          return L__M(##Restore, 2);
+    if (~~autoguardador.se_ha_guardado) {
+      print "¿Deseas guardar la partida antes de salir? ";
+      if (YesOrNo() ~= 0) {
+        print (s_input) "Sí^";
+        fref = glk($0062, $01, $01, 0); ! fileref_create_by_prompt
+        if (fref == 0) jump SFailed;
+        gg_savestr = glk($0042, fref, $01, GG_SAVESTR_ROCK); ! stream_open_file
+        glk($0063, fref); ! fileref_destroy
+        if (gg_savestr == 0) jump SFailed;
+        @save gg_savestr res;
+        if (res == -1) {
+            ! The player actually just typed "restore". We're going to print
+            !  L__M(##Restore,2); the Z-Code Inform library does this correctly
+            ! now. But first, we have to recover all the Glk objects; the values
+            ! in our global variables are all wrong.
+            GGRecoverObjects();
+            glk($0044, gg_savestr, 0); ! stream_close
+            gg_savestr = 0;
+            return L__M(##Restore, 2);
+        }
+        glk($0044, gg_savestr, 0); ! stream_close
+        gg_savestr = 0;
+        if (res == 0) jump Salir;
+      .SFailed;
+        L__M(##Save, 1); new_line;
+        jump Inicio;
       }
-      glk($0044, gg_savestr, 0); ! stream_close
-      gg_savestr = 0;
-      if (res == 0) jump Salir;
-    .SFailed;
-      L__M(##Save, 1); new_line;
-      jump Inicio;
     }
   .Salir;
     quit;
+  } else {
+    print (s_input) "No";
+  }
+  new_line;
+];
+
+
+[ RestartSub
+  fref res;
+.Inicio;
+!  L__M(##Restart,1);
+  print "¿Realmente quieres reiniciar el juego? ";
+  if (YesOrNo() ~= 0) {
+    print (s_input) " Sí^";
+    if (~~autoguardador.se_ha_guardado) {
+      print "¿Deseas guardar la partida antes de reiniciar? ";
+      if (YesOrNo() ~= 0) {
+        print (s_input) "Sí^";
+        fref = glk($0062, $01, $01, 0); ! fileref_create_by_prompt
+        if (fref == 0) jump SFailed;
+        gg_savestr = glk($0042, fref, $01, GG_SAVESTR_ROCK); ! stream_open_file
+        glk($0063, fref); ! fileref_destroy
+        if (gg_savestr == 0) jump SFailed;
+        @save gg_savestr res;
+        if (res == -1) {
+            ! The player actually just typed "restore". We're going to print
+            !  L__M(##Restore,2); the Z-Code Inform library does this correctly
+            ! now. But first, we have to recover all the Glk objects; the values
+            ! in our global variables are all wrong.
+            GGRecoverObjects();
+            glk($0044, gg_savestr, 0); ! stream_close
+            gg_savestr = 0;
+            return L__M(##Restore, 2);
+        }
+        glk($0044, gg_savestr, 0); ! stream_close
+        gg_savestr = 0;
+        if (res == 0) jump Salir;
+      .SFailed;
+        L__M(##Save, 1); new_line;
+        jump Inicio;
+      }
+    }
+  .Salir;
+    @restart;
+!    L__M(##Restart, 2);
+    print "Error: no se ha podido reiniciar el juego";
+  } else {
+    print (s_input) "No";
   }
   new_line;
 ];
@@ -1698,12 +1751,15 @@ Object autoguardador
       self.activado = false;
     ],
     activado true,
+    se_ha_guardado false,
     each_turn [;
       if (self.found_in()) {
         if (~~(AutoSave())) {
           print "^No se ha podido guardar la partida automáticamente. Se
                  deshabilitará el guardado automático.^";
           self.desactivar();
+        } else {
+          self.se_ha_guardado = true;
         }
       }
     ],

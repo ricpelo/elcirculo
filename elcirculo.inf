@@ -3286,21 +3286,37 @@ Object Menu_Configuracion
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
+    ZIPI_Configuracion.guardar_valores();
   } else if (alto <= 768) {
     anchoVentanaGrafica = GRAFICOS_MEDIANOS;
     altoLogoMenu = 300;
     glk_decr_fontsize();
     glk_decr_fontsize();
     glk_decr_fontsize();
+    ZIPI_Configuracion.guardar_valores();
   } else if (alto <= 800) {
     anchoVentanaGrafica = GRAFICOS_MEDIANOS;
     altoLogoMenu = 350;
     glk_decr_fontsize();
     glk_decr_fontsize();
+    ZIPI_Configuracion.guardar_valores();
 !  } else if (alto <= 1080) {
 !    anchoVentanaGrafica = GRAFICOS_MEDIANOS;
   } else {
     anchoVentanaGrafica = GRAFICOS_GRANDES;
+  }
+
+  if (ancho <= 1280) {
+    ! No cambia nada
+  } else if (ancho <= 1600) {
+    glk_set_config(config_Cols, 135);
+    glk_incr_fontsize();
+    ZIPI_Configuracion.guardar_valores();
+  } else if (ancho <= 1920) {
+    glk_set_config(config_Cols, 135);
+    glk_incr_fontsize();
+    glk_incr_fontsize();
+    ZIPI_Configuracion.guardar_valores();
   }
 
   initializeSGW(altoLogoMenu);

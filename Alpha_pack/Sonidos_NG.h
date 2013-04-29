@@ -876,7 +876,7 @@ TipoDeSonido tipoPlano;
   } else {
     dest = d;
   }
-  DelNombreDireccion(dest);
+  DelMostrarNombre(dest);
 !  if (dest provides del_nombre_direccion) dest.del_nombre_direccion();
 !  else                                    print (del) dest;
 ];

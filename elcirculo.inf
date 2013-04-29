@@ -372,11 +372,11 @@ Include "Parser";
             ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
             if (obj in Compass || (ConexionLocalidad(obj) && obj hasnt door)) {
               glk_set_style(style_Input);
-              print "ve "; PrintInputLink(obj, 0, true); new_line;
+              print "ve "; MostrarNombre(obj, 0, true); new_line;
               glk_set_style(style_Normal);
               long = PrintAnyToArray(buffer + WORDSIZE,
                                      INPUT_BUFFER_LEN - WORDSIZE,
-                                     PrintInputLink, obj, 0, true);
+                                     MostrarNombre, obj, 0, true);
               buffer-->0 = long;
               return 2;
             } else if (obj == location) { ! Si es el nombre de la localidad
@@ -416,7 +416,7 @@ Include "Parser";
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
                   glk_set_style(style_Input);
                   print (address) r.ZIPI_ejecutar(), " ";
-                  PrintInputLink(obj, 0, true);
+                  MostrarNombre(obj, 0, true);
                   new_line;
                   glk_set_style(style_Normal);
                 }
@@ -428,8 +428,8 @@ Include "Parser";
                                               " ");              ! Un espacio
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
-                                              PrintInputLink, obj,
-                                              0, true);! El objeto
+                                              MostrarNombre, obj,
+                                              0, true);          ! El objeto
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
                                               " ");              ! Un espacio
@@ -464,7 +464,7 @@ Include "Parser";
         long = gg_event-->2;
         long = PrintAnyToArray(buffer + WORDSIZE + long,
                                INPUT_BUFFER_LEN - WORDSIZE,
-                               PrintInputLink, obj, 0, true);
+                               MostrarNombre, obj, 0, true);
         buffer-->0 = long + gg_event-->2;
         ! Si ya había algo escrito, se entiende que el jugador quiere completar
         ! la entrada que estaba escribiendo, por lo que retornamos 1. Si no
@@ -814,7 +814,7 @@ Object LibraryMessages
     mostrar_nombre [ l;
       l = LugarReal().(lm_o.door_dir);
       if (l == nothing) print (the) lm_o;
-      else              MostrarNombre(l);
+      else              MostrarNombreLink(l);
     ],
     before [;
       Look:
@@ -858,7 +858,7 @@ Object LibraryMessages
              } else {
                print "No ", (puedes_) " pasar a través ";
              }
-             DelNombreDireccion(lm_o);
+             DelMostrarNombre(lm_o);
              ".";
         }
         
@@ -887,7 +887,7 @@ Object LibraryMessages
 
       GetOff:
         print "Pero si no est", (oy_) " en ";
-        if (lm_o ofclass Lugar) MostrarNombre(lm_o);
+        if (lm_o ofclass Lugar) MostrarNombreLink(lm_o);
         else                    print (the) lm_o;
         "...";
 
@@ -1330,13 +1330,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
     puerta = dest;
     dest = dest.d;
 !    glk_set_hyperlink(dest);
-    MostrarNombre(dest);
+    MostrarNombreLink(dest);
 !    glk_set_hyperlink(0);
     print ", por ";
-    MostrarNombre(puerta);
+    MostrarNombreLink(puerta);
   } else {
 !    glk_set_hyperlink(dest);
-    MostrarNombre(dest);
+    MostrarNombreLink(dest);
 !    glk_set_hyperlink(0);
   }
   if (par) print ")";
@@ -1617,7 +1617,7 @@ Class Personaje
       }
       if (dir ~= NULL) {
         print " desde ";
-        MostrarNombre(LugarReal().(dir.door_dir));
+        MostrarNombreLink(LugarReal().(dir.door_dir));
         print ".^";
       }
     ],
@@ -1734,10 +1734,10 @@ Class Personaje
 Object
   class Lugar
   with
-    nombre_si_visitado   NULL,
-    nombre_no_visitado   NULL,
-    nombre_direccion     NULL,
-    del_nombre_direccion NULL;
+    nombre_si_visitado NULL,
+    nombre_no_visitado NULL,
+    nombre_direccion   NULL,
+    del_mostrar_nombre NULL;
 
 
 Object autoguardador
@@ -2585,7 +2585,7 @@ Object MenuAcciones
           glk_set_style(style_Normal);
         } else {
           glk_set_style(style_Input);
-          print " "; PrintInputLink(_m, 0, true); print ":^";
+          print " "; MostrarNombre(_m, 0, true); print ":^";
           glk_set_style(style_Normal);
         }
 
@@ -3168,16 +3168,16 @@ Object Menu_Configuracion
 ];
 
 
-! Muestra el nombre de la localidad con un 'de'/'del' delante:
-[ DelNombreDireccion o flag;
-  if (o provides del_nombre_direccion) {
-    if (o.del_nombre_direccion ofclass Routine) {
-      ! La rutina del_nombre_direccion() deberá encargarse de activar el
+! Muestra el nombre de un objeto o localidad con un 'de'/'del' delante:
+[ DelMostrarNombre o flag;
+  if (o provides del_mostrar_nombre) {
+    if (o.del_mostrar_nombre ofclass Routine) {
+      ! La rutina del_mostrar_nombre() deberá encargarse de activar el
       ! hipervínculo con glk_set_hyperlink(self) o algo similar:
-      o.del_nombre_direccion();
+      o.del_mostrar_nombre();
     } else {
       glk_set_hyperlink(o);
-      print (string) o.del_nombre_direccion;
+      print (string) o.del_mostrar_nombre;
       glk_set_hyperlink(0);
     }
   } else {
@@ -3186,20 +3186,20 @@ Object Menu_Configuracion
     if (o has proper) {
       print "e ";
       glk_set_hyperlink(o);
-      MostrarNombre(o);
+      MostrarNombreLink(o);
       glk_set_hyperlink(0);
     } else {
-      PrintAnyToArray(texto_impreso, 50, PrintInputLink, o, 1);
+      PrintAnyToArray(texto_impreso, 50, MostrarNombre, o, 1);
       ! Si NO ES articulo "el", agregar 'e' y un espacio:
       if (texto_impreso->0 ~= 'e') {
         print "e ";
         glk_set_hyperlink(o);
-        PrintInputLink(o, 1);
+        MostrarNombre(o, 1);
         glk_set_hyperlink(0);
       } else {
         ImprimirArticulo(o, 1);
         glk_set_hyperlink(o);
-        PrintInputLink(o, 2);
+        MostrarNombre(o, 2);
         glk_set_hyperlink(0);
       }
     }
@@ -3239,7 +3239,7 @@ Object Menu_Configuracion
     
   if (par) print " (";
   if (~~(i == in_obj or out_obj)) print "hacia ";
-  MostrarNombre(l.(i.door_dir));
+  MostrarNombreLink(l.(i.door_dir));
   if (par) print ")";
 ];
 
@@ -3466,63 +3466,14 @@ Object Menu_Configuracion
 ];
 
 
-![ InputLink obj art;
-!  if (obj ofclass String) {
-!   return obj;
-! } else if (obj ofclass Routine) {
-!   return obj();
-!  } else if (obj ofclass Lugar) {
-!    if (obj has visited && obj provides nombre_si_visitado) {
-!      if (obj.nombre_si_visitado ofclass Routine) {
-!        return obj.nombre_si_visitado();
-!      } else {
-!        return obj.nombre_si_visitado;
-!      }
-!    } else if (obj hasnt visited && obj provides nombre_no_visitado) {
-!      if (obj.nombre_no_visitado ofclass Routine) {
-!        return obj.nombre_no_visitado();
-!      } else {
-!        return obj.nombre_no_visitado;
-!      }
-!    } else if (obj provides nombre_direccion) {
-!      if (obj.nombre_direccion ofclass Routine) {
-!        return obj.nombre_direccion();
-!      } else {
-!        return obj.nombre_direccion;
-!      }
-!    }
-!  } else if (art == 1) {
-!    print (the) obj;
-!  } else if (art == 2) {
-!    PrintInputLink(obj, art);
-!  } else if (obj provides name) {
-!    return obj.&name-->0;
-!  } else if (obj provides name_m) {
-!    return obj.&name_m-->0;
-!  } else if (obj provides name_f) {
-!    return obj.&name_f-->0;
-!  } else if (obj provides name_mp) {
-!    return obj.&name_mp-->0;
-!  } else if (obj provides name_fp) {
-!    return obj.&name_fp-->0;
-!  } else {
-!    return obj.short_name;
-!  }
-!];
-
-
 [ link obj msg;
   if (~~(obj ofclass Object && ~~TestScope(obj))) glk_set_hyperlink(obj);
   if (msg ~= 0) {
     print (string) msg;
     glk_set_hyperlink(0);
     return "";
-!  } else if (~~(obj ofclass Object)) {
-!    print (string) obj;
-!  } else if (obj provides nombre_link) {
-!    print (string) obj.nombre_link;
   } else {
-    PrintInputLink(obj);
+    MostrarNombre(obj);
   }
   glk_set_hyperlink(0);
 ];
@@ -3568,19 +3519,11 @@ Object Menu_Configuracion
 ];
 
 
-! Muestra el nombre de la localidad, dependiendo de si ha sido visitado o
-! no, y de si proporciona la propiedad nombre_direccion:
-[ MostrarNombre o;
+! Muestra el nombre del objeto o localidad, con un hipervínculo asociado,
+! con artículo y teniendo preferencia nombre_link sobre input_link:
+[ MostrarNombreLink o;
   glk_set_hyperlink(o);
-  PrintInputLink(o, 1);
-!  if (o has visited && o provides nombre_si_visitado)
-!    PrintOrRun(o, nombre_si_visitado, 1);
-!  else if (o hasnt visited && o provides nombre_no_visitado)
-!    PrintOrRun(o, nombre_no_visitado, 1);
-!  else if (o provides nombre_direccion)
-!    PrintOrRun(o, nombre_direccion, 1);
-!  else
-!    print (the) o;
+  MostrarNombre(o, 1);
   glk_set_hyperlink(0);
 ];
 
@@ -3592,14 +3535,14 @@ Object Menu_Configuracion
 ];
 
 
-! Imprime el nombre de un objeto:
-! - obj: el objeto en sí
+! Imprime el nombre de un objeto o localidad:
+! - obj: el objeto o localidad en sí
 ! - art: 0 = lo imprime sin artículo; usa las propiedades name si hace falta
 !        1 = lo imprime con artículo
 !        2 = lo imprime sin artículo; NO usa las propiedades name
 ! - input: 0 = nombre_link tiene preferencia sobre input_link
 !          1 = input_link tiene preferencia sobre nombre_link
-[ PrintInputLink obj art input
+[ MostrarNombre obj art input
   il;
   if (obj ofclass String) {
     print (string) obj;

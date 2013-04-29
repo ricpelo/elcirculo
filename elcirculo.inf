@@ -3129,17 +3129,11 @@ Object Menu_Configuracion
     } else {
       PrintAnyToArray(texto_impreso, 50, ArticuloPrevio, o);
       ! Si NO ES articulo "el", agregar 'e' y un espacio:
-      if (texto_impreso->0 ~= 'e') {
-        print "e ";
-        glk_set_hyperlink(o);
-        MostrarNombre(o);
-        glk_set_hyperlink(0);
-      } else {
-        ArticuloPrevio(o);
-        glk_set_hyperlink(o);
-        MostrarNombre(o, 2);
-        glk_set_hyperlink(0);
-      }
+      if (texto_impreso->0 ~= 'e') print "e ";
+      ArticuloPrevio(o);
+      glk_set_hyperlink(o);
+      MostrarNombre(o, 2);
+      glk_set_hyperlink(0);
     }
   }
 ];
@@ -3390,9 +3384,12 @@ Object Menu_Configuracion
 
 ! Muestra el nombre del objeto o localidad, con un hipervínculo asociado,
 ! con artículo y teniendo preferencia nombre_link sobre input_link:
-[ MostrarNombreLink o;
-  glk_set_hyperlink(o);
-  MostrarNombre(o);
+! - cap: 0 = artículo en minúscula
+!        1 = artículo en mayúscula
+[ MostrarNombreLink obj cap;
+  ArticuloPrevio(obj, 0, cap);
+  glk_set_hyperlink(obj);
+  MostrarNombre(obj, 2);
   glk_set_hyperlink(0);
 ];
 
@@ -3420,9 +3417,11 @@ Object Menu_Configuracion
     print (string) obj;
   } else if (obj ofclass Routine) {
     print (string) obj();
-  } else if (obj ofclass Lugar && obj has visited && obj provides nombre_si_visitado) {
+  } else if (obj ofclass Lugar && obj has visited &&
+             obj provides nombre_si_visitado) {
     ArticuloPrevio(obj, art, cap); PrintOrRun(obj, nombre_si_visitado, 1);
-  } else if (obj ofclass Lugar &&  obj hasnt visited && obj provides nombre_no_visitado) {
+  } else if (obj ofclass Lugar &&  obj hasnt visited &&
+             obj provides nombre_no_visitado) {
     ArticuloPrevio(obj, art, cap); PrintOrRun(obj, nombre_no_visitado, 1);
   } else if (obj ofclass Lugar && obj provides nombre_direccion) {
     ArticuloPrevio(obj, art, cap); PrintOrRun(obj, nombre_direccion, 1);

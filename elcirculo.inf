@@ -1223,7 +1223,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
-[ DrawStatusLine;
+[ DrawStatusLine
+  pos;
   if (~~dibujarEstado || gg_statuswin == 0) rfalse;
   glk_set_window(gg_statuswin);
   StatusLineHeight(1);
@@ -1237,6 +1238,16 @@ Include "Timer";            ! Mi librería de eventos temporizados
   glk_set_hyperlink(location);
   print (name) location;
   glk_set_hyperlink(0);
+  if (turns < 10)         pos = 1;
+  else if (turns < 100)   pos = 2;
+  else if (turns < 1000)  pos = 3;
+  else if (turns < 10000) pos = 4;
+  else                    pos = 5;
+  glk_window_get_size(gg_statuswin, gg_arguments,
+                      gg_arguments + WORDSIZE);
+  pos = gg_arguments-->0 - pos - 10;
+  glk_window_move_cursor(gg_statuswin, pos, 0);
+  print "| Turnos: ", turns;
   glk_set_window(gg_mainwin);
 ];
 

@@ -45,12 +45,16 @@ Release 1;
 
 ! Queremos usar el comando 'Salidas'
 Constant ADMITIR_COMANDO_SALIDAS;
+
 ! No queremos usar los comandos 'Lugares' y 'Objetos'
 Constant NO_PLACES;
+
 ! No queremos usar puntuación
 Constant NO_SCORE;
+
 ! Queremos que se muestren las deducciones del parser
 !Constant IMPRIMIR_DEDUCCIONES;
+
 ! Hay curiosidades al final del juego
 !Constant AMUSING_PROVIDED;
 
@@ -359,7 +363,6 @@ Include "Parser";
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
-!            if (obj provides ZIPI_item) { ! Si el objeto tiene menú
             ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
             if (obj in Compass || (ConexionLocalidad(obj) && obj hasnt door)) {
               glk_set_style(style_Input);
@@ -487,7 +490,7 @@ Include "Parser";
           return 2;  ! Retornamos 2 para que simule la pulsación de Intro
         }
       } ! if (ev-->1 == gg_mainwin or gg_statuswin)
-  }
+  } ! switch (ev-->0)
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
   Mapa_HandleGlkEvent(ev, context, buffer);
@@ -975,8 +978,6 @@ Class Lugar
         ! Si se está mostrando la imagen de un personaje, quitarla antes:
         timer_imagen_personaje.ocultar_imagen();
         SGW_MarcoDeTrabajo(1);
-        ! Actualizar el volumen de los sonidos:
-!        objectloop (o in self) if (o ofclass Sonido) o.cambiar_volumen();
     ],
   has
     scenery light;
@@ -1041,7 +1042,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   clearTextWindow();
   closeAllWindows();
   glk_window_close(gg_statuswin, 0);
-!  MenuAcciones.AbrirVentana();
   gg_statuswin = glk_window_open(gg_mainwin,
                                  winmethod_Above + winmethod_Fixed +
                                  winmethod_NoBorder,
@@ -1052,7 +1052,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
   glk_request_hyperlink_event(gg_mainwin);
   glk_request_hyperlink_event(gg_statuswin);
-!  glk_request_hyperlink_event(gg_menuwin);
 ];
 
 
@@ -1109,8 +1108,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
   Damusix.VolumenCanal(CANAL_FONDO, VOLUMEN_FONDO);
   sonido_telefono_katie.sonar();
   KeyDelay();
-!  MenuAcciones.AbrirVentana();
-!  openGraphicWindow(anchoVentanaGrafica);
 ];
 
 
@@ -1220,7 +1217,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ DrawStatusLine
   pos;
-!  if (~~dibujarEstado || gg_statuswin == 0) rfalse;
   if (gg_statuswin == 0) rfalse;
   glk_set_window(gg_statuswin);
   StatusLineHeight(1);
@@ -1316,15 +1312,11 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (dest has door && dest has open) {
     puerta = dest;
     dest = dest.d;
-!    glk_set_hyperlink(dest);
     MostrarNombreLink(dest);
-!    glk_set_hyperlink(0);
     print ", por ";
     MostrarNombreLink(puerta);
   } else {
-!    glk_set_hyperlink(dest);
     MostrarNombreLink(dest);
-!    glk_set_hyperlink(0);
   }
   if (par) print ")";
 ];
@@ -1352,14 +1344,13 @@ Include "Timer";            ! Mi librería de eventos temporizados
     if (word == 0) { ! no comprendida
       for (i = at: i < at + len: i++)
         switch (buf->i) {
-          'á': buf->i = 'a';
-          'é': buf->i = 'e';
-          'ë': buf->i = 'e';
-          'í': buf->i = 'i';
-          'ó': buf->i = 'o';
-          'ú': buf->i = 'u';
-          'ü': buf->i = 'u';
+          'á', 'à', 'ä', 'â': buf->i = 'a';
+          'é', 'è', 'ë', 'ê': buf->i = 'e';
+          'í', 'ì', 'ï', 'î': buf->i = 'i';
+          'ó', 'ò', 'ö', 'ô': buf->i = 'o';
+          'ú', 'ù', 'ü', 'û': buf->i = 'u';
           'ñ': buf->i = 'n';
+          'ç': buf->i = 'c';
           '?': buf->i = ' ';
           '¿': buf->i = ' ';
           '!': buf->i = ' ';
@@ -1374,7 +1365,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 [ QuitSub
   res fref;
 .Inicio;
-!  L__M(##Quit, 2);
   print "¿Realmente quieres abandonar el juego? ";
   if (YesOrNo() ~= 0) {
     print (s_input) " Sí^";
@@ -1389,14 +1379,14 @@ Include "Timer";            ! Mi librería de eventos temporizados
         if (gg_savestr == 0) jump SFailed;
         @save gg_savestr res;
         if (res == -1) {
-            ! The player actually just typed "restore". We're going to print
-            !  L__M(##Restore,2); the Z-Code Inform library does this correctly
-            ! now. But first, we have to recover all the Glk objects; the values
-            ! in our global variables are all wrong.
-            GGRecoverObjects();
-            glk($0044, gg_savestr, 0); ! stream_close
-            gg_savestr = 0;
-            return L__M(##Restore, 2);
+          ! The player actually just typed "restore". We're going to print
+          !  L__M(##Restore,2); the Z-Code Inform library does this correctly
+          ! now. But first, we have to recover all the Glk objects; the values
+          ! in our global variables are all wrong.
+          GGRecoverObjects();
+          glk($0044, gg_savestr, 0); ! stream_close
+          gg_savestr = 0;
+          return L__M(##Restore, 2);
         }
         glk($0044, gg_savestr, 0); ! stream_close
         gg_savestr = 0;
@@ -1418,7 +1408,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 [ RestartSub
   fref res;
 .Inicio;
-!  L__M(##Restart,1);
   print "¿Realmente quieres reiniciar el juego? ";
   if (YesOrNo() ~= 0) {
     print (s_input) " Sí^";
@@ -1433,14 +1422,14 @@ Include "Timer";            ! Mi librería de eventos temporizados
         if (gg_savestr == 0) jump SFailed;
         @save gg_savestr res;
         if (res == -1) {
-            ! The player actually just typed "restore". We're going to print
-            !  L__M(##Restore,2); the Z-Code Inform library does this correctly
-            ! now. But first, we have to recover all the Glk objects; the values
-            ! in our global variables are all wrong.
-            GGRecoverObjects();
-            glk($0044, gg_savestr, 0); ! stream_close
-            gg_savestr = 0;
-            return L__M(##Restore, 2);
+          ! The player actually just typed "restore". We're going to print
+          !  L__M(##Restore,2); the Z-Code Inform library does this correctly
+          ! now. But first, we have to recover all the Glk objects; the values
+          ! in our global variables are all wrong.
+          GGRecoverObjects();
+          glk($0044, gg_savestr, 0); ! stream_close
+          gg_savestr = 0;
+          return L__M(##Restore, 2);
         }
         glk($0044, gg_savestr, 0); ! stream_close
         gg_savestr = 0;
@@ -1452,7 +1441,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
     }
   .Salir;
     @restart;
-!    L__M(##Restart, 2);
     print "Error: no se ha podido reiniciar el juego";
   } else {
     print (s_input) "No";
@@ -1464,7 +1452,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ! Modificado para que no ponga un borde debajo de la línea de estado:
 [ StatusLineHeight hgt parwin;
   if (gg_statuswin == 0) return;
-!  if (hgt == gg_statuswin_cursize) return;
   parwin = glk($0029, gg_statuswin); ! window_get_parent
   glk($0026, parwin, $112, hgt, 0); ! window_set_arrangement
   gg_statuswin_cursize = hgt;
@@ -1494,7 +1481,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 Include "SpanishG";
 
 Include "random";          ! Cambia la función random()
-!Include "Decir";           ! Para poder usar DECIR ... A ...
 Include "Mapeador";
 Include "TestMachine_NG";  ! El comprobador automático (c) Alien soft
 Include "Sonidos_NG";
@@ -1647,65 +1633,6 @@ Class Personaje
     animate proper;
 
     
-!Class Sonido
-!  with
-!    emision 0,     ! El sonido a emitir
-!    fuente 0,      ! El objeto del que parte el sonido
-!    propagacion 3, ! El nº de localidades desde el que se puede oir el sonido
-!    volumen_principal 100, ! Volumen del sonido cuando el objeto está ahí
-!    volumen [
-!      d r;
-!      if (self.fuente == 0) return 0;
-!      if (ScopeCeiling(self.fuente) == LugarReal()) {
-!        return self.volumen_principal;
-!      }
-!      move testigo to ScopeCeiling(player);
-!      PNJ_Ruta(testigo, MOVIMIENTO_PERSEGUIR, self.fuente);
-!      d = testigo.longitud_precamino;
-!      PNJ_Ruta(testigo, MOVIMIENTO_NINGUNO);
-!      remove testigo;
-!      r = self.volumen_principal -
-!          (self.volumen_principal / self.propagacion * d);
-!      if (r < 0) r = 0;
-!      return r;
-!    ],
-!    cambiar_volumen [;
-!      Damusix.VolumenCanal(self.canal, self.volumen());
-!    ],
-!    sonando [;
-!      return Damusix.SonandoDeFondoCanal(self.canal);
-!    ],
-!    tocar_sonido [ snd;
-!      if (snd ~= 0) self.emision = snd;
-!      #ifdef DEBUG;
-!      if (self.emision == 0) {
-!        "*** ERROR: Se intenta tocar un sonido sin definirlo antes ***"; 
-!      }
-!      #endif;
-!      if (self.emision ~= 0) {
-!        Damusix.AsignarCanal(self.emision, self.canal, self.volumen(),
-!                             SONIDO_REPETIR);
-!        Damusix.TocarCanal(self.canal);
-!      }
-!    ],
-!    parar_sonido [;
-!      Damusix.PararCanal(self.canal);
-!    ],
-!    sonar [ snd;
-!      self.tocar_sonido(snd);
-!    ],
-!    parar [;
-!      self.parar_sonido();
-!    ],    
-!    quitar [;
-!      self.parar();
-!      remove self;
-!      give self absent;
-!    ],
-!  has
-!    concealed;
-
-
 !===============================================================================
 ! (8) Objetos del Juego
 !-------------------------------------------------------------------------------
@@ -1884,14 +1811,14 @@ Object timer_imagen_personaje
     print " ";
 
     switch (key) {
-      'k', 'p', '-', '_', 129, -4:
+      'k', 'K', 'p', 'P', '-', '_', 129, -4:
         do {
           cur--;
           if (cur == count - 2) cur--;
           if (cur < 0) cur = count - 1;
         } until ((_m.&ZIPI_item-->cur) ~= ZIPI_Separador);
 
-        'j', 'n', '=', '+', 130, -5:
+      'j', 'J', 'n', 'N', '=', '+', 130, -5:
         do {
           cur++;
           if (cur == count - 2) cur++;
@@ -1901,7 +1828,7 @@ Object timer_imagen_personaje
       'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
         rfalse;
  
-      132, 13, 'n', ' ', -3, -6:
+      132, 13, ' ', -3, -6:
     .Aceptar;
         if (cur == count - 1) rfalse;
         if (cur == count - 2) break;
@@ -1998,6 +1925,7 @@ Object timer_imagen_personaje
         evtype_MouseInput:
           key = 0; ! Devuelve la tecla 0, para no interferir
           done = true;
+
         evtype_Arrange, evtype_Redraw:
           DrawStatusLine();     ! Redibujamos la línea de estado
           if (win) glk_set_window(win);  ! Volvemos a la ventana anterior
@@ -2214,7 +2142,6 @@ Object ZIPI_Jugar_Con_Intro
       else             ApagarGraficos();
       Introduccion();
       IniciarAventura();
-!      dibujarEstado = true;
       return 2;
     ];
 
@@ -2233,7 +2160,6 @@ Object ZIPI_Jugar_Sin_Intro
       if (hayGraficos) EncenderGraficos();
       else             ApagarGraficos();
       IniciarAventura(true);
-!      dibujarEstado = true;
       return 2;
     ];
 
@@ -2421,7 +2347,6 @@ Object ZIPI_Tiempo_Real
     ],
     ZIPI_cambiar [;
       hayTiempoReal = ~~hayTiempoReal;
-!      self.ZIPI_restaurar();
     ];
 
 
@@ -2485,25 +2410,6 @@ Object MenuAcciones
       ControlTimer.ReanudarTick();
       return r;
     ],
-!    MostrarImportantes [ menu
-!      i o;
-!      glk_set_window(gg_menuwin);
-!      glk_window_clear(gg_menuwin);
-!      glk_request_hyperlink_event(gg_menuwin);
-!      new_line;
-!      if (menu == 0) menu = Menu_Importantes;
-!      for (i = 0 : i < menu.#ZIPI_item / WORDSIZE : i++) {
-!        o = menu.&ZIPI_item-->i;
-!        if (o ~= ZIPI_Separador) {
-!          print " - ";
-!          glk_set_hyperlink(o);
-!          print (string) o.ZIPI_titulo;
-!          glk_set_hyperlink(0);
-!        }
-!        new_line;
-!      }
-!      glk_set_window(gg_mainwin);
-!    ],
     menu_no_cabe false,
     AbrirVentana [;
       glk_set_reflow(0);
@@ -2560,7 +2466,7 @@ Object MenuAcciones
 
       for (i = count = 0 : i < size : i++) {
         opc = menu-->i;
-        if (opc == 0) continue; ! or ZIPI_Separador) continue;
+        if (opc == 0) continue;
         if (opc provides ZIPI_condicion && (~~(opc.ZIPI_condicion(_m)))) {
           continue;
         }
@@ -2679,7 +2585,7 @@ Object MenuAcciones
         print " ";
 
         switch (key) {
-          'k', 'p', '-', '_', 129, -4:
+          'k', 'K', 'p', 'P', '-', '_', 129, -4:
             do {
               oldcur = cur;
               cur--;
@@ -2687,7 +2593,7 @@ Object MenuAcciones
               if (j <= 4) delta = delta - (oldcur - cur);
             } until (opcionesMenu-->cur ~= ZIPI_Separador);
 
-          'j', 'n', '=', '+', 130, -5:
+          'j', 'J', 'n', 'N', '=', '+', 130, -5:
             do {
               oldcur = cur;
               cur++;
@@ -2698,7 +2604,7 @@ Object MenuAcciones
           'q', 'Q', 27, 131, 10, 8, -2, keycode_Escape:
             if (~~top) rfalse;
 
-          132, 13, 'n', ' ', -3, -6:
+          132, 13, ' ', -3, -6:
         .Aceptar;
             dest = opcionesMenu-->cur;
             if (dest ofclass ZIPI_Menu) {
@@ -3151,7 +3057,6 @@ Object Menu_Configuracion
                                  winmethod_NoBorder,
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
   glk_request_hyperlink_event(gg_statuswin);
-!  MenuAcciones.AbrirVentana();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
   ControlTimer.ReanudarTick();
@@ -3334,7 +3239,6 @@ Object Menu_Configuracion
     if (capitalise) print (Cap) artval;
     else            print (string) artval;
     if (pluralise) return;
-!    print (PSN__) o; return;
   }
 
   i = GetGNAOfObject(o);
@@ -3381,24 +3285,6 @@ Object Menu_Configuracion
             estándar.^";
     KeyDelay();
     quit;
-  }
-
-  if (~~testGraphics()) {
-    print "^Lo sentimos, pero este juego necesita un intérprete Glulx
-            con capacidades gráficas.^^";
-    RecomiendaGargoyle();
-  }
-
-  if (Damusix.TestAudio() == 0) {
-    print "^Lo sentimos, pero este juego necesita un intérprete Glulx
-            que pueda reproducir sonido.^^";
-    RecomiendaGargoyle();
-  }
-
-  if (glk_gestalt(gestalt_Timer,0) == 0) {
-    print "^Lo sentimos, pero este juego necesita un intérprete Glulx
-            que tenga soporte para eventos temporizados.^^";
-    RecomiendaGargoyle();
   }
 
   ! Inicialización sonora
@@ -3508,11 +3394,6 @@ Object Menu_Configuracion
 
 
 [ MostrarImagenAuxiliar img;
-!  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0); 
-!  gg_objwin = glk_window_open(gg_bigwin,
-!                              (winmethod_Above + winmethod_Proportional),
-!                              100, wintype_Graphics, GG_OBJWIN_ROCK);
-!  drawImageSGW(gg_objwin, img, curr_pic_pos, BORDEWIN, BORDEWIN);
   viewImageSlide(img);
 ];
 
@@ -3602,16 +3483,6 @@ Object Menu_Configuracion
 ];
 
 
-[ RecomiendaGargoyle;
-  print "~El círculo~ ha sido diseñada
-         para funcionar con el intérprete Gargoyle, que puedes
-         descargar de la siguiente dirección:^^",
-         (s_pref) "http://code.google.com/p/garglk/downloads^";
-  KeyDelay();
-  quit;
-];
-
-
 [ RefrescarVentanasTexto;
   glk_window_get_arrangement(glk_window_get_parent(gg_statuswin),
                              gg_arguments, gg_arguments + WORDSIZE,
@@ -3630,16 +3501,6 @@ Object Menu_Configuracion
 Verb meta 'ayuda'
   *                 -> Ayuda;
 
-Extend 'cambia' first
-  * 'canal'/'emisora'                -> CambiarCanal
-  * 'el' 'canal'                     -> CambiarCanal
-  * 'la' 'emisora'                   -> CambiarCanal
-  * 'de' 'canal'/'emisora'           -> CambiarCanal
-  * 'canal'/'emisora' 'en' noun      -> CambiarCanal
-  * 'el' 'canal'   'en' noun         -> CambiarCanal
-  * 'la' 'emisora'  'en' noun        -> CambiarCanal
-  * 'de' 'canal'/'emisora' 'en' noun -> CambiarCanal;
-
 Verb 'chilla' = 'grita';
 
 Verb meta 'configuracion'
@@ -3648,28 +3509,10 @@ Verb meta 'configuracion'
 Verb meta 'creditos'
   *                 -> Creditos;
 
-Verb 'cuelga'
-  * noun            -> Colgar;
-
-VerboIrregular "colgar" with imperativo 'cuelga';
-
 Verb 'cuentale' = 'cuenta';
-
-Verb 'descuelga'
-  * noun            -> Descolgar;
-
-VerboIrregular "descolgar" with imperativo 'descuelga';
-
-Verb 'desenchufa'
-  * noun            -> Desenchufar;
-
-VerboIrregular "desenchufar" with imperativo 'desenchufa';
 
 Extend 'di' first
   * 'a' creature             -> Answer;
-
-Extend only 'enchufa' replace
-  * noun            -> Enchufar;
 
 Verb meta 'graficos'
   *                           -> Graficos
@@ -3805,19 +3648,6 @@ Verb meta 'tt'
 ];
 
 
-[ CambiarCanalSub
-  tv;
-  if (noun ~= nothing)                     tv = noun;
-  else if (tv_cuarto_katie in LugarReal()) tv = tv_cuarto_katie;
-  else if (tv_salon_katie in LugarReal())  tv = tv_salon_katie;
-  else "No veo ningún televisor aquí.";
-  
-  if (tv hasnt on) "El televisor está apagado.";
-  
-  "Cambias repetidamente de canal, pero sólo encuentras estática y ruido."; 
-];
-
-
 [ ColgarSub;
   "No tiene sentido colgar eso.";
 ];
@@ -3844,7 +3674,6 @@ Verb meta 'tt'
     }
   }
   StatusLineHeight(1);
-!  MenuAcciones.MostrarImportantes();
   if (rflw) AntesReflow();
   if (hayGraficos) EncenderGraficos();
   else             ApagarGraficos();
@@ -3886,13 +3715,11 @@ Verb meta 'tt'
   print "- Damusix, de Eliuk Blau^";
   print "- PNJactor_NG y PNJacciones_NG (adaptaciones de los originales de Zak
            y Carlos)^";
-!  print "- Rastros_NG (adaptación de Rastros, de Mel Hython)^";
   print "- Moviles_NG (adaptación de Moviles, de Mel Hython)^";
   print "- PNJpuertas_NG (Adaptación de PnjPuertas, de Jaevius)^";
   print "- Decir, de Zak^";
   print "- Etemas, de Zak^";
   print "- Decorado_NG (adaptación de Decorado, de Zak y Mel Hython)^";
-!  print "- Teletipo (adaptación de Escr, de Baltasarq)^";
   print "- Adaptación de Barra, de Presi^";
   print "- Adaptación de ZIPI, de Zak^";
   print "- Timer, de Sothoth";
@@ -3918,27 +3745,6 @@ Verb meta 'tt'
 ];
 
 
-[ DescolgarSub;
-  "No tiene sentido descolgar eso.";
-];
-
-
-[ DesenchufarSub;
-  if (~~(noun provides enchufado)) {
-    print_ret (The) noun, " no puede desenchufarse.";
-  }
-  if (~~(noun.enchufado)) {
-    print_ret (The) noun, " ya está desenchufado.";
-  }
-  noun.enchufado = false;
-  print "Desenchufas ", (the) noun, ".";
-  if (noun has on) {
-    give noun ~on;
-    " Al hacerlo, se apaga.";
-  }
-];
-
-
 [ EncenderGraficosSub;
   AntesReflow();
   EncenderGraficos(true);
@@ -3960,18 +3766,6 @@ Verb meta 'tt'
   haySonido = true;
   Damusix.ActivarAudio();
   print (s_emph) "[Activados todos los efectos sonoros.]^";
-];
-
-
-[ EnchufarSub;
-  if (~~(noun provides enchufado)) {
-    print_ret (The) noun, " no puede enchufarse.";
-  }
-  if (noun.enchufado) {
-    print_ret (The) noun, " ya está enchufado.";
-  }
-  noun.enchufado = true;
-  "Enchufas ", (the) noun, ".";
 ];
 
 
@@ -4044,7 +3838,6 @@ Verb meta 'tt'
   i;
   switch (hayPistas) {
     0: hayPistas = 1;
-
        print (s_emph) "[Advertencia: Es sabido que la tentación de la ayuda es
              a veces tan fuerte que se suelen obtener pistas prematuramente.
              Por tanto, en cualquier momento durante el juego puedes poner ",
@@ -4085,7 +3878,6 @@ Verb meta 'tt'
        }
 
        StatusLineHeight(1);
-!       MenuAcciones.MostrarImportantes();
        if (hayGraficos) EncenderGraficos();
        ControlTimer.ReanudarTick();
        glk_set_window(gg_mainwin);
@@ -4139,9 +3931,9 @@ Verb meta 'tt'
 !    WaitDelay(1);
 !  }
 !  viewImageSlide(Logo_Circulo_Chico_jpg);
-  pagina_contenidos.update();
-  diario_llave.update();
-  diario_amigos.update();
+!  pagina_contenidos.update();
+!  diario_llave.update();
+!  diario_amigos.update();
   "Saludas cordialmente.";
 ];
 

@@ -1499,6 +1499,34 @@ Verb meta 'testprologo'
   * 'full'               -> TestPrologoFull;
 #endif;
 
+Extend 'cambia' first
+  * 'canal'/'emisora'                -> CambiarCanal
+  * 'el' 'canal'                     -> CambiarCanal
+  * 'la' 'emisora'                   -> CambiarCanal
+  * 'de' 'canal'/'emisora'           -> CambiarCanal
+  * 'canal'/'emisora' 'en' noun      -> CambiarCanal
+  * 'el' 'canal'   'en' noun         -> CambiarCanal
+  * 'la' 'emisora'  'en' noun        -> CambiarCanal
+  * 'de' 'canal'/'emisora' 'en' noun -> CambiarCanal;
+
+Verb 'cuelga'
+  * noun            -> Colgar;
+
+VerboIrregular "colgar" with imperativo 'cuelga';
+
+Verb 'descuelga'
+  * noun            -> Descolgar;
+
+VerboIrregular "descolgar" with imperativo 'descuelga';
+
+Verb 'desenchufa'
+  * noun            -> Desenchufar;
+
+VerboIrregular "desenchufar" with imperativo 'desenchufa';
+
+Extend only 'enchufa' replace
+  * noun            -> Enchufar;
+
 
 !===============================================================================
 ! (11) Rutinas de Acciones Propias del Juego
@@ -1517,6 +1545,52 @@ Verb meta 'testprologo'
   test_machine.run_once();
 ];
 #endif;
+
+
+[ CambiarCanalSub
+  tv;
+  if (noun ~= nothing)                     tv = noun;
+  else if (tv_cuarto_katie in LugarReal()) tv = tv_cuarto_katie;
+  else if (tv_salon_katie in LugarReal())  tv = tv_salon_katie;
+  else "No veo ningún televisor aquí.";
+
+  if (tv hasnt on) "El televisor está apagado.";
+
+  "Cambias repetidamente de canal, pero sólo encuentras estática y ruido.";
+];
+
+
+[ DescolgarSub;
+  "No tiene sentido descolgar eso.";
+];
+
+
+[ DesenchufarSub;
+  if (~~(noun provides enchufado)) {
+    print_ret (The) noun, " no puede desenchufarse.";
+  }
+  if (~~(noun.enchufado)) {
+    print_ret (The) noun, " ya está desenchufado.";
+  }
+  noun.enchufado = false;
+  print "Desenchufas ", (the) noun, ".";
+  if (noun has on) {
+    give noun ~on;
+    " Al hacerlo, se apaga.";
+  }
+];
+
+
+[ EnchufarSub;
+  if (~~(noun provides enchufado)) {
+    print_ret (The) noun, " no puede enchufarse.";
+  }
+  if (noun.enchufado) {
+    print_ret (The) noun, " ya está enchufado.";
+  }
+  noun.enchufado = true;
+  "Enchufas ", (the) noun, ".";
+];
 
 
 ! Fin prologo.inf

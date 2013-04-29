@@ -160,10 +160,6 @@ Global altoLogoMenu = 400;
 ! Anchura de la ventana gráfica:
 Global anchoVentanaGrafica = GRAFICOS_MEDIANOS;
 
-! Interruptor para indicar si hay que dibujar o no la línea de estado
-! (ver rutina Initialise):
-Global dibujarEstado = false;
-
 ! Se pone a true y false en la rutina PermitirEmpujarDir, y luego se consulta en
 ! MensajesLibreria:
 Global estoyEmpujando = false;
@@ -243,8 +239,7 @@ Replace ConsultSub;
 ! indicar hacia dónde va un PNJ móvil:
 Replace DirDada;
 
-! Nuestra versión de esta rutina sólo redibuja la línea de estado cuando
-! la variable global dibujarEstado está a true:
+! Nuestra versión de DrawStatusLine:
 Replace DrawStatusLine;
 
 ! Sustituimos la rutina EncenderGraficos que aparece en Mapeador:
@@ -1225,7 +1220,8 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ DrawStatusLine
   pos;
-  if (~~dibujarEstado || gg_statuswin == 0) rfalse;
+!  if (~~dibujarEstado || gg_statuswin == 0) rfalse;
+  if (gg_statuswin == 0) rfalse;
   glk_set_window(gg_statuswin);
   StatusLineHeight(1);
   glk_window_clear(gg_statuswin);
@@ -2218,7 +2214,7 @@ Object ZIPI_Jugar_Con_Intro
       else             ApagarGraficos();
       Introduccion();
       IniciarAventura();
-      dibujarEstado = true;
+!      dibujarEstado = true;
       return 2;
     ];
 
@@ -2237,7 +2233,7 @@ Object ZIPI_Jugar_Sin_Intro
       if (hayGraficos) EncenderGraficos();
       else             ApagarGraficos();
       IniciarAventura(true);
-      dibujarEstado = true;
+!      dibujarEstado = true;
       return 2;
     ];
 

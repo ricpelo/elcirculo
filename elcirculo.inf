@@ -406,7 +406,7 @@ Include "Parser";
                 return 1;
               }
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
-              viewImageSlide(obj);
+              MostrarImagenAuxiliar(obj);
               noCerrarVentanaObj = true;
               MenuAcciones.AbrirVentana();
               r = MenuAcciones.MostrarAcciones(obj);
@@ -1232,7 +1232,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
   if (gg_objwin) {
     if (~~noCerrarVentanaObj) {
       if (noun == 0 or nothing) closeImageSlide();
-      else if (noun ofclass Object or String) viewImageSlide(noun);
+      else if (noun ofclass Object or String) MostrarImagenAuxiliar(noun);
     } else {
       noCerrarVentanaObj = false;
     }
@@ -1625,7 +1625,7 @@ Class Personaje
       if (self.imagen == 0) rfalse;
       ! Ocultamos antes la imagen en caso de que ya estuviera:
       timer_imagen_personaje.ocultar_imagen();
-      MostrarImagenAuxiliar(self.imagen);
+      viewImageCenter(self.imagen);
       timer_imagen_personaje.AgregarGestorAlFinal();
       give timer_imagen_personaje general;
     ],
@@ -3500,7 +3500,7 @@ Object Menu_Configuracion
 !                              (winmethod_Above + winmethod_Proportional),
 !                              100, wintype_Graphics, GG_OBJWIN_ROCK);
 !  drawImageSGW(gg_objwin, img, curr_pic_pos, BORDEWIN, BORDEWIN);
-  viewImageCenter(img);
+  viewImageSlide(img);
 ];
 
 
@@ -3529,9 +3529,10 @@ Object Menu_Configuracion
 
 
 [ OcultarImagenAuxiliar;
+  closeImageSlide();
 !  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
 !  gg_objwin = 0;
-  MostrarImagenLocalidad();
+!  MostrarImagenLocalidad();
 ];
 
 

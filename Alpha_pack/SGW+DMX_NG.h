@@ -1090,7 +1090,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
 !        glk_image_get_info(imagen,gg_arguments,gg_arguments+WORDSIZE);
 !        ancho_img = gg_arguments-->0;
 
-        openImageSlide();
+        if (gg_objwin ==0) openImageSlide();
 !        gg_objwin = 0; ! por si acaso (uno nunca sabe... =P)
 !        ! intentamos abrir la ventana con ancho suficiente para la imagen
 !        gg_objwin = glk_window_open(gg_mainwin,winmethod_Right+winmethod_Fixed,

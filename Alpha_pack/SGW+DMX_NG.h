@@ -1754,7 +1754,8 @@ Default LITEXT  = SCBACK; ! se invierte el color
         ! ACTIVIDAD 2: Imagenes automaticas al EXAMINAR cada Objeto
         !-----------------------------------------------------------------------
         2:
-          if(noun provides sgw_img) {
+          if(action ~= ##Go or ##GoIn or ##Enter or ##Exit or
+             ##Subir or ##Bajar && noun provides sgw_img) {
             viewImageSlide(noun);
           }
           else {

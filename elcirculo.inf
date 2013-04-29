@@ -200,10 +200,6 @@ Global layoutPantalla = LAYOUT_MENU_PRINCIPAL;
 ! Si se ha activado el listado automático de salidas:
 Global mostrarSalidas = true;
 
-! Esta variable se pone a true en HandleGlkEvent para que BeforeParsing
-! no cierre la ventana en ese turno. Allí se vuelve a poner a false:
-Global noCerrarVentanaObj = false;
-
 ! La imagen que representa la oscuridad:
 Global SGW_IMAGEN_OSCURIDAD = Oscuridad_jpg;
 
@@ -407,7 +403,6 @@ Include "Parser";
               }
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               MostrarImagenAuxiliar(obj);
-              noCerrarVentanaObj = true;
               MenuAcciones.AbrirVentana();
               r = MenuAcciones.MostrarAcciones(obj);
               MenuAcciones.CerrarVentana();
@@ -1228,18 +1223,6 @@ Include "Timer";            ! Mi librería de eventos temporizados
 ];
 
 
-[ BeforeParsing;
-  if (gg_objwin) {
-    if (~~noCerrarVentanaObj) {
-      if (noun == 0 or nothing) closeImageSlide();
-      else if (noun ofclass Object or String) MostrarImagenAuxiliar(noun);
-    } else {
-      noCerrarVentanaObj = false;
-    }
-  }
-];
-
-
 [ DrawStatusLine
   ancho;
   if (~~dibujarEstado || gg_statuswin == 0) rfalse;
@@ -1785,7 +1768,6 @@ Object timer_imagen_personaje
       if (self.mostrandose()) self.evento();
     ],
     evento [;
-      OcultarImagenAuxiliar();
       give self ~general;
       self.EliminarGestor();
       MostrarImagenLocalidad();
@@ -2491,7 +2473,6 @@ Object MenuAcciones
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
       glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
       r = self.RunMenu(obj, top);
-      if (~~r) noCerrarVentanaObj = false;
       glk_set_window(gg_mainwin);
       glk_request_hyperlink_event(gg_mainwin);   ! Se vuelven a activar los
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
@@ -3528,12 +3509,12 @@ Object Menu_Configuracion
 ];
 
 
-[ OcultarImagenAuxiliar;
-  closeImageSlide();
-!  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
-!  gg_objwin = 0;
-!  MostrarImagenLocalidad();
-];
+![ OcultarImagenAuxiliar;
+!  closeImageSlide();
+!!  if (gg_objwin ~= 0) glk_window_close(gg_objwin, 0);
+!!  gg_objwin = 0;
+!!  MostrarImagenLocalidad();
+!];
 
 
 ! Imprime el nombre de un objeto o localidad:

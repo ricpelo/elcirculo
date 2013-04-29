@@ -241,12 +241,12 @@
 !     del juego.
 !
 !     El Marco de Trabajo hace uso de las rutinas AfterPrompt()
-!     y GamePostRoutine(). Si necesitas implementar una version
+!     y TimePasses(). Si necesitas implementar una version
 !     propia de estas rutinas en tu juego, simplemente escribelas
 !     antes de incluir SGW+DMX. No olvides que debes llamar en
 !     alguna parte de ellas a la rutina del Marco de Trabajo. Asi,
 !     dentro de AfterPrompt() debes llamar a SGW_MarcoDeTrabajo(1) y
-!     dentro de GamePostRoutine() debes llamar a SGW_MarcoDeTrabajo(2).
+!     dentro de TimePasses() debes llamar a SGW_MarcoDeTrabajo(2).
 !     Con esto, el Marco de Trabajo seguira funcionando normalmente.
 !     Ejemplos:
 !
@@ -257,12 +257,11 @@
 !           !---------------------------------------------------------
 !       ];
 !
-!       [ GamePostRoutine ;
+!       [ TimePasses ;
 !           SGW_MarcoDeTrabajo(2);
 !           !---------------------------------------------------------
 !           ! ... todo el codigo tuyo que necesites poner aqui ...
 !           !---------------------------------------------------------
-!           rfalse; ! IMPORTANTE: SIN ESTO NO SE MUESTRA NINGUN TEXTO
 !       ];
 !
 !     Por otro lado, si no quieres usar el Marco de Trabajo solo
@@ -1669,16 +1668,16 @@ Default LITEXT  = SCBACK; ! se invierte el color
     ];
   #endif; ! AfterPrompt
 
-  #ifdef GamePostRoutine; ! el programador a definido su propia rutina GamePostRoutine()
-    Message "[SGW+DMX: Usando rutina GamePostRoutine() proporcionada por el juego...]";
+  #ifdef TimePasses; ! el programador ha definido su propia rutina TimePasses()
+    Message "[SGW+DMX: Usando rutina TimePasses() proporcionada por el juego...]";
     Message "[SGW+DMX: -> SI QUIERES MOSTRAR AUTOMATICAMENTE IMAGENES DE LOS OBJETOS]";
     Message "[SGW+DMX: -> NO OLVIDES LLAMAR EN TU RUTINA A < SGW_MarcoDeTrabajo(2) >]";
   #ifnot; ! si no, la implementa el propio Marco de Trabajo
-    [ GamePostRoutine ;
+    [ TimePasses ;
         SGW_MarcoDeTrabajo(2);
         rfalse; ! MUY IMPORTANTE: SIN ESTO NO SE MUESTRA NINGUN TEXTO
     ];
-  #endif; ! GamePostRoutine
+  #endif; ! TimePasses
 
   ! Centraliza las Actividades del Marco de Trabajo (aux == numero de actividad)
   [ SGW_MarcoDeTrabajo aux;
@@ -1755,7 +1754,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
         ! ACTIVIDAD 2: Imagenes automaticas al EXAMINAR cada Objeto
         !-----------------------------------------------------------------------
         2:
-          if(action == ##Examine && noun provides sgw_img) {
+          if(noun provides sgw_img) {
             viewImageSlide(noun);
           }
           else {

@@ -372,11 +372,11 @@ Include "Parser";
             ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
             if (obj in Compass || (ConexionLocalidad(obj) && obj hasnt door)) {
               glk_set_style(style_Input);
-              print "ve "; PrintInputLink(obj); new_line;
+              print "ve "; PrintInputLink(obj, 0, true); new_line;
               glk_set_style(style_Normal);
               long = PrintAnyToArray(buffer + WORDSIZE,
                                      INPUT_BUFFER_LEN - WORDSIZE,
-                                     InputLink(obj));
+                                     PrintInputLink, obj, 0, true);
               buffer-->0 = long;
               return 2;
             } else if (obj == location) { ! Si es el nombre de la localidad
@@ -415,7 +415,8 @@ Include "Parser";
                 glk_cancel_line_event(gg_mainwin, gg_event);
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
                   glk_set_style(style_Input);
-                  print (address) r.ZIPI_ejecutar(), " "; PrintInputLink(obj);
+                  print (address) r.ZIPI_ejecutar(), " ";
+                  PrintInputLink(obj, 0, true);
                   new_line;
                   glk_set_style(style_Normal);
                 }
@@ -427,7 +428,8 @@ Include "Parser";
                                               " ");              ! Un espacio
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
-                                              InputLink(obj));   ! El objeto
+                                              PrintInputLink, obj,
+                                              0, true);! El objeto
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
                                               " ");              ! Un espacio
@@ -461,7 +463,8 @@ Include "Parser";
         ! - El hyperlink pulsado no era un objeto, sino una cadena
         long = gg_event-->2;
         long = PrintAnyToArray(buffer + WORDSIZE + long,
-                               INPUT_BUFFER_LEN - WORDSIZE, InputLink(obj));
+                               INPUT_BUFFER_LEN - WORDSIZE,
+                               PrintInputLink, obj, 0, true);
         buffer-->0 = long + gg_event-->2;
         ! Si ya había algo escrito, se entiende que el jugador quiere completar
         ! la entrada que estaba escribiendo, por lo que retornamos 1. Si no
@@ -2582,7 +2585,7 @@ Object MenuAcciones
           glk_set_style(style_Normal);
         } else {
           glk_set_style(style_Input);
-          print " "; PrintInputLink(_m); print ":^";
+          print " "; PrintInputLink(_m, 0, true); print ":^";
           glk_set_style(style_Normal);
         }
 
@@ -3167,28 +3170,40 @@ Object Menu_Configuracion
 
 ! Muestra el nombre de la localidad con un 'de'/'del' delante:
 [ DelNombreDireccion o flag;
-  glk_set_hyperlink(o);
-  if (flag) print "D";
-  else      print "d";
-  if (o has proper) {
-    print "e ";
-    if (o provides del_nombre_direccion) {
-      if (o ofclass Routine) o.del_nombre_direccion();
-      else print (string) o.del_nombre_direccion();
+  if (o provides del_nombre_direccion) {
+    if (o.del_nombre_direccion ofclass Routine) {
+      ! La rutina del_nombre_direccion() deberá encargarse de activar el
+      ! hipervínculo con glk_set_hyperlink(self) o algo similar:
+      o.del_nombre_direccion();
     } else {
-      MostrarNombre(o);
+      glk_set_hyperlink(o);
+      print (string) o.del_nombre_direccion;
+      glk_set_hyperlink(0);
     }
   } else {
-    if (o provides del_nombre_direccion) {
-      PrintAnyToArray(texto_impreso, 50, o, del_nombre_direccion);
+    if (flag) print "D";
+    else      print "d";
+    if (o has proper) {
+      print "e ";
+      glk_set_hyperlink(o);
+      MostrarNombre(o);
+      glk_set_hyperlink(0);
     } else {
-      PrintAnyToArray(texto_impreso, 50, MostrarNombre, o);
+      PrintAnyToArray(texto_impreso, 50, PrintInputLink, o, 1);
+      ! Si NO ES articulo "el", agregar 'e' y un espacio:
+      if (texto_impreso->0 ~= 'e') {
+        print "e ";
+        glk_set_hyperlink(o);
+        PrintInputLink(o, 1);
+        glk_set_hyperlink(0);
+      } else {
+        ImprimirArticulo(o, 1);
+        glk_set_hyperlink(o);
+        PrintInputLink(o, 2);
+        glk_set_hyperlink(0);
+      }
     }
-    ! Si NO ES articulo "el", agregar 'e' y un espacio:
-    if (texto_impreso->0 ~= 'e') print "e ";
-    MostrarNombre(o);
   }
-  glk_set_hyperlink(0);
 ];
 
 
@@ -3299,6 +3314,52 @@ Object Menu_Configuracion
 ];
 
 
+[ ImprimirArticulo o acode pluralise capitalise
+  i artform findout artval;
+  if (o provides articles) {
+    artval=(o.&articles)-->(acode+short_name_case*LanguageCases);
+    if (capitalise) print (Cap) artval;
+    else            print (string) artval;
+    if (pluralise) return;
+!    print (PSN__) o; return;
+  }
+
+  i = GetGNAOfObject(o);
+  if (pluralise) {
+    if (i < 3 || (i >= 6 && i < 9)) i = i + 3;
+  }
+  i = LanguageGNAsToArticles-->i;
+
+  artform = LanguageArticles
+      + 3*WORDSIZE*LanguageContractionForms*(short_name_case + i*LanguageCases);
+  #Iftrue (LanguageContractionForms == 2);
+  if (artform-->acode ~= artform-->(acode+3)) findout = true;
+  #Endif; ! LanguageContractionForms
+  #Iftrue (LanguageContractionForms == 3);
+  if (artform-->acode ~= artform-->(acode+3)) findout = true;
+  if (artform-->(acode+3) ~= artform-->(acode+6)) findout = true;
+  #Endif; ! LanguageContractionForms
+  #Iftrue (LanguageContractionForms == 4);
+  if (artform-->acode ~= artform-->(acode+3)) findout = true;
+  if (artform-->(acode+3) ~= artform-->(acode+6)) findout = true;
+  if (artform-->(acode+6) ~= artform-->(acode+9)) findout = true;
+  #Endif; ! LanguageContractionForms
+  #Iftrue (LanguageContractionForms > 4);
+  findout = true;
+  #Endif; ! LanguageContractionForms
+
+  if (findout) {
+    if (pluralise)
+      PrintAnyToArray(StorageForShortName, 160, EnglishNumber, pluralise);
+    else
+      PrintAnyToArray(StorageForShortName, 160, PSN__, o);
+    acode = acode + 3*LanguageContraction(StorageForShortName);
+  }
+
+  Cap (artform-->acode, ~~capitalise); ! print article
+];
+
+
 [ IniciarGraficosSonidos
   ancho alto;
   if (glk_gestalt(gestalt_AlphaAventuras, 0) == 0) {
@@ -3405,17 +3466,49 @@ Object Menu_Configuracion
 ];
 
 
-[ InputLink obj;
-  if (obj ofclass String)      return obj;
-  if (obj ofclass Routine)     return obj();
-  if (obj provides input_link) return obj.input_link;
-  if (obj provides name)       return obj.&name-->0;
-  if (obj provides name_m)     return obj.&name_m-->0;
-  if (obj provides name_f)     return obj.&name_f-->0;
-  if (obj provides name_mp)    return obj.&name_mp-->0;
-  if (obj provides name_fp)    return obj.&name_fp-->0;
-  return obj.short_name;
-];
+![ InputLink obj art;
+!  if (obj ofclass String) {
+!   return obj;
+! } else if (obj ofclass Routine) {
+!   return obj();
+!  } else if (obj ofclass Lugar) {
+!    if (obj has visited && obj provides nombre_si_visitado) {
+!      if (obj.nombre_si_visitado ofclass Routine) {
+!        return obj.nombre_si_visitado();
+!      } else {
+!        return obj.nombre_si_visitado;
+!      }
+!    } else if (obj hasnt visited && obj provides nombre_no_visitado) {
+!      if (obj.nombre_no_visitado ofclass Routine) {
+!        return obj.nombre_no_visitado();
+!      } else {
+!        return obj.nombre_no_visitado;
+!      }
+!    } else if (obj provides nombre_direccion) {
+!      if (obj.nombre_direccion ofclass Routine) {
+!        return obj.nombre_direccion();
+!      } else {
+!        return obj.nombre_direccion;
+!      }
+!    }
+!  } else if (art == 1) {
+!    print (the) obj;
+!  } else if (art == 2) {
+!    PrintInputLink(obj, art);
+!  } else if (obj provides name) {
+!    return obj.&name-->0;
+!  } else if (obj provides name_m) {
+!    return obj.&name_m-->0;
+!  } else if (obj provides name_f) {
+!    return obj.&name_f-->0;
+!  } else if (obj provides name_mp) {
+!    return obj.&name_mp-->0;
+!  } else if (obj provides name_fp) {
+!    return obj.&name_fp-->0;
+!  } else {
+!    return obj.short_name;
+!  }
+!];
 
 
 [ link obj msg;
@@ -3424,10 +3517,13 @@ Object Menu_Configuracion
     print (string) msg;
     glk_set_hyperlink(0);
     return "";
+!  } else if (~~(obj ofclass Object)) {
+!    print (string) obj;
+!  } else if (obj provides nombre_link) {
+!    print (string) obj.nombre_link;
+  } else {
+    PrintInputLink(obj);
   }
-  else if (~~(obj ofclass Object))   print (string) obj;
-  else if (obj provides nombre_link) print (string) obj.nombre_link;
-  else                               PrintInputLink(obj);
   glk_set_hyperlink(0);
 ];
 
@@ -3476,14 +3572,15 @@ Object Menu_Configuracion
 ! no, y de si proporciona la propiedad nombre_direccion:
 [ MostrarNombre o;
   glk_set_hyperlink(o);
-  if (o has visited && o provides nombre_si_visitado)
-    PrintOrRun(o, nombre_si_visitado, 1);
-  else if (o hasnt visited && self provides nombre_no_visitado)
-    PrintOrRun(o, nombre_no_visitado, 1);
-  else if (o provides nombre_direccion)
-    PrintOrRun(o, nombre_direccion, 1);
-  else
-    print (the) o;
+  PrintInputLink(o, 1);
+!  if (o has visited && o provides nombre_si_visitado)
+!    PrintOrRun(o, nombre_si_visitado, 1);
+!  else if (o hasnt visited && o provides nombre_no_visitado)
+!    PrintOrRun(o, nombre_no_visitado, 1);
+!  else if (o provides nombre_direccion)
+!    PrintOrRun(o, nombre_direccion, 1);
+!  else
+!    print (the) o;
   glk_set_hyperlink(0);
 ];
 
@@ -3495,18 +3592,56 @@ Object Menu_Configuracion
 ];
 
 
-[ PrintInputLink obj
+! Imprime el nombre de un objeto:
+! - obj: el objeto en sí
+! - art: 0 = lo imprime sin artículo; usa las propiedades name si hace falta
+!        1 = lo imprime con artículo
+!        2 = lo imprime sin artículo; NO usa las propiedades name
+! - input: 0 = nombre_link tiene preferencia sobre input_link
+!          1 = input_link tiene preferencia sobre nombre_link
+[ PrintInputLink obj art input
   il;
-  if (obj ofclass String)             print (string) obj;
-  else if (obj ofclass Routine)       print (string) obj();
-  else if (obj provides input_link) { il = obj.input_link;
-                                      PrintAnything(il); }
-  else if (obj provides name)         print (address) obj.&name-->0;
-  else if (obj provides name_m)       print (address) obj.&name_m-->0;
-  else if (obj provides name_f)       print (address) obj.&name_f-->0;
-  else if (obj provides name_mp)      print (address) obj.&name_mp-->0;
-  else if (obj provides name_fp)      print (address) obj.&name_fp-->0;
-  else                                PrintAnything(obj);
+  if (obj ofclass String) {
+    print (string) obj;
+  } else if (obj ofclass Routine) {
+    print (string) obj();
+  } else if (obj ofclass Lugar) {
+    if (obj has visited && obj provides nombre_si_visitado) {
+      PrintOrRun(obj, nombre_si_visitado, 1);
+    } else if (obj hasnt visited && obj provides nombre_no_visitado) {
+      PrintOrRun(obj, nombre_no_visitado, 1);
+    } else if (obj provides nombre_direccion) {
+      PrintOrRun(obj, nombre_direccion, 1);
+    }
+  } else if (input && obj provides input_link) {
+    il = obj.input_link;
+    PrintAnything(il);
+  } else if (input && obj provides nombre_link) {
+    il = obj.nombre_link;
+    PrintAnything(il);
+  } else if ((~~input) && obj provides nombre_link) {
+    il = obj.nombre_link;
+    PrintAnything(il);
+  } else if ((~~input) && obj provides input_link) {
+    il = obj.input_link;
+    PrintAnything(il);
+  } else if (art == 1) {
+    print (the) obj;
+  } else if (art == 2) {
+    PrintAnything(obj);
+  } else if (obj provides name) {
+    print (address) obj.&name-->0;
+  } else if (obj provides name_m) {
+    print (address) obj.&name_m-->0;
+ } else if (obj provides name_f) {
+    print (address) obj.&name_f-->0;
+  } else if (obj provides name_mp) {
+    print (address) obj.&name_mp-->0;
+  } else if (obj provides name_fp) {
+    print (address) obj.&name_fp-->0;
+  } else {
+    PrintAnything(obj);
+  }
 ];
 
 

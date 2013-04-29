@@ -492,6 +492,8 @@ Object puerta_katie "puerta de tu habitación"
   with
     adjectives 'habitacion',
     article "la",
+    nombre_link "la puerta",
+    input_link "puerta",
     description "La puerta de tu habitación.",
 !    initial [;
 !      "Alguien ha cerrado la ", (link) self, ", dejando bajo ella

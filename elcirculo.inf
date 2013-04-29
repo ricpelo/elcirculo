@@ -81,6 +81,8 @@ Constant GG_MENUWIN_ROCK = 213;
 ! La roca de la ventana de conversaciones con personajes:
 Constant GG_CONVERSAWIN_ROCK = 214;
 
+Constant GG_SUPERIORWIN_ROCK = 215;
+
 ! Alturas de los gráficos:
 Constant GRAFICOS_MINUSCULOS = 200;
 Constant GRAFICOS_PEQUENOS   = 250;
@@ -168,11 +170,13 @@ Global dibujarEstado = false;
 ! MensajesLibreria:
 Global estoyEmpujando = false;
 
+! La ventana de conversación con personajes:
+Global gg_conversawin = 0;
+
 ! La ventana de menús de acciones:
 Global gg_menuwin = 0;
 
-! La ventana de conversación con personajes:
-Global gg_conversawin = 0;
+Global gg_superiorwin = 0;
 
 ! Hay gráficos o no:
 Global hayGraficos = true;
@@ -506,6 +510,7 @@ Include "Parser";
   Damusix.IdentificarSonidos(fase);
   Mapa_IdentifyGlkObject(fase, tipo, ref, rock);
   Conversa_IdentifyGlkObject(fase, tipo, ref, rock);
+  Superior_IdentifyGlkObject(fase, tipo, ref, rock);
   if (fase == 2) {
     ControlTimer.ReactivarTick();
     ZIPI_Configuracion.restaurar_valores();
@@ -753,7 +758,7 @@ Include "Parser";
   if (fase == 0) { ! Poner cero en todos nuestros objetos glk
     gg_conversawin = 0;
     return;
-  }       
+  }
   if (fase == 1) { ! Reiniciar correctamente las variables glk
     switch (tipo) {
       0: ! es una ventana
@@ -766,11 +771,39 @@ Include "Parser";
          ! pero no hay ficheros en este ejemplo
     }
     return;
-  }       
+  }
   if (fase == 2) { ! Actualizar nuestras ventanas
     if (gg_conversawin) {
       glk_window_close(gg_conversawin, 0);
       gg_conversawin = 0;
+    }
+    return;
+  }
+];
+
+! El IdentifyGlkObject de la ventana de conversaciones con personajes:
+[ Superior_IdentifyGlkObject fase tipo ref rock;
+  if (fase == 0) { ! Poner cero en todos nuestros objetos glk
+    gg_superiorwin = 0;
+    return;
+  }
+  if (fase == 1) { ! Reiniciar correctamente las variables glk
+    switch (tipo) {
+      0: ! es una ventana
+         switch (rock) {
+           GG_SUPERIORWIN_ROCK: gg_superiorwin = ref;
+         }
+      1: ! es un flujo
+         ! pero no hay flujos en este ejemplo
+      2: ! es una referencia a fichero
+         ! pero no hay ficheros en este ejemplo
+    }
+    return;
+  }
+  if (fase == 2) { ! Actualizar nuestras ventanas
+    if (gg_superiorwin) {
+      glk_window_close(gg_superiorwin, 0);
+      gg_superiorwin = 0;
     }
     return;
   }
@@ -2503,7 +2536,11 @@ Object MenuAcciones
     AbrirVentana [;
       glk_set_reflow(0);
       if (gg_menuwin) glk_window_close(gg_menuwin, 0);
-      gg_menuwin = glk_window_open(gg_mainwin,
+      gg_superiorwin = glk_window_open(gg_mainwin,
+                                       winmethod_Above + winmethod_Fixed,
+                                       20, wintype_TextGrid,
+                                       GG_SUPERIORWIN_ROCK);
+      gg_menuwin = glk_window_open(gg_superiorwin,
                                    winmethod_Right + winmethod_Fixed,
                                    ANCHO_ACCIONES, wintype_TextGrid,
                                    GG_MENUWIN_ROCK);
@@ -2511,6 +2548,8 @@ Object MenuAcciones
     CerrarVentana [;
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;
+      glk_window_close(gg_superiorwin, 0);
+      gg_superiorwin = 0;
       glk_set_reflow(ZIPI_Configuracion.reflow);
     ],
     ! Muestra el menú de acciones de un objeto:

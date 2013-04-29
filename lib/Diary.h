@@ -321,7 +321,7 @@ Class Diary
           130, 'N', 'n', -3:
             return 1;
 
-          27, 'Q', 'q':
+          27, 'Q', 'q', -8:
             return 2;
         }
       }

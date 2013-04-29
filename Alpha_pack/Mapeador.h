@@ -496,28 +496,44 @@ Global num_link = -100;
     cenx = (gg_arguments-->0) / 2; ! ancho / 2
     ceny = (gg_arguments-->1) / 2; ! alto / 2
     switch (tecla) {
-      'q', 'Q', -106:      jump Salir;
-      'z', 'Z', '+', -104: ladoCuadrado = ladoCuadrado + 20;
-                           RefrescarMapa(sitio, cenx, ceny);
-      'x', 'X', '-', -105: if (ladoCuadrado > 21) {
-                             ladoCuadrado = ladoCuadrado - 20;
-                             RefrescarMapa(sitio, cenx, ceny);
-                           }
-      -5, '2', 'n', 'N'                  : sitio = ValidarYRefrescarMapa(sitio, s_to,   cenx, ceny);
-      -4, '8', 'y', 'Y'                  : sitio = ValidarYRefrescarMapa(sitio, n_to,   cenx, ceny);
-      -2, '4', 'g', 'G'                  : sitio = ValidarYRefrescarMapa(sitio, w_to,   cenx, ceny);
-      -3, '6', 'j', 'J'                  : sitio = ValidarYRefrescarMapa(sitio, e_to,   cenx, ceny);
-      '7', 't', 'T'            :           sitio = ValidarYRefrescarMapa(sitio, nw_to,  cenx, ceny);
-      '9', 'u', 'U'            :           sitio = ValidarYRefrescarMapa(sitio, ne_to,  cenx, ceny);
-      '1', 'b', 'B'            :           sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
-      '3', 'm', 'M'            :           sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
-      -12, 'a', 'A', '5', -100:            sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
-      -13, 'z', 'Z', '0', -101:            sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
-      -6, '*', -102:                       sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
-      -7, '.', '/', -103:                  sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
-!      'h', 'H':                           AyudaMapa(sitio, cenx, ceny);
+      'q', 'Q', -106, -8:
+        jump Salir;
+      'z', 'Z', '+', -104:
+        ladoCuadrado = ladoCuadrado + 20;
+        RefrescarMapa(sitio, cenx, ceny);
+      'x', 'X', '-', -105:
+        if (ladoCuadrado > 21) {
+          ladoCuadrado = ladoCuadrado - 20;
+          RefrescarMapa(sitio, cenx, ceny);
+        }
+      -5, '2', 'n', 'N':
+        sitio = ValidarYRefrescarMapa(sitio, s_to,   cenx, ceny);
+      -4, '8', 'y', 'Y':
+        sitio = ValidarYRefrescarMapa(sitio, n_to,   cenx, ceny);
+      -2, '4', 'g', 'G':
+        sitio = ValidarYRefrescarMapa(sitio, w_to,   cenx, ceny);
+      -3, '6', 'j', 'J':
+        sitio = ValidarYRefrescarMapa(sitio, e_to,   cenx, ceny);
+      '7', 't', 'T':
+        sitio = ValidarYRefrescarMapa(sitio, nw_to,  cenx, ceny);
+      '9', 'u', 'U':
+        sitio = ValidarYRefrescarMapa(sitio, ne_to,  cenx, ceny);
+      '1', 'b', 'B':
+        sitio = ValidarYRefrescarMapa(sitio, sw_to,  cenx, ceny);
+      '3', 'm', 'M':
+        sitio = ValidarYRefrescarMapa(sitio, se_to,  cenx, ceny);
+      -12, 'a', 'A', '5', -100:
+        sitio = ValidarYRefrescarMapa(sitio, u_to,   cenx, ceny); ! Inicio
+      -13, 'z', 'Z', '0', -101:
+        sitio = ValidarYRefrescarMapa(sitio, d_to,   cenx, ceny); ! Fin
+      -6, '*', -102:
+        sitio = ValidarYRefrescarMapa(sitio, in_to,  cenx, ceny); ! Enter
+      -7, '.', '/', -103:
+        sitio = ValidarYRefrescarMapa(sitio, out_to, cenx, ceny); ! Retroceso
+!      'h', 'H':
+!        AyudaMapa(sitio, cenx, ceny);
       #ifdef DEBUG;
-      ' ':                                 playerTo(sitio); jump Salir;
+      ' ': playerTo(sitio); jump Salir;
       #endif;
     }
   }

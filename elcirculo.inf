@@ -3244,7 +3244,7 @@ Object Menu_Configuracion
   if (ventana == gg_bigwin) {
     return "mira";
   } else if (ventana == gg_objwin) {
-    if (metaclass(curr_obj_pic) == Object) return curr_obj_pic;
+    if (curr_obj_pic ofclass Object) return curr_obj_pic;
   }
   rfalse;
 ];

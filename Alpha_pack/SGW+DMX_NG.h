@@ -1513,7 +1513,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
 
 ! IdentifyGlkObject de libreria SGW (Rutina Gancho)
 [ SGW_IdentifyGlk fase tipo ref rock
-    id; ! auxiliar
+    id prev_curr_obj_pic; ! auxiliar
     id = 0; ! para evitar warning
     switch (fase) {
       0: ! start
@@ -1562,8 +1562,10 @@ Default LITEXT  = SCBACK; ! se invierte el color
              }
            #endif; ! SGW_SIN_MARCO_DE_TRABAJO
          #endif; ! SGW_CON_DAMUSIX
+         prev_curr_obj_pic = curr_obj_pic;
          openGraphicWindow(bigwin_alto); ! re-abrimos ventana grande (util al cargar partida)
          viewImageSGW();                 ! repintamos ventana grande (si estuviera abierta)
+         curr_obj_pic = prev_curr_obj_pic;
          viewImageSlide(curr_obj_pic,1); ! repintamos ventana chica (si estuviera abierta)
          if (gg_bigwin) glk_request_mouse_event(gg_bigwin);
          return;

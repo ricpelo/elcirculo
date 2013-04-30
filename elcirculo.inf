@@ -1024,13 +1024,16 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ Initialise
   r v menu;
-  KeyDelay(1); ! Se hace para que no dibuje y acto seguido "recoloque" el logo
   if (ExisteAutoSave()) menu = ZIPI_Menu_Principal_Con_AutoLoad;
   else                  menu = ZIPI_Menu_Principal;
   IniciarGraficosSonidos();
-  clearGraphicWindow();
   ExtenderVentanaEstado();
-  clearMainWindow();
+  ! En el ordenador del Instituto (un equipo ya antiguo, con Ubuntu 12.04 LTS,
+  ! gráfica Intel y pantalla a 1024x768), a veces no funcionaba bien la rutina
+  ! ExtenderVentanaEstado(). No sé por qué, pero, por alguna razón, a veces
+  ! acabas teniendo 18 líneas, a veces 25 y a veces 1. Sólo me ha pasado en
+  ! ese ordenador. Lo curioso es que con el KeyDelay(1) se arregla:
+  KeyDelay(1);
   viewImageCenter(Logo_Circulo_Con_Letras_jpg);
   v = Damusix.QueVolumenCanal(CANAL_FONDO);
   Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO, v, SONIDO_REPETIR);

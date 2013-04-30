@@ -315,15 +315,13 @@ Class PnjPuerta
     ],
     each_turn [
       o;
-      Open:
+      Open, Close:
         if (noun ofclass PnjPuerta) {
           LimpiarPropagacion();
           objectloop (o ofclass Ruido) {
-            if (o.jugadorOye()) {
-              if (o notin location) {
-                move o to location;
-                TocaDesde(o);
-              }
+            if (o.jugador_oye()) {
+              if (o notin location && o hasnt absent) move o to location;
+              TocaDesde(o, true);
             }
           }
         }

@@ -3938,15 +3938,16 @@ Verb meta 'tt'
 !  pagina_contenidos.update();
 !  diario_llave.update();
 !  diario_amigos.update();
-  IndefArt(tv_cuarto_katie); new_line;
-  CInDefArt(tv_cuarto_katie); new_line;
-  DefArt(tv_cuarto_katie); new_line;
-  CDefArt(tv_cuarto_katie); new_line;
-  PrintShortName(tv_cuarto_katie); new_line;
-  PrefaceByArticle(puerta_katie, 0, -1); new_line;   ! CDefArt(obj);
-  PrefaceByArticle(puerta_katie, 1, -1); new_line;   ! DefArt(obj);
-  PrefaceByArticle(puerta_katie, 2, -1, 1); new_line;! CInDefArt(obj);
-  PrefaceByArticle(puerta_katie, 2, -1); new_line;   ! IndefArt(obj);
+!  IndefArt(tv_cuarto_katie); new_line;
+!  CInDefArt(tv_cuarto_katie); new_line;
+!  DefArt(tv_cuarto_katie); new_line;
+!  CDefArt(tv_cuarto_katie); new_line;
+!  PrintShortName(tv_cuarto_katie); new_line;
+!  PrefaceByArticle(puerta_katie, 0, -1); new_line;   ! CDefArt(obj);
+!  PrefaceByArticle(puerta_katie, 1, -1); new_line;   ! DefArt(obj);
+!  PrefaceByArticle(puerta_katie, 2, -1, 1); new_line;! CInDefArt(obj);
+!  PrefaceByArticle(puerta_katie, 2, -1); new_line;   ! IndefArt(obj);
+  VozLejana("Hola");
   "Saludas cordialmente.";
 ];
 

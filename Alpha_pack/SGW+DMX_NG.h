@@ -1756,7 +1756,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
         2:
           if(action ~= ##Go or ##GoIn or ##Enter or ##Exit or
              ##Subir or ##Bajar && noun provides sgw_img) {
-            viewImageSlide(noun);
+            if (~~(noun ofclass Lugar)) viewImageSlide(noun);
           }
           else {
             closeImageSlide();

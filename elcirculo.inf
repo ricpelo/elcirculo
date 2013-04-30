@@ -366,11 +366,11 @@ Include "Parser";
             ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
             if (obj in Compass || (ConexionLocalidad(obj) && obj hasnt door)) {
               glk_set_style(style_Input);
-              print "ve "; MostrarNombre(obj, 2); new_line;
+              print "ve "; MostrarNombre(obj, 2, 0, 1); new_line;
               glk_set_style(style_Normal);
               long = PrintAnyToArray(buffer + WORDSIZE,
                                      INPUT_BUFFER_LEN - WORDSIZE,
-                                     MostrarNombre, obj, 2);
+                                     MostrarNombre, obj, 2, 0, 1);
               buffer-->0 = long;
               return 2;
             } else if (obj == location) { ! Si es el nombre de la localidad
@@ -409,7 +409,7 @@ Include "Parser";
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
                   glk_set_style(style_Input);
                   print (address) r.ZIPI_ejecutar(), " ";
-                  MostrarNombre(obj, 2);
+                  MostrarNombre(obj, 2, 0, 1);
                   new_line;
                   glk_set_style(style_Normal);
                 }
@@ -422,7 +422,7 @@ Include "Parser";
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
                                               MostrarNombre, obj,
-                                              2);                ! El objeto
+                                              2, 0, 1);          ! El objeto
                 long = long + PrintAnyToArray(buffer + WORDSIZE + long,
                                               INPUT_BUFFER_LEN - WORDSIZE,
                                               " ");              ! Un espacio
@@ -457,7 +457,7 @@ Include "Parser";
         long = gg_event-->2;
         long = PrintAnyToArray(buffer + WORDSIZE + long,
                                INPUT_BUFFER_LEN - WORDSIZE,
-                               MostrarNombre, obj, 2);
+                               MostrarNombre, obj, 2, 0, 1);
         buffer-->0 = long + gg_event-->2;
         ! Si ya había algo escrito, se entiende que el jugador quiere completar
         ! la entrada que estaba escribiendo, por lo que retornamos 1. Si no
@@ -465,7 +465,7 @@ Include "Parser";
         if (gg_event-->2 > 0) {
           ! Añadimos un espacio en blanco al final:
           long = PrintAnyToArray(buffer + WORDSIZE + buffer-->0,
-                               INPUT_BUFFER_LEN - WORDSIZE, " ");
+                                 INPUT_BUFFER_LEN - WORDSIZE, " ");
           buffer-->0 = buffer-->0 + long;
           glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
                                  INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
@@ -3136,6 +3136,7 @@ Object Menu_Configuracion
       glk_set_hyperlink(0);
     }
   }
+  return "";
 ];
 
 
@@ -3335,15 +3336,48 @@ Object Menu_Configuracion
 
 
 [ link obj msg;
-  if (~~(obj ofclass Object && ~~TestScope(obj))) glk_set_hyperlink(obj);
+  return link_general(obj, msg, 2, 0);
+];
+
+
+[ Link_ obj msg;
+  return link_general(obj, msg, 2, 1);
+];
+
+
+[ link_del obj;
+  return DelMostrarNombre(obj);
+];
+
+
+[ link_el obj;
+  return link_general(obj, 0, 0, 0);
+];
+
+
+[ Link_el_ obj;
+  return link_general(obj, 0, 0, 1);
+];
+
+
+[ link_general obj msg art cap;
+!  if (~~(obj ofclass Object && ~~TestScope(obj)))
+  if (art == 2) glk_set_hyperlink(obj);
   if (msg ~= 0) {
     print (string) msg;
     glk_set_hyperlink(0);
     return "";
   } else {
-    MostrarNombre(obj, 2);
+    if (art ~= 2) {
+      ArticuloPrevio(obj, art, cap);
+      glk_set_hyperlink(obj);
+      MostrarNombre(obj, 2, cap);
+    } else {
+      MostrarNombre(obj, art, cap);
+    }
   }
   glk_set_hyperlink(0);
+  return obj;
 ];
 
 

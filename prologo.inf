@@ -906,7 +906,7 @@ Object becca "Becca" cuarto_katie
     ],
     initial "^Junto a ti está Becca.",
     nombre_link "Becca",
-!    input_link "Becca",
+    input_link "becca",
     imagen Becca_jpg,
     describe [;
       switch (random(3)) {

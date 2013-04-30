@@ -72,11 +72,11 @@ Class PnjPuerta
       } else {
         if (quien.tras_abrir == NO_PUEDE_ABRIR) {
           if (TestScope(quien)) {
-            print "^", (The) quien, " quiere abrir ", (the) self,
+            print "^", (Link_) quien, " quiere abrir ", (link) self,
                   ", pero no puede.^";
           } else {
             if (TestScope(self)) {
-              print "^Se oyen ruidos al otro lado de ", (the) self,
+              print "^Se oyen ruidos al otro lado ", (link_del) self,
                     ", como si algo intentara abrirla.^";
             }
           }
@@ -136,43 +136,46 @@ Class PnjPuerta
       if (TestScope(quien)) {
         new_line;
         switch (res) {
-          0: print (The) quien, " ", (string) self.entra_o_sale(), " por ",
-                   (the) self, ".^";
-          1: print (The) quien, " abre con ", (a) self.with_key, " ",
-                   (the) self, " y ", (string) self.entra_o_sale(), " por ",
+          0: print (Link_el_) quien, " ", (string) self.entra_o_sale(), " por ",
+                   (link_el) self, ".^";
+          1: print (Link_el_) quien, " abre con ", (a) self.with_key, " ",
+                   (link_el) self, " y ", (string) self.entra_o_sale(), " por ",
                    (string) self.el_o_ella(), ".^";
-          2, 3, 4, 6: print (The) quien, " intenta abrir ", (the) self,
+          2, 3, 4, 6: print (Link_el_) quien, " intenta abrir ", (link_el) self,
                             " pero parece cerrad", (o) self, ".^";
-          5: print (The) quien, " abre ", (the) self,
+          5: print (Link_el_) quien, " abre ", (link_el) self,
                    " accionando el pestillo, y ", (string) self.entra_o_sale(),
                    " por ", (string) self.el_o_ella(), ".^";
-          7: print (The) quien, " abre ", (the) self, " y ",
+          7: print (Link_el_) quien, " abre ", (link_el) self, " y ",
                    (string) self.entra_o_sale(), " por ",
                    (string) self.el_o_ella(), ".^";
-          8: print (The) quien, " intenta abrir con ", (a) self.with_key, " ",
-                   (the) self, ", pero parece que algo l", (o) self,
+          8: print (Link_el_) quien, " intenta abrir con ", (a) self.with_key,
+                   " ", (link_el) self, ", pero parece que algo l", (o) self,
                    " atranca.^";
-          9: print (The) quien, " acciona el pestillo ", (del) self,
+          9: print (Link_el_) quien, " acciona el pestillo ", (link_del) self,
                    " pero algo impide que l", (o) self, " abra.^";
-         10: print (The) quien, " intenta abrir ", (the) self,
+         10: print (Link_el_) quien, " intenta abrir ", (link_el) self,
                    " pero parece atascad", (o) self, " con algo.^";
         }
       } else {
         if (TestScope(self)) {
           new_line;
           switch (res) {
-            0: print (The) quien, " ", (string) self.entra_o_sale(), " por ",
-                     (the) self, ".^";
-            1: print "Oyes abrirse una cerradura, y  ", (the) self, " se abre ",
-                     (string) self.entrando_o_saliendo(), " ", (the) quien,
+            0: print (Link_el_) quien, " ", (string) self.entra_o_sale(),
+                     " por ", (link_el) self, ".^";
+            1: print "Oyes abrirse una cerradura, y  ", (link_el) self,
+                      " se abre ",
+                     (string) self.entrando_o_saliendo(), " ", (link_el) quien,
                      ".^";
-            2, 3, 4, 6, 8, 9, 10: print "Alguien intenta abrir ", (the) self,
+            2, 3, 4, 6, 8, 9, 10: print "Alguien intenta abrir ",
+                                        (link_el) self,
                                         " sin conseguirlo.^";
-            5: print "Oyes descorrer un pestillo, y ", (the) self, " se abre ",
-                     (string) self.entrando_o_saliendo(), " ", (the) quien,
-                     ".^";
-            7: print (The) self, " se abre y ", (string) self.entra_o_sale(),
-                     " ", (the) quien, " por ", (string) self.el_o_ella(), ".^";
+            5: print "Oyes descorrer un pestillo, y ", (link_el) self,
+                     " se abre ", (string) self.entrando_o_saliendo(), " ",
+                     (link_el) quien, ".^";
+            7: print (Link_el_) self, " se abre y ",
+                     (string) self.entra_o_sale(), " ", (link_el) quien,
+                     " por ", (string) self.el_o_ella(), ".^";
           }
         }
       }
@@ -196,11 +199,11 @@ Class PnjPuerta
       if (TestScope(self) || TestScope(quien)) {
         if (x == DEJA_CERRADO && res == 0 or 1 or 5 or 7) {
           new_line;
-          print (The) quien, " cierra ", (the) self, ".^";
+          print (Link_el_) quien, " cierra ", (link_el) self, ".^";
         }
         if (x == DEJA_CERRADO_CON && res == 0 or 1 or 5 or 7) {
           new_line;
-          print (The) quien, " cierra ", (the) self;
+          print (Link_el_) quien, " cierra ", (link_el) self;
           if (self.lado_cierre == parent(quien)) {
             print ".^";
           } else {
@@ -255,7 +258,7 @@ Class PnjPuerta
     before [;
       Open, Close: 
         if (self.bloqueada) {
-          print "^Algo bloquea ", (the) self, " impidiendo que l", (o) self;
+          print "^Algo bloquea ", (link_el) self, " impidiendo que l", (o) self;
           if (action == ##Open) " abras.";
           else                  " cierres.";
         }
@@ -278,9 +281,9 @@ Class PnjPuerta
           rfalse;
         } else {
           if (self provides with_key) {
-            "No hay cerradura a este lado ", (del) self, ".";
+            "No hay cerradura a este lado ", (link_del) self, ".";
           }
-          "No existe pestillo a este lado ", (del) self, ".";
+          "No existe pestillo a este lado ", (link_del) self, ".";
         }
   
       ! El lado_cierre afecta tanto a los Pnjs como al jugador
@@ -294,12 +297,12 @@ Class PnjPuerta
   
         if (self.lado_cierre == 0 or location) {
           if (self provides with_key) {
-            print (The) self, " puede abrirse y cerrarse desde aquí con una
-                                llave.^";
+            print (Link_el_) self,
+                  " puede abrirse y cerrarse desde aquí con una llave.^";
           } else {
             if (self has lockable) {
-              print (The) self, " puede abrirse y cerrarse desde aquí con un
-                                  pestillo.^";
+              print (Link_el_) self,
+                    " puede abrirse y cerrarse desde aquí con un pestillo.^";
             }
           }
         }

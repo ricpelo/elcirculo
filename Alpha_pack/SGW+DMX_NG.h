@@ -1565,6 +1565,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
          openGraphicWindow(bigwin_alto); ! re-abrimos ventana grande (util al cargar partida)
          viewImageSGW();                 ! repintamos ventana grande (si estuviera abierta)
          viewImageSlide(curr_obj_pic,1); ! repintamos ventana chica (si estuviera abierta)
+         if (gg_bigwin) glk_request_mouse_event(gg_bigwin);
          return;
     }
 ];

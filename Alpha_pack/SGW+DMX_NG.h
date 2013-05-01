@@ -1083,7 +1083,8 @@ Default LITEXT  = SCBACK; ! se invierte el color
 
         ! si la imagen no existe...
         if (imagen == 0) { return; } ! terminamos con error
-        if (metaclass(imagen) == Object && ~~(imagen provides sgw_img)) return;
+        if (imagen ofclass Object && (~~(imagen provides sgw_img))) return;
+        if (imagen ofclass Lugar) return;
 
         ! calculamos ancho de la imagen para abrir una ventana apropiada
 !        glk_image_get_info(imagen,gg_arguments,gg_arguments+WORDSIZE);
@@ -1759,7 +1760,7 @@ Default LITEXT  = SCBACK; ! se invierte el color
         2:
           if(action ~= ##Go or ##GoIn or ##Enter or ##Exit or
              ##Subir or ##Bajar && noun provides sgw_img) {
-            if (~~(noun ofclass Lugar)) viewImageSlide(noun);
+            viewImageSlide(noun);
           }
           else {
             closeImageSlide();

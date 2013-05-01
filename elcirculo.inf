@@ -3400,7 +3400,6 @@ Object Menu_Configuracion
 
 
 [ MostrarImagenAuxiliar img;
-  if (img ofclass Object && img ofclass Lugar) rfalse;
   viewImageSlide(img);
 ];
 

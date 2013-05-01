@@ -1058,7 +1058,8 @@ Default LITEXT  = SCBACK; ! se invierte el color
   gg_objwin = 0; ! por si acaso (uno nunca sabe... =P)
   ! intentamos abrir la ventana con ancho suficiente para la imagen
   gg_objwin = glk_window_open(gg_bigwin,
-                              winmethod_Below + winmethod_Proportional,
+                              winmethod_Below + winmethod_Proportional +
+                              winmethod_NoBorder,
                               25, wintype_Graphics, GG_OBJWIN_ROCK);
   glk_request_mouse_event(gg_objwin);
   viewImageSGW();

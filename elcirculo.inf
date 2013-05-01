@@ -2432,7 +2432,8 @@ Object MenuAcciones
           glk_window_close(gg_menuwin, 0);
           closeGraphicWindow();
           gg_menuwin = glk_window_open(gg_mainwin,
-                                       winmethod_Left + winmethod_Fixed,
+                                       winmethod_Left + winmethod_Fixed +
+                                       winmethod_NoBorder,
                                        ANCHO_ACCIONES, wintype_TextGrid,
                                        GG_MENUWIN_ROCK);
         }
@@ -2446,13 +2447,13 @@ Object MenuAcciones
     CerrarVentana [;
       glk_window_close(gg_menuwin, 0);
       gg_menuwin = 0;
-      glk_set_reflow(ZIPI_Configuracion.reflow);
       DrawStatusLine();
       if (self.menu_no_cabe) {
         self.menu_no_cabe = true;
         EncenderGraficos();
       }
       MostrarImagenLocalidad();
+      glk_set_reflow(ZIPI_Configuracion.reflow);
     ],
     ! Muestra el menú de acciones de un objeto:
     RunMenu [ _m top win

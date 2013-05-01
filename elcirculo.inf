@@ -3406,7 +3406,8 @@ Object Menu_Configuracion
 
 [ MostrarImagenLocalidad loc;
   if (~~loc) loc = location;
-  if (loc provides sgw_img) viewImageCenter(loc.sgw_img);
+  viewImageCenter(loc);
+!  if (loc provides sgw_img) viewImageCenter(loc.sgw_img);
 ];
 
 

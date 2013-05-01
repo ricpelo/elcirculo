@@ -1028,22 +1028,22 @@ Default LITEXT  = SCBACK; ! se invierte el color
 ];
 
 ! View an image on the left of the main graphic window
-[ viewImageLeft image;
+[ viewImageLeft image no_clear;
     #ifdef TARGET_GLULX;
       curr_pic = image;
       curr_pic_pos = POS_IZQUIERDA;
-      viewImageSGW();
+      viewImageSGW(no_clear);
     #ifnot; ! COMPILACION PARA MAQUINA Z
       image = image; ! *** EVITA WARNING ***
     #endif;
 ];
 
 ! View an image on the right of the main graphic window
-[ viewImageRight image;
+[ viewImageRight image no_clear;
     #ifdef TARGET_GLULX;
       curr_pic = image;
       curr_pic_pos = POS_DERECHA;
-      viewImageSGW();
+      viewImageSGW(no_clear);
     #ifnot; ! COMPILACION PARA MAQUINA Z
       image = image; ! *** EVITA WARNING ***
     #endif;
@@ -1182,12 +1182,15 @@ Default LITEXT  = SCBACK; ! se invierte el color
 !        ancho_win = gg_arguments-->0;
 !        alto_win  = gg_arguments-->1;
         !-----------------------------------------------------------------------
+        imagen = curr_obj_pic;
+        if (imagen ofclass Object) {
+          if (imagen provides sgw_img) imagen = imagen.sgw_img;
+          else                         return;
+        }
         ! ponemos el color de fondo para la ventana
         glk_window_set_background_color(gg_objwin,SCBACK);
         ! limpiamos la ventana con el color de fondo
         glk_window_clear(gg_objwin);
-        imagen = curr_obj_pic;
-        if (metaclass(imagen) == Object) imagen = imagen.sgw_img;
         drawImageSGW(gg_objwin, imagen, POS_CENTRADO, BORDEWIN, BORDEWIN);
         ! finalmente pintamos la imagen en la posicion que corresponde (y borde)
 !        glk_image_draw(gg_objwin,curr_obj_pic,(ancho_win-BORDEWIN)-pos,(alto_win-alto_img)/2);
@@ -1250,6 +1253,10 @@ Default LITEXT  = SCBACK; ! se invierte el color
         if (glk_gestalt(gestalt_Graphics,0) == 0) { return; } ! no hacemos nada
         ! si no hay ventana o si no hay imagen...
         if (win==0 || img==0) { return; } ! no hacemos nada
+        if (img ofclass Object) {
+          if (img provides sgw_img) img = img.sgw_img;
+          else                      return;
+        }
         !-----------------------------------------------------------------------
         ! averiguamos el tamaño original de la imagen
         glk_image_get_info(img,gg_arguments,gg_arguments+WORDSIZE);

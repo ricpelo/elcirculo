@@ -2419,8 +2419,9 @@ Object MenuAcciones
       if (gg_menuwin) glk_window_close(gg_menuwin, 0);
       if (gg_bigwin) {
         gg_menuwin = glk_window_open(gg_bigwin,
-                                     winmethod_Left + winmethod_Fixed,
-                                     ANCHO_ACCIONES, wintype_TextGrid,
+                                     winmethod_Left + winmethod_Proportional +
+                                     winmethod_NoBorder,
+                                     100, wintype_TextGrid,
                                      GG_MENUWIN_ROCK);
         glk_window_get_size(gg_menuwin, gg_arguments,
                             gg_arguments + WORDSIZE);

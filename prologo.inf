@@ -460,14 +460,15 @@ Object frigorifico_katie "frigorífico" cocina_katie
     when_open [;
       if (~~(self.ya_visto_abierto)) {
         self.ya_visto_abierto = true;
-        "^Ves el ", (link) self, " abierto, como una invitación a lo
+        "Ves el ", (link) self, " abierto, como una invitación a lo
         desconocido."; 
       } else {
-        "^El ", (link) self, " sigue abierto.";
+        "El ", (link) self, " sigue abierto.";
       }
     ],
     before [;
       Open:
+        if (self has open) "El ", (link) self, " ya está abierto.";
         if (self hasnt general) {
           "Abres el ", (link) self, ", observas la comida con nulo interés, y
            vuelves a cerrarlo cuestionándote brevemente el por qué de tu falta

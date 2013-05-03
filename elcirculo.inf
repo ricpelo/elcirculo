@@ -1685,7 +1685,7 @@ Object
     nombre_si_visitado NULL,
     nombre_no_visitado NULL,
     nombre_direccion   NULL,
-    del_mostrar_nombre NULL;
+    del_nombre_link    NULL;
 
 
 Object autoguardador
@@ -3144,14 +3144,14 @@ Object Menu_Configuracion
 
 ! Muestra el nombre de un objeto o localidad con un 'de'/'del' delante:
 [ DelMostrarNombre o flag;
-  if (o provides del_mostrar_nombre) {
-    if (o.del_mostrar_nombre ofclass Routine) {
-      ! La rutina del_mostrar_nombre() deberá encargarse de activar el
+  if (o provides del_nombre_link) {
+    if (o.del_nombre_link ofclass Routine) {
+      ! La rutina del_nombre_link() deberá encargarse de activar el
       ! hipervínculo con glk_set_hyperlink(self) o algo similar:
-      o.del_mostrar_nombre();
+      o.del_nombre_link();
     } else {
       glk_set_hyperlink(o);
-      print (string) o.del_mostrar_nombre;
+      print (string) o.del_nombre_link;
       glk_set_hyperlink(0);
     }
   } else {

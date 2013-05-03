@@ -44,7 +44,7 @@ Object cuarto_katie "Tu habitación"
     name_f 'habitacion',
 !    input_link "habitacion",
     nombre_direccion "tu habitación",
-!    del_nombre_direccion "de tu habitación",
+!    del_nombre_link "de tu habitación",
     adjectives 'tu',
     description [;
       "La pequeña ", (link) "lámpara", " de la ", (link) "mesita",
@@ -109,7 +109,7 @@ Object cocina_katie "Cocina"
     name 'cocina',
 !    input_link "cocina",
 !    nombre_direccion "la cocina",
-!    del_nombre_direccion "de la cocina",
+!    del_nombre_link "de la cocina",
     description [;
       "La cocina, sobria y funcional, es el núcleo central del
        piso inferior, el distribuidor por el que llegar a los
@@ -202,7 +202,7 @@ Object pasillo_katie "Pasillo del piso superior"
     input_link "pasillo",
 !    nombre_link "pasillo",
 !    nombre_direccion "el pasillo",
-!    del_nombre_direccion "del pasillo",
+!    del_nombre_link "del pasillo",
     description [;
       print "Nunca, hasta ahora, el pasillo del piso superior de tu casa
              te había parecido tan oscuro y carente de alma. Una fría
@@ -264,7 +264,7 @@ Object salon_katie "Salón"
     name 'salon' 'salita' 'sala',
     input_link "salón",
 !    nombre_direccion "el salón",
-!    del_nombre_direccion "del salón",
+!    del_nombre_link "del salón",
     description [;
       "El salón de tu casa está claramente dominado por un ",
       (link) tv_salon_katie, " de gran tamaño situado sobre una ",

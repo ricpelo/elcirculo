@@ -144,7 +144,7 @@ Class TipoDeSonido
     ! Cuando el sonido proviene de un objeto que el jugador puede ver:
     suena_aqui [ contenido;
       print (The) contenido.origen, " ", (string) VR(self.verbo_emitir),
-            " ", (name) self, ".^";
+            " ", (the) self, ".^";
     ],
     ! Rutina que devuelve un texto indicando nada, 'lejana' o 'muy lejana' según
     ! si la fuente se ve y su intensidad sonora:
@@ -223,19 +223,19 @@ Class TipoDeSonido
               if (self.suena_aqui ~= 0) self.suena_aqui(contenido);
               else print (The) contenido.origen, " ",
                          (string) VR(self.verbo_emitir),
-                         " ", (name) self, ".^";
+                         " ", (the) self, ".^";
               rfalse;
             }
           } else {
             ! No se ve directamente
             if ((VR(self.usar_direccion)) && (contenido.se_escucha_en ~= 0)) {
               ! pero se sabe de donde
-              print (string) VR(self.verbo_oir), " ", (name) self;
+              print (string) VR(self.verbo_oir), " ", (the) self;
               if (texto_distancia ~= 0) print " ", (string) VR(texto_distancia);
               print " proveniente ", (DireccionSonido) contenido.se_escucha_en;
             } else {
               ! y no se sabe de donde
-              print (string) VR(self.verbo_oir), " ", (name) self;
+              print (string) VR(self.verbo_oir), " ", (the) self;
               if (texto_distancia ~= 0) print " ", (string) VR(texto_distancia);
               print " proveniente de no se sabe dónde";
             }
@@ -245,7 +245,7 @@ Class TipoDeSonido
           if (VR(self.usar_potencia)) {
             texto_potencia = self.di_potencia(contenido.intensidad,
                                               contenido.modo, _esVoz);
-            if (texto_potencia ~= 0) print (string)VR(texto_potencia), ".^";
+            if (texto_potencia ~= 0) print (string) VR(texto_potencia), ".^";
             else                     print ".^";
           } else {
             print ".^";
@@ -431,7 +431,6 @@ Class Ruido
   class TipoDeSonido
   with
     name 'sonido',
-    articles 0 0 0,
     frase 0,          ! Texto que se dice permanentemente
     intensidad 0,     ! Nivel con el que se habla
     origen 0,         ! Objeto que lo produce
@@ -518,7 +517,7 @@ Class Ruido
       rtrue;
     ],
     mensaje_iniciar [;
-      print "Empiezas a oir ", (name) self, ".^";
+      print "Empiezas a oir ", (the) self, ".^";
     ],
     iniciar [ no_decir_nada;
       if (~~self.sonando) {
@@ -531,7 +530,7 @@ Class Ruido
       }
     ],
     mensaje_detener [;
-      print "Dejas de oir ", (name) self, ".^";
+      print "Dejas de oir ", (the) self, ".^";
     ],
     detener [ no_decir_nada;
       if (self.sonando) {
@@ -555,7 +554,7 @@ Class Ruido
             rfalse;
           }
         } else {
-          "No puedes oir ", (name) self, " por aquí cerca.";
+          "No puedes oir ", (the) self, " por aquí cerca.";
         }
 
       default:
@@ -988,7 +987,7 @@ Object tipo_plano
     for (ind_rud = 1 : ind_rud <= indice_ruidos : ind_rud++) {
       i = tabla_ruidos-->ind_rud;
       if ((i.sonando) && (i.origen == noun)) {
-        "Parece que ", (the) noun, " ", VR(i.verbo_emitir), " ", (name) i, ".";
+        "Parece que ", (the) noun, " ", VR(i.verbo_emitir), " ", (the) i, ".";
       }
     }
 
@@ -1149,7 +1148,7 @@ Object tipo_plano
       indice_lugares++;
       tabla_lugares-->indice_lugares = i;
     } else {
-      print "ERROR: superado el límite de lugares; ", (name) i,
+      print "ERROR: superado el límite de lugares; ", (the) i,
             " no podrá ser usada como lugar de sonidos.^";
     }
   }

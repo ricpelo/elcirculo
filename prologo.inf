@@ -1099,7 +1099,7 @@ Object timer_telefono_katie
 !    volumen_principal VOLUMEN_TELEFONO;
 
 
-Object sonido_telefono_katie "el sonido de un teléfono"
+Object sonido_telefono_katie "sonido de un teléfono"
   class Ruido
   with
     adjectives 'telefono',
@@ -1168,22 +1168,20 @@ Object sonido_telefono_katie "el sonido de un teléfono"
     ];
 
 
-Object sonido_tv_cuarto_katie "un sonido de estática"
+Object sonido_tv_cuarto_katie "sonido de estática"
   class Ruido
   with
-!    found_in salon_katie pasillo_katie,
+    articles "Un" "un" "un",
     emision TV_Ruido_ogg, 
     canal CANAL_TV_CUARTO,
     origen tv_cuarto_katie,
     intensidad NIVEL_ALTO,
     volumen_principal VOLUMEN_TV_CUARTO;
-!    propagacion 2;
 
 
-Object sonido_tv_salon_katie "el sonido de un televisor"
+Object sonido_tv_salon_katie "sonido de un televisor"
   class Ruido
   with
-!    found_in salon_katie cocina_katie pasillo_katie,
     emision TV_Ruido_ogg,
     ! No se describe cuando está sonando aquí mismo, porque usaremos nuestras
     ! propias descripciones:
@@ -1192,7 +1190,6 @@ Object sonido_tv_salon_katie "el sonido de un televisor"
     origen tv_salon_katie,
     intensidad NIVEL_ALTO,
     volumen_principal VOLUMEN_TV_SALON;
-!    propagacion 2;
 
 
 !Object msg_becca

@@ -274,6 +274,9 @@ Replace LMode3Sub;
 ! Usamos el ParseNoun de IntNombre_NG:
 Replace ParseNoun;
 
+! Nuestra versión pone hipervínculos automáticamente:
+Replace PSN__;
+
 ! Nuestra versión elimina también los signos de admiración e interrogación:
 Replace QuitarAcentos;
 
@@ -1333,6 +1336,34 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
 [ LMode3Sub;
    print_ret (s_emph) "[Modo deshabilitado.]";
+];
+
+
+! Modificado para que ponga hipervínculos automáticamente:
+[ PSN__ o
+  ret;
+  if (o == 0) { print (string) NOTHING__TX; rtrue; }
+  switch (metaclass(o)) {
+    Routine:  print "<routine ", o, ">"; rtrue;
+    String:   print "<string ~", (string) o, "~>"; rtrue;
+    nothing:  print "<illegal object number ", o, ">"; rtrue;
+  }
+  if (o == player) { print (string) YOURSELF__TX; rtrue; }
+  #Ifdef LanguagePrintShortName;
+  if (LanguagePrintShortName(o)) rtrue;
+  #Endif; ! LanguagePrintShortName
+  if (indef_mode && o.&short_name_indef ~= 0 &&
+      PrintOrRun(o, short_name_indef, 1) ~= 0) rtrue;
+  glk_set_hyperlink(o);
+  if (o.&short_name ~= 0) {
+    ret = PrintOrRun(o, short_name, 1);
+    if (ret ~= 0) {
+      glk_set_hyperlink(0);
+      rtrue;
+    }
+  }
+  print (object) o;
+  glk_set_hyperlink(0);
 ];
 
 
@@ -3949,7 +3980,7 @@ Verb meta 'tt'
 !  PrefaceByArticle(puerta_katie, 1, -1); new_line;   ! DefArt(obj);
 !  PrefaceByArticle(puerta_katie, 2, -1, 1); new_line;! CInDefArt(obj);
 !  PrefaceByArticle(puerta_katie, 2, -1); new_line;   ! IndefArt(obj);
-  VozLejana("Hola");
+!  VozLejana("Hola");
   "Saludas cordialmente.";
 ];
 

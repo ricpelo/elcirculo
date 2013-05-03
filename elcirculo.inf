@@ -1677,15 +1677,19 @@ Class Personaje
 ! ====================================================================
 
 
-! Lugar necesario para que no haya errores al compilar si no hay localidades
-! definidas con ciertas propiedades:
+! Objeto necesario para que no haya errores al compilar si no hay objetos
+! definidos con ciertas propiedades:
 Object
-  class Lugar
   with
     nombre_si_visitado NULL,
     nombre_no_visitado NULL,
     nombre_direccion   NULL,
-    del_nombre_link    NULL;
+    del_nombre_link    NULL,
+    ! Esta rutina no se usa. Sólo la pongo para evitar un warning, ya que la
+    ! rutina VozLejana() de la librería de Sonidos no se usa:
+    dummy [;
+      VozLejana("dummy");
+    ];
 
 
 Object autoguardador

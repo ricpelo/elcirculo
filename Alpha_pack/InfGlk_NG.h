@@ -1108,6 +1108,14 @@ Constant config_Cols        11;
   return ret;
 ];
 
+! Muestra un vídeo usando mplayer:
+[ glk_mplayer _vararg_count ret;
+  ! glk_mplayer (video)
+  ! And now the @glk call
+  @glk $FFF2 _vararg_count ret;
+  return ret;
+];
+
 ! ====================================================================
 ! FIN DE LAS EXTENSIONES DE ALPHA AVENTURAS
 ! ====================================================================

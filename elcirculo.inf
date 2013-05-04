@@ -3986,7 +3986,13 @@ Verb meta 'tt'
 !  PrefaceByArticle(puerta_katie, 2, -1, 1); new_line;! CInDefArt(obj);
 !  PrefaceByArticle(puerta_katie, 2, -1); new_line;   ! IndefArt(obj);
 !  VozLejana("Hola");
+  glk_mplayer(ChangeAnyToCString(VideoPepe));
   "Saludas cordialmente.";
+];
+
+
+[ VideoPepe;
+  print "pepe.avi";
 ];
 
 

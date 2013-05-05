@@ -91,6 +91,7 @@ Verb 'diario'
 
 [ DiarioSub;
   ControlTimer.PausarTick();
+  closeImageSlide();
   viewImageCenter(Logo_Alpha_Aventuras_jpg);
   MiDiario.select(MiDiario.last_page);
   glk_window_close(gg_conversawin, 0);

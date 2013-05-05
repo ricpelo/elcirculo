@@ -365,6 +365,28 @@ Include "Parser";
       if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Principal o de estado
       .HayObjeto;
         glk_cancel_line_event(gg_mainwin, gg_event);
+        if (obj == Menu_Importantes) {
+          buffer-->0 = gg_event-->2;
+          MenuAcciones.AbrirVentana();
+          r = MenuAcciones.MostrarAcciones(obj);
+          MenuAcciones.CerrarVentana();
+          if (r) {
+            glk_set_style(style_Input);
+            r = r.ZIPI_ejecutar();
+            PrintAnything(r);
+            new_line;
+            glk_set_style(style_Normal);
+            long = PrintAnyToArray(buffer + WORDSIZE,
+                                   INPUT_BUFFER_LEN - WORDSIZE,
+                                   r);       ! El verbo
+            buffer-->0 = long;
+            return 2;
+          } else {
+            glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
+                                   INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
+            return 1;
+          }
+        } ! (obj == Menu_Importantes)
         if (gg_event-->2 == 0) {          ! Si no hay nada escrito
           if (obj ofclass Object) {       ! Si es un objeto (no una cadena)
             ! ¿Es punto cardinal? ¿Es localidad adyacente? Mostrar la orden
@@ -383,26 +405,6 @@ Include "Parser";
                                      INPUT_BUFFER_LEN - WORDSIZE, "m");
               buffer-->0 = long;
               return 2;
-            } else if (obj == Menu_Importantes) {
-              MenuAcciones.AbrirVentana();
-              r = MenuAcciones.MostrarAcciones(obj);
-              MenuAcciones.CerrarVentana();
-              if (r) {
-                glk_set_style(style_Input);
-                r = r.ZIPI_ejecutar();
-                PrintAnything(r);
-                new_line;
-                glk_set_style(style_Normal);
-                long = PrintAnyToArray(buffer + WORDSIZE,
-                                       INPUT_BUFFER_LEN - WORDSIZE,
-                                       r);       ! El verbo
-                buffer-->0 = long;
-                return 2;
-              } else {
-                glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                       INPUT_BUFFER_LEN - WORDSIZE, 0);
-                return 1;
-              }
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               MostrarImagenAuxiliar(obj);
               MenuAcciones.AbrirVentana();

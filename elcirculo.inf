@@ -136,10 +136,11 @@ Constant SGW_CON_DAMUSIX;
 Constant SONIDO_REPETIR = -1;
 
 ! Constantes para los gestores de timer:
-Constant TIMER_TICK = 1000;
-Constant TIMER_DURACION_BECCA = 5;
-Constant TIMER_DURACION_IMAGEN_PERSONAJE = 4;
-Constant TIMER_DURACION_TLF_KATIE = 6;
+Constant TIMER_TICK = 10;
+Constant TIMER_DURACION_BECCA = 500;
+Constant TIMER_DURACION_IMAGEN_PERSONAJE = 400;
+Constant TIMER_DURACION_TLF_KATIE = 600;
+Constant TIMER_DURACION_IMAGEN_LOCALIDAD = 1;
 
 
 ! ====================================================================
@@ -1098,6 +1099,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
 
   timer_telefono_katie.AsignarGestor(1);
   timer_becca.AsignarGestor(2);
+  timer_imagen_localidad.AgregarGestorAlFinal();
   ControlTimer.ActivarTick(TIMER_TICK);
 
   PNJ_Ruta(becca, MOVIMIENTO_PERSEGUIR, katie);
@@ -1635,6 +1637,7 @@ Class Personaje
       timer_imagen_personaje.ocultar_imagen();
       viewImageCenter(self.imagen);
       timer_imagen_personaje.AgregarGestorAlFinal();
+      timer_imagen_localidad.DesactivarGestor();
       give timer_imagen_personaje general;
     ],
     after [;
@@ -1740,7 +1743,61 @@ Object timer_imagen_personaje
     evento [;
       give self ~general;
       self.EliminarGestor();
-      MostrarImagenLocalidad();
+      timer_imagen_localidad.ActivarGestor();
+      !MostrarImagenLocalidad();
+    ];
+
+
+Object timer_imagen_localidad
+  class GestorTimer
+  with
+    duracion TIMER_DURACION_IMAGEN_LOCALIDAD,
+    px 0,
+    py 0,
+    deltax -1,
+    deltay -1,
+    condicion [;
+      return location provides sgw_img && gg_bigwin;
+    ],
+    evento [
+      img img_w img_h win_w win_h;
+      img = location.sgw_img;
+      glk_image_get_info(img, gg_arguments, gg_arguments + WORDSIZE);
+      img_w = gg_arguments-->0;
+      img_h = gg_arguments-->1;
+      glk_window_get_size(gg_bigwin, gg_arguments, gg_arguments + WORDSIZE);
+      win_w = (gg_arguments-->0);
+      win_h = (gg_arguments-->1);
+      if (img_w > win_w) {
+        if (self.deltax == -1) {
+          if (self.px + img_w < win_w) {
+            self.deltax = 1;
+          }
+        } else {
+          if (self.px == 0) {
+            self.deltax = -1;
+          }
+        }
+      } else {
+        self.deltax = 0;
+      }
+      if (img_h > win_h) {
+        if (self.deltay == -1) {
+          if (self.py + img_h < win_h) {
+            self.deltay = 1;
+          }
+        } else {
+          if (self.py == 0) {
+            self.deltay = -1;
+          }
+        }
+      } else {
+        self.deltay = 0;
+      }
+      glk_window_clear(gg_bigwin);
+      glk_image_draw(gg_bigwin, location.sgw_img, self.px, self.py);
+      self.px = self.px + self.deltax;
+      self.py = self.py + self.deltay;
     ];
 
 

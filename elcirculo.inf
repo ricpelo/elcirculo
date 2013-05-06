@@ -2541,7 +2541,7 @@ Object MenuAcciones
       gg_menuwin = 0;
       DrawStatusLine();
       if (self.menu_no_cabe) {
-        self.menu_no_cabe = true;
+        self.menu_no_cabe = false;
         EncenderGraficos();
       }
       MostrarImagenLocalidad();

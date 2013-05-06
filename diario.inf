@@ -28,7 +28,7 @@
 ! ====================================================================
 
 
-Object MiDiario "Diario de Rachel"
+Object mi_diario "Diario de Rachel"
   class Diary
   with
     short_name "Diario de Rachel",
@@ -40,11 +40,11 @@ Object MiDiario "Diario de Rachel"
     ];
 
 
-Object pagina_contenidos "Contenidos" MiDiario
+Object pagina_contenidos "Contenidos" mi_diario
   class ContentsPage;
 
 
-Object p1 "24 de febrero" MiDiario
+Object p1 "24 de febrero" mi_diario
   class DiaryEntry
   with
     short_name "24 de febrero";
@@ -63,7 +63,7 @@ Object diario_ticket p1
                  fotos.";
 
 
-Object p2 "18 de marzo" MiDiario
+Object p2 "18 de marzo" mi_diario
   class DiaryEntry
   with
     short_name "18 de marzo";
@@ -93,7 +93,7 @@ Verb 'diario'
   ControlTimer.PausarTick();
   closeImageSlide();
   viewImageCenter(Logo_Alpha_Aventuras_jpg);
-  MiDiario.select(MiDiario.last_page);
+  mi_diario.select(mi_diario.last_page);
   glk_window_close(gg_conversawin, 0);
   gg_conversawin = 0;
   if (hayGraficos) {

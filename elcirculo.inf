@@ -466,7 +466,7 @@ Include "Parser";
   SGW_HandleGlk(ev);
   ControlTimer.CT_HandleGlkEvent(ev, context, buffer);
   Mapa_HandleGlkEvent(ev, context, buffer);
-  midiario.Diary_HandleGlkEvent(ev, context, buffer);
+  mi_diario.Diary_HandleGlkEvent(ev, context, buffer);
 ];
 
 
@@ -3872,7 +3872,7 @@ Verb meta 'tt'
 !  diario_llave.update();
 !  diario_ticket.update();  
 !  diario_amigos.update();
-!  midiario.update(p2, 1);
+!  mi_diario.update(p2, 1);
   "Emites un sonoro grito, pero nadie responde.";
 ];
 

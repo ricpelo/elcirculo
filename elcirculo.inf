@@ -3164,11 +3164,13 @@ Object Menu_Configuracion
   l o dest;
   l = LugarReal();
   objectloop (o in Compass) {
-    dest = l.(o.door_dir);
-    if (dest == conex) return o;
-    else if (dest has door && dest has open &&
-             dest provides (o.door_dir) &&
-             dest.(o.door_dir) == conex) return dest;
+    if (l provides (o.door_dir)) {
+      dest = l.(o.door_dir);
+      if (dest == conex) return o;
+      else if (dest has door && dest has open &&
+               dest provides (o.door_dir) &&
+               ValueOrRun(dest, (o.door_dir)) == conex) return dest;
+    }
   }
   rfalse;
 ];

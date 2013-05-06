@@ -3158,7 +3158,7 @@ Object Menu_Configuracion
 ];
 
 
-! Si dest es una localidad adyacente a la actual, devuelve la dirección en la
+! Si conex es una localidad adyacente a la actual, devuelve la dirección en la
 ! que se encuentra:
 [ ConexionLocalidad conex
   l o dest;
@@ -3167,6 +3167,7 @@ Object Menu_Configuracion
     dest = l.(o.door_dir);
     if (dest == conex) return o;
     else if (dest has door && dest has open &&
+             dest provides (o.door_dir) &&
              dest.(o.door_dir) == conex) return dest;
   }
   rfalse;

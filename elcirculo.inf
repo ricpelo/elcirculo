@@ -2411,9 +2411,7 @@ Object MenuAcciones
     ! Si top == true, no se muestra la opción de "[Q] Salir":
     MostrarAcciones [ obj top
       r;
-      if (gg_menuwin == 0) self.AbrirVentana();
       ControlTimer.PausarTick();
-      glk_set_window(gg_menuwin);
       glk_cancel_hyperlink_event(gg_mainwin);    ! Durante el menú, desactiva
       glk_cancel_hyperlink_event(gg_statuswin);  ! enlaces de otras ventanas
       r = self.RunMenu(obj, top);
@@ -2422,7 +2420,7 @@ Object MenuAcciones
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
       glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
       ControlTimer.ReanudarTick();
-      self.CerrarVentana();
+      if (gg_menuwin ~= 0) self.CerrarVentana();
       return r;
     ],
     menu_no_cabe false,
@@ -2506,7 +2504,17 @@ Object MenuAcciones
       }
 
       cur = 0;
-      if (win == 0) win = gg_menuwin;
+
+      if (win == 0) {
+        ! Atrasamos al máximo el momento de abrir la ventana, para no tener
+        ! que hacer la acción de abrirla, cerrarla y pintar el gráfico de la
+        ! localidad sin necesidad (por ejemplo, si sólo está la opción de
+        ! examinar):
+        self.AbrirVentana();
+        win = gg_menuwin;
+      }
+
+      glk_set_window(win);
 
       for (::) {
         glk_window_get_size(win, gg_arguments, gg_arguments + WORDSIZE);

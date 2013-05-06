@@ -804,6 +804,15 @@ Object LibraryMessages
              ".";
         }
 
+      Open:
+        switch (lm_n) {
+          5: if (lm_o has door && lm_o.door_to() hasnt visited) {
+               print "Abres ", (the) lm_o, ", lo que te da acceso ";
+               AlMostrarNombre(lm_o.door_to());
+               ".";
+             }
+        }
+
       Prompt:
         new_line;
         ImprimirPrompt();
@@ -826,7 +835,7 @@ Object LibraryMessages
              DelMostrarNombre(lm_o);
              ".";
         }
-        
+
       Take:
         if (lm_n == 1) {
           print "Reco";
@@ -1657,6 +1666,7 @@ Object
     nombre_no_visitado NULL,
     nombre_direccion   NULL,
     del_nombre_link    NULL,
+    al_nombre_link     NULL,
     ! Esta rutina no se usa. Sólo la pongo para evitar un warning, ya que la
     ! rutina VozLejana() de la librería de Sonidos no se usa:
     dummy [;
@@ -3018,6 +3028,43 @@ Object Menu_Configuracion
 !===============================================================================
 ! (9) Otras Rutinas Reemplazadas; Rutinas Propias del Juego
 !-------------------------------------------------------------------------------
+
+
+! Muestra el nombre de un objeto o localidad con un 'al'/'a' delante:
+[ AlMostrarNombre o flag;
+  if (o provides al_nombre_link) {
+    if (o.al_nombre_link ofclass Routine) {
+      ! La rutina al_nombre_link() deberá encargarse de activar el
+      ! hipervínculo con glk_set_hyperlink(self) o algo similar:
+      o.al_nombre_link();
+    } else {
+      glk_set_hyperlink(o);
+      print (string) o.al_nombre_link;
+      glk_set_hyperlink(0);
+    }
+  } else {
+    if (flag) print "A";
+    else      print "a";
+    if (o has proper) {
+      print " ";
+      glk_set_hyperlink(o);
+      MostrarNombre(o);
+      glk_set_hyperlink(0);
+    } else {
+      PrintAnyToArray(texto_impreso, 50, ArticuloPrevio, o);
+      ! Si NO ES articulo "el", agregar 'e' y un espacio:
+      if (texto_impreso->0 == 'e') print "l ";
+      else {
+        print " ";
+        ArticuloPrevio(o);
+      }
+      glk_set_hyperlink(o);
+      MostrarNombre(o, 2);
+      glk_set_hyperlink(0);
+    }
+  }
+  return "";
+];
 
 
 [ AntesReflow

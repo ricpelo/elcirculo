@@ -806,11 +806,9 @@ Object LibraryMessages
 
       Open:
         switch (lm_n) {
-          5: if (lm_o has door && lm_o.door_to() hasnt visited) {
-               print "Abres ", (the) lm_o, ", lo que te da acceso ";
-               AlMostrarNombre(lm_o.door_to());
-               ".";
-             }
+          5: if (lm_o has door && lm_o.door_to() hasnt visited)
+               "Abres ", (the) lm_o, ", lo que te da acceso ",
+               (link_al) lm_o.door_to(), ".";
         }
 
       Prompt:
@@ -832,8 +830,7 @@ Object LibraryMessages
              } else {
                print "No ", (puedes_) " pasar a través ";
              }
-             DelMostrarNombre(lm_o);
-             ".";
+             print_ret (link_del) lm_o, ".";
         }
 
       Take:
@@ -3459,6 +3456,11 @@ Object Menu_Configuracion
 
 [ Link_ obj msg;
   return link_general(obj, msg, 2, 1);
+];
+
+
+[ link_al obj;
+  return AlMostrarNombre(obj);
 ];
 
 

@@ -367,9 +367,7 @@ Include "Parser";
         glk_cancel_line_event(gg_mainwin, gg_event);
         if (obj == Menu_Importantes) {
           buffer-->0 = gg_event-->2;
-          MenuAcciones.AbrirVentana();
           r = MenuAcciones.MostrarAcciones(obj);
-          MenuAcciones.CerrarVentana();
           if (r) {
             glk_set_style(style_Input);
             r = r.ZIPI_ejecutar();
@@ -407,9 +405,7 @@ Include "Parser";
               return 2;
             } else { ! Es objeto, no punto cardinal ni lugar actual o adyacente
               MostrarImagenAuxiliar(obj);
-              MenuAcciones.AbrirVentana();
               r = MenuAcciones.MostrarAcciones(obj);
-              MenuAcciones.CerrarVentana();
               if (r) { ! Si se ha escogido una opción en el menú:
                 glk_cancel_line_event(gg_mainwin, gg_event);
                 if (r hasnt general) {    ! Si no hay que continuar escribiendo
@@ -2506,6 +2502,7 @@ Object MenuAcciones
       glk_request_hyperlink_event(gg_statuswin); ! enlaces de otras ventanas
       glk_request_hyperlink_event(gg_menuwin);   ! incluyendo la de menú
       ControlTimer.ReanudarTick();
+      self.CerrarVentana();
       return r;
     ],
     menu_no_cabe false,
@@ -2601,7 +2598,7 @@ Object MenuAcciones
 
         if (_m provides ZIPI_titulo) {
           glk_set_style(style_Input);
-          print " ", (string) _m.ZIPI_titulo, "^";
+          print " "; PrintOrRun(_m, ZIPI_titulo, 1); new_line;
           glk_set_style(style_Normal);
         } else {
           glk_set_style(style_Input);

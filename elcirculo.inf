@@ -332,36 +332,6 @@ Include "Parser";
       glk_request_hyperlink_event(ev-->1);  ! ev-->1 es la ventana
       if (context == 1) return 1;  ! character input request, no se hace nada
       obj = ev-->2;                ! ev-->2 es el número de hyperlink
-
-      if (ev-->1 == gg_menuwin) {  ! Ventana del menú de acciones
-        glk_cancel_line_event(gg_mainwin, gg_event);
-        if (obj hasnt general) {    ! Si no hay que continuar escribiendo
-          glk_set_style(style_Input);
-          PrintAnything(obj.ZIPI_ejecutar());
-          new_line;
-          glk_set_style(style_Normal);
-        }
-        ! Los casos de save y restore hay que tratarlos aparte, porque tienden
-        ! a repetir el input del jugador en pantalla, no sé por qué:
-        if (obj == Menu_Save or Menu_Restore) {
-          if (obj == Menu_Save) SaveSub();
-          else                  RestoreSub();
-          buffer-->0 = 0;
-          return 2; ! Se simula la pulsación de Intro con input vacío
-        }
-        long = PrintAnyToArray(buffer + WORDSIZE,
-                               INPUT_BUFFER_LEN - WORDSIZE,
-                               obj.ZIPI_ejecutar());
-        buffer-->0 = long;
-        if (obj has general) {
-          glk_request_line_event(gg_mainwin, buffer + WORDSIZE,
-                                 INPUT_BUFFER_LEN - WORDSIZE, buffer-->0);
-          return 1; ! Seguimos escribiendo
-        } else {
-          return 2; ! No seguimos escribiendo: Intro
-        }
-      }
-
       if (ev-->1 == gg_mainwin or gg_statuswin) {  ! Principal o de estado
       .HayObjeto;
         glk_cancel_line_event(gg_mainwin, gg_event);

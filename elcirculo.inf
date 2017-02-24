@@ -1028,6 +1028,7 @@ Include "Timer";            ! Mi librería de eventos temporizados
                                  1, wintype_TextGrid, GG_STATUSWIN_ROCK);
   if (hayGraficos) EncenderGraficos();
 
+  glk_menu_hyperlink_setup(Menu_Importantes);
   ! Los eventos hay que iniciarlos aquí, y no en IniciarAventura
   ! (no sé por qué, pero si lo pones en IniciarAventura, no funciona):
   glk_request_hyperlink_event(gg_mainwin);

@@ -3925,28 +3925,17 @@ Verb meta 'tt'
        ExtenderVentanaEstado();
 
        for (i = 0 : i < DAMUSIX_NCANALMAX : i++) {
-         sonidosSonando->i = Damusix.SonandoDeFondoCanal(i);
-         Damusix.PararCanal(i);
+         if (i ~= CANAL_FONDO) {
+           sonidosSonando->i = Damusix.SonandoDeFondoCanal(i);
+           Damusix.PararCanal(i);
+         }
        }
 
-       Damusix.AsignarCanal(Darkwalk_ogg, CANAL_FONDO,
-                            Damusix.QueVolumenCanal(CANAL_FONDO), 
-                            SONIDO_REPETIR);
-       Damusix.TocarCanal(CANAL_FONDO);
-       
+
        ZIPI_Empezar();
-       
+
        for (i = 0 : i < DAMUSIX_NCANALMAX : i++) {
          if ((i ~= CANAL_FONDO) && (sonidosSonando->i)) Damusix.TocarCanal(i);
-       }
-
-       if ((sonidosSonando->CANAL_FONDO) && (LugarReal() provides sgw_mus)) {
-         Damusix.AsignarCanal(LugarReal().sgw_mus, CANAL_FONDO,
-                              Damusix.QueVolumenCanal(CANAL_FONDO),
-                              SONIDO_REPETIR);
-         Damusix.TocarCanal(CANAL_FONDO);
-       } else {
-         Damusix.PararCanal(CANAL_FONDO);
        }
 
        StatusLineHeight(1);
